@@ -1,0 +1,57 @@
+name: Yampa
+version: 0.9.2.3
+cabal-Version: >= 1.2
+license: BSD3
+license-file: LICENSE
+author: Henrik Nilsson, Antony Courtney
+maintainer: George Giorgidze (GGG at CS dot NOTT dot AC dot UK)
+homepage: http://www.haskell.org/yampa/
+category: Reactivity, FRP
+synopsis: Library for programming hybrid systems.
+description: Domain-specific language embedded in Haskell for programming hybrid (mixed discrete-time and continuous-time) systems.
+             Yampa is based on the concepts of Functional Reactive Programming (FRP) and is structured using arrow combinators.
+build-type: Simple
+Tested-With:        GHC
+Extra-Source-Files:
+  README-1ST.txt
+
+  tests/AFRPTests.hs,         tests/AFRPTestsCommon.hs,        tests/AFRPTestsArr.hs,
+  tests/AFRPTestsComp.hs,     tests/AFRPTestsFirstSecond.hs,   tests/AFRPTestsLaws.hs,
+  tests/AFRPTestsLoop.hs,     tests/AFRPTestsLoopLaws.hs,      tests/AFRPTestsBasicSF.hs,
+  tests/AFRPTestsSscan.hs,    tests/AFRPTestsEvSrc.hs,         tests/AFRPTestsCOC.hs,
+  tests/AFRPTestsSwitch.hs,   tests/AFRPTestsKSwitch.hs,       tests/AFRPTestsRSwitch.hs,
+  tests/AFRPTestsPSwitch.hs,  tests/AFRPTestsRPSwitch.hs,      tests/AFRPTestsWFG.hs,
+  tests/AFRPTestsAccum.hs,    tests/AFRPTestsPre.hs,           tests/AFRPTestsDelay.hs,
+  tests/AFRPTestsDer.hs,      tests/AFRPTestsLoopPre.hs,       tests/AFRPTestsLoopIntegral.hs,
+  tests/AFRPTestsReact.hs,    tests/AFRPTestsEmbed.hs,         tests/AFRPTestsUtils.hs,
+  tests/AFRPTestsTask.hs,     tests/testAFRPMain.hs,
+  tests/Setup.lhs,            tests/testAFRP.cabal,
+
+  examples/Setup.lhs,         examples/examples.cabal,
+  examples/Elevator/Elevator.hs,
+  examples/Elevator/TestElevatorMain.hs,
+  examples/TailgatingDetector/TailgatingDetector.hs,
+  examples/TailgatingDetector/TestTGMain.hs
+
+library
+  hs-source-dirs:  src
+  ghc-options : -O2 -Wall -fno-warn-name-shadowing
+  build-Depends: base, random
+  exposed-modules:
+    FRP.Yampa
+    FRP.Yampa.AffineSpace
+    FRP.Yampa.Event
+    FRP.Yampa.Geometry
+    FRP.Yampa.MergeableRecord
+    FRP.Yampa.Point2
+    FRP.Yampa.Utilities
+    FRP.Yampa.Vector3
+    FRP.Yampa.Forceable
+    FRP.Yampa.Point3
+    FRP.Yampa.Vector2
+    FRP.Yampa.VectorSpace
+    FRP.Yampa.Miscellany
+    FRP.Yampa.Task
+    FRP.Yampa.Internals
+  other-modules:
+    FRP.Yampa.Diagnostics
