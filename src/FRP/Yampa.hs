@@ -3169,9 +3169,8 @@ reactInit init actuate (SF {sfTF = tf0}) =
      let (sf,b0) = tf0 a0
      -- TODO: really need to fix this interface, since right now we
      -- just ignore termination at time 0:
-     r <- newIORef (ReactState {rsActuate = actuate, rsSF = sf,
-				rsA = a0, rsB = b0 })
-     done <- actuate r True b0
+     r <- newIORef (ReactState {rsActuate = actuate, rsSF = sf, rsA = a0, rsB = b0 })
+     _ <- actuate r True b0
      return r
 
 -- process a single input sample:
@@ -3179,10 +3178,7 @@ react :: ReactHandle a b
       -> (DTime,Maybe a)
       -> IO Bool
 react rh (dt,ma') = 
-  do rs@(ReactState {rsActuate = actuate,
-	             rsSF = sf,
-		     rsA = a,
-		     rsB = b }) <- readIORef rh
+  do rs@(ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b }) <- readIORef rh
      let a' = maybe a id ma'
          (sf',b') = (sfTF' sf) dt a'
      writeIORef rh (rs {rsSF = sf',rsA = a',rsB = b'})

@@ -19,19 +19,7 @@
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Internals (
-    Event(..)		-- The event type, its constructors, and instances.
+    Event(..)
 ) where
 
 import FRP.Yampa.Event
-
-
-------------------------------------------------------------------------------
--- Extra Event instances
-------------------------------------------------------------------------------
-
-instance Show a => Show (Event a) where
-    showsPrec d NoEvent   = showString "NoEvent"
-    showsPrec d (Event a) = showParen (d >= 10)
-				      (showString "Event " . showsPrec 10 a)
-
-

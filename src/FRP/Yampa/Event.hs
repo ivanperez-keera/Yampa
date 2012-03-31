@@ -94,10 +94,7 @@ infixl 6 `lMerge`, `rMerge`, `merge`
 -- Also note that it unfortunately is possible to partially break the
 -- abstractions through judicious use of e.g. snap and switching.
 
-data Event a = NoEvent
-	     | Event a
---             deriving Show
-
+data Event a = NoEvent | Event a deriving (Show)
 
 -- Make the NoEvent constructor available. Useful e.g. for initialization,
 -- ((-->) & friends), and it's easily available anyway (e.g. mergeEvents []).
