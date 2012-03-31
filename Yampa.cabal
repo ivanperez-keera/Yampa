@@ -1,6 +1,6 @@
 name: Yampa
 version: 0.9.3
-cabal-version: >= 1.2
+cabal-version: >= 1.6
 license: BSD3
 license-file: LICENSE
 author: Henrik Nilsson, Antony Courtney
