@@ -1,3 +1,5 @@
+{-# LANGUAGE Arrows #-}
+
 {-
 ******************************************************************************
 *                                  A F R P                                   *
@@ -86,14 +88,13 @@ testMTGD :: Time -> [(Time, (Event [(Id,Id)], [(Id, Car)]))]
 testMTGD t_max = filter (isEvent . fst . snd) $
                  takeWhile (\(t, _) -> t <= t_max) $
                  embed (localTime
-                        &&& (proc _ -> do
-			         s           <- uavStatus      -< ()
-                                 h           <- highway        -< ()
-                                 (v, ect)    <- mkVideoAndTrackers -< (h, s)
-                                 (ics, etgs) <- findTailgaters -< (v,s,ect) 
-				 etgs        <- mtgd           -< ics
-			         returnA -< (etgs, ics)))
-	        (deltaEncode smplPer (repeat ()))
+                        &&& (proc _ -> do s           <- uavStatus          -< ()
+                                          h           <- highway            -< ()
+                                          (v, ect)    <- mkVideoAndTrackers -< (h, s)
+                                          (ics, etgs) <- findTailgaters     -< (v,s,ect) 
+                                          etgs        <- mtgd               -< ics
+                                          returnA     -< (etgs, ics)))
+                       (deltaEncode smplPer (repeat ()))
 
 ppTestMTGD t = mapM_ (putStrLn . show) (testMTGD t)
 
