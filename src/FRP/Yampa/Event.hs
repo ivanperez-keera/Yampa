@@ -223,35 +223,37 @@ e `attach` b = fmap (\a -> (a, b)) e
 -- !!! Finally: mergeEvents is left-biased, but this is not reflected in
 -- !!! its name.
 
--- Left-biased event merge.
+-- | Left-biased event merge (always prefer left event, if present).
 lMerge :: Event a -> Event a -> Event a
 le `lMerge` re = event re Event le
 
 
--- Right-biased event merge.
+-- | Right-biased event merge (always prefer right event, if present).
 rMerge :: Event a -> Event a -> Event a
 le `rMerge` re = event le Event re
 
 
--- Unbiased event merge: simultaneous occurrence is an error.
+-- | Unbiased event merge: simultaneous occurrence is an error.
 merge :: Event a -> Event a -> Event a
 merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
 
 
--- Event merge paramterezied on the conflict resolution function.
+-- | Event merge parameterized by a conflict resolution function.
 mergeBy :: (a -> a -> a) -> Event a -> Event a -> Event a
 mergeBy _       NoEvent      NoEvent      = NoEvent
 mergeBy _       le@(Event _) NoEvent      = le
 mergeBy _       NoEvent      re@(Event _) = re
 mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 
-
--- A generic event merge utility:
+-- | A generic event merge-map utility that maps event occurrences,
+-- merging the results. The first three arguments are mapping functions,
+-- the third of which will only be used when both events are present.
+-- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
 mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c) 
 	    -> Event a -> Event b -> Event c
-mapMerge _  _  _   NoEvent   NoEvent = NoEvent
-mapMerge lf _  _   (Event l) NoEvent = Event (lf l)
-mapMerge _  rf _   NoEvent  (Event r) = Event (rf r)
+mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
+mapMerge lf _  _   (Event l) NoEvent   = Event (lf l)
+mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
 mapMerge _  _  lrf (Event l) (Event r) = Event (lrf l r)
 
 -- Merging of a list of events; foremost event has priority.
