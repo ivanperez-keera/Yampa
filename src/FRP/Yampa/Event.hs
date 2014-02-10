@@ -94,20 +94,24 @@ infixl 6 `lMerge`, `rMerge`, `merge`
 -- Also note that it unfortunately is possible to partially break the
 -- abstractions through judicious use of e.g. snap and switching.
 
+-- | A single possible event occurrence, that is, a value that may or may
+-- not occur. Events are used to represent values that are not produced
+-- continuously, such as mouse clicks (only produced when the mouse is clicked,
+-- as opposed to mouse positions, which are always defined).
 data Event a = NoEvent | Event a deriving (Show)
 
--- Make the NoEvent constructor available. Useful e.g. for initialization,
+-- | Make the NoEvent constructor available. Useful e.g. for initialization,
 -- ((-->) & friends), and it's easily available anyway (e.g. mergeEvents []).
 noEvent :: Event a
 noEvent = NoEvent
 
 
--- Suppress any event in the first component of a pair.
+-- | Suppress any event in the first component of a pair.
 noEventFst :: (Event a, b) -> (Event c, b)
 noEventFst (_, b) = (NoEvent, b)
 
 
--- Suppress any event in the second component of a pair.
+-- | Suppress any event in the second component of a pair.
 noEventSnd :: (a, Event b) -> (a, Event c)
 noEventSnd (a, _) = (a, NoEvent)
 
@@ -169,19 +173,22 @@ maybeToEvent (Just a) = Event a
 -- Utility functions similar to those available for Maybe
 ------------------------------------------------------------------------------
 
--- An event-based version of the maybe function.
+-- | An event-based version of the maybe function.
 event :: a -> (b -> a) -> Event b -> a
 event a _ NoEvent   = a
 event _ f (Event b) = f b
 
+-- | Extract the value from an event. Fails if there is no event.
 fromEvent :: Event a -> a
 fromEvent (Event a) = a
 fromEvent NoEvent   = usrErr "AFRP" "fromEvent" "Not an event."
 
+-- | Tests whether the input represents an actual event.
 isEvent :: Event a -> Bool
 isEvent NoEvent   = False
 isEvent (Event _) = True
 
+-- | Negation of 'isEvent'.
 isNoEvent :: Event a -> Bool
 isNoEvent = not . isEvent
 
@@ -190,14 +197,16 @@ isNoEvent = not . isEvent
 -- Event tagging
 ------------------------------------------------------------------------------
 
--- Tags an (occurring) event with a value ("replacing" the old value).
+-- | Tags an (occurring) event with a value ("replacing" the old value).
 tag :: Event a -> b -> Event b
 e `tag` b = fmap (const b) e
 
+-- | Tags an (occurring) event with a value ("replacing" the old value). Same
+-- as 'tag' with the arguments swapped.
 tagWith :: b -> Event a -> Event b
 tagWith = flip tag
 
--- Attaches an extra value to the value of an occurring event.
+-- | Attaches an extra value to the value of an occurring event.
 attach :: Event a -> b -> Event (a, b)
 e `attach` b = fmap (\a -> (a, b)) e
 

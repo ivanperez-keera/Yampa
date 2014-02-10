@@ -340,7 +340,7 @@ infixr 0 -->, >--, -=>, >=-
 -- switch would need to remember the record, since it is the only place
 -- where signal functions get started. So it wouldn't cost all that much.
 
--- Time is used both for time intervals (duration), and time w.r.t. some
+-- | Time is used both for time intervals (duration), and time w.r.t. some
 -- agreed reference point in time. Conceptually, Time = R, i.e. time can be 0
 -- or even negative.
 type Time = Double	-- [s]
@@ -349,13 +349,14 @@ type Time = Double	-- [s]
 -- DTime is the time type for lengths of sample intervals. Conceptually,
 -- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
 -- same representation.
-
 type DTime = Double	-- [s]
-
 
 -- Representation of signal function in initial state.
 -- (Naming: "TF" stands for Transition Function.)
 
+-- | Signal function that transforms a signal carrying values of type a into a
+-- signal carrying values of type b. A signal is, conceptually, a function from
+-- 'Time' to value.
 data SF a b = SF {sfTF :: a -> Transition a b}
 
 
