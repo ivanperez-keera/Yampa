@@ -354,9 +354,10 @@ type DTime = Double	-- [s]
 -- Representation of signal function in initial state.
 -- (Naming: "TF" stands for Transition Function.)
 
--- | Signal function that transforms a signal carrying values of type a into a
--- signal carrying values of type b. A signal is, conceptually, a function from
--- 'Time' to value.
+-- | Signal function that transforms a signal carrying values of some type 'a'
+-- into a signal carrying values of some type 'b'. You can think of it as
+-- (Signal a -> Signal b). A signal is, conceptually, a
+-- function from 'Time' to value.
 data SF a b = SF {sfTF :: a -> Transition a b}
 
 
