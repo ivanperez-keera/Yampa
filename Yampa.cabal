@@ -4,7 +4,7 @@ cabal-version: >= 1.6
 license: BSD3
 license-file: LICENSE
 author: Henrik Nilsson, Antony Courtney
-maintainer: George Giorgidze (giorgidze@gmail.com)
+maintainer: Ivan Perez (ivan.perez@keera.co.uk)
 homepage: http://www.haskell.org/haskellwiki/Yampa
 category: Reactivity, FRP
 synopsis: Library for programming hybrid systems.
@@ -57,4 +57,4 @@ library
 
 source-repository head
   type:     git
-  location: git://github.com/giorgidze/Yampa.git
+  location: git://github.com/ivanperez-keera/Yampa.git
