@@ -260,22 +260,21 @@ mapMerge _  _  lrf (Event l) (Event r) = Event (lrf l r)
 mergeEvents :: [Event a] -> Event a
 mergeEvents = foldr lMerge NoEvent
 
-
--- Collects simultaneous event occurrences; no event if none.
+-- | Collects simultaneous event occurrences; no event if none.
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
 		    [] -> NoEvent
 		    as -> Event as
 
-
--- Join (conjucntion) of two events.
+-- | Join (conjucntion) of two events. Only produces an event
+-- if both events exist.
 joinE :: Event a -> Event b -> Event (a,b)
 joinE NoEvent   _         = NoEvent
 joinE _         NoEvent   = NoEvent
 joinE (Event l) (Event r) = Event (l,r)
 
 
--- Split event carrying pairs into two events.
+-- | Split event carrying pairs into two events.
 splitE :: Event (a,b) -> (Event a, Event b)
 splitE NoEvent       = (NoEvent, NoEvent)
 splitE (Event (a,b)) = (Event a, Event b)
@@ -285,13 +284,14 @@ splitE (Event (a,b)) = (Event a, Event b)
 -- Event filtering
 ------------------------------------------------------------------------------
 
--- Filter out events that don't satisfy some predicate.
+-- | Filter out events that don't satisfy some predicate.
 filterE :: (a -> Bool) -> Event a -> Event a
-filterE p e@(Event a) = if (p a) then e else NoEvent
+filterE p e@(Event a) = if p a then e else NoEvent
 filterE _ NoEvent     = NoEvent
 
 
--- Combined event mapping and filtering.
+-- | Combined event mapping and filtering. Note: since 'Event' is a 'Functor',
+-- see 'fmap' for a simpler version of this function with no filtering.
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
 mapFilterE _ NoEvent   = NoEvent
 mapFilterE f (Event a) = case f a of
@@ -299,7 +299,7 @@ mapFilterE f (Event a) = case f a of
 			    Just b  -> Event b
 
 
--- Enable/disable event occurences based on an external condition.
+-- | Enable/disable event occurences based on an external condition.
 gate :: Event a -> Bool -> Event a
 _ `gate` False = NoEvent
 e `gate` True  = e
