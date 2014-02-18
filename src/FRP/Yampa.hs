@@ -135,24 +135,27 @@ module FRP.Yampa (
 -- For optimization
     arrPrim, arrEPrim,
 
--- Basic signal functions
+-- * Signal functions
+
+-- ** Basic signal functions
     identity,		-- :: SF a a
     constant,		-- :: b -> SF a b
     localTime,		-- :: SF a Time
     time,               -- :: SF a Time,	Other name for localTime.
 
--- Initialization
+-- ** Initialization
     (-->),		-- :: b -> SF a b -> SF a b,		infixr 0
     (>--),		-- :: a -> SF a b -> SF a b,		infixr 0
     (-=>),              -- :: (b -> b) -> SF a b -> SF a b      infixr 0
     (>=-),              -- :: (a -> a) -> SF a b -> SF a b      infixr 0
     initially,		-- :: a -> SF a a
 
--- Simple, stateful signal processing
+-- ** Simple, stateful signal processing
     sscan,		-- :: (b -> a -> b) -> b -> SF a b
     sscanPrim,		-- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
 
--- Basic event sources
+-- * Events
+-- ** Basic event sources
     never, 		-- :: SF a (Event b)
     now,		-- :: b -> SF a (Event b)
     after,		-- :: Time -> b -> SF a (Event b)
@@ -167,87 +170,13 @@ module FRP.Yampa (
     edgeJust,		-- :: SF (Maybe a) (Event a)
     edgeBy,		-- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 
--- Stateful event suppression
+-- ** Stateful event suppression
     notYet,		-- :: SF (Event a) (Event a)
     once,		-- :: SF (Event a) (Event a)
     takeEvents,		-- :: Int -> SF (Event a) (Event a)
     dropEvents,		-- :: Int -> SF (Event a) (Event a)
 
--- Basic switchers
-    switch,  dSwitch,	-- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
-    rSwitch, drSwitch,	-- :: SF a b -> SF (a,Event (SF a b)) b
-    kSwitch, dkSwitch,	-- :: SF a b
-			--    -> SF (a,b) (Event c)
-			--    -> (SF a b -> c -> SF a b)
-			--    -> SF a b
-
--- Parallel composition and switching over collections with broadcasting
-    parB,		-- :: Functor col => col (SF a b) -> SF a (col b)
-    pSwitchB,dpSwitchB, -- :: Functor col =>
-			--        col (SF a b)
-			--	  -> SF (a, col b) (Event c)
-			--	  -> (col (SF a b) -> c -> SF a (col b))
-			--	  -> SF a (col b)
-    rpSwitchB,drpSwitchB,-- :: Functor col =>
-			--        col (SF a b)
-			--	  -> SF (a, Event (col (SF a b)->col (SF a b)))
-			--	        (col b)
-
--- Parallel composition and switching over collections with general routing
-    par,		-- Functor col =>
-    			--     (forall sf . (a -> col sf -> col (b, sf)))
-    			--     -> col (SF b c)
-    			--     -> SF a (col c)
-    pSwitch, dpSwitch,  -- pSwitch :: Functor col =>
-			--     (forall sf . (a -> col sf -> col (b, sf)))
-			--     -> col (SF b c)
-			--     -> SF (a, col c) (Event d)
-			--     -> (col (SF b c) -> d -> SF a (col c))
-			--     -> SF a (col c)
-    rpSwitch,drpSwitch, -- Functor col =>
-			--    (forall sf . (a -> col sf -> col (b, sf)))
-    			--    -> col (SF b c)
-			--    -> SF (a, Event (col (SF b c) -> col (SF b c)))
-			--	    (col c)
-
--- Wave-form generation
-    old_hold,		-- :: a -> SF (Event a) a
-    hold,		-- :: a -> SF (Event a) a
-    dHold,		-- :: a -> SF (Event a) a
-    trackAndHold,	-- :: a -> SF (Maybe a) a
-
--- Accumulators
-    old_accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    old_accumBy,	-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    old_accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
-    accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    accumHold,		-- :: a -> SF (Event (a -> a)) a
-    dAccumHold,		-- :: a -> SF (Event (a -> a)) a
-    accumBy,		-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    accumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
-    dAccumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
-    accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
-			--    -> SF (Event a) (Event b)
-
--- Delays
-    old_pre, old_iPre,
-    pre,		-- :: SF a a
-    iPre,		-- :: a -> SF a a
-
--- Timed delays
-    delay,		-- :: Time -> a -> SF a a
-
--- Integration and differentiation
-    integral,		-- :: VectorSpace a s => SF a a
-
-    derivative,		-- :: VectorSpace a s => SF a a		-- Crude!
-    imIntegral,		-- :: VectorSpace a s => a -> SF a a
-
--- Loops with guaranteed well-defined feedback
-    loopPre, 		-- :: c -> SF (a,c) (b,c) -> SF a b
-    loopIntegral,	-- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
-
--- Pointwise functions on events
+-- ** Pointwise functions on events
     noEvent,		-- :: Event a
     noEventFst,		-- :: (Event a, b) -> (Event c, b)
     noEventSnd,		-- :: (a, Event b) -> (a, Event c)
@@ -272,14 +201,94 @@ module FRP.Yampa (
     mapFilterE,		-- :: (a -> Maybe b) -> Event a -> Event b
     gate,		-- :: Event a -> Bool -> Event a,	infixl 8
 
--- Noise (random signal) sources and stochastic event sources
+-- * Switching
+-- ** Basic switchers
+    switch,  dSwitch,	-- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
+    rSwitch, drSwitch,	-- :: SF a b -> SF (a,Event (SF a b)) b
+    kSwitch, dkSwitch,	-- :: SF a b
+			--    -> SF (a,b) (Event c)
+			--    -> (SF a b -> c -> SF a b)
+			--    -> SF a b
+
+-- ** Parallel composition and switching
+-- *** Parallel composition and switching over collections with broadcasting
+    parB,		-- :: Functor col => col (SF a b) -> SF a (col b)
+    pSwitchB,dpSwitchB, -- :: Functor col =>
+			--        col (SF a b)
+			--	  -> SF (a, col b) (Event c)
+			--	  -> (col (SF a b) -> c -> SF a (col b))
+			--	  -> SF a (col b)
+    rpSwitchB,drpSwitchB,-- :: Functor col =>
+			--        col (SF a b)
+			--	  -> SF (a, Event (col (SF a b)->col (SF a b)))
+			--	        (col b)
+
+-- *** Parallel composition and switching over collections with general routing
+    par,		-- Functor col =>
+    			--     (forall sf . (a -> col sf -> col (b, sf)))
+    			--     -> col (SF b c)
+    			--     -> SF a (col c)
+    pSwitch, dpSwitch,  -- pSwitch :: Functor col =>
+			--     (forall sf . (a -> col sf -> col (b, sf)))
+			--     -> col (SF b c)
+			--     -> SF (a, col c) (Event d)
+			--     -> (col (SF b c) -> d -> SF a (col c))
+			--     -> SF a (col c)
+    rpSwitch,drpSwitch, -- Functor col =>
+			--    (forall sf . (a -> col sf -> col (b, sf)))
+    			--    -> col (SF b c)
+			--    -> SF (a, Event (col (SF b c) -> col (SF b c)))
+			--	    (col c)
+
+-- * Discrete to continuous-time signal functions
+-- ** Wave-form generation
+    old_hold,		-- :: a -> SF (Event a) a
+    hold,		-- :: a -> SF (Event a) a
+    dHold,		-- :: a -> SF (Event a) a
+    trackAndHold,	-- :: a -> SF (Maybe a) a
+
+-- ** Accumulators
+    old_accum,		-- :: a -> SF (Event (a -> a)) (Event a)
+    old_accumBy,	-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    old_accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
+    accum,		-- :: a -> SF (Event (a -> a)) (Event a)
+    accumHold,		-- :: a -> SF (Event (a -> a)) a
+    dAccumHold,		-- :: a -> SF (Event (a -> a)) a
+    accumBy,		-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    accumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
+    dAccumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
+    accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
+			--    -> SF (Event a) (Event b)
+
+-- * Delays
+-- ** Basic delays
+    old_pre, old_iPre,
+    pre,		-- :: SF a a
+    iPre,		-- :: a -> SF a a
+
+-- ** Timed delays
+    delay,		-- :: Time -> a -> SF a a
+
+-- * State keeping combinators
+
+-- ** Loops with guaranteed well-defined feedback
+    loopPre, 		-- :: c -> SF (a,c) (b,c) -> SF a b
+    loopIntegral,	-- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
+
+-- ** Integration and differentiation
+    integral,		-- :: VectorSpace a s => SF a a
+
+    derivative,		-- :: VectorSpace a s => SF a a		-- Crude!
+    imIntegral,		-- :: VectorSpace a s => a -> SF a a
+
+-- * Noise (random signal) sources and stochastic event sources
     noise,		-- :: noise :: (RandomGen g, Random b) =>
 			--        g -> SF a b
     noiseR,		-- :: noise :: (RandomGen g, Random b) =>
 			--        (b,b) -> g -> SF a b
     occasionally,	-- :: RandomGen g => g -> Time -> b -> SF a (Event b)
 
--- Reactimation
+-- * Reactimation
     reactimate,		-- :: IO a
 	      		--    -> (Bool -> IO (DTime, Maybe a))
 	      		--    -> (Bool -> b -> IO Bool)
@@ -295,7 +304,9 @@ module FRP.Yampa (
                         --    -> (DTime,Maybe a)
                         --    -> IO Bool
 
--- Embedding (tentative: will be revisited)
+-- * Embedding
+
+--  (tentative: will be revisited)
     DTime,		-- [s] Sampling interval, always > 0.
     embed,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
     embedSynch,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
@@ -1755,29 +1766,31 @@ sscanPrim f c_init b_init = SF {sfTF = tf0}
 -- Basic event sources
 ------------------------------------------------------------------------------
 
--- Event source that never occurs.
+-- | Event source that never occurs.
 never :: SF a (Event b)
 never = SF {sfTF = \_ -> (sfNever, NoEvent)}
 
 
--- Event source with a single occurrence at time 0. The value of the event
+-- | Event source with a single occurrence at time 0. The value of the event
 -- is given by the function argument.
 now :: b -> SF a (Event b)
 now b0 = (Event b0 --> never)
 
 
--- Event source with a single occurrence at or as soon after (local) time q
+-- | Event source with a single occurrence at or as soon after (local) time /q/
 -- as possible.
-after :: Time -> b -> SF a (Event b)
+after :: Time -- ^ The time /q/ after which the event should be produced
+      -> b    -- ^ Value to produce at that time
+      -> SF a (Event b)
 after q x = afterEach [(q,x)]
 
-
--- Event source with repeated occurrences with interval q.
+-- | Event source with repeated occurrences with interval q.
 -- Note: If the interval is too short w.r.t. the sampling intervals,
 -- the result will be that events occur at every sample. However, no more
 -- than one event results from any sampling interval, thus avoiding an
 -- "event backlog" should sampling become more frequent at some later
 -- point in time.
+
 -- !!! 2005-03-30:  This is potentially a bit inefficient since we KNOW
 -- !!! (at this level) that the SF is going to be invarying. But afterEach
 -- !!! does NOT know this as the argument list may well be finite.
@@ -2006,7 +2019,10 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                                                    (x' : rxs)
 
 
--- A rising edge detector. Useful for things like detecting key presses.
+-- | A rising edge detector. Useful for things like detecting key presses.
+-- It is initialised as /up/, meaning that events occuring at time 0 will
+-- not be detected.
+
 -- Note that we initialize the loop with state set to True so that there
 -- will not be an occurence at t0 in the logical time frame in which
 -- this is started.
