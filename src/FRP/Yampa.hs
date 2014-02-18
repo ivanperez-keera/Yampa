@@ -3128,10 +3128,33 @@ occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
 --			the reactimation loop and return to its caller.
 -- sf .........	Signal function to reactimate.
 
-reactimate :: IO a
-	      -> (Bool -> IO (DTime, Maybe a))
-	      -> (Bool -> b -> IO Bool)
-              -> SF a b
+-- | Convenience function to run a signal function indefinitely, using
+-- a IO actions to obtain new input and process the output.
+--
+-- This function first runs the initialization action, which provides the
+-- initial input for the signal transformer at time 0.
+--
+-- Afterwards, an input sensing action is used to obtain new input (if any) and
+-- the time since the last iteration. The argument to the input sensing function
+-- indicates if it can block. If no new input is received, it is assumed to be
+-- the same as in the last iteration.
+--
+-- After applying the signal function to the input, the actuation IO action
+-- is executed. The first argument indicates if the output has changed, the second
+-- gives the actual output). Actuation functions may choose to ignore the first
+-- argument altogether. This action should return True if the reactimation
+-- must stop, and False if it should continue.
+--
+-- Note that this becomes the program's /main loop/, which makes using this
+-- function incompatible with GLUT, Gtk and other graphics libraries. It may also
+-- impose a sizeable constraint in larger projects in which different subparts run
+-- at different time steps. If you need to control the main
+-- loop yourself for these or other reasons, use 'reactInit' and 'react'.
+
+reactimate :: IO a                                -- ^ IO initialization action
+	      -> (Bool -> IO (DTime, Maybe a))    -- ^ IO input sensing action
+	      -> (Bool -> b -> IO Bool)           -- ^ IO actuaction (output processing) action
+              -> SF a b                           -- ^ Signal function
 	      -> IO ()
 reactimate init sense actuate (SF {sfTF = tf0}) =
     do
