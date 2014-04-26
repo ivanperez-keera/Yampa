@@ -1,7 +1,13 @@
 2014-04-07 Ivan Perez <ivan.perez@keera.es>
 
+        * Yampa.cabal: version bump (0.9.5)
+        * Adds CHANGELOG to cabal file
+
+2014-04-07 Ivan Perez <ivan.perez@keera.es>
+
         * Yampa.cabal: new maintainer, version bump (0.9.4).
         * src/: documentation is exposed so that Haddock can process it
+        * No interface changes
 
 Copyright (c) 2003, Henrik Nilsson, Antony Courtney and Yale University.
 All rights reserved.

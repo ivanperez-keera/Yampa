@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.9.4
+version: 0.9.5
 cabal-version: >= 1.6
 license: BSD3
 license-file: LICENSE
@@ -30,7 +30,9 @@ extra-source-files:
   examples/Elevator/Elevator.hs,
   examples/Elevator/TestElevatorMain.hs,
   examples/TailgatingDetector/TailgatingDetector.hs,
-  examples/TailgatingDetector/TestTGMain.hs
+  examples/TailgatingDetector/TestTGMain.hs,
+
+  CHANGELOG
 
 library
   hs-source-dirs:  src
