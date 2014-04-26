@@ -3349,3 +3349,6 @@ deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
 -- But what do we do if the inner system runs more slowly than the
 -- outer one? Then we need to extrapolate the output from the
 -- inner system, and we have the same problem with events AGAIN!
+
+-- Vim modeline
+-- vim:set tabstop=8 expandtab:
