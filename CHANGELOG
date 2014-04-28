@@ -1,4 +1,4 @@
-2014-04-07 Ivan Perez <ivan.perez@keera.es>
+2014-04-26 Ivan Perez <ivan.perez@keera.es>
 
         * Yampa.cabal: version bump (0.9.5)
         * Adds CHANGELOG to cabal file
