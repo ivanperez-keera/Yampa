@@ -269,6 +269,9 @@ module FRP.Yampa (
 -- ** Timed delays
     delay,		-- :: Time -> a -> SF a a
 
+-- ** Variable delay
+    pause,              -- :: b -> SF a b -> SF a Bool -> SF a b
+
 -- * State keeping combinators
 
 -- ** Loops with guaranteed well-defined feedback
@@ -280,6 +283,8 @@ module FRP.Yampa (
 
     derivative,		-- :: VectorSpace a s => SF a a		-- Crude!
     imIntegral,		-- :: VectorSpace a s => a -> SF a a
+
+    iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 
 -- * Noise (random signal) sources and stochastic event sources
     noise,		-- :: noise :: (RandomGen g, Random b) =>
@@ -2707,7 +2712,6 @@ drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
 	drpSwitch' sfs = dpSwitch (rf . fst) sfs (NoEvent-->arr (snd . fst)) k
 -}
 
-
 ------------------------------------------------------------------------------
 -- Wave-form generation
 ------------------------------------------------------------------------------
@@ -2984,6 +2988,39 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
 -- varDelay :: Time -> a -> SF (a, Time) a
 -- varDelay = undefined
 
+------------------------------------------------------------------------------
+-- Variable pause in signal
+------------------------------------------------------------------------------
+
+-- if_then_else :: SF a Bool -> SF a b -> SF a b -> SF a b
+-- if_then_else condSF sfThen sfElse = proc (i) -> do
+--   cond  <- condSF -< i
+--   ok    <- sfThen -< i
+--   notOk <- sfElse -< i
+--   returnA -< if cond then ok else notOk
+
+pause :: b -> SF a Bool -> SF a b -> SF a b
+pause b_init (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
+ where tf0 a0 = case tfP a0 of
+                 (c, True)  -> (pauseInit b_init tf10 c, b_init)
+                 (c, False) -> let (k, b0) = tf10 a0
+                               in (pause' b0 k c, b0)
+
+       pauseInit :: b -> (a -> Transition a b) -> SF' a Bool -> SF' a b
+       pauseInit b_init' tf10' c = SF' tf0'
+         where tf0' dt a =
+                case (sfTF' c) dt a of
+                  (c', True)  -> (pauseInit b_init' tf10' c', b_init')
+                  (c', False) -> let (k, b0) = tf10' a
+                                 in (pause' b0 k c', b0)
+
+       pause' :: b -> SF' a b -> SF' a Bool -> SF' a b
+       pause' b_init' tf10' tfP' = SF' tf0'
+         where tf0' dt a = 
+                 case (sfTF' tfP') dt a of
+                   (tfP'', True) -> (pause' b_init' tf10' tfP'', b_init')
+                   (tfP'', False) -> let (tf10'', b0') = (sfTF' tf10') dt a
+                                     in (pause' b0' tf10'' tfP'', b0')
 
 ------------------------------------------------------------------------------
 -- Integration and differentiation
