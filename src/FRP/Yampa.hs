@@ -15,13 +15,11 @@
 -- of Functional Reactive Programming (FRP) and is structured using arrow
 -- combinators.
 --
---
 -- You can find examples, tutorials and documentation on Yampa here:
 --
 -- <www.haskell.org/haskellwiki/Yampa>
 --
--- Structuring a hybrid system in Yampa is done based
--- on two main concepts:
+-- Structuring a hybrid system in Yampa is done based on two main concepts:
 --
 -- * Signal Functions: 'SF'. Yampa is based on the concept of Signal Functions,
 -- which are functions from a typed input signal to a typed output signal.
@@ -53,6 +51,8 @@
 -- Finally, see [<#g:24>] for sources of randomness (useful in games).
 --
 -- CHANGELOG:
+--
+-- * Adds (some) documentation.
 --
 -- * New version using GADTs.
 --
