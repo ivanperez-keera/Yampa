@@ -5,11 +5,56 @@
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  nilsson@cs.yale.edu
+-- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
+-- 
 --
--- New version using GADTs.
+-- Domain-specific language embedded in Haskell for programming hybrid (mixed
+-- discrete-time and continuous-time) systems. Yampa is based on the concepts
+-- of Functional Reactive Programming (FRP) and is structured using arrow
+-- combinators.
+--
+--
+-- You can find examples, tutorials and documentation on Yampa here:
+--
+-- <www.haskell.org/haskellwiki/Yampa>
+--
+-- Structuring a hybrid system in Yampa is done based
+-- on two main concepts:
+--
+-- * Signal Functions: 'SF'. Yampa is based on the concept of Signal Functions,
+-- which are functions from a typed input signal to a typed output signal.
+-- Conceptually, signals are functions from Time to Value, where time are the
+-- real numbers and, computationally, a very dense approximation (Double) is
+-- used.
+--
+-- * Events: 'Event'. Values that may or may not occur (and would probably
+-- occur rarely). It is often used for incoming network messages, mouse
+-- clicks, etc. Events are used as values carried by signals.
+--
+-- A complete Yampa system is defined as one Signal Function from some
+-- type @a@ to a type @b@. The execution of this signal transformer
+-- with specific input can be accomplished by means of two functions:
+-- 'reactimate' (which needs an initialization action,
+-- an input sensing action and an actuation/consumer action and executes
+-- until explicitly stopped), and 'react' (which executes only one cycle).
+-- 
+-- Apart from using normal functions and arrow syntax to define 'SF's, you
+-- can also use several combinators. See [<#g:1>] for basic initialization,
+-- [<#g:9>] for ways to switch from one signal transformation to another,
+-- and [<#g:14>] for ways to transform Event-carrying signals into continuous
+-- signals, [<#g:17>] for ways to delay a signal, and [<#g:21>] for ways to
+-- feed a signal back to the same signal transformer.
+--
+-- Ways to define Event-carrying signals are given in [<#g:5>], and
+-- "FRP.Yampa.Event" defines events and event-manipulation functions.
+--
+-- Finally, see [<#g:24>] for sources of randomness (useful in games).
+--
+-- CHANGELOG:
+--
+-- * New version using GADTs.
 --
 -- ToDo:
 --
