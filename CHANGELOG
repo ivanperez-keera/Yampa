@@ -1,3 +1,7 @@
+2014-06-04 Ivan Perez <ivan.perez@keera.co.uk>
+
+        * Adds project to hudson-backed continuous integration server.
+
 2014-04-26 Ivan Perez <ivan.perez@keera.es>
 
         * Yampa.cabal: version bump (0.9.5)
