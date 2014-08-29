@@ -39,20 +39,20 @@
 -- until explicitly stopped), and 'react' (which executes only one cycle).
 -- 
 -- Apart from using normal functions and arrow syntax to define 'SF's, you
--- can also use several combinators. See [<#g:1>] for basic initialization,
--- [<#g:9>] for ways to switch from one signal transformation to another,
--- and [<#g:14>] for ways to transform Event-carrying signals into continuous
--- signals, [<#g:17>] for ways to delay a signal, and [<#g:21>] for ways to
+-- can also use several combinators. See [<#g:4>] for basic signals combinators,
+-- [<#g:11>] for ways of switching from one signal transformation to another,
+-- and [<#g:16>] for ways of transforming Event-carrying signals into continuous
+-- signals, [<#g:19>] for ways of delaying signals, and [<#g:21>] for ways to
 -- feed a signal back to the same signal transformer.
 --
--- Ways to define Event-carrying signals are given in [<#g:5>], and
+-- Ways to define Event-carrying signals are given in [<#g:7>], and
 -- "FRP.Yampa.Event" defines events and event-manipulation functions.
 --
--- Finally, see [<#g:24>] for sources of randomness (useful in games).
+-- Finally, see [<#g:26>] for sources of randomness (useful in games).
 --
 -- CHANGELOG:
 --
--- * Adds (some) documentation.
+-- * Adds (most) documentation.
 --
 -- * New version using GADTs.
 --
@@ -149,6 +149,7 @@ module FRP.Yampa (
 
     -- * Basic definitions
     Time,	-- [s] Both for time w.r.t. some reference and intervals.
+    DTime,	-- [s] Sampling interval, always > 0.
     SF,		-- Signal Function.
     Event(..),	-- Events; conceptually similar to Maybe (but abstract).
 
@@ -353,7 +354,6 @@ module FRP.Yampa (
 -- * Embedding
 
 --  (tentative: will be revisited)
-    DTime,		-- [s] Sampling interval, always > 0.
     embed,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
     embedSynch,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
     deltaEncode,	-- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
@@ -404,6 +404,7 @@ infixr 0 -->, >--, -=>, >=-
 -- switch would need to remember the record, since it is the only place
 -- where signal functions get started. So it wouldn't cost all that much.
 
+
 -- | Time is used both for time intervals (duration), and time w.r.t. some
 -- agreed reference point in time.
 
@@ -411,7 +412,7 @@ infixr 0 -->, >--, -=>, >=-
 type Time = Double	-- [s]
 
 
--- DTime is the time type for lengths of sample intervals. Conceptually,
+-- | DTime is the time type for lengths of sample intervals. Conceptually,
 -- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
 -- same representation.
 type DTime = Double	-- [s]
@@ -3497,7 +3498,7 @@ react rh (dt,ma') =
 
 -- New embed interface. We will probably have to revisit this. To run an
 -- embedded signal function while retaining full control (e.g. start and
--- stop at will), one would probably need a continuation based interface
+-- stop at will), one would probably need a continuation-based interface
 -- (as well as a continuation based underlying implementation).
 --
 -- E.g. here are interesting alternative (or maybe complementary)
@@ -3519,6 +3520,12 @@ react rh (dt,ma') =
 -- subSample :: DTime -> SF a b -> SF (Event a) (Event b)
 -- Time advanced by dt for each event, not synchronized with the outer clock.
 
+-- | Given a signal function and a pair with an initial
+-- input sample for the input signal, and a list of sampling
+-- times, possibly with new input samples at those times,
+-- it produces a list of output samples.
+--
+-- This is a simplified, purely-functional version of 'reactimate'.
 embed :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
 embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
     where
@@ -3532,10 +3539,10 @@ embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
 	        (sf', b) = (sfTF' sf) dt a
 
 
--- Synchronous embedding. The embedded signal function is run on the supplied
+-- | Synchronous embedding. The embedded signal function is run on the supplied
 -- input and time stream at a given (but variable) ratio >= 0 to the outer
 -- time flow. When the ratio is 0, the embedded signal function is paused.
---
+
 -- What about running an embedded signal function at a fixed (guaranteed)
 -- sampling frequency? E.g. super sampling if the outer sampling is slower,
 -- subsampling otherwise. AS WELL as at a given ratio to the outer one.
@@ -3578,11 +3585,15 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
 		    | t' <= tp = advance tp tbtbs
         advance _ _ = undefined
 
+-- | Spaces a list of samples by a fixed time delta, avoiding
+--   unnecessary samples when the input has not changed since
+--   the last sample.
 deltaEncode :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
 deltaEncode _  []        = usrErr "AFRP" "deltaEncode" "Empty input list."
 deltaEncode dt aas@(_:_) = deltaEncodeBy (==) dt aas
 
 
+-- | 'deltaEncode' parameterized by the equality test.
 deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
 deltaEncodeBy _  _  []      = usrErr "AFRP" "deltaEncodeBy" "Empty input list."
 deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
