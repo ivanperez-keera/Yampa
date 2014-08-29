@@ -1,3 +1,9 @@
+2014-08-29 Ivan Perez <ivan.perez@keera.co.uk>
+
+        * Yampa.cabal: version bump (0.9.6)
+        * src/: Adds a substantial amount of documentation.
+        * src/FRP/Yampa.hs: Adds a new pause combinator.
+
 2014-06-04 Ivan Perez <ivan.perez@keera.co.uk>
 
         * Adds project to hudson-backed continuous integration server.
