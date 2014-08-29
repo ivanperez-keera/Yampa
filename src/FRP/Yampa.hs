@@ -147,12 +147,7 @@ module FRP.Yampa (
     RandomGen(..),
     Random(..),
 
--- Reverse function composition and arrow plumbing aids
-    ( # ),		-- :: (a -> b) -> (b -> c) -> (a -> c),	infixl 9
-    dup,		-- :: a -> (a,a)
-    swap,		-- :: (a,b) -> (b,a)
-
--- Main types
+    -- * Basic definitions
     Time,	-- [s] Both for time w.r.t. some reference and intervals.
     SF,		-- Signal Function.
     Event(..),	-- Events; conceptually similar to Maybe (but abstract).
@@ -177,8 +172,8 @@ module FRP.Yampa (
     -- (==)     :: Event a -> Event a -> Bool
     -- (<=)	:: Event a -> Event a -> Bool
 
--- For optimization
-    arrPrim, arrEPrim,
+    -- ** Lifting
+    arrPrim, arrEPrim, -- For optimization
 
 -- * Signal functions
 
@@ -307,9 +302,9 @@ module FRP.Yampa (
 
 -- * Delays
 -- ** Basic delays
-    old_pre, old_iPre,
     pre,		-- :: SF a a
     iPre,		-- :: a -> SF a a
+    old_pre, old_iPre,
 
 -- ** Timed delays
     delay,		-- :: Time -> a -> SF a a
@@ -329,7 +324,8 @@ module FRP.Yampa (
     derivative,		-- :: VectorSpace a s => SF a a		-- Crude!
     imIntegral,		-- :: VectorSpace a s => a -> SF a a
 
-    iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
+    -- Temporarily hidden, but will eventually be made public.
+    -- iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 
 -- * Noise (random signal) sources and stochastic event sources
     noise,		-- :: noise :: (RandomGen g, Random b) =>
@@ -361,8 +357,15 @@ module FRP.Yampa (
     embed,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
     embedSynch,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
     deltaEncode,	-- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
-    deltaEncodeBy 	-- :: (a -> a -> Bool) -> DTime -> [a]
+    deltaEncodeBy,	-- :: (a -> a -> Bool) -> DTime -> [a]
 			--    -> (a, [(DTime, Maybe a)])
+
+    -- * Auxiliary definitions
+    --   Reverse function composition and arrow plumbing aids
+    ( # ),		-- :: (a -> b) -> (b -> c) -> (a -> c),	infixl 9
+    dup,		-- :: a -> (a,a)
+    swap,		-- :: (a,b) -> (b,a)
+
 
 ) where
 
@@ -402,8 +405,9 @@ infixr 0 -->, >--, -=>, >=-
 -- where signal functions get started. So it wouldn't cost all that much.
 
 -- | Time is used both for time intervals (duration), and time w.r.t. some
--- agreed reference point in time. Conceptually, Time = R, i.e. time can be 0
--- or even negative.
+-- agreed reference point in time.
+
+--  Conceptually, Time = R, i.e. time can be 0 -- or even negative.
 type Time = Double	-- [s]
 
 
@@ -529,7 +533,6 @@ sfConst b = sf
 
 sfNever :: SF' a (Event b)
 sfNever = sfConst NoEvent
-
 
 -- Assumption: fne = f NoEvent
 sfArrE :: (Event a -> b) -> b -> SF' (Event a) b
@@ -730,13 +733,15 @@ instance Arrow SF where
 
 
 -- Lifting.
+
+-- | Lifts a pure function into a signal function (applied pointwise).
 {-# NOINLINE arrPrim #-}
 arrPrim :: (a -> b) -> SF a b
 arrPrim f = SF {sfTF = \a -> (sfArrG f, f a)}
 
-
+-- | Lifts a pure function into a signal function applied to events
+--   (applied pointwise).
 {-# RULES "arrPrim/arrEPrim" arrPrim = arrEPrim #-}
-
 arrEPrim :: (Event a -> b) -> SF (Event a) b
 arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
 
@@ -1729,52 +1734,68 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
 -- Basic signal functions
 ------------------------------------------------------------------------------
 
--- Identity: identity = arr id
+-- | Identity: identity = arr id
+-- 
+-- Using 'identity' is preferred over lifting id, since the arrow combinators
+-- know how to optimise certain networks based on the transformations being
+-- applied.
 identity :: SF a a
 identity = SF {sfTF = \a -> (sfId, a)}
 
-
--- Identity: constant b = arr (const b)
+-- | Identity: constant b = arr (const b)
+-- 
+-- Using 'constant' is preferred over lifting const, since the arrow combinators
+-- know how to optimise certain networks based on the transformations being
+-- applied.
 constant :: b -> SF a b
 constant b = SF {sfTF = \_ -> (sfConst b, b)}
 
-
--- Outputs the time passed since the signal function instance was started.
+-- | Outputs the time passed since the signal function instance was started.
 localTime :: SF a Time
 localTime = constant 1.0 >>> integral
 
-
--- Alternative name for localTime.
+-- | Alternative name for localTime.
 time :: SF a Time
 time = localTime
-
 
 ------------------------------------------------------------------------------
 -- Initialization
 ------------------------------------------------------------------------------
 
--- Initialization operator (cf. Lustre/Lucid Synchrone).
+-- | Initialization operator (cf. Lustre/Lucid Synchrone).
+--
+-- The output at time zero is the first argument, and from
+-- that point on it behaves like the signal function passed as
+-- second argument.
 (-->) :: b -> SF a b -> SF a b
 b0 --> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (fst (tf10 a0), b0)}
 
-
--- Input initialization operator.
+-- | Input initialization operator.
+--
+-- The input at time zero is the first argument, and from
+-- that point on it behaves like the signal function passed as
+-- second argument.
 (>--) :: a -> SF a b -> SF a b
 a0 >-- (SF {sfTF = tf10}) = SF {sfTF = \_ -> tf10 a0}
 
 
--- Transform initial output value.
+-- | Transform initial output value.
+--
+-- Applies a transformation 'f' only to the first output value at
+-- time zero.
 (-=>) :: (b -> b) -> SF a b -> SF a b
 f -=> (SF {sfTF = tf10}) =
     SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
 
 
--- Transform initial input value.
+-- | Transform initial input value.
+--
+-- Applies a transformation 'f' only to the first input value at
+-- time zero.
 (>=-) :: (a -> a) -> SF a b -> SF a b
 f >=- (SF {sfTF = tf10}) = SF {sfTF = \a0 -> tf10 (f a0)}
 
-
--- Override initial value of input signal.
+-- | Override initial value of input signal.
 initially :: a -> SF a a
 initially = (--> identity)
 
@@ -1888,11 +1909,17 @@ afterEach ((q,x):qxs)
 		        t' = t + dt
 -}
 
--- Or keep old def. for efficiency reasons?
+-- | Event source with consecutive occurrences at the given intervals.
+-- Should more than one event be scheduled to occur in any sampling interval,
+-- only the first will in fact occur to avoid an event backlog.
+
 -- After all, after, repeatedly etc. are defined in terms of afterEach.
 afterEach :: [(Time,b)] -> SF a (Event b)
 afterEach qxs = afterEachCat qxs >>> arr (fmap head)
 
+-- | Event source with consecutive occurrences at the given intervals.
+-- Should more than one event be scheduled to occur in any sampling interval,
+-- the output list will contain all events produced during that interval.
 
 -- Guaranteed not to miss any events.
 afterEachCat :: [(Time,b)] -> SF a (Event [b])
@@ -1920,7 +1947,8 @@ afterEachCat ((q,x):qxs)
 		    where
 		        t' = t + dt
 
--- Delay for events. (Consider it a triggered after, hence "basic".)
+-- | Delay for events. (Consider it a triggered after, hence /basic/.)
+
 -- Can be implemented fairly cheaply as long as the events are sparse.
 -- It is a question of rescheduling events for later. Not unlike "afterEach".
 --
@@ -1996,7 +2024,8 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                                                    (x' : rxs)
 -}
 
--- This version is not strict in the input event.
+-- | Delay an event by a given delta and catenate events that occur so closely
+-- so as to be /inseparable/.
 delayEventCat :: Time -> SF (Event a) (Event [a])
 delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                 | q == 0    = arr (fmap (:[]))
@@ -2079,7 +2108,9 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
 edge :: SF Bool (Event ())
 edge = iEdge True
 
-
+-- | A rising edge detector that can be initialized as up ('True', meaning
+--   that events occurring at time 0 will not be detected) or down
+--   ('False', meaning that events ocurring at time 0 will be detected).
 iEdge :: Bool -> SF Bool (Event ())
 -- iEdge i = edgeBy (isBoolRaisingEdge ()) i
 iEdge b = sscanPrim f (if b then 2 else 0) NoEvent
@@ -2093,7 +2124,7 @@ iEdge b = sscanPrim f (if b then 2 else 0) NoEvent
         f 2 True  = Nothing
         f _ _     = undefined
 
--- Like edge, but parameterized on the tag value.
+-- | Like 'edge', but parameterized on the tag value.
 edgeTag :: a -> SF Bool (Event a)
 -- edgeTag a = edgeBy (isBoolRaisingEdge a) True
 edgeTag a = edge >>> arr (`tag` a)
@@ -2107,6 +2138,9 @@ edgeTag a = edge >>> arr (`tag` a)
 -- isBoolRaisingEdge _ True  False = Nothing
 
 
+-- | Edge detector particularized for detecting transtitions
+--   on a 'Maybe' signal from 'Nothing' to 'Just'.
+
 -- !!! 2005-07-09: To be done or eliminated
 -- !!! Maybe could be kept as is, but could be easy to implement directly
 -- !!! in terms of sscan?
@@ -2119,7 +2153,7 @@ edgeJust = edgeBy isJustEdge (Just undefined)
         isJustEdge (Just _) Nothing     = Nothing
 
 
--- Edge detector parameterized on the edge detection function and initial
+-- | Edge detector parameterized on the edge detection function and initial
 -- state, i.e., the previous input sample. The first argument to the
 -- edge detection function is the previous sample, the second the current one.
 
@@ -2140,17 +2174,17 @@ edgeBy isEdge a_init = SF {sfTF = tf0}
 -- Stateful event suppression
 ------------------------------------------------------------------------------
 
--- Suppression of initial (at local time 0) event.
+-- | Suppression of initial (at local time 0) event.
 notYet :: SF (Event a) (Event a)
 notYet = initially NoEvent
 
 
--- Suppress all but first event.
+-- | Suppress all but the first event.
 once :: SF (Event a) (Event a)
 once = takeEvents 1
 
 
--- Suppress all but first n events.
+-- | Suppress all but the first n events.
 takeEvents :: Int -> SF (Event a) (Event a)
 takeEvents n | n <= 0 = never
 takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
@@ -2167,7 +2201,8 @@ takeEvents (n + 1) = switch (never &&& identity) (takeEvents' n)
 -}
 
 
--- Suppress first n events.
+-- | Suppress first n events.
+
 -- Here dSwitch or switch does not really matter.
 dropEvents :: Int -> SF (Event a) (Event a)
 dropEvents n | n <= 0  = identity
@@ -2229,7 +2264,26 @@ switch (SF {sfTF = tf10} :: SF a (b, Event c)) (k :: c -> SF a b) = SF {sfTF = t
 			(_, Event c) -> sfTF (k c) a
 -}
 
--- Basic switch.
+-- | Basic switch.
+-- 
+-- By default, the first signal function is applied.
+--
+-- Whenever the second value in the pair actually is an event,
+-- the value carried by the event is used to obtain a new signal
+-- function to be applied *at that time and at future times*.
+-- 
+-- Until that happens, the first value in the pair is produced
+-- in the output signal.
+--
+-- Important note: at the time of switching, the second
+-- signal function is applied immediately. If that second
+-- SF can also switch at time zero, then a double (nested)
+-- switch might take place. If the second SF refers to the
+-- first one, the switch might take place infinitely many
+-- times and never be resolved.
+--
+-- Remember: The continuation is evaluated strictly at the time
+-- of switching!
 switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
 switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
     where
@@ -2284,8 +2338,31 @@ switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 			(_, Event c) -> sfTF (k c) a
 
 
--- Switch with delayed observation.
--- Or "decoupled switch"?
+-- | Switch with delayed observation.
+-- 
+-- By default, the first signal function is applied.
+--
+-- Whenever the second value in the pair actually is an event,
+-- the value carried by the event is used to obtain a new signal
+-- function to be applied *at future times*.
+-- 
+-- Until that happens, the first value in the pair is produced
+-- in the output signal.
+--
+-- Important note: at the time of switching, the second
+-- signal function is used immediately, but the current
+-- input is fed by it (even though the actual output signal
+-- value at time 0 is discarded). 
+-- 
+-- If that second SF can also switch at time zero, then a
+-- double (nested) -- switch might take place. If the second SF refers to the
+-- first one, the switch might take place infinitely many times and never be
+-- resolved.
+--
+-- Remember: The continuation is evaluated strictly at the time
+-- of switching!
+
+-- Alternative name: "decoupled switch"?
 -- (The SFId optimization is highly unlikley to be of much use, but it
 -- does raise an interesting typing issue.)
 dSwitch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
@@ -2352,7 +2429,11 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 			b)
 
 
--- Recurring switch.
+-- | Recurring switch.
+-- 
+-- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- information on how this switch works.
+
 -- !!! Suboptimal. Overall, the constructor is invarying since rSwitch is
 -- !!! being invoked recursively on a switch. In fact, we don't even care
 -- !!! whether the subordinate signal function is invarying or not.
@@ -2372,7 +2453,10 @@ rSwitch sf = switch (first sf) rSwitch'
 -}
 
 
--- Recurring switch with delayed observation.
+-- | Recurring switch with delayed observation.
+-- 
+-- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- information on how this switch works.
 drSwitch :: SF a b -> SF (a, Event (SF a b)) b
 drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
 
@@ -2385,7 +2469,11 @@ drSwitch sf = dSwitch (first sf) drSwitch'
 -}
 
 
--- "Call-with-current-continuation" switch.
+-- | "Call-with-current-continuation" switch.
+-- 
+-- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- information on how this switch works.
+
 -- !!! Has not been optimized properly.
 -- !!! Nor has opts been tested!
 -- !!! Don't forget Inv opts!
@@ -2500,7 +2588,11 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 			    Event c -> sfTF (k (arr f1) c) a
 
 
--- kSwitch with delayed observation.
+-- | 'kSwitch' with delayed observation.
+-- 
+-- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- information on how this switch works.
+
 -- !!! Has not been optimized properly. Should be like kSwitch.
 dkSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
@@ -2527,6 +2619,8 @@ dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 -- Parallel composition and switching over collections with broadcasting
 ------------------------------------------------------------------------------
 
+-- | Tuple a value up with every element of a collection of signal
+-- functions.
 broadcast :: Functor col => a -> col sf -> col (a, sf)
 broadcast a sfs = fmap (\sf -> (a, sf)) sfs
 
@@ -2556,30 +2650,45 @@ broadcast a sfs = fmap (\sf -> (a, sf)) sfs
 -- !!! = arr1 &&& (arr23CcpXcpX) >>> arrX
 -- !!! = arr123CcpXcpXcpX
 
--- Spatial parallel composition of a signal function collection.
+-- | Spatial parallel composition of a signal function collection.
+-- Given a collection of signal functions, it returns a signal
+-- function that 'broadcast's its input signal to every element
+-- of the collection, to return a signal carrying a collection
+-- of outputs. See 'par'.
+--
+-- For more information on how parallel composition works, check
+-- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
 parB :: Functor col => col (SF a b) -> SF a (col b)
 parB = par broadcast
 
-
--- Parallel switch (dynamic collection of signal functions spatially composed
--- in parallel).
+-- | Parallel switch (dynamic collection of signal functions spatially composed
+-- in parallel). See 'pSwitch'.
+--
+-- For more information on how parallel composition works, check
+-- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
 pSwitchB :: Functor col =>
     col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c-> SF a (col b))
     -> SF a (col b)
 pSwitchB = pSwitch broadcast
 
-
+-- | Delayed parallel switch with broadcasting (dynamic collection of
+--   signal functions spatially composed in parallel). See 'dpSwitch'.
+-- 
+-- For more information on how parallel composition works, check
+-- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
 dpSwitchB :: Functor col =>
     col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c->SF a (col b))
     -> SF a (col b)
 dpSwitchB = dpSwitch broadcast
 
-
+-- For more information on how parallel composition works, check
+-- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
 rpSwitchB :: Functor col =>
     col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
 rpSwitchB = rpSwitch broadcast
 
-
+-- For more information on how parallel composition works, check
+-- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
 drpSwitchB :: Functor col =>
     col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
 drpSwitchB = drpSwitch broadcast
@@ -2589,17 +2698,15 @@ drpSwitchB = drpSwitch broadcast
 -- Parallel composition and switching over collections with general routing
 ------------------------------------------------------------------------------
 
--- Spatial parallel composition of a signal function collection parameterized
+-- | Spatial parallel composition of a signal function collection parameterized
 -- on the routing function.
--- rf .........	Routing function: determines the input to each signal function
---		in the collection. IMPORTANT! The routing function MUST
---		preserve the structure of the signal function collection.
--- sfs0 .......	Signal function collection.
--- Returns the spatial parallel composition of the supplied signal functions.
-
+--
 par :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf)))
-    -> col (SF b c)
+    (forall sf . (a -> col sf -> col (b, sf))) -- ^ Determines the input to each signal function
+                                               --     in the collection. IMPORTANT! The routing function MUST
+                                               --     preserve the structure of the signal function collection.
+
+    -> col (SF b c)                            -- ^ Signal function collection.
     -> SF a (col c)
 par rf sfs0 = SF {sfTF = tf0}
     where
@@ -2628,13 +2735,15 @@ parAux rf sfs = SF' tf -- True
 	        (parAux rf sfs', cs)
 
 
--- Parallel switch parameterized on the routing function. This is the most
+-- | Parallel switch parameterized on the routing function. This is the most
 -- general switch from which all other (non-delayed) switches in principle
 -- can be derived. The signal function collection is spatially composed in
 -- parallel and run until the event signal function has an occurrence. Once
 -- the switching event occurs, all signal function are "frozen" and their
 -- continuations are passed to the continuation function, along with the
 -- event value.
+--
+
 -- rf .........	Routing function: determines the input to each signal function
 --		in the collection. IMPORTANT! The routing function has an
 --		obligation to preserve the structure of the signal function
@@ -2645,12 +2754,15 @@ parAux rf sfs = SF' tf -- True
 -- Returns the resulting signal function.
 --
 -- !!! Could be optimized on the event source being SFArr, SFArrE, SFArrEE
---
-pSwitch :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf)))
-    -> col (SF b c)
-    -> SF (a, col c) (Event d)
-    -> (col (SF b c) -> d -> SF a (col c))
+pSwitch :: Functor col
+    => (forall sf . (a -> col sf -> col (b, sf))) -- ^ Routing function: determines the input to each signal function
+                                                  --   in the collection. IMPORTANT! The routing function has an
+                                                  --   obligation to preserve the structure of the signal function
+                                                  --   collection.
+
+    -> col (SF b c)                               -- ^ Signal function collection.
+    -> SF (a, col c) (Event d)                    -- ^ Signal function generating the switching event.
+    -> (col (SF b c) -> d -> SF a (col c))        -- ^ Continuation to be invoked once event occurs.
     -> SF a (col c)
 pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
     where
@@ -2678,16 +2790,36 @@ pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
 			    (_,    Event d) -> sfTF (k (freezeCol sfs dt) d) a
 
 
--- Parallel switch with delayed observation parameterized on the routing
+-- | Parallel switch with delayed observation parameterized on the routing
 -- function.
 --
+-- The collection argument to the function invoked on the
+-- switching event is of particular interest: it captures the
+-- continuations of the signal functions running in the collection
+-- maintained by 'dpSwitch' at the time of the switching event,
+-- thus making it possible to preserve their state across a switch.
+-- Since the continuations are plain, ordinary signal functions,
+-- they can be resumed, discarded, stored, or combined with
+-- other signal functions.
+
 -- !!! Could be optimized on the event source being SFArr, SFArrE, SFArrEE.
 --
 dpSwitch :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf)))
-    -> col (SF b c)
-    -> SF (a, col c) (Event d)
-    -> (col (SF b c) -> d -> SF a (col c))
+    (forall sf . (a -> col sf -> col (b, sf))) -- ^ Routing function. Its purpose is
+                                               --   to pair up each running signal function in the collection
+                                               --   maintained by 'dpSwitch' with the input it is going to see
+                                               --   at each point in time. All the routing function can do is specify
+                                               --   how the input is distributed.
+    -> col (SF b c)                            -- ^ Initial collection of signal functions.
+    -> SF (a, col c) (Event d)                 -- ^ Signal function that observes the external
+                                               --   input signal and the output signals from the collection in order
+                                               --   to produce a switching event.
+    -> (col (SF b c) -> d -> SF a (col c))     -- ^ The fourth argument is a function that is invoked when the
+                                               --   switching event occurs, yielding a new signal function to switch
+                                               --   into based on the collection of signal functions previously
+                                               --   running and the value carried by the switching event. This
+                                               --   allows the collection to be updated and then switched back
+                                               --   in, typically by employing 'dpSwitch' again.
     -> SF a (col c)
 dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
     where
@@ -2761,13 +2893,15 @@ drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
 -- Wave-form generation
 ------------------------------------------------------------------------------
 
--- Zero-order hold.
+-- | Zero-order hold.
+
 -- !!! Should be redone using SFSScan?
 -- !!! Otherwise, we are missing an invarying case.
 old_hold :: a -> SF (Event a) a
 old_hold a_init = switch (constant a_init &&& identity)
                          ((NoEvent >--) . old_hold)
 
+-- | Zero-order hold.
 hold :: a -> SF (Event a) a
 hold a_init = epPrim f () a_init
     where
@@ -2789,7 +2923,9 @@ hold a_init = epPrim f () a_init
 -- !!! and ep + sscan = sscan, then things might work, and
 -- !!! it might be possible to define dHold simply as hold >>> iPre
 -- !!! without any performance penalty. 
--- Zero-order hold with delay.
+
+-- | Zero-order hold with delay.
+--
 -- Identity: dHold a0 = hold a0 >>> iPre a0).
 dHold :: a -> SF (Event a) a
 dHold a0 = hold a0 >>> iPre a0
@@ -2800,7 +2936,8 @@ dHold a_init = epPrim f a_init a_init
         f a' a = (a, a', a)
 -}
 
--- Tracks input signal when available, holds last value when disappears.
+-- | Tracks input signal when available, holds last value when disappears.
+--
 -- !!! DANGER!!! Event used inside arr! Probably OK because arr will not be
 -- !!! optimized to arrE. But still. Maybe rewrite this using, say, scan?
 -- !!! or switch? Switching (in hold) for every input sample does not
@@ -2947,7 +3084,8 @@ accumFilter g c_init = epPrim f c_init NoEvent
 -- Delays
 ------------------------------------------------------------------------------
 
--- Uninitialized delay operator.
+-- | Uninitialized delay operator (old implementation).
+
 -- !!! The seq helps in the dynamic delay line example. But is it a good
 -- !!! idea in general? Are there other accumulators which should be seq'ed
 -- !!! as well? E.g. accum? Switch? Anywhere else? What's the underlying
@@ -2962,11 +3100,13 @@ old_pre = SF {sfTF = tf0}
 	    where
 		tf _ a = {- a_prev `seq` -} (preAux a, a_prev)
 
--- Initialized delay operator.
+-- | Initialized delay operator (old implementation).
 old_iPre :: a -> SF a a
 old_iPre = (--> old_pre)
 
 
+
+-- | Uninitialized delay operator.
 
 -- !!! Redefined using SFSScan
 -- !!! About 20% slower than old_pre on its own.
@@ -2977,7 +3117,7 @@ pre = sscanPrim f uninit uninit
         uninit = usrErr "AFRP" "pre" "Uninitialized pre operator."
 
 
--- Initialized delay operator.
+-- | Initialized delay operator.
 iPre :: a -> SF a a
 iPre = (--> pre)
 
@@ -2986,6 +3126,8 @@ iPre = (--> pre)
 -- Timed delays
 ------------------------------------------------------------------------------
 
+-- | Delay a signal by a fixed time 't', using the second parameter
+-- to fill in the initial 't' seconds.
 
 -- Invariants:
 -- t_diff measure the time since the latest output sample ideally
@@ -3033,24 +3175,28 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
 -- varDelay :: Time -> a -> SF (a, Time) a
 -- varDelay = undefined
 
+
 ------------------------------------------------------------------------------
 -- Variable pause in signal
 ------------------------------------------------------------------------------
 
--- if_then_else :: SF a Bool -> SF a b -> SF a b -> SF a b
--- if_then_else condSF sfThen sfElse = proc (i) -> do
---   cond  <- condSF -< i
---   ok    <- sfThen -< i
---   notOk <- sfElse -< i
---   returnA -< if cond then ok else notOk
-
+-- | Given a value in an accumulator (b), a predicate signal function (sfC), 
+--   and a second signal function (sf), pause will produce the accumulator b
+--   if sfC input is True, and will transform the signal using sf otherwise.
+--   It acts as a pause with an accumulator for the moments when the
+--   transformation is paused.
 pause :: b -> SF a Bool -> SF a b -> SF a b
 pause b_init (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
- where tf0 a0 = case tfP a0 of
+ where
+       -- Initial transformation (no time delta):
+       -- If the condition is True, return the accumulator b_init)
+       -- Otherwise transform the input normally and recurse.
+       tf0 a0 = case tfP a0 of
                  (c, True)  -> (pauseInit b_init tf10 c, b_init)
                  (c, False) -> let (k, b0) = tf10 a0
                                in (pause' b0 k c, b0)
 
+       -- Similar deal, but with a time delta
        pauseInit :: b -> (a -> Transition a b) -> SF' a Bool -> SF' a b
        pauseInit b_init' tf10' c = SF' tf0'
          where tf0' dt a =
@@ -3059,6 +3205,7 @@ pause b_init (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
                   (c', False) -> let (k, b0) = tf10' a
                                  in (pause' b0 k c', b0)
 
+       -- Very same deal (almost alpha-renameable)
        pause' :: b -> SF' a b -> SF' a Bool -> SF' a b
        pause' b_init' tf10' tfP' = SF' tf0'
          where tf0' dt a = 
@@ -3067,11 +3214,18 @@ pause b_init (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
                    (tfP'', False) -> let (tf10'', b0') = (sfTF' tf10') dt a
                                      in (pause' b0' tf10'' tfP'', b0')
 
+-- if_then_else :: SF a Bool -> SF a b -> SF a b -> SF a b
+-- if_then_else condSF sfThen sfElse = proc (i) -> do
+--   cond  <- condSF -< i
+--   ok    <- sfThen -< i
+--   notOk <- sfElse -< i
+--   returnA -< if cond then ok else notOk
+
 ------------------------------------------------------------------------------
 -- Integration and differentiation
 ------------------------------------------------------------------------------
 
--- Integration using the rectangle rule.
+-- | Integration using the rectangle rule.
 {-# INLINE integral #-}
 integral :: VectorSpace a s => SF a a
 integral = SF {sfTF = tf0}
@@ -3096,8 +3250,9 @@ f `iterFrom` b = SF (iterAux b) where
   -- iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a') True, b)
   iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a'), b)
 
-
--- This is extremely crude. Use at your own risk.
+-- | A very crude version of a derivative. It simply divides the
+--   value difference by the time difference. As such, it is very
+--   crude. Use at your own risk.
 derivative :: VectorSpace a s => SF a a
 derivative = SF {sfTF = tf0}
     where
@@ -3112,11 +3267,13 @@ derivative = SF {sfTF = tf0}
 -- Loops with guaranteed well-defined feedback
 ------------------------------------------------------------------------------
 
+-- | Loop with an initial value for the signal being fed back.
 loopPre :: c -> SF (a,c) (b,c) -> SF a b
 loopPre c_init sf = loop (second (iPre c_init) >>> sf)
 
-
-
+-- | Loop by integrating the second value in the pair and feeding the
+-- result back. Because the integral at time 0 is zero, this is always
+-- well defined.
 loopIntegral :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
 loopIntegral sf = loop (second integral >>> sf)
 
@@ -3125,13 +3282,13 @@ loopIntegral sf = loop (second integral >>> sf)
 -- Noise (i.e. random signal generators) and stochastic processes
 ------------------------------------------------------------------------------
 
--- Noise (random signal) with default range for type in question;
+-- | Noise (random signal) with default range for type in question;
 -- based on "randoms".
 noise :: (RandomGen g, Random b) => g -> SF a b
 noise g0 = streamToSF (randoms g0)
 
 
--- Noise (random signal) with specified range; based on "randomRs".
+-- | Noise (random signal) with specified range; based on "randomRs".
 noiseR :: (RandomGen g, Random b) => (b,b) -> g -> SF a b
 noiseR range g0 = streamToSF (randomRs range g0)
 
@@ -3163,11 +3320,12 @@ streamToSF = sscan2 f
 -}
 
 
--- Stochastic event source with events occurring on average once every t_avg
+-- | Stochastic event source with events occurring on average once every t_avg
 -- seconds. However, no more than one event results from any one sampling
 -- interval in the case of relatively sparse sampling, thus avoiding an
 -- "event backlog" should sampling become more frequent at some later
 -- point in time.
+
 -- !!! Maybe it would better to give a frequency? But like this to make
 -- !!! consitent with "repeatedly".
 occasionally :: RandomGen g => g -> Time -> b -> SF a (Event b)
@@ -3280,9 +3438,10 @@ data ReactState a b = ReactState {
     rsB :: b
   }	      
 
+-- | A reference to reactimate's state, maintained across samples.
 type ReactHandle a b = IORef (ReactState a b)
 
--- initialize top-level reaction handle
+-- | Initialize a top-level reaction handle.
 reactInit :: IO a -- init
              -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
              -> SF a b
@@ -3296,7 +3455,7 @@ reactInit init actuate (SF {sfTF = tf0}) =
      _ <- actuate r True b0
      return r
 
--- process a single input sample:
+-- | Process a single input sample.
 react :: ReactHandle a b
       -> (DTime,Maybe a)
       -> IO Bool
