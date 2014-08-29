@@ -288,9 +288,6 @@ module FRP.Yampa (
     trackAndHold,	-- :: a -> SF (Maybe a) a
 
 -- ** Accumulators
-    old_accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    old_accumBy,	-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    old_accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
     accum,		-- :: a -> SF (Event (a -> a)) (Event a)
     accumHold,		-- :: a -> SF (Event (a -> a)) a
     dAccumHold,		-- :: a -> SF (Event (a -> a)) a
@@ -299,6 +296,9 @@ module FRP.Yampa (
     dAccumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
     accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
 			--    -> SF (Event a) (Event b)
+    old_accum,		-- :: a -> SF (Event (a -> a)) (Event a)
+    old_accumBy,	-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    old_accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
 
 -- * Delays
 -- ** Basic delays
@@ -2950,24 +2950,37 @@ trackAndHold a_init = arr (maybe NoEvent Event) >>> hold a_init
 -- Accumulators
 ------------------------------------------------------------------------------
 
+-- | See 'accum'.
 old_accum :: a -> SF (Event (a -> a)) (Event a)
 old_accum = accumBy (flip ($))
 
+-- | Given an initial value in an accumulator,
+--   it returns a signal function that processes
+--   an event carrying transformation functions.
+--   Every time an 'Event' is received, the function
+--   inside it is applied to the accumulator,
+--   whose new value is outputted in an 'Event'.
+--   
 accum :: a -> SF (Event (a -> a)) (Event a)
 accum a_init = epPrim f a_init NoEvent
     where
-        f a g = (a', Event a', NoEvent)
+        f a g = (a', Event a', NoEvent) -- Accumulator, output if Event, output if no event
             where
                 a' = g a
 
 
+-- | Zero-order hold accumulator (always produces the last outputted value
+--   until an event arrives).
 accumHold :: a -> SF (Event (a -> a)) a
 accumHold a_init = epPrim f a_init a_init
     where
-        f a g = (a', a', a')
+        f a g = (a', a', a') -- Accumulator, output if Event, output if no event
             where
                 a' = g a
 
+-- | Zero-order hold accumulator with delayed initialization (always produces
+-- the last outputted value until an event arrives, but the very initial output 
+-- is always the given accumulator).
 dAccumHold :: a -> SF (Event (a -> a)) a
 dAccumHold a_init = accumHold a_init >>> iPre a_init
 {-
@@ -2983,11 +2996,13 @@ dAccumHold a_init = epPrim f a_init a_init
 -}
 
 
+-- | See 'accumBy'.
 old_accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
 old_accumBy f b_init = switch (never &&& identity) $ \a -> abAux (f b_init a)
     where
         abAux b = switch (now b &&& notYet) $ \a -> abAux (f b a)
 
+-- | Accumulator parameterized by the accumulation function.
 accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
 accumBy g b_init = epPrim f b_init NoEvent
     where
@@ -2995,6 +3010,7 @@ accumBy g b_init = epPrim f b_init NoEvent
             where
                 b' = g b a
 
+-- | Zero-order hold accumulator parameterized by the accumulation function.
 accumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
 accumHoldBy g b_init = epPrim f b_init b_init
     where
@@ -3006,6 +3022,9 @@ accumHoldBy g b_init = epPrim f b_init b_init
 -- !!! on the input at every time step.
 -- !!! Add a test case to check for this!
 
+-- | Zero-order hold accumulator parameterized by the accumulation function
+--   with delayed initialization (initial output sample is always the
+--   given accumulator).
 dAccumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
 dAccumHoldBy f a_init = accumHoldBy f a_init >>> iPre a_init
 {-
@@ -3065,13 +3084,17 @@ accumFilter f c_init = SF {sfTF = tf0}
 				     (c', Just b)  -> (afAux c', Event b)
 -}
 
-
+-- | See 'accumFilter'.
 old_accumFilter :: (c -> a -> (c, Maybe b)) -> c -> SF (Event a) (Event b)
 old_accumFilter f c_init = switch (never &&& identity) $ \a -> afAux (f c_init a)
     where
         afAux (c, Nothing) = switch (never &&& notYet) $ \a -> afAux (f c a)
         afAux (c, Just b)  = switch (now b &&& notYet) $ \a -> afAux (f c a)
 
+-- | Accumulator parameterized by the accumulator function with filtering,
+--   possibly discarding some of the input events based on whether the second
+--   component of the result of applying the accumulation function is
+--   'Nothing' or 'Just' x for some x.
 accumFilter :: (c -> a -> (c, Maybe b)) -> c -> SF (Event a) (Event b)
 accumFilter g c_init = epPrim f c_init NoEvent
     where
