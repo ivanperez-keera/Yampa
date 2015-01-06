@@ -1,4 +1,4 @@
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE CPP, Rank2Types #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Task
@@ -29,6 +29,10 @@ module FRP.Yampa.Task (
     forAll,     -- :: Monad m => [a] -> (a -> m b) -> m ()
     forEver     -- :: Monad m => m a -> m b
 ) where
+
+#if !(MIN_VERSION_base(4,8,0))
+import Control.Applicative (Applicative(..))
+#endif
 
 import FRP.Yampa
 import FRP.Yampa.Utilities (snap)
@@ -89,8 +93,15 @@ taskToSF tk = runTask tk
 
 
 ------------------------------------------------------------------------------
--- Monad instance
+-- Functor, Applicative, and Monad instances
 ------------------------------------------------------------------------------
+
+instance Functor (Task a b) where
+    fmap f tk = Task (\k -> unTask tk (k . f))
+
+instance Applicative (Task a b) where
+    pure x  = Task (\k -> k x)
+    f <*> v = Task (\k -> (unTask f) (\c -> unTask v (k . c)))
 
 instance Monad (Task a b) where
     tk >>= f = Task (\k -> (unTask tk) (\c -> unTask (f c) k))
