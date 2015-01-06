@@ -19,9 +19,9 @@ module FRP.Yampa.Point2 (
     -- module AFRPVectorSpace,
     -- module AFRPAffineSpace,
     -- module AFRPVector2,
-    Point2(..),	-- Non-abstract, instance of AffineSpace
-    point2X,	-- :: RealFloat a => Point2 a -> a
-    point2Y	-- :: RealFloat a => Point2 a -> a
+    Point2(..), -- Non-abstract, instance of AffineSpace
+    point2X,    -- :: RealFloat a => Point2 a -> a
+    point2Y     -- :: RealFloat a => Point2 a -> a
 ) where
 
 import FRP.Yampa.VectorSpace ()

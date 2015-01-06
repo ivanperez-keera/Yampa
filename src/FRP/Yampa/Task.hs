@@ -15,19 +15,19 @@
 
 module FRP.Yampa.Task (
     Task,
-    mkTask,	-- :: SF a (b, Event c) -> Task a b c
-    runTask,	-- :: Task a b c -> SF a (Either b c)	-- Might change.
-    runTask_,	-- :: Task a b c -> SF a b
-    taskToSF,	-- :: Task a b c -> SF a (b, Event c)	-- Might change.
-    constT,	-- :: b -> Task a b c
-    sleepT, 	-- :: Time -> b -> Task a b ()
-    snapT, 	-- :: Task a b a
-    timeOut, 	-- :: Task a b c -> Time -> Task a b (Maybe c)
-    abortWhen, 	-- :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
+    mkTask,     -- :: SF a (b, Event c) -> Task a b c
+    runTask,    -- :: Task a b c -> SF a (Either b c)	-- Might change.
+    runTask_,   -- :: Task a b c -> SF a b
+    taskToSF,   -- :: Task a b c -> SF a (b, Event c)	-- Might change.
+    constT,     -- :: b -> Task a b c
+    sleepT,     -- :: Time -> b -> Task a b ()
+    snapT,      -- :: Task a b a
+    timeOut,    -- :: Task a b c -> Time -> Task a b (Maybe c)
+    abortWhen,  -- :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
     repeatUntil,-- :: Monad m => m a -> (a -> Bool) -> m a
-    for, 	-- :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
-    forAll, 	-- :: Monad m => [a] -> (a -> m b) -> m ()
-    forEver 	-- :: Monad m => m a -> m b
+    for,        -- :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
+    forAll,     -- :: Monad m => [a] -> (a -> m b) -> m ()
+    forEver     -- :: Monad m => m a -> m b
 ) where
 
 import FRP.Yampa
@@ -78,14 +78,14 @@ runTask_ tk = runTask tk
 -- Law: mkTask (taskToSF task) = task (but not (quite) vice versa.)
 taskToSF :: Task a b c -> SF a (b, Event c)
 taskToSF tk = runTask tk
-	      >>> (arr (either id ((usrErr "AFRPTask" "runTask_"
+              >>> (arr (either id ((usrErr "AFRPTask" "runTask_"
                                            "Task terminated!")))
-		   &&& edgeBy isEdge (Left undefined))
+                   &&& edgeBy isEdge (Left undefined))
     where
         isEdge (Left _)  (Left _)  = Nothing
-	isEdge (Left _)  (Right c) = Just c
-	isEdge (Right _) (Right _) = Nothing
-	isEdge (Right _) (Left _)  = Nothing
+        isEdge (Left _)  (Right c) = Just c
+        isEdge (Right _) (Right _) = Nothing
+        isEdge (Right _) (Left _)  = Nothing
 
 
 ------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ timeOut :: Task a b c -> Time -> Task a b (Maybe c)
 tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
     where
         aux ((b, ec), et) = (b, (lMerge (fmap Just ec)
-					(fmap (const Nothing) et)))
+                                (fmap (const Nothing) et)))
 
 
 -- Run a "guarding" event source (SF a (Event b)) in parallel with a
