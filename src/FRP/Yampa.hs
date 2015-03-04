@@ -369,21 +369,21 @@ module FRP.Yampa (
 
 ) where
 
-import Control.Monad (unless)
-import System.Random (RandomGen(..), Random(..))
-
+import Control.Arrow
 #if __GLASGOW_HASKELL__ >= 610
 import qualified Control.Category (Category(..))
 #else
 #endif
+import Control.Monad (unless)
+import Data.IORef
+import Data.Maybe (fromMaybe)
+import System.Random (RandomGen(..), Random(..))
 
-import Control.Arrow
+
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Miscellany (( # ), dup, swap)
 import FRP.Yampa.Event
 import FRP.Yampa.VectorSpace
-
-import Data.IORef
 
 infixr 0 -->, >--, -=>, >=-
 
@@ -1192,7 +1192,7 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
 	    sfEP f (s, cne) (vfyNoEv f1ne cne)
             where
                 f scne@(s, cne) a =
-                    case (f1 (Event a)) of
+                    case f1 (Event a) of
                         NoEvent -> (scne, cne, cne)
                         Event b ->
                             let (s', c, cne') = f2 s b in ((s', cne'), c, cne')
@@ -3485,7 +3485,7 @@ react :: ReactHandle a b
       -> IO Bool
 react rh (dt,ma') = 
   do rs@(ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b }) <- readIORef rh
-     let a' = maybe a id ma'
+     let a' = fromMaybe a ma'
          (sf',b') = (sfTF' sf) dt a'
      writeIORef rh (rs {rsSF = sf',rsA = a',rsB = b'})
      done <- actuate rh True b'
