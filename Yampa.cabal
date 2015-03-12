@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.9.5
+version: 0.9.6
 cabal-version: >= 1.6
 license: BSD3
 license-file: LICENSE

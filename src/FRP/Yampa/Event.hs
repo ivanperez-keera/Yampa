@@ -256,17 +256,17 @@ mapMerge lf _  _   (Event l) NoEvent   = Event (lf l)
 mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
 mapMerge _  _  lrf (Event l) (Event r) = Event (lrf l r)
 
--- Merging of a list of events; foremost event has priority.
+-- | Merge a list of events; foremost event has priority.
 mergeEvents :: [Event a] -> Event a
 mergeEvents = foldr lMerge NoEvent
 
--- | Collects simultaneous event occurrences; no event if none.
+-- | Collect simultaneous event occurrences; no event if none.
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
 		    [] -> NoEvent
 		    as -> Event as
 
--- | Join (conjucntion) of two events. Only produces an event
+-- | Join (conjunction) of two events. Only produces an event
 -- if both events exist.
 joinE :: Event a -> Event b -> Event (a,b)
 joinE NoEvent   _         = NoEvent

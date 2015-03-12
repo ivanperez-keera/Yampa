@@ -73,12 +73,10 @@ swap ~(x,y) = (y,x)
 ------------------------------------------------------------------------------
 
 mapFst :: (a -> b) -> [(a,c)] -> [(b,c)]
-mapFst _ []             = []
-mapFst f ((x, y) : xys) = (f x, y) : mapFst f xys
+mapFst f = map (\(x,y) -> (f x, y))
 
 mapSnd :: (a -> b) -> [(c,a)] -> [(c,b)]
-mapSnd _ []             = []
-mapSnd f ((x, y) : xys) = (x, f y) : mapSnd f xys
+mapSnd f = map (\(x,y) -> (x, f y))
 
 
 ------------------------------------------------------------------------------

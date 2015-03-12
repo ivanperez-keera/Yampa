@@ -1,6 +1,10 @@
+cabal-dev
+.cabal-sandbox
+cabal.sandbox.config
+*.chi
+*.chs.h
+dist
 *.hi
 *.o
-.cabal-sandbox/
-cabal.sandbox.config
-dist/
 tests/testAFRPMain
+.virthualenv
