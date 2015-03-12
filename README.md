@@ -26,6 +26,10 @@ There are many programs written in Yampa. See the following examples:
 * Frag: a 3D first person shooting game.
   https://hackage.haskell.org/package/frag
 
+A more comprehensive list can be obtained using the reverse dependency finder
+(http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
+hackage are listed. 
+
 # Backends
 
 Yampa is backend agnostic, you can ultimately connect it to any backend you
