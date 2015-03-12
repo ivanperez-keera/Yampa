@@ -17,7 +17,6 @@ import System.IO.Unsafe (unsafePerformIO)
 import Data.IORef (newIORef, writeIORef, readIORef)
 
 import FRP.Yampa
-import FRP.Yampa.Internals (Event(NoEvent, Event))
 
 ------------------------------------------------------------------------------
 -- Rough equality with instances
@@ -70,6 +69,7 @@ instance (REq a, REq b, REq c, REq d, REq e) => REq (a,b,c,d,e) where
 				           && x2 ~= y2
 				           && x3 ~= y3
 				           && x4 ~= y4
+				           && x5 ~= y5
 
 instance REq a => REq (Maybe a) where
     Nothing ~= Nothing   = True
@@ -105,7 +105,7 @@ testSF2 sf = take 25 (embed sf (deltaEncodeBy (~=) 0.25 input))
     where
 	-- The initial 0.0 is just for result compatibility with an older
 	-- version.
-	input = 0.0 : [ fromIntegral (b `div` freq) | b <- [1..] ]
+	input = 0.0 : [ fromIntegral (b `div` freq) | b <- [1..] :: [Int] ]
 	freq = 5
 
 
@@ -148,18 +148,20 @@ testSFSpaceLeak n sf = unsafePerformIO $ do
 	    return (0.25, Just input')
 	actuate _ output = do
 	    writeIORef outputr output
-	    input <- readIORef inputr
-	    count <- readIORef countr
+	    _input <- readIORef inputr
+	    count  <- readIORef countr
 	    return (count >= n)
     reactimate init sense actuate sf
-    output <- readIORef outputr
-    return output
 
+    -- return output
+    readIORef outputr
 
 ------------------------------------------------------------------------------
 -- Some utilities used for testing laws
 ------------------------------------------------------------------------------
 
-fun_prod f g = \(x,y) -> (f x, g y)
+assoc :: ((a,b),c) -> (a,(b,c))
 assoc ((a,b),c) = (a,(b,c))
-assoc_inv (a,(b,c)) = ((a,b),c)
+
+assocInv :: (a,(b,c)) -> ((a,b),c)
+assocInv (a,(b,c)) = ((a,b),c)

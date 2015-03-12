@@ -49,7 +49,7 @@ laws_t3_rhs = testSF1 (arr (+3.0) >>> arr (*2.5))
 laws_t4_lhs :: [(Double, Double)]
 laws_t4_lhs = testSF1 (arr dup >>> first (arr (*2.5)))
 laws_t4_rhs :: [(Double, Double)]
-laws_t4_rhs = testSF1 (arr dup >>> arr (fun_prod (*2.5) id))
+laws_t4_rhs = testSF1 (arr dup >>> arr ((*2.5) *** id))
 
 laws_t5_lhs :: [(Double, Double)]
 laws_t5_lhs = testSF1 (arr dup >>> (first (integral >>> arr (+3.0))))
@@ -57,9 +57,9 @@ laws_t5_rhs :: [(Double, Double)]
 laws_t5_rhs = testSF1 (arr dup >>> (first integral >>> first (arr (+3.0))))
 
 laws_t6_lhs :: [(Double, Double)]
-laws_t6_lhs = testSF1 (arr dup >>> (first integral>>>arr (fun_prod id (+3.0))))
+laws_t6_lhs = testSF1 (arr dup >>> (first integral >>> arr (id *** (+3.0))))
 laws_t6_rhs :: [(Double, Double)]
-laws_t6_rhs = testSF1 (arr dup >>> (arr (fun_prod id (+3.0))>>>first integral))
+laws_t6_rhs = testSF1 (arr dup >>> (arr (id *** (+3.0)) >>> first integral))
 
 laws_t7_lhs :: [Double]
 laws_t7_lhs = testSF1 (arr dup >>> (first integral >>> arr fst))

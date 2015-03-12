@@ -56,7 +56,7 @@ looplaws_t1_rhs = testSF1 (loop looplaws_t1_f >>> looplaws_t1_h)
 -- Used to work with only signature t2_f :: Fractional a -> SF a a
 looplaws_t2_f :: SF (Double, Double) (Double, Double)
 looplaws_t2_f = integral
-looplaws_t2_k = fun_prod id (+42.0)
+looplaws_t2_k = id *** (+42.0)
 looplaws_t2_lhs :: [Double]
 looplaws_t2_lhs = testSF1 (loop (looplaws_t2_f >>> arr looplaws_t2_k))
 looplaws_t2_rhs :: [Double]
@@ -74,7 +74,7 @@ looplaws_t3_f = second integral
 looplaws_t3_lhs :: [Double]
 looplaws_t3_lhs = testSF1 (loop (loop looplaws_t3_f))
 looplaws_t3_rhs :: [Double]
-looplaws_t3_rhs = testSF1 (loop (arr assoc_inv >>> looplaws_t3_f >>>arr assoc))
+looplaws_t3_rhs = testSF1 (loop (arr assocInv >>> looplaws_t3_f >>> arr assoc))
 
 
 -- Superposing
@@ -84,7 +84,7 @@ looplaws_t4_lhs = testSF1 (arr dup >>> (second (loop looplaws_t4_f)))
 looplaws_t4_rhs :: [(Double, Double)]
 looplaws_t4_rhs = testSF1 (arr dup >>> (loop (arr assoc
 				        >>> second looplaws_t4_f
-				        >>> arr assoc_inv)))
+				        >>> arr assocInv)))
 
 
 -- Extension
