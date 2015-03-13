@@ -54,6 +54,10 @@ library
     FRP.Yampa.Miscellany
     FRP.Yampa.Task
     FRP.Yampa.Internals
+    FRP.Yampa.Core
+    FRP.Yampa.Integration
+    FRP.Yampa.Switches
+    FRP.Yampa.Time
   other-modules:
     FRP.Yampa.Diagnostics
 

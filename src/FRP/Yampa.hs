@@ -335,7 +335,8 @@ module FRP.Yampa (
 			--        (b,b) -> g -> SF a b
     occasionally,	-- :: RandomGen g => g -> Time -> b -> SF a (Event b)
 
--- * Reactimation
+-- * Execution/simulation
+-- ** Reactimation
     reactimate,		-- :: IO a
 	      		--    -> (Bool -> IO (DTime, Maybe a))
 	      		--    -> (Bool -> b -> IO Bool)
@@ -346,14 +347,13 @@ module FRP.Yampa (
                         --    -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
                         --    -> SF a b
                         --    -> IO (ReactHandle a b)
--- process a single input sample:
+                        -- process a single input sample:
     react,              --    ReactHandle a b
                         --    -> (DTime,Maybe a)
                         --    -> IO Bool
 
--- * Embedding
-
---  (tentative: will be revisited)
+-- ** Embedding
+                        --  (tentative: will be revisited)
     embed,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
     embedSynch,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
     deltaEncode,	-- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
@@ -379,190 +379,192 @@ import Data.IORef
 import Data.Maybe (fromMaybe)
 import System.Random (RandomGen(..), Random(..))
 
-
+import FRP.Yampa.Core
 import FRP.Yampa.Diagnostics
-import FRP.Yampa.Miscellany (( # ), dup, swap)
 import FRP.Yampa.Event
+import FRP.Yampa.Miscellany (( # ), dup, swap)
+import FRP.Yampa.Switches
+import FRP.Yampa.Time
 import FRP.Yampa.VectorSpace
 
-infixr 0 -->, >--, -=>, >=-
+-- infixr 0 -->, >--, -=>, >=-
 
 ------------------------------------------------------------------------------
 -- Basic type definitions with associated utilities
 ------------------------------------------------------------------------------
 
--- The time type is really a bit boguous, since, as time passes, the minimal
--- interval between two consecutive floating-point-represented time points
--- increases. A better approach might be to pick a reasonable resolution
--- and represent time and time intervals by Integer (giving the number of
--- "ticks").
---
--- That might also improve the timing of time-based event sources.
--- One might actually pick the overall resolution in reactimate,
--- to be passed down, possibly in the form of a global parameter
--- record, to all signal functions on initialization. (I think only
--- switch would need to remember the record, since it is the only place
--- where signal functions get started. So it wouldn't cost all that much.
-
-
--- | Time is used both for time intervals (duration), and time w.r.t. some
--- agreed reference point in time.
-
---  Conceptually, Time = R, i.e. time can be 0 -- or even negative.
-type Time = Double	-- [s]
-
-
--- | DTime is the time type for lengths of sample intervals. Conceptually,
--- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
--- same representation.
-type DTime = Double	-- [s]
-
--- Representation of signal function in initial state.
--- (Naming: "TF" stands for Transition Function.)
-
--- | Signal function that transforms a signal carrying values of some type 'a'
--- into a signal carrying values of some type 'b'. You can think of it as
--- (Signal a -> Signal b). A signal is, conceptually, a
--- function from 'Time' to value.
-data SF a b = SF {sfTF :: a -> Transition a b}
-
-
--- Representation of signal function in "running" state.
---
--- Possibly better design for Inv.
---   Problem: tension between on the one hand making use of the
---   invariant property, and on the other keeping track of how something
---   has been constructed (SFCpAXA, in particular).
---   Idea: Add a boolean field to SFCpAXA and SF' that classifies
---   a signal function as being invarying.
---   A function sfIsInv computes to True for SFArr, SFAcc (and SFSScan,
---   possibly more), extracts the field in other cases.
---
---  Motivation for using a function (Event a -> b) in SFArrE
---  rather than (a -> Event b) or (a -> b) or even (Event a -> Event b).
---    The result type should be just "b" as opposed to "Event b" for
---    increased flexibility (e.g. matching "routing functions").
---    When the result type actually IS (Event b), and this fact is
---    exploitable, we'll be in a context where is it clear that
---    this is a fact, so we don't lose anything.
---    Since the idea is that the function is only going to be applied
---    when the there is an event, one could imagine the input type
---    just "a". But that's not the type of function we're given,
---    so it would have to be "massaged" a bit (precomposing with Event)
---    to fit. This will gain nothing, and potentially we will lose if
---    we actually need to recover the original function.
---    In fact, we sometimes really need to recover the original function
---    (e.g. currently in switch), and to do it correctly (also handling
---    NoEvent), we'd have to work quite hard introducing further
---    inefficiencies.
---  Summary: Make use of what we are given and only wrap things up later
---  when it is clear whatthe need is going to be, thus avoiding costly
---  "unwrapping".
-
--- GADTs needed in particular for SFEP, but also e.g. SFSScan
--- exploits them since there are more type vars than in the type con.
--- But one could use existentials for those.
-
-
-data SF' a b where
-    SFArr   :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
-    -- The b is intentionally unstrict as the initial output sometimes
-    -- is undefined (e.g. when defining pre). In any case, it isn't
-    -- necessarily used and should thus not be forced.
-    SFSScan :: !(DTime -> a -> Transition a b)
-               -> !(c -> a -> Maybe (c, b)) -> !c -> b 
-               -> SF' a b
-    SFEP   :: !(DTime -> Event a -> Transition (Event a) b)
-              -> !(c -> a -> (c, b, b)) -> !c -> b
-              -> SF' (Event a) b
-    SFCpAXA :: !(DTime -> a -> Transition a d)
-               -> !(FunDesc a b) -> !(SF' b c) -> !(FunDesc c d)
-               -> SF' a d
-    --  SFPair :: ...
-    SF' :: !(DTime -> a -> Transition a b) -> SF' a b
-
--- A transition is a pair of the next state (in the form of a signal
--- function) and the output at the present time step.
-
-type Transition a b = (SF' a b, b)
-
-
-sfTF' :: SF' a b -> (DTime -> a -> Transition a b)
-sfTF' (SFArr tf _)       = tf
-sfTF' (SFSScan tf _ _ _) = tf
-sfTF' (SFEP tf _ _ _)    = tf
-sfTF' (SFCpAXA tf _ _ _) = tf
-sfTF' (SF' tf)           = tf
-
-
--- !!! 2005-06-30
--- Unclear why, but the isInv mechanism seems to do more
--- harm than good.
--- Disable completely and see what happens.
-{-
-sfIsInv :: SF' a b -> Bool
--- sfIsInv _ = False
-sfIsInv (SFArr _ _)           = True
--- sfIsInv (SFAcc _ _ _ _)       = True
-sfIsInv (SFEP _ _ _ _)        = True
--- sfIsInv (SFSScan ...) = True
-sfIsInv (SFCpAXA _ inv _ _ _) = inv
-sfIsInv (SF' _ inv)           = inv
--}
-
--- "Smart" constructors. The corresponding "raw" constructors should not
--- be used directly for construction.
-
-sfArr :: FunDesc a b -> SF' a b
-sfArr FDI         = sfId
-sfArr (FDC b)     = sfConst b
-sfArr (FDE f fne) = sfArrE f fne
-sfArr (FDG f)     = sfArrG f
-
-
-sfId :: SF' a a
-sfId = sf
-    where
-	sf = SFArr (\_ a -> (sf, a)) FDI
-
-
-sfConst :: b -> SF' a b
-sfConst b = sf
-    where
-	sf = SFArr (\_ _ -> (sf, b)) (FDC b)
-
-
+-- -- The time type is really a bit boguous, since, as time passes, the minimal
+-- -- interval between two consecutive floating-point-represented time points
+-- -- increases. A better approach might be to pick a reasonable resolution
+-- -- and represent time and time intervals by Integer (giving the number of
+-- -- "ticks").
+-- --
+-- -- That might also improve the timing of time-based event sources.
+-- -- One might actually pick the overall resolution in reactimate,
+-- -- to be passed down, possibly in the form of a global parameter
+-- -- record, to all signal functions on initialization. (I think only
+-- -- switch would need to remember the record, since it is the only place
+-- -- where signal functions get started. So it wouldn't cost all that much.
+-- 
+-- 
+-- -- | Time is used both for time intervals (duration), and time w.r.t. some
+-- -- agreed reference point in time.
+-- 
+-- --  Conceptually, Time = R, i.e. time can be 0 -- or even negative.
+-- type Time = Double	-- [s]
+-- 
+-- 
+-- -- | DTime is the time type for lengths of sample intervals. Conceptually,
+-- -- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
+-- -- same representation.
+-- type DTime = Double	-- [s]
+-- 
+-- -- Representation of signal function in initial state.
+-- -- (Naming: "TF" stands for Transition Function.)
+-- 
+-- -- | Signal function that transforms a signal carrying values of some type 'a'
+-- -- into a signal carrying values of some type 'b'. You can think of it as
+-- -- (Signal a -> Signal b). A signal is, conceptually, a
+-- -- function from 'Time' to value.
+-- data SF a b = SF {sfTF :: a -> Transition a b}
+-- 
+-- 
+-- -- Representation of signal function in "running" state.
+-- --
+-- -- Possibly better design for Inv.
+-- --   Problem: tension between on the one hand making use of the
+-- --   invariant property, and on the other keeping track of how something
+-- --   has been constructed (SFCpAXA, in particular).
+-- --   Idea: Add a boolean field to SFCpAXA and SF' that classifies
+-- --   a signal function as being invarying.
+-- --   A function sfIsInv computes to True for SFArr, SFAcc (and SFSScan,
+-- --   possibly more), extracts the field in other cases.
+-- --
+-- --  Motivation for using a function (Event a -> b) in SFArrE
+-- --  rather than (a -> Event b) or (a -> b) or even (Event a -> Event b).
+-- --    The result type should be just "b" as opposed to "Event b" for
+-- --    increased flexibility (e.g. matching "routing functions").
+-- --    When the result type actually IS (Event b), and this fact is
+-- --    exploitable, we'll be in a context where is it clear that
+-- --    this is a fact, so we don't lose anything.
+-- --    Since the idea is that the function is only going to be applied
+-- --    when the there is an event, one could imagine the input type
+-- --    just "a". But that's not the type of function we're given,
+-- --    so it would have to be "massaged" a bit (precomposing with Event)
+-- --    to fit. This will gain nothing, and potentially we will lose if
+-- --    we actually need to recover the original function.
+-- --    In fact, we sometimes really need to recover the original function
+-- --    (e.g. currently in switch), and to do it correctly (also handling
+-- --    NoEvent), we'd have to work quite hard introducing further
+-- --    inefficiencies.
+-- --  Summary: Make use of what we are given and only wrap things up later
+-- --  when it is clear whatthe need is going to be, thus avoiding costly
+-- --  "unwrapping".
+-- 
+-- -- GADTs needed in particular for SFEP, but also e.g. SFSScan
+-- -- exploits them since there are more type vars than in the type con.
+-- -- But one could use existentials for those.
+-- 
+-- 
+-- data SF' a b where
+--     SFArr   :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
+--     -- The b is intentionally unstrict as the initial output sometimes
+--     -- is undefined (e.g. when defining pre). In any case, it isn't
+--     -- necessarily used and should thus not be forced.
+--     SFSScan :: !(DTime -> a -> Transition a b)
+--                -> !(c -> a -> Maybe (c, b)) -> !c -> b 
+--                -> SF' a b
+--     SFEP   :: !(DTime -> Event a -> Transition (Event a) b)
+--               -> !(c -> a -> (c, b, b)) -> !c -> b
+--               -> SF' (Event a) b
+--     SFCpAXA :: !(DTime -> a -> Transition a d)
+--                -> !(FunDesc a b) -> !(SF' b c) -> !(FunDesc c d)
+--                -> SF' a d
+--     --  SFPair :: ...
+--     SF' :: !(DTime -> a -> Transition a b) -> SF' a b
+-- 
+-- -- A transition is a pair of the next state (in the form of a signal
+-- -- function) and the output at the present time step.
+-- 
+-- type Transition a b = (SF' a b, b)
+-- 
+-- 
+-- sfTF' :: SF' a b -> (DTime -> a -> Transition a b)
+-- sfTF' (SFArr tf _)       = tf
+-- sfTF' (SFSScan tf _ _ _) = tf
+-- sfTF' (SFEP tf _ _ _)    = tf
+-- sfTF' (SFCpAXA tf _ _ _) = tf
+-- sfTF' (SF' tf)           = tf
+-- 
+-- 
+-- -- !!! 2005-06-30
+-- -- Unclear why, but the isInv mechanism seems to do more
+-- -- harm than good.
+-- -- Disable completely and see what happens.
+-- {-
+-- sfIsInv :: SF' a b -> Bool
+-- -- sfIsInv _ = False
+-- sfIsInv (SFArr _ _)           = True
+-- -- sfIsInv (SFAcc _ _ _ _)       = True
+-- sfIsInv (SFEP _ _ _ _)        = True
+-- -- sfIsInv (SFSScan ...) = True
+-- sfIsInv (SFCpAXA _ inv _ _ _) = inv
+-- sfIsInv (SF' _ inv)           = inv
+-- -}
+-- 
+-- -- "Smart" constructors. The corresponding "raw" constructors should not
+-- -- be used directly for construction.
+-- 
+-- sfArr :: FunDesc a b -> SF' a b
+-- sfArr FDI         = sfId
+-- sfArr (FDC b)     = sfConst b
+-- sfArr (FDE f fne) = sfArrE f fne
+-- sfArr (FDG f)     = sfArrG f
+-- 
+-- 
+-- sfId :: SF' a a
+-- sfId = sf
+--     where
+-- 	sf = SFArr (\_ a -> (sf, a)) FDI
+-- 
+-- 
+-- sfConst :: b -> SF' a b
+-- sfConst b = sf
+--     where
+-- 	sf = SFArr (\_ _ -> (sf, b)) (FDC b)
+-- 
+-- 
 sfNever :: SF' a (Event b)
 sfNever = sfConst NoEvent
-
--- Assumption: fne = f NoEvent
-sfArrE :: (Event a -> b) -> b -> SF' (Event a) b
-sfArrE f fne = sf
-    where
-        sf  = SFArr (\_ ea -> (sf, case ea of NoEvent -> fne ; _ -> f ea))
-                    (FDE f fne)
-
+-- 
+-- -- Assumption: fne = f NoEvent
+-- sfArrE :: (Event a -> b) -> b -> SF' (Event a) b
+-- sfArrE f fne = sf
+--     where
+--         sf  = SFArr (\_ ea -> (sf, case ea of NoEvent -> fne ; _ -> f ea))
+--                     (FDE f fne)
+-- 
 sfArrG :: (a -> b) -> SF' a b
 sfArrG f = sf
-    where
-	sf = SFArr (\_ a -> (sf, f a)) (FDG f)
-
-
-sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
-sfSScan f c b = sf 
-    where
-        sf = SFSScan tf f c b
-	tf _ a = case f c a of
-		     Nothing       -> (sf, b)
-		     Just (c', b') -> (sfSScan f c' b', b')
-
-sscanPrim :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
-sscanPrim f c_init b_init = SF {sfTF = tf0}
-    where
-        tf0 a0 = case f c_init a0 of
-                     Nothing       -> (sfSScan f c_init b_init, b_init)
-	             Just (c', b') -> (sfSScan f c' b', b')
-
+  where
+    sf = SFArr (\_ a -> (sf, f a)) (FDG f)
+-- 
+-- 
+-- sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
+-- sfSScan f c b = sf 
+--     where
+--         sf = SFSScan tf f c b
+-- 	tf _ a = case f c a of
+-- 		     Nothing       -> (sf, b)
+-- 		     Just (c', b') -> (sfSScan f c' b', b')
+-- 
+-- sscanPrim :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
+-- sscanPrim f c_init b_init = SF {sfTF = tf0}
+--     where
+--         tf0 a0 = case f c_init a0 of
+--                      Nothing       -> (sfSScan f c_init b_init, b_init)
+-- 	             Just (c', b') -> (sfSScan f c' b', b')
+-- 
 
 -- The event-processing function *could* accept the present NoEvent
 -- output as an extra state argument. That would facilitate composition
@@ -629,23 +631,23 @@ sfMkInv sf = SF {sfTF = ...}
 -- 2005-02-30: OK, for FDE, invarant is that the field of type b =
 -- f NoEvent.
 
-data FunDesc a b where
-    FDI :: FunDesc a a					-- Identity function
-    FDC :: b -> FunDesc a b				-- Constant function
-    FDE :: (Event a -> b) -> b -> FunDesc (Event a) b	-- Event-processing fun
-    FDG :: (a -> b) -> FunDesc a b			-- General function
+-- data FunDesc a b where
+--     FDI :: FunDesc a a					-- Identity function
+--     FDC :: b -> FunDesc a b				-- Constant function
+--     FDE :: (Event a -> b) -> b -> FunDesc (Event a) b	-- Event-processing fun
+--     FDG :: (a -> b) -> FunDesc a b			-- General function
 
-fdFun :: FunDesc a b -> (a -> b)
-fdFun FDI       = id
-fdFun (FDC b)   = const b
-fdFun (FDE f _) = f
-fdFun (FDG f)   = f
-
-fdComp :: FunDesc a b -> FunDesc b c -> FunDesc a c
-fdComp FDI           fd2     = fd2
-fdComp fd1           FDI     = fd1
-fdComp (FDC b)       fd2     = FDC ((fdFun fd2) b)
-fdComp _             (FDC c) = FDC c
+-- fdFun :: FunDesc a b -> (a -> b)
+-- fdFun FDI       = id
+-- fdFun (FDC b)   = const b
+-- fdFun (FDE f _) = f
+-- fdFun (FDG f)   = f
+-- 
+-- fdComp :: FunDesc a b -> FunDesc b c -> FunDesc a c
+-- fdComp FDI           fd2     = fd2
+-- fdComp fd1           FDI     = fd1
+-- fdComp (FDC b)       fd2     = FDC ((fdFun fd2) b)
+-- fdComp _             (FDC c) = FDC c
 -- Hardly worth the effort?
 -- 2005-03-30: No, not only not worth the effort as the only thing saved
 -- would be an application of f2. Also wrong since current invariant does
@@ -701,1137 +703,1137 @@ vfyNoEv NoEvent b = b
 vfyNoEv _       _  = usrErr "AFRP" "vfyNoEv" "Assertion failed: Functions on events must not map NoEvent to Event."
 
 
--- Freezes a "running" signal function, i.e., turns it into a continuation in
--- the form of a plain signal function.
-freeze :: SF' a b -> DTime -> SF a b
-freeze sf dt = SF {sfTF = (sfTF' sf) dt}
-
-
-freezeCol :: Functor col => col (SF' a b) -> DTime -> col (SF a b)
-freezeCol sfs dt = fmap (flip freeze dt) sfs
-
-
-------------------------------------------------------------------------------
--- Arrow instance and implementation
-------------------------------------------------------------------------------
-#if __GLASGOW_HASKELL__ >= 610
-instance Control.Category.Category SF where
-     (.) = flip compPrim 
-     id = SF $ \x -> (sfId,x)
-#else
-#endif
-
-instance Arrow SF where
-    arr    = arrPrim
-    first  = firstPrim
-    second = secondPrim
-    (***)  = parSplitPrim
-    (&&&)  = parFanOutPrim
-#if __GLASGOW_HASKELL__ >= 610
-#else
-    (>>>)  = compPrim
-#endif
-
-
--- Lifting.
-
--- | Lifts a pure function into a signal function (applied pointwise).
-{-# NOINLINE arrPrim #-}
-arrPrim :: (a -> b) -> SF a b
-arrPrim f = SF {sfTF = \a -> (sfArrG f, f a)}
-
--- | Lifts a pure function into a signal function applied to events
---   (applied pointwise).
-{-# RULES "arrPrim/arrEPrim" arrPrim = arrEPrim #-}
-arrEPrim :: (Event a -> b) -> SF (Event a) b
-arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
-
-
--- Composition.
--- The definition exploits the following identities:
---     sf         >>> identity   = sf				-- New
---     identity   >>> sf         = sf				-- New
---     sf         >>> constant c = constant c
---     constant c >>> arr f      = constant (f c)
---     arr f      >>> arr g      = arr (g . f)
---
--- !!! Notes/Questions:
--- !!! How do we know that the optimizations terminate?
--- !!! Probably by some kind of size argument on the SF tree.
--- !!! E.g. (Hopefully) all compPrim optimizations are such that
--- !!! the number of compose nodes decrease.
--- !!! Should verify this!
---
--- !!! There is a tension between using SFInv to signal to superior
--- !!! signal functions that the subordinate signal function will not
--- !!! change form, and using SFCpAXA to allow fusion in the context
--- !!! of some suitable superior signal function.
-compPrim :: SF a b -> SF b c -> SF a c
-compPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
-    where
-	tf0 a0 = (cpXX sf1 sf2, c0)
-	    where
-		(sf1, b0) = tf10 a0
-		(sf2, c0) = tf20 b0
-
--- The following defs are not local to compPrim because cpAXA needs to be
--- called from parSplitPrim.
--- Naming convention: cp<X><Y> where  <X> and <Y> is one of:
--- X - arbitrary signal function
--- A - arbitrary pure arrow
--- C - constant arrow
--- E - event-processing arrow
--- G - arrow known not to be identity, constant (C) or
---     event-processing (E).
-
-cpXX :: SF' a b -> SF' b c -> SF' a c
-cpXX (SFArr _ fd1)       sf2               = cpAX fd1 sf2
-cpXX sf1                 (SFArr _ fd2)     = cpXA sf1 fd2
-{-
--- !!! 2005-07-07: Too strict.
--- !!! But the question is if it is worth to define pre in terms of sscan ...
--- !!! It is slower than the simplest possible pre, and the kind of coding
--- !!! required to ensure that the laziness props of the second SF are
--- !!! preserved might just slow things down further ...
-cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
-    sfSScan f (s1, b, s2, c) c
-    where
-        f (s1, b, s2, c) a =
-            case f1 s1 a of
-                Nothing ->
-                    case f2 s2 b of
-                        Nothing        -> Nothing
-                        Just (s2', c') -> Just ((s1, b, s2', c'), c')
-                Just (s1', b') ->
-                    case f2 s2 b' of
-                        Nothing        -> Just ((s1', b', s2, c), c)
-                        Just (s2', c') -> Just ((s1', b', s2', c'), c')
--}
--- !!! 2005-07-07: Indeed, this is a bit slower than the code above (14%).
--- !!! But both are better than not composing (35% faster and 26% faster)!
-cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
-    sfSScan f (s1, b, s2, c) c
-    where
-        f (s1, b, s2, c) a =
-            let
-                (u, s1',  b') = case f1 s1 a of
-                                    Nothing       -> (True, s1, b)
-                                    Just (s1',b') -> (False,  s1', b')
-            in
-                case f2 s2 b' of
-                    Nothing | u         -> Nothing
-                            | otherwise -> Just ((s1', b', s2, c), c)
-                    Just (s2', c') -> Just ((s1', b', s2', c'), c')
-cpXX (SFSScan _ f1 s1 eb) (SFEP _ f2 s2 cne) =
-    sfSScan f (s1, eb, s2, cne) cne
-    where
-        f (s1, eb, s2, cne) a =
-            case f1 s1 a of
-                Nothing ->
-                    case eb of
-                        NoEvent -> Nothing
-                        Event b ->
-                            let (s2', c, cne') = f2 s2 b
-                            in
-                                Just ((s1, eb, s2', cne'), c)
-                Just (s1', eb') ->
-                    case eb' of
-                        NoEvent -> Just ((s1', eb', s2, cne), cne)
-                        Event b ->
-                            let (s2', c, cne') = f2 s2 b
-                            in
-                                Just ((s1', eb', s2', cne'), c)
--- !!! 2005-07-09: This seems to yield only a VERY marginal speedup
--- !!! without seq. With seq, substantial speedup!
-cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
-    sfSScan f (s1, bne, s2, c) c
-    where
-        f (s1, bne, s2, c) ea =
-            let (u, s1', b', bne') = case ea of
-                                         NoEvent -> (True, s1, bne, bne)
-                                         Event a ->
-                                             let (s1', b, bne') = f1 s1 a
-                                             in
-                                                  (False, s1', b, bne')
-            in
-                case f2 s2 b' of
-                    Nothing | u         -> Nothing
-                            | otherwise -> Just (seq s1' (s1', bne', s2, c), c)
-                    Just (s2', c') -> Just (seq s1' (s1', bne', s2', c'), c')
--- The function "f" is invoked whenever an event is to be processed. It then
--- computes the output, the new state, and the new NoEvent output.
--- However, when sequencing event processors, the ones in the latter
--- part of the chain may not get invoked since previous ones may
--- decide not to "fire". But a "new" NoEvent output still has to be
--- produced, i.e. the old one retained. Since it cannot be computed by
--- invoking the last event-processing function in the chain, it has to
--- be remembered. Since the composite event-processing function remains
--- constant/unchanged, the NoEvent output has to be part of the state.
--- An alternarive would be to make the event-processing function take an
--- extra argument. But that is likely to make the simple case more
--- expensive. See note at sfEP.
-cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
-    sfEP f (s1, s2, cne) (vfyNoEv bne cne)
-    where
-	f (s1, s2, cne) a =
-	    case f1 s1 a of
-		(s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
-		(s1', Event b, NoEvent) ->
-		    let (s2', c, cne') = f2 s2 b in ((s1', s2', cne'), c, cne')
-                _ -> usrErr "AFRP" "cpXX" "Assertion failed: Functions on events must not map NoEvent to Event."
--- !!! 2005-06-28: Why isn't SFCpAXA (FDC ...) checked for?
--- !!! No invariant rules that out, and it would allow to drop the
--- !!! event processor ... Does that happen elsewhere?
-cpXX sf1@(SFEP _ _ _ _) (SFCpAXA _ (FDE f21 f21ne) sf22 fd23) =
-    cpXX (cpXE sf1 f21 f21ne) (cpXA sf22 fd23)
--- f21 will (hopefully) be invoked less frequently if merged with the
--- event processor.
-cpXX sf1@(SFEP _ _ _ _) (SFCpAXA _ (FDG f21) sf22 fd23) =
-    cpXX (cpXG sf1 f21) (cpXA sf22 fd23)
--- Only functions whose domain is known to be Event can be merged
--- from the left with event processors.
-cpXX (SFCpAXA _ fd11 sf12 (FDE f13 f13ne)) sf2@(SFEP _ _ _ _) =
-    cpXX (cpAX fd11 sf12) (cpEX f13 f13ne sf2) 
--- !!! Other cases to look out for:
--- !!! any sf >>> SFCpAXA = SFCpAXA if first arr is const.
--- !!! But the following will presumably not work due to type restrictions.
--- !!! Need to reconstruct sf2 I think.
--- cpXX sf1 sf2@(SFCpAXA _ _ (FDC b) sf22 fd23) = sf2
-cpXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
-    -- Termination: The first argument to cpXX is no larger than
-    -- the current first argument, and the second is smaller.
-    cpAXA fd11 (cpXX (cpXA sf12 (fdComp fd13 fd21)) sf22) fd23
--- !!! 2005-06-27: The if below accounts for a significant slowdown.
--- !!! One would really like a cheme where opts only take place
--- !!! after a structural change ... 
--- cpXX sf1 sf2 = cpXXInv sf1 sf2
--- cpXX sf1 sf2 = cpXXAux sf1 sf2
-cpXX sf1 sf2 = SF' tf --  False
-    -- if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
-    where
-        tf dt a = (cpXX sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
-
-
-{-
-cpXXAux sf1@(SF' _ _) sf2@(SF' _ _) = SF' tf False
-    where
-        tf dt a = (cpXXAux sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
-cpXXAux sf1 sf2 = SF' tf False
-    where
-        tf dt a = (cpXXAux sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
--}
-
-{-
-cpXXAux sf1 sf2 | unsimplifiable sf1 sf2 = SF' tf False
-                | otherwise = cpXX sf1 sf2
-    where
-        tf dt a = (cpXXAux sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
-
-        unsimplifiable sf1@(SF' _ _) sf2@(SF' _ _) = True
-        unsimplifiable sf1           sf2           = True
--}
-                     
-{-
--- wrong ...
-cpXXAux sf1@(SF' _ False)           sf2                         = SF' tf False
-cpXXAux sf1@(SFCpAXA _ False _ _ _) sf2                         = SF' tf False
-cpXXAux sf1                         sf2@(SF' _ False)           = SF' tf False
-cpXXAux sf1                         sf2@(SFCpAXA _ False _ _ _) = SF' tf False
-cpXXAux sf1 sf2 =
-    if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
-    where
-        tf dt a = (cpXXAux sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
--}
-
-{-
-cpXXInv sf1 sf2 = SF' tf True
-    where
-        tf dt a = sf1 `seq` sf2 `seq` (cpXXInv sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
--}
-
--- !!! No. We need local defs. Keep fd1 and fd2. Extract f1 and f2
--- !!! once and fo all. Get rid of FDI and FDC at the top level.
--- !!! First local def. analyse sf2. SFArr, SFAcc etc. tf in
--- !!! recursive case just make use of f1 and f3.
--- !!! if sf2 is SFInv, that's delegated to a second local
--- !!! recursive def. that does not analyse sf2.
-
-cpAXA :: FunDesc a b -> SF' b c -> FunDesc c d -> SF' a d
--- Termination: cpAX/cpXA, via cpCX, cpEX etc. only call cpAXA if sf2
--- is SFCpAXA, and then on the embedded sf and hence on a smaller arg.
-cpAXA FDI     sf2 fd3     = cpXA sf2 fd3
-cpAXA fd1     sf2 FDI     = cpAX fd1 sf2
-cpAXA (FDC b) sf2 fd3     = cpCXA b sf2 fd3
-cpAXA _       _   (FDC d) = sfConst d        
-cpAXA fd1     sf2 fd3     = 
-    cpAXAAux fd1 (fdFun fd1) fd3 (fdFun fd3) sf2
-    where
-        -- Really: cpAXAAux :: SF' b c -> SF' a d
-	-- Note: Event cases are not optimized (EXA etc.)
-        cpAXAAux :: FunDesc a b -> (a -> b) -> FunDesc c d -> (c -> d)
-                    -> SF' b c -> SF' a d
-        cpAXAAux fd1 _ fd3 _ (SFArr _ fd2) =
-            sfArr (fdComp (fdComp fd1 fd2) fd3)
-        cpAXAAux fd1 _ fd3 _ sf2@(SFSScan _ _ _ _) =
-            cpAX fd1 (cpXA sf2 fd3)
-        cpAXAAux fd1 _ fd3 _ sf2@(SFEP _ _ _ _) =
-            cpAX fd1 (cpXA sf2 fd3)
-        cpAXAAux fd1 _ fd3 _ (SFCpAXA _ fd21 sf22 fd23) =
-            cpAXA (fdComp fd1 fd21) sf22 (fdComp fd23 fd3)
-        cpAXAAux fd1 f1 fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
-{-
-            if sfIsInv sf2 then
-		cpAXAInv fd1 f1 fd3 f3 sf2
-	    else
-		SFCpAXA tf False fd1 sf2 fd3
--}
-	    where
-		tf dt a = (cpAXAAux fd1 f1 fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
-
-{-
-	cpAXAInv fd1 f1 fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
-	    where
-		tf dt a = sf2 `seq` (cpAXAInv fd1 f1 fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
--}
-
-cpAX :: FunDesc a b -> SF' b c -> SF' a c
-cpAX FDI           sf2 = sf2
-cpAX (FDC b)       sf2 = cpCX b sf2
-cpAX (FDE f1 f1ne) sf2 = cpEX f1 f1ne sf2
-cpAX (FDG f1)      sf2 = cpGX f1 sf2
-
-cpXA :: SF' a b -> FunDesc b c -> SF' a c
-cpXA sf1 FDI           = sf1
-cpXA _   (FDC c)       = sfConst c
-cpXA sf1 (FDE f2 f2ne) = cpXE sf1 f2 f2ne
-cpXA sf1 (FDG f2)      = cpXG sf1 f2
-
--- Don't forget that the remaining signal function, if it is
--- SF', later could turn into something else, like SFId.
-cpCX :: b -> SF' b c -> SF' a c
-cpCX b (SFArr _ fd2) = sfConst ((fdFun fd2) b)
--- 2005-07-01:  If we were serious about the semantics of sscan being required
--- to be independent of the sampling interval, I guess one could argue for a
--- fixed-point computation here ... Or maybe not.
--- cpCX b (SFSScan _ _ _ _) = sfConst <fixed point comp>
-cpCX b (SFSScan _ f s c) = sfSScan (\s _ -> f s b) s c
-cpCX b (SFEP _ _ _ cne) = sfConst (vfyNoEv b cne)
-cpCX b (SFCpAXA _ fd21 sf22 fd23) =
-    cpCXA ((fdFun fd21) b) sf22 fd23
-cpCX b sf2 = SFCpAXA tf (FDC b) sf2 FDI
-{-
-    if sfIsInv sf2 then
-        cpCXInv b sf2
-    else
-	SFCpAXA tf False (FDC b) sf2 FDI
--}
-    where
-	tf dt _ = (cpCX b sf2', c)
-	    where
-		(sf2', c) = (sfTF' sf2) dt b
-
-
-{-
-cpCXInv b sf2 = SFCpAXA tf True (FDC b) sf2 FDI
-    where
-	tf dt _ = sf2 `seq` (cpCXInv b sf2', c)
-	    where
-		(sf2', c) = (sfTF' sf2) dt b
--}
-
-
-cpCXA :: b -> SF' b c -> FunDesc c d -> SF' a d
-cpCXA b sf2 FDI     = cpCX b sf2
-cpCXA _ _   (FDC c) = sfConst c
-cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
-    where
-        -- fd1 = FDC b
-        -- f3  = fdFun fd3
-
-	-- Really: SF' b c -> SF' a d
-        cpCXAAux :: FunDesc a b -> b -> FunDesc c d -> (c -> d)
-                    -> SF' b c -> SF' a d
-        cpCXAAux _ b _ f3 (SFArr _ fd2)     = sfConst (f3 ((fdFun fd2) b))
-        cpCXAAux _ b _ f3 (SFSScan _ f s c) = sfSScan f' s (f3 c)
-            where
-	        f' s _ = case f s b of
-                             Nothing -> Nothing
-                             Just (s', c') -> Just (s', f3 c') 
-        cpCXAAux _ b _   f3 (SFEP _ _ _ cne) = sfConst (f3 (vfyNoEv b cne))
-        cpCXAAux _ b fd3 _  (SFCpAXA _ fd21 sf22 fd23) =
-	    cpCXA ((fdFun fd21) b) sf22 (fdComp fd23 fd3)
-	cpCXAAux fd1 b fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
-{-
-	    if sfIsInv sf2 then
-		cpCXAInv fd1 b fd3 f3 sf2
-            else
-	        SFCpAXA tf False fd1 sf2 fd3
--}
-	    where
-		tf dt _ = (cpCXAAux fd1 b fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt b
-
-{-
-        -- For some reason, seq on sf2' in tf is faster than making
-        -- cpCXAInv strict in sf2 by seq-ing on the top level (which would
-	-- be similar to pattern matching on sf2).
-	cpCXAInv fd1 b fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
-	    where
-		tf dt _ = sf2 `seq` (cpCXAInv fd1 b fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt b
--}
-
-
-cpGX :: (a -> b) -> SF' b c -> SF' a c
-cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
-    where
-	cpGXAux :: FunDesc a b -> (a -> b) -> SF' b c -> SF' a c
-	cpGXAux fd1 _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
-        -- We actually do know that (fdComp (FDG f1) fd21) is going to
-	-- result in an FDG. So we *could* call a cpGXA here. But the
-	-- price is "inlining" of part of fdComp.
-        cpGXAux _ f1 (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
-        -- We really shouldn't see an EP here, as that would mean
-        -- an arrow INTRODUCING events ...
-	cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
-	    cpAXA (fdComp fd1 fd21) sf22 fd23
-	cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
-{-
-	    if sfIsInv sf2 then
-	        cpGXInv fd1 f1 sf2
-	    else
-	        SFCpAXA tf False fd1 sf2 FDI
--}
-	    where
-		tf dt a = (cpGXAux fd1 f1 sf2', c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
-
-{-
-	cpGXInv fd1 f1 sf2 = SFCpAXA tf True fd1 sf2 FDI
-	    where
-		tf dt a = sf2 `seq` (cpGXInv fd1 f1 sf2', c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
--}
-
-
-cpXG :: SF' a b -> (b -> c) -> SF' a c
-cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
-    where
-	-- Really: cpXGAux :: SF' a b -> SF' a c
-	cpXGAux :: FunDesc b c -> (b -> c) -> SF' a b -> SF' a c
-	cpXGAux fd2 _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
-        cpXGAux _ f2 (SFSScan _ f s b) = sfSScan f' s (f2 b)
-            where
-	        f' s a = case f s a of
-                             Nothing -> Nothing
-                             Just (s', b') -> Just (s', f2 b') 
-        cpXGAux _ f2 (SFEP _ f1 s bne) = sfEP f s (f2 bne)
-            where
-                f s a = let (s', b, bne') = f1 s a in (s', f2 b, f2 bne')
-	cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
-            cpAXA fd11 sf12 (fdComp fd22 fd2)
-	cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
-{-
-	    if sfIsInv sf1 then
-		cpXGInv fd2 f2 sf1
-	    else
-		SFCpAXA tf False FDI sf1 fd2
--}
-	    where
-		tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
-
-{-
-	cpXGInv fd2 f2 sf1 = SFCpAXA tf True FDI sf1 fd2
-	    where
-		tf dt a = (cpXGInv fd2 f2 sf1', f2 b)
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
--}
-
-cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
-cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
-    where
-	cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b 
-                   -> SF' b c -> SF' (Event a) c
-	cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
-        cpEXAux _ f1 _   (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
-        -- We must not capture cne in the f closure since cne can change!
-        -- See cpXX the SFEP/SFEP case for a similar situation. However,
-        -- FDE represent a state-less signal function, so *its* NoEvent
-        -- value never changes. Hence we only need to verify that it is
-        -- NoEvent once.
-	cpEXAux _ f1 f1ne (SFEP _ f2 s cne) =
-	    sfEP f (s, cne) (vfyNoEv f1ne cne)
-            where
-                f scne@(s, cne) a =
-                    case f1 (Event a) of
-                        NoEvent -> (scne, cne, cne)
-                        Event b ->
-                            let (s', c, cne') = f2 s b in ((s', cne'), c, cne')
-	cpEXAux fd1 _ _ (SFCpAXA _ fd21 sf22 fd23) =
-            cpAXA (fdComp fd1 fd21) sf22 fd23
-        -- The rationale for the following is that the case analysis
-	-- is typically not going to be more expensive than applying
-	-- the function and possibly a bit cheaper. Thus if events
-	-- are sparse, we might win, and if not, we don't loose to
-	-- much.
-	cpEXAux fd1 f1 f1ne sf2 = SFCpAXA tf fd1 sf2 FDI
-{-
-	    if sfIsInv sf2 then
-		cpEXInv fd1 f1 f1ne sf2
-	    else
-	    	SFCpAXA tf False fd1 sf2 FDI
--}
-	    where
-		tf dt ea = (cpEXAux fd1 f1 f1ne sf2', c)
-		    where
-                        (sf2', c) =
-			    case ea of
-				NoEvent -> (sfTF' sf2) dt f1ne
-				_       -> (sfTF' sf2) dt (f1 ea)
-
-{-
-	cpEXInv fd1 f1 f1ne sf2 = SFCpAXA tf True fd1 sf2 FDI
-	    where
-		tf dt ea = sf2 `seq` (cpEXInv fd1 f1 f1ne sf2', c)
-		    where
-                        (sf2', c) =
-			    case ea of
-				NoEvent -> (sfTF' sf2) dt f1ne
-				_       -> (sfTF' sf2) dt (f1 ea)
--}
-
-cpXE :: SF' a (Event b) -> (Event b -> c) -> c -> SF' a c
-cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
-    where
-	cpXEAux :: FunDesc (Event b) c -> (Event b -> c) -> c
-		   -> SF' a (Event b) -> SF' a c
-        cpXEAux fd2 _ _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
-        cpXEAux _ f2 f2ne (SFSScan _ f s eb) = sfSScan f' s (f2 eb)
-            where
-	        f' s a = case f s a of
-                             Nothing -> Nothing
-                             Just (s', NoEvent) -> Just (s', f2ne) 
-                             Just (s', eb')     -> Just (s', f2 eb') 
-        cpXEAux _ f2 f2ne (SFEP _ f1 s ebne) =
-	    sfEP f s (vfyNoEv ebne f2ne)
-            where
-                f s a =
-                    case f1 s a of
-                        (s', NoEvent, NoEvent) -> (s', f2ne,  f2ne)
-                        (s', eb,      NoEvent) -> (s', f2 eb, f2ne)
-		        _ -> usrErr "AFRP" "cpXEAux" "Assertion failed: Functions on events must not map NoEvent to Event."
-        cpXEAux fd2 _ _ (SFCpAXA _ fd11 sf12 fd13) =
-            cpAXA fd11 sf12 (fdComp fd13 fd2)
-	cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2
-{-
-	    if sfIsInv sf1 then
-		cpXEInv fd2 f2 f2ne sf1
-	    else
-		SFCpAXA tf False FDI sf1 fd2
--}
-	    where
-		tf dt a = (cpXEAux fd2 f2 f2ne sf1',
-                           case eb of NoEvent -> f2ne; _ -> f2 eb)
-		    where
-                        (sf1', eb) = (sfTF' sf1) dt a
-
-{-
-	cpXEInv fd2 f2 f2ne sf1 = SFCpAXA tf True FDI sf1 fd2
-	    where
-		tf dt a = sf1 `seq` (cpXEInv fd2 f2 f2ne sf1',
-                           case eb of NoEvent -> f2ne; _ -> f2 eb)
-		    where
-                        (sf1', eb) = (sfTF' sf1) dt a
--}
-	
-
--- Widening.
--- The definition exploits the following identities:
---     first identity     = identity				-- New
---     first (constant b) = arr (\(_, c) -> (b, c))
---     (first (arr f))    = arr (\(a, c) -> (f a, c))
-firstPrim :: SF a b -> SF (a,c) (b,c)
-firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
-    where
-        tf0 ~(a0, c0) = (fpAux sf1, (b0, c0))
-	    where
-		(sf1, b0) = tf10 a0 
-
-
--- Also used in parSplitPrim
-fpAux :: SF' a b -> SF' (a,c) (b,c)
-fpAux (SFArr _ FDI)       = sfId			-- New
-fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
-fpAux (SFArr _ fd1)       = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
-fpAux sf1 = SF' tf
-    -- if sfIsInv sf1 then fpInv sf1 else SF' tf False
-    where
-        tf dt ~(a, c) = (fpAux sf1', (b, c))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
-
-
-{-
-fpInv :: SF' a b -> SF' (a,c) (b,c)
-fpInv sf1 = SF' tf True
-    where
-        tf dt ~(a, c) = sf1 `seq` (fpInv sf1', (b, c))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
--}
-
-
--- Mirror image of first.
-secondPrim :: SF a b -> SF (c,a) (c,b)
-secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
-    where
-        tf0 ~(c0, a0) = (spAux sf1, (c0, b0))
-	    where
-		(sf1, b0) = tf10 a0 
-
-
--- Also used in parSplitPrim
-spAux :: SF' a b -> SF' (c,a) (c,b)
-spAux (SFArr _ FDI)       = sfId			-- New
-spAux (SFArr _ (FDC b))   = sfArrG (\(~(c, _)) -> (c, b))
-spAux (SFArr _ fd1)       = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
-spAux sf1 = SF' tf
-    -- if sfIsInv sf1 then spInv sf1 else SF' tf False
-    where
-        tf dt ~(c, a) = (spAux sf1', (c, b))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
-
-
-{-
-spInv :: SF' a b -> SF' (c,a) (c,b)
-spInv sf1 = SF' tf True
-    where
-        tf dt ~(c, a) = sf1 `seq` (spInv sf1', (c, b))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
--}
-
-
--- Parallel composition.
--- The definition exploits the following identities (that hold for SF):
---     identity   *** identity   = identity		-- New
---     sf         *** identity   = first sf		-- New
---     identity   *** sf         = second sf		-- New
---     constant b *** constant d = constant (b, d)
---     constant b *** arr f2     = arr (\(_, c) -> (b, f2 c)
---     arr f1     *** constant d = arr (\(a, _) -> (f1 a, d)
---     arr f1     *** arr f2     = arr (\(a, b) -> (f1 a, f2 b)
-parSplitPrim :: SF a b -> SF c d  -> SF (a,c) (b,d)
-parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
-    where
-	tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
-	    where
-		(sf1, b0) = tf10 a0 
-		(sf2, d0) = tf20 c0 
-
-	-- Naming convention: ps<X><Y> where  <X> and <Y> is one of:
-        -- X - arbitrary signal function
-        -- A - arbitrary pure arrow
-        -- C - constant arrow
-
-        psXX :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
-        psXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr (fdPar fd1 fd2)
-        psXX (SFArr _ FDI)       sf2                 = spAux sf2	-- New
-	psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
-	psXX (SFArr _ fd1)       sf2                 = psAX (fdFun fd1) sf2
-        psXX sf1                 (SFArr _ FDI)       = fpAux sf1	-- New
-	psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
-	psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
--- !!! Unclear if this really is a gain.
--- !!! potentially unnecessary tupling and untupling.
--- !!! To be investigated.
--- !!! 2005-07-01: At least for MEP 6, the corresponding opt for
--- !!! &&& was harmfull. On that basis, disable it here too.
---        psXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
---            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
-	psXX sf1 sf2 = SF' tf
-{-
-	    if sfIsInv sf1 && sfIsInv sf2 then
-		psXXInv sf1 sf2
-	    else
-		SF' tf False
--}
-	    where
-		tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', d) = (sfTF' sf2) dt c
-
-{-
-        psXXInv :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
-	psXXInv sf1 sf2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf1 `seq` sf2 `seq` (psXXInv sf1' sf2',
-                                                       (b, d))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', d) = (sfTF' sf2) dt c
--}
-
-        psCX :: b -> SF' c d -> SF' (a,c) (b,d)
-	psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
-	psCX b sf2                 = SF' tf
-{-
-	    if sfIsInv sf2 then
-	        psCXInv b sf2
-	    else
-	        SF' tf False
--}
-	    where
-		tf dt ~(_, c) = (psCX b sf2', (b, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
-
-{-
-        psCXInv :: b -> SF' c d -> SF' (a,c) (b,d)
-	psCXInv b sf2 = SF' tf True
-	    where
-		tf dt ~(_, c) = sf2 `seq` (psCXInv b sf2', (b, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
--}
-
-        psXC :: SF' a b -> d -> SF' (a,c) (b,d)
-        psXC (SFArr _ fd1)       d = sfArr (fdPar fd1 (FDC d))
-	psXC sf1                 d = SF' tf
-{-
-	    if sfIsInv sf1 then
-		psXCInv sf1 d
-	    else
-                SF' tf False
--}
-	    where
-		tf dt ~(a, _) = (psXC sf1' d, (b, d))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
-
-{-
-        psXCInv :: SF' a b -> d -> SF' (a,c) (b,d)
-	psXCInv sf1 d = SF' tf True
-	    where
-		tf dt ~(a, _) = sf1 `seq` (psXCInv sf1' d, (b, d))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
--}
-
-        psAX :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
-	psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
-	psAX f1 sf2                 = SF' tf
-{-
-	    if sfIsInv sf2 then
-	    	psAXInv f1 sf2
-	    else
-                SF' tf False
--}
-	    where
-		tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
-
-{-
-        psAXInv :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
-	psAXInv f1 sf2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf2 `seq` (psAXInv f1 sf2', (f1 a, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
--}
-
-        psXA :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
-	psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
-	psXA sf1                 f2 = SF' tf
-{-
-	    if sfIsInv sf1 then
-		psXAInv sf1 f2 
-	    else
-		SF' tf False
--}
-	    where
-		tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
-
-{-
-        psXAInv :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
-	psXAInv sf1 f2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf1 `seq` (psXAInv sf1' f2, (b, f2 c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
--}
-
-
--- !!! Hmmm. Why don't we optimize the FDE cases here???
--- !!! Seems pretty obvious that we should!
--- !!! It should also be possible to optimize an event processor in
--- !!! parallel with another event processor or an Arr FDE.
-
-parFanOutPrim :: SF a b -> SF a c -> SF a (b, c)
-parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
-    where
-	tf0 a0 = (pfoXX sf1 sf2, (b0, c0))
-	    where
-		(sf1, b0) = tf10 a0 
-		(sf2, c0) = tf20 a0 
-
-	-- Naming convention: pfo<X><Y> where  <X> and <Y> is one of:
-        -- X - arbitrary signal function
-        -- A - arbitrary pure arrow
-        -- I - identity arrow
-        -- C - constant arrow
-
-        pfoXX :: SF' a b -> SF' a c -> SF' a (b ,c)
-        pfoXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr(fdFanOut fd1 fd2)
-        pfoXX (SFArr _ FDI)       sf2                 = pfoIX sf2
-	pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
-	pfoXX (SFArr _ fd1)       sf2                 = pfoAX (fdFun fd1) sf2
-        pfoXX sf1                 (SFArr _ FDI)       = pfoXI sf1
-	pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
-	pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
--- !!! Unclear if this really would be a gain
--- !!! 2005-07-01: NOT a win for MEP 6.
---        pfoXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
---            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
-	pfoXX sf1 sf2 = SF' tf
-{-
-	    if sfIsInv sf1 && sfIsInv sf2 then
-		pfoXXInv sf1 sf2
-	    else
-		SF' tf False
--}
-	    where
-		tf dt a = (pfoXX sf1' sf2', (b, c))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', c) = (sfTF' sf2) dt a
-
-{-
-        pfoXXInv :: SF' a b -> SF' a c -> SF' a (b ,c)
-	pfoXXInv sf1 sf2 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` sf2 `seq` (pfoXXInv sf1' sf2', (b, c))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', c) = (sfTF' sf2) dt a
--}
-
-        pfoIX :: SF' a c -> SF' a (a ,c)
-	pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
-	pfoIX sf2 = SF' tf
-{-
-	    if sfIsInv sf2 then
-		pfoIXInv sf2
-	    else
-		SF' tf False
--}
-	    where
-		tf dt a = (pfoIX sf2', (a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
-
-{-
-        pfoIXInv :: SF' a c -> SF' a (a ,c)
-	pfoIXInv sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoIXInv sf2', (a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
--}
-
-        pfoXI :: SF' a b -> SF' a (b ,a)
-	pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
-	pfoXI sf1 = SF' tf
-{-
-            if sfIsInv sf1 then
-		pfoXIInv sf1
-	    else
-		SF' tf False
--}
-	    where
-		tf dt a = (pfoXI sf1', (b, a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
-
-{-
-        pfoXIInv :: SF' a b -> SF' a (b ,a)
-	pfoXIInv sf1 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXIInv sf1', (b, a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
--}
-
-        pfoCX :: b -> SF' a c -> SF' a (b ,c)
-        pfoCX b (SFArr _ fd2) = sfArr (fdFanOut (FDC b) fd2)
-	pfoCX b sf2 = SF' tf
-{-
-	    if sfIsInv sf2 then
-		pfoCXInv b sf2
-	    else
-		SF' tf False
--}
-	    where
-		tf dt a = (pfoCX b sf2', (b, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
-
-{-
-        pfoCXInv :: b -> SF' a c -> SF' a (b ,c)
-	pfoCXInv b sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoCXInv b sf2', (b, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
--}
-
-        pfoXC :: SF' a b -> c -> SF' a (b ,c)
-	pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
-	pfoXC sf1 c = SF' tf
-{-
-	    if sfIsInv sf1 then
-		pfoXCInv sf1 c
-	    else
-	        SF' tf False
--}
-	    where
-		tf dt a = (pfoXC sf1' c, (b, c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
-
-{-
-        pfoXCInv :: SF' a b -> c -> SF' a (b ,c)
-	pfoXCInv sf1 c = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXCInv sf1' c, (b, c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
--}
-
-        pfoAX :: (a -> b) -> SF' a c -> SF' a (b ,c)
-	pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
-	pfoAX f1 sf2 = SF' tf
-{-
-	    if sfIsInv sf2 then
-		pfoAXInv f1 sf2
-	    else
-                SF' tf False
--}
-	    where
-		tf dt a = (pfoAX f1 sf2', (f1 a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
-
-{-
-        pfoAXInv :: (a -> b) -> SF' a c -> SF' a (b ,c)
-	pfoAXInv f1 sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoAXInv f1 sf2', (f1 a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
--}
-
-        pfoXA :: SF' a b -> (a -> c) -> SF' a (b ,c)
-	pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
-	pfoXA sf1 f2 = SF' tf
-{-
-	    if sfIsInv sf1 then
-		pfoXAInv sf1 f2
-	    else
-		SF' tf False
--}
-	    where
-		tf dt a = (pfoXA sf1' f2, (b, f2 a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
-
-{-
-        pfoXAInv :: SF' a b -> (a -> c) -> SF' a (b ,c)
-	pfoXAInv sf1 f2 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXAInv sf1' f2, (b, f2 a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
--}
-
-
-------------------------------------------------------------------------------
--- ArrowLoop instance and implementation
-------------------------------------------------------------------------------
-
-instance ArrowLoop SF where
-    loop = loopPrim
-
-
-loopPrim :: SF (a,c) (b,c) -> SF a b
-loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
-    where
-	tf0 a0 = (loopAux sf1, b0)
-	    where
-	        (sf1, (b0, c0)) = tf10 (a0, c0)
-
-        loopAux :: SF' (a,c) (b,c) -> SF' a b
-	loopAux (SFArr _ FDI) = sfId
-        loopAux (SFArr _ (FDC (b, _))) = sfConst b
-	loopAux (SFArr _ fd1) =
-            sfArrG (\a -> let (b,c) = (fdFun fd1) (a,c) in b)
-	loopAux sf1 = SF' tf
-{-
-	    if sfIsInv sf1 then
-		loopInv sf1
-	    else
-		SF' tf False
--}
-	    where
-		tf dt a = (loopAux sf1', b)
-		    where
-		        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
-
-{-
-        loopInv :: SF' (a,c) (b,c) -> SF' a b
-	loopInv sf1 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (loopInv sf1', b)
-		    where
-		        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
--}
-
-
-------------------------------------------------------------------------------
--- Basic signal functions
-------------------------------------------------------------------------------
-
--- | Identity: identity = arr id
+-- -- Freezes a "running" signal function, i.e., turns it into a continuation in
+-- -- the form of a plain signal function.
+-- freeze :: SF' a b -> DTime -> SF a b
+-- freeze sf dt = SF {sfTF = (sfTF' sf) dt}
 -- 
--- Using 'identity' is preferred over lifting id, since the arrow combinators
--- know how to optimise certain networks based on the transformations being
--- applied.
-identity :: SF a a
-identity = SF {sfTF = \a -> (sfId, a)}
-
--- | Identity: constant b = arr (const b)
 -- 
--- Using 'constant' is preferred over lifting const, since the arrow combinators
--- know how to optimise certain networks based on the transformations being
--- applied.
-constant :: b -> SF a b
-constant b = SF {sfTF = \_ -> (sfConst b, b)}
-
--- | Outputs the time passed since the signal function instance was started.
-localTime :: SF a Time
-localTime = constant 1.0 >>> integral
-
--- | Alternative name for localTime.
-time :: SF a Time
-time = localTime
-
-------------------------------------------------------------------------------
--- Initialization
-------------------------------------------------------------------------------
-
--- | Initialization operator (cf. Lustre/Lucid Synchrone).
---
--- The output at time zero is the first argument, and from
--- that point on it behaves like the signal function passed as
--- second argument.
-(-->) :: b -> SF a b -> SF a b
-b0 --> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (fst (tf10 a0), b0)}
-
--- | Input initialization operator.
---
--- The input at time zero is the first argument, and from
--- that point on it behaves like the signal function passed as
--- second argument.
-(>--) :: a -> SF a b -> SF a b
-a0 >-- (SF {sfTF = tf10}) = SF {sfTF = \_ -> tf10 a0}
+-- freezeCol :: Functor col => col (SF' a b) -> DTime -> col (SF a b)
+-- freezeCol sfs dt = fmap (flip freeze dt) sfs
 
 
--- | Transform initial output value.
---
--- Applies a transformation 'f' only to the first output value at
--- time zero.
-(-=>) :: (b -> b) -> SF a b -> SF a b
-f -=> (SF {sfTF = tf10}) =
-    SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
-
-
--- | Transform initial input value.
---
--- Applies a transformation 'f' only to the first input value at
--- time zero.
-(>=-) :: (a -> a) -> SF a b -> SF a b
-f >=- (SF {sfTF = tf10}) = SF {sfTF = \a0 -> tf10 (f a0)}
-
--- | Override initial value of input signal.
-initially :: a -> SF a a
-initially = (--> identity)
-
-
-------------------------------------------------------------------------------
--- Simple, stateful signal processing
-------------------------------------------------------------------------------
-
--- New sscan primitive. It should be possible to define lots of functions
--- in terms of this one. Eventually a new constructor will be introduced if
--- this works out.
-
-sscan :: (b -> a -> b) -> b -> SF a b
-sscan f b_init = sscanPrim f' b_init b_init
-    where
-        f' b a = let b' = f b a in Just (b', b')
-
-
-{-
-sscanPrim :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
-sscanPrim f c_init b_init = SF {sfTF = tf0}
-    where
-        tf0 a0 = case f c_init a0 of
-                     Nothing       -> (spAux f c_init b_init, b_init)
-                     Just (c', b') -> (spAux f c' b', b')
- 
-        spAux :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
-        spAux f c b = sf
-            where
-                -- sf = SF' tf True
-                sf = SF' tf
-                tf _ a = case f c a of
-                             Nothing       -> (sf, b)
-                             Just (c', b') -> (spAux f c' b', b')
--}
+-- ------------------------------------------------------------------------------
+-- -- Arrow instance and implementation
+-- ------------------------------------------------------------------------------
+-- #if __GLASGOW_HASKELL__ >= 610
+-- instance Control.Category.Category SF where
+--      (.) = flip compPrim 
+--      id = SF $ \x -> (sfId,x)
+-- #else
+-- #endif
+-- 
+-- instance Arrow SF where
+--     arr    = arrPrim
+--     first  = firstPrim
+--     second = secondPrim
+--     (***)  = parSplitPrim
+--     (&&&)  = parFanOutPrim
+-- #if __GLASGOW_HASKELL__ >= 610
+-- #else
+--     (>>>)  = compPrim
+-- #endif
+-- 
+-- 
+-- -- Lifting.
+-- 
+-- -- | Lifts a pure function into a signal function (applied pointwise).
+-- {-# NOINLINE arrPrim #-}
+-- arrPrim :: (a -> b) -> SF a b
+-- arrPrim f = SF {sfTF = \a -> (sfArrG f, f a)}
+-- 
+-- -- | Lifts a pure function into a signal function applied to events
+-- --   (applied pointwise).
+-- {-# RULES "arrPrim/arrEPrim" arrPrim = arrEPrim #-}
+-- arrEPrim :: (Event a -> b) -> SF (Event a) b
+-- arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
+-- 
+-- 
+-- -- Composition.
+-- -- The definition exploits the following identities:
+-- --     sf         >>> identity   = sf				-- New
+-- --     identity   >>> sf         = sf				-- New
+-- --     sf         >>> constant c = constant c
+-- --     constant c >>> arr f      = constant (f c)
+-- --     arr f      >>> arr g      = arr (g . f)
+-- --
+-- -- !!! Notes/Questions:
+-- -- !!! How do we know that the optimizations terminate?
+-- -- !!! Probably by some kind of size argument on the SF tree.
+-- -- !!! E.g. (Hopefully) all compPrim optimizations are such that
+-- -- !!! the number of compose nodes decrease.
+-- -- !!! Should verify this!
+-- --
+-- -- !!! There is a tension between using SFInv to signal to superior
+-- -- !!! signal functions that the subordinate signal function will not
+-- -- !!! change form, and using SFCpAXA to allow fusion in the context
+-- -- !!! of some suitable superior signal function.
+-- compPrim :: SF a b -> SF b c -> SF a c
+-- compPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 = (cpXX sf1 sf2, c0)
+-- 	    where
+-- 		(sf1, b0) = tf10 a0
+-- 		(sf2, c0) = tf20 b0
+-- 
+-- -- The following defs are not local to compPrim because cpAXA needs to be
+-- -- called from parSplitPrim.
+-- -- Naming convention: cp<X><Y> where  <X> and <Y> is one of:
+-- -- X - arbitrary signal function
+-- -- A - arbitrary pure arrow
+-- -- C - constant arrow
+-- -- E - event-processing arrow
+-- -- G - arrow known not to be identity, constant (C) or
+-- --     event-processing (E).
+-- 
+-- cpXX :: SF' a b -> SF' b c -> SF' a c
+-- cpXX (SFArr _ fd1)       sf2               = cpAX fd1 sf2
+-- cpXX sf1                 (SFArr _ fd2)     = cpXA sf1 fd2
+-- {-
+-- -- !!! 2005-07-07: Too strict.
+-- -- !!! But the question is if it is worth to define pre in terms of sscan ...
+-- -- !!! It is slower than the simplest possible pre, and the kind of coding
+-- -- !!! required to ensure that the laziness props of the second SF are
+-- -- !!! preserved might just slow things down further ...
+-- cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
+--     sfSScan f (s1, b, s2, c) c
+--     where
+--         f (s1, b, s2, c) a =
+--             case f1 s1 a of
+--                 Nothing ->
+--                     case f2 s2 b of
+--                         Nothing        -> Nothing
+--                         Just (s2', c') -> Just ((s1, b, s2', c'), c')
+--                 Just (s1', b') ->
+--                     case f2 s2 b' of
+--                         Nothing        -> Just ((s1', b', s2, c), c)
+--                         Just (s2', c') -> Just ((s1', b', s2', c'), c')
+-- -}
+-- -- !!! 2005-07-07: Indeed, this is a bit slower than the code above (14%).
+-- -- !!! But both are better than not composing (35% faster and 26% faster)!
+-- cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
+--     sfSScan f (s1, b, s2, c) c
+--     where
+--         f (s1, b, s2, c) a =
+--             let
+--                 (u, s1',  b') = case f1 s1 a of
+--                                     Nothing       -> (True, s1, b)
+--                                     Just (s1',b') -> (False,  s1', b')
+--             in
+--                 case f2 s2 b' of
+--                     Nothing | u         -> Nothing
+--                             | otherwise -> Just ((s1', b', s2, c), c)
+--                     Just (s2', c') -> Just ((s1', b', s2', c'), c')
+-- cpXX (SFSScan _ f1 s1 eb) (SFEP _ f2 s2 cne) =
+--     sfSScan f (s1, eb, s2, cne) cne
+--     where
+--         f (s1, eb, s2, cne) a =
+--             case f1 s1 a of
+--                 Nothing ->
+--                     case eb of
+--                         NoEvent -> Nothing
+--                         Event b ->
+--                             let (s2', c, cne') = f2 s2 b
+--                             in
+--                                 Just ((s1, eb, s2', cne'), c)
+--                 Just (s1', eb') ->
+--                     case eb' of
+--                         NoEvent -> Just ((s1', eb', s2, cne), cne)
+--                         Event b ->
+--                             let (s2', c, cne') = f2 s2 b
+--                             in
+--                                 Just ((s1', eb', s2', cne'), c)
+-- -- !!! 2005-07-09: This seems to yield only a VERY marginal speedup
+-- -- !!! without seq. With seq, substantial speedup!
+-- cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
+--     sfSScan f (s1, bne, s2, c) c
+--     where
+--         f (s1, bne, s2, c) ea =
+--             let (u, s1', b', bne') = case ea of
+--                                          NoEvent -> (True, s1, bne, bne)
+--                                          Event a ->
+--                                              let (s1', b, bne') = f1 s1 a
+--                                              in
+--                                                   (False, s1', b, bne')
+--             in
+--                 case f2 s2 b' of
+--                     Nothing | u         -> Nothing
+--                             | otherwise -> Just (seq s1' (s1', bne', s2, c), c)
+--                     Just (s2', c') -> Just (seq s1' (s1', bne', s2', c'), c')
+-- -- The function "f" is invoked whenever an event is to be processed. It then
+-- -- computes the output, the new state, and the new NoEvent output.
+-- -- However, when sequencing event processors, the ones in the latter
+-- -- part of the chain may not get invoked since previous ones may
+-- -- decide not to "fire". But a "new" NoEvent output still has to be
+-- -- produced, i.e. the old one retained. Since it cannot be computed by
+-- -- invoking the last event-processing function in the chain, it has to
+-- -- be remembered. Since the composite event-processing function remains
+-- -- constant/unchanged, the NoEvent output has to be part of the state.
+-- -- An alternarive would be to make the event-processing function take an
+-- -- extra argument. But that is likely to make the simple case more
+-- -- expensive. See note at sfEP.
+-- cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
+--     sfEP f (s1, s2, cne) (vfyNoEv bne cne)
+--     where
+-- 	f (s1, s2, cne) a =
+-- 	    case f1 s1 a of
+-- 		(s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
+-- 		(s1', Event b, NoEvent) ->
+-- 		    let (s2', c, cne') = f2 s2 b in ((s1', s2', cne'), c, cne')
+--                 _ -> usrErr "AFRP" "cpXX" "Assertion failed: Functions on events must not map NoEvent to Event."
+-- -- !!! 2005-06-28: Why isn't SFCpAXA (FDC ...) checked for?
+-- -- !!! No invariant rules that out, and it would allow to drop the
+-- -- !!! event processor ... Does that happen elsewhere?
+-- cpXX sf1@(SFEP _ _ _ _) (SFCpAXA _ (FDE f21 f21ne) sf22 fd23) =
+--     cpXX (cpXE sf1 f21 f21ne) (cpXA sf22 fd23)
+-- -- f21 will (hopefully) be invoked less frequently if merged with the
+-- -- event processor.
+-- cpXX sf1@(SFEP _ _ _ _) (SFCpAXA _ (FDG f21) sf22 fd23) =
+--     cpXX (cpXG sf1 f21) (cpXA sf22 fd23)
+-- -- Only functions whose domain is known to be Event can be merged
+-- -- from the left with event processors.
+-- cpXX (SFCpAXA _ fd11 sf12 (FDE f13 f13ne)) sf2@(SFEP _ _ _ _) =
+--     cpXX (cpAX fd11 sf12) (cpEX f13 f13ne sf2) 
+-- -- !!! Other cases to look out for:
+-- -- !!! any sf >>> SFCpAXA = SFCpAXA if first arr is const.
+-- -- !!! But the following will presumably not work due to type restrictions.
+-- -- !!! Need to reconstruct sf2 I think.
+-- -- cpXX sf1 sf2@(SFCpAXA _ _ (FDC b) sf22 fd23) = sf2
+-- cpXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
+--     -- Termination: The first argument to cpXX is no larger than
+--     -- the current first argument, and the second is smaller.
+--     cpAXA fd11 (cpXX (cpXA sf12 (fdComp fd13 fd21)) sf22) fd23
+-- -- !!! 2005-06-27: The if below accounts for a significant slowdown.
+-- -- !!! One would really like a cheme where opts only take place
+-- -- !!! after a structural change ... 
+-- -- cpXX sf1 sf2 = cpXXInv sf1 sf2
+-- -- cpXX sf1 sf2 = cpXXAux sf1 sf2
+-- cpXX sf1 sf2 = SF' tf --  False
+--     -- if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
+--     where
+--         tf dt a = (cpXX sf1' sf2', c)
+-- 	    where
+-- 	        (sf1', b) = (sfTF' sf1) dt a
+-- 		(sf2', c) = (sfTF' sf2) dt b
+-- 
+-- 
+-- {-
+-- cpXXAux sf1@(SF' _ _) sf2@(SF' _ _) = SF' tf False
+--     where
+--         tf dt a = (cpXXAux sf1' sf2', c)
+-- 	    where
+-- 	        (sf1', b) = (sfTF' sf1) dt a
+-- 		(sf2', c) = (sfTF' sf2) dt b
+-- cpXXAux sf1 sf2 = SF' tf False
+--     where
+--         tf dt a = (cpXXAux sf1' sf2', c)
+-- 	    where
+-- 	        (sf1', b) = (sfTF' sf1) dt a
+-- 		(sf2', c) = (sfTF' sf2) dt b
+-- -}
+-- 
+-- {-
+-- cpXXAux sf1 sf2 | unsimplifiable sf1 sf2 = SF' tf False
+--                 | otherwise = cpXX sf1 sf2
+--     where
+--         tf dt a = (cpXXAux sf1' sf2', c)
+-- 	    where
+-- 	        (sf1', b) = (sfTF' sf1) dt a
+-- 		(sf2', c) = (sfTF' sf2) dt b
+-- 
+--         unsimplifiable sf1@(SF' _ _) sf2@(SF' _ _) = True
+--         unsimplifiable sf1           sf2           = True
+-- -}
+--                      
+-- {-
+-- -- wrong ...
+-- cpXXAux sf1@(SF' _ False)           sf2                         = SF' tf False
+-- cpXXAux sf1@(SFCpAXA _ False _ _ _) sf2                         = SF' tf False
+-- cpXXAux sf1                         sf2@(SF' _ False)           = SF' tf False
+-- cpXXAux sf1                         sf2@(SFCpAXA _ False _ _ _) = SF' tf False
+-- cpXXAux sf1 sf2 =
+--     if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
+--     where
+--         tf dt a = (cpXXAux sf1' sf2', c)
+-- 	    where
+-- 	        (sf1', b) = (sfTF' sf1) dt a
+-- 		(sf2', c) = (sfTF' sf2) dt b
+-- -}
+-- 
+-- {-
+-- cpXXInv sf1 sf2 = SF' tf True
+--     where
+--         tf dt a = sf1 `seq` sf2 `seq` (cpXXInv sf1' sf2', c)
+-- 	    where
+-- 	        (sf1', b) = (sfTF' sf1) dt a
+-- 		(sf2', c) = (sfTF' sf2) dt b
+-- -}
+-- 
+-- -- !!! No. We need local defs. Keep fd1 and fd2. Extract f1 and f2
+-- -- !!! once and fo all. Get rid of FDI and FDC at the top level.
+-- -- !!! First local def. analyse sf2. SFArr, SFAcc etc. tf in
+-- -- !!! recursive case just make use of f1 and f3.
+-- -- !!! if sf2 is SFInv, that's delegated to a second local
+-- -- !!! recursive def. that does not analyse sf2.
+-- 
+-- cpAXA :: FunDesc a b -> SF' b c -> FunDesc c d -> SF' a d
+-- -- Termination: cpAX/cpXA, via cpCX, cpEX etc. only call cpAXA if sf2
+-- -- is SFCpAXA, and then on the embedded sf and hence on a smaller arg.
+-- cpAXA FDI     sf2 fd3     = cpXA sf2 fd3
+-- cpAXA fd1     sf2 FDI     = cpAX fd1 sf2
+-- cpAXA (FDC b) sf2 fd3     = cpCXA b sf2 fd3
+-- cpAXA _       _   (FDC d) = sfConst d        
+-- cpAXA fd1     sf2 fd3     = 
+--     cpAXAAux fd1 (fdFun fd1) fd3 (fdFun fd3) sf2
+--     where
+--         -- Really: cpAXAAux :: SF' b c -> SF' a d
+-- 	-- Note: Event cases are not optimized (EXA etc.)
+--         cpAXAAux :: FunDesc a b -> (a -> b) -> FunDesc c d -> (c -> d)
+--                     -> SF' b c -> SF' a d
+--         cpAXAAux fd1 _ fd3 _ (SFArr _ fd2) =
+--             sfArr (fdComp (fdComp fd1 fd2) fd3)
+--         cpAXAAux fd1 _ fd3 _ sf2@(SFSScan _ _ _ _) =
+--             cpAX fd1 (cpXA sf2 fd3)
+--         cpAXAAux fd1 _ fd3 _ sf2@(SFEP _ _ _ _) =
+--             cpAX fd1 (cpXA sf2 fd3)
+--         cpAXAAux fd1 _ fd3 _ (SFCpAXA _ fd21 sf22 fd23) =
+--             cpAXA (fdComp fd1 fd21) sf22 (fdComp fd23 fd3)
+--         cpAXAAux fd1 f1 fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
+-- {-
+--             if sfIsInv sf2 then
+-- 		cpAXAInv fd1 f1 fd3 f3 sf2
+-- 	    else
+-- 		SFCpAXA tf False fd1 sf2 fd3
+-- -}
+-- 	    where
+-- 		tf dt a = (cpAXAAux fd1 f1 fd3 f3 sf2', f3 c)
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt (f1 a)
+-- 
+-- {-
+-- 	cpAXAInv fd1 f1 fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
+-- 	    where
+-- 		tf dt a = sf2 `seq` (cpAXAInv fd1 f1 fd3 f3 sf2', f3 c)
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt (f1 a)
+-- -}
+-- 
+-- cpAX :: FunDesc a b -> SF' b c -> SF' a c
+-- cpAX FDI           sf2 = sf2
+-- cpAX (FDC b)       sf2 = cpCX b sf2
+-- cpAX (FDE f1 f1ne) sf2 = cpEX f1 f1ne sf2
+-- cpAX (FDG f1)      sf2 = cpGX f1 sf2
+-- 
+-- cpXA :: SF' a b -> FunDesc b c -> SF' a c
+-- cpXA sf1 FDI           = sf1
+-- cpXA _   (FDC c)       = sfConst c
+-- cpXA sf1 (FDE f2 f2ne) = cpXE sf1 f2 f2ne
+-- cpXA sf1 (FDG f2)      = cpXG sf1 f2
+-- 
+-- -- Don't forget that the remaining signal function, if it is
+-- -- SF', later could turn into something else, like SFId.
+-- cpCX :: b -> SF' b c -> SF' a c
+-- cpCX b (SFArr _ fd2) = sfConst ((fdFun fd2) b)
+-- -- 2005-07-01:  If we were serious about the semantics of sscan being required
+-- -- to be independent of the sampling interval, I guess one could argue for a
+-- -- fixed-point computation here ... Or maybe not.
+-- -- cpCX b (SFSScan _ _ _ _) = sfConst <fixed point comp>
+-- cpCX b (SFSScan _ f s c) = sfSScan (\s _ -> f s b) s c
+-- cpCX b (SFEP _ _ _ cne) = sfConst (vfyNoEv b cne)
+-- cpCX b (SFCpAXA _ fd21 sf22 fd23) =
+--     cpCXA ((fdFun fd21) b) sf22 fd23
+-- cpCX b sf2 = SFCpAXA tf (FDC b) sf2 FDI
+-- {-
+--     if sfIsInv sf2 then
+--         cpCXInv b sf2
+--     else
+-- 	SFCpAXA tf False (FDC b) sf2 FDI
+-- -}
+--     where
+-- 	tf dt _ = (cpCX b sf2', c)
+-- 	    where
+-- 		(sf2', c) = (sfTF' sf2) dt b
+-- 
+-- 
+-- {-
+-- cpCXInv b sf2 = SFCpAXA tf True (FDC b) sf2 FDI
+--     where
+-- 	tf dt _ = sf2 `seq` (cpCXInv b sf2', c)
+-- 	    where
+-- 		(sf2', c) = (sfTF' sf2) dt b
+-- -}
+-- 
+-- 
+-- cpCXA :: b -> SF' b c -> FunDesc c d -> SF' a d
+-- cpCXA b sf2 FDI     = cpCX b sf2
+-- cpCXA _ _   (FDC c) = sfConst c
+-- cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
+--     where
+--         -- fd1 = FDC b
+--         -- f3  = fdFun fd3
+-- 
+-- 	-- Really: SF' b c -> SF' a d
+--         cpCXAAux :: FunDesc a b -> b -> FunDesc c d -> (c -> d)
+--                     -> SF' b c -> SF' a d
+--         cpCXAAux _ b _ f3 (SFArr _ fd2)     = sfConst (f3 ((fdFun fd2) b))
+--         cpCXAAux _ b _ f3 (SFSScan _ f s c) = sfSScan f' s (f3 c)
+--             where
+-- 	        f' s _ = case f s b of
+--                              Nothing -> Nothing
+--                              Just (s', c') -> Just (s', f3 c') 
+--         cpCXAAux _ b _   f3 (SFEP _ _ _ cne) = sfConst (f3 (vfyNoEv b cne))
+--         cpCXAAux _ b fd3 _  (SFCpAXA _ fd21 sf22 fd23) =
+-- 	    cpCXA ((fdFun fd21) b) sf22 (fdComp fd23 fd3)
+-- 	cpCXAAux fd1 b fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
+-- {-
+-- 	    if sfIsInv sf2 then
+-- 		cpCXAInv fd1 b fd3 f3 sf2
+--             else
+-- 	        SFCpAXA tf False fd1 sf2 fd3
+-- -}
+-- 	    where
+-- 		tf dt _ = (cpCXAAux fd1 b fd3 f3 sf2', f3 c)
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt b
+-- 
+-- {-
+--         -- For some reason, seq on sf2' in tf is faster than making
+--         -- cpCXAInv strict in sf2 by seq-ing on the top level (which would
+-- 	-- be similar to pattern matching on sf2).
+-- 	cpCXAInv fd1 b fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
+-- 	    where
+-- 		tf dt _ = sf2 `seq` (cpCXAInv fd1 b fd3 f3 sf2', f3 c)
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt b
+-- -}
+-- 
+-- 
+-- cpGX :: (a -> b) -> SF' b c -> SF' a c
+-- cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
+--     where
+-- 	cpGXAux :: FunDesc a b -> (a -> b) -> SF' b c -> SF' a c
+-- 	cpGXAux fd1 _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
+--         -- We actually do know that (fdComp (FDG f1) fd21) is going to
+-- 	-- result in an FDG. So we *could* call a cpGXA here. But the
+-- 	-- price is "inlining" of part of fdComp.
+--         cpGXAux _ f1 (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
+--         -- We really shouldn't see an EP here, as that would mean
+--         -- an arrow INTRODUCING events ...
+-- 	cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
+-- 	    cpAXA (fdComp fd1 fd21) sf22 fd23
+-- 	cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
+-- {-
+-- 	    if sfIsInv sf2 then
+-- 	        cpGXInv fd1 f1 sf2
+-- 	    else
+-- 	        SFCpAXA tf False fd1 sf2 FDI
+-- -}
+-- 	    where
+-- 		tf dt a = (cpGXAux fd1 f1 sf2', c)
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt (f1 a)
+-- 
+-- {-
+-- 	cpGXInv fd1 f1 sf2 = SFCpAXA tf True fd1 sf2 FDI
+-- 	    where
+-- 		tf dt a = sf2 `seq` (cpGXInv fd1 f1 sf2', c)
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt (f1 a)
+-- -}
+-- 
+-- 
+-- cpXG :: SF' a b -> (b -> c) -> SF' a c
+-- cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
+--     where
+-- 	-- Really: cpXGAux :: SF' a b -> SF' a c
+-- 	cpXGAux :: FunDesc b c -> (b -> c) -> SF' a b -> SF' a c
+-- 	cpXGAux fd2 _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
+--         cpXGAux _ f2 (SFSScan _ f s b) = sfSScan f' s (f2 b)
+--             where
+-- 	        f' s a = case f s a of
+--                              Nothing -> Nothing
+--                              Just (s', b') -> Just (s', f2 b') 
+--         cpXGAux _ f2 (SFEP _ f1 s bne) = sfEP f s (f2 bne)
+--             where
+--                 f s a = let (s', b, bne') = f1 s a in (s', f2 b, f2 bne')
+-- 	cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
+--             cpAXA fd11 sf12 (fdComp fd22 fd2)
+-- 	cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		cpXGInv fd2 f2 sf1
+-- 	    else
+-- 		SFCpAXA tf False FDI sf1 fd2
+-- -}
+-- 	    where
+-- 		tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- 
+-- {-
+-- 	cpXGInv fd2 f2 sf1 = SFCpAXA tf True FDI sf1 fd2
+-- 	    where
+-- 		tf dt a = (cpXGInv fd2 f2 sf1', f2 b)
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- -}
+-- 
+-- cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
+-- cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
+--     where
+-- 	cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b 
+--                    -> SF' b c -> SF' (Event a) c
+-- 	cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
+--         cpEXAux _ f1 _   (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
+--         -- We must not capture cne in the f closure since cne can change!
+--         -- See cpXX the SFEP/SFEP case for a similar situation. However,
+--         -- FDE represent a state-less signal function, so *its* NoEvent
+--         -- value never changes. Hence we only need to verify that it is
+--         -- NoEvent once.
+-- 	cpEXAux _ f1 f1ne (SFEP _ f2 s cne) =
+-- 	    sfEP f (s, cne) (vfyNoEv f1ne cne)
+--             where
+--                 f scne@(s, cne) a =
+--                     case f1 (Event a) of
+--                         NoEvent -> (scne, cne, cne)
+--                         Event b ->
+--                             let (s', c, cne') = f2 s b in ((s', cne'), c, cne')
+-- 	cpEXAux fd1 _ _ (SFCpAXA _ fd21 sf22 fd23) =
+--             cpAXA (fdComp fd1 fd21) sf22 fd23
+--         -- The rationale for the following is that the case analysis
+-- 	-- is typically not going to be more expensive than applying
+-- 	-- the function and possibly a bit cheaper. Thus if events
+-- 	-- are sparse, we might win, and if not, we don't loose to
+-- 	-- much.
+-- 	cpEXAux fd1 f1 f1ne sf2 = SFCpAXA tf fd1 sf2 FDI
+-- {-
+-- 	    if sfIsInv sf2 then
+-- 		cpEXInv fd1 f1 f1ne sf2
+-- 	    else
+-- 	    	SFCpAXA tf False fd1 sf2 FDI
+-- -}
+-- 	    where
+-- 		tf dt ea = (cpEXAux fd1 f1 f1ne sf2', c)
+-- 		    where
+--                         (sf2', c) =
+-- 			    case ea of
+-- 				NoEvent -> (sfTF' sf2) dt f1ne
+-- 				_       -> (sfTF' sf2) dt (f1 ea)
+-- 
+-- {-
+-- 	cpEXInv fd1 f1 f1ne sf2 = SFCpAXA tf True fd1 sf2 FDI
+-- 	    where
+-- 		tf dt ea = sf2 `seq` (cpEXInv fd1 f1 f1ne sf2', c)
+-- 		    where
+--                         (sf2', c) =
+-- 			    case ea of
+-- 				NoEvent -> (sfTF' sf2) dt f1ne
+-- 				_       -> (sfTF' sf2) dt (f1 ea)
+-- -}
+-- 
+-- cpXE :: SF' a (Event b) -> (Event b -> c) -> c -> SF' a c
+-- cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
+--     where
+-- 	cpXEAux :: FunDesc (Event b) c -> (Event b -> c) -> c
+-- 		   -> SF' a (Event b) -> SF' a c
+--         cpXEAux fd2 _ _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
+--         cpXEAux _ f2 f2ne (SFSScan _ f s eb) = sfSScan f' s (f2 eb)
+--             where
+-- 	        f' s a = case f s a of
+--                              Nothing -> Nothing
+--                              Just (s', NoEvent) -> Just (s', f2ne) 
+--                              Just (s', eb')     -> Just (s', f2 eb') 
+--         cpXEAux _ f2 f2ne (SFEP _ f1 s ebne) =
+-- 	    sfEP f s (vfyNoEv ebne f2ne)
+--             where
+--                 f s a =
+--                     case f1 s a of
+--                         (s', NoEvent, NoEvent) -> (s', f2ne,  f2ne)
+--                         (s', eb,      NoEvent) -> (s', f2 eb, f2ne)
+-- 		        _ -> usrErr "AFRP" "cpXEAux" "Assertion failed: Functions on events must not map NoEvent to Event."
+--         cpXEAux fd2 _ _ (SFCpAXA _ fd11 sf12 fd13) =
+--             cpAXA fd11 sf12 (fdComp fd13 fd2)
+-- 	cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		cpXEInv fd2 f2 f2ne sf1
+-- 	    else
+-- 		SFCpAXA tf False FDI sf1 fd2
+-- -}
+-- 	    where
+-- 		tf dt a = (cpXEAux fd2 f2 f2ne sf1',
+--                            case eb of NoEvent -> f2ne; _ -> f2 eb)
+-- 		    where
+--                         (sf1', eb) = (sfTF' sf1) dt a
+-- 
+-- {-
+-- 	cpXEInv fd2 f2 f2ne sf1 = SFCpAXA tf True FDI sf1 fd2
+-- 	    where
+-- 		tf dt a = sf1 `seq` (cpXEInv fd2 f2 f2ne sf1',
+--                            case eb of NoEvent -> f2ne; _ -> f2 eb)
+-- 		    where
+--                         (sf1', eb) = (sfTF' sf1) dt a
+-- -}
+-- 	
+-- 
+-- -- Widening.
+-- -- The definition exploits the following identities:
+-- --     first identity     = identity				-- New
+-- --     first (constant b) = arr (\(_, c) -> (b, c))
+-- --     (first (arr f))    = arr (\(a, c) -> (f a, c))
+-- firstPrim :: SF a b -> SF (a,c) (b,c)
+-- firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
+--     where
+--         tf0 ~(a0, c0) = (fpAux sf1, (b0, c0))
+-- 	    where
+-- 		(sf1, b0) = tf10 a0 
+-- 
+-- 
+-- -- Also used in parSplitPrim
+-- fpAux :: SF' a b -> SF' (a,c) (b,c)
+-- fpAux (SFArr _ FDI)       = sfId			-- New
+-- fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
+-- fpAux (SFArr _ fd1)       = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
+-- fpAux sf1 = SF' tf
+--     -- if sfIsInv sf1 then fpInv sf1 else SF' tf False
+--     where
+--         tf dt ~(a, c) = (fpAux sf1', (b, c))
+-- 	    where
+-- 		(sf1', b) = (sfTF' sf1) dt a 
+-- 
+-- 
+-- {-
+-- fpInv :: SF' a b -> SF' (a,c) (b,c)
+-- fpInv sf1 = SF' tf True
+--     where
+--         tf dt ~(a, c) = sf1 `seq` (fpInv sf1', (b, c))
+-- 	    where
+-- 		(sf1', b) = (sfTF' sf1) dt a 
+-- -}
+-- 
+-- 
+-- -- Mirror image of first.
+-- secondPrim :: SF a b -> SF (c,a) (c,b)
+-- secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
+--     where
+--         tf0 ~(c0, a0) = (spAux sf1, (c0, b0))
+-- 	    where
+-- 		(sf1, b0) = tf10 a0 
+-- 
+-- 
+-- -- Also used in parSplitPrim
+-- spAux :: SF' a b -> SF' (c,a) (c,b)
+-- spAux (SFArr _ FDI)       = sfId			-- New
+-- spAux (SFArr _ (FDC b))   = sfArrG (\(~(c, _)) -> (c, b))
+-- spAux (SFArr _ fd1)       = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
+-- spAux sf1 = SF' tf
+--     -- if sfIsInv sf1 then spInv sf1 else SF' tf False
+--     where
+--         tf dt ~(c, a) = (spAux sf1', (c, b))
+-- 	    where
+-- 		(sf1', b) = (sfTF' sf1) dt a 
+-- 
+-- 
+-- {-
+-- spInv :: SF' a b -> SF' (c,a) (c,b)
+-- spInv sf1 = SF' tf True
+--     where
+--         tf dt ~(c, a) = sf1 `seq` (spInv sf1', (c, b))
+-- 	    where
+-- 		(sf1', b) = (sfTF' sf1) dt a 
+-- -}
+-- 
+-- 
+-- -- Parallel composition.
+-- -- The definition exploits the following identities (that hold for SF):
+-- --     identity   *** identity   = identity		-- New
+-- --     sf         *** identity   = first sf		-- New
+-- --     identity   *** sf         = second sf		-- New
+-- --     constant b *** constant d = constant (b, d)
+-- --     constant b *** arr f2     = arr (\(_, c) -> (b, f2 c)
+-- --     arr f1     *** constant d = arr (\(a, _) -> (f1 a, d)
+-- --     arr f1     *** arr f2     = arr (\(a, b) -> (f1 a, f2 b)
+-- parSplitPrim :: SF a b -> SF c d  -> SF (a,c) (b,d)
+-- parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
+--     where
+-- 	tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
+-- 	    where
+-- 		(sf1, b0) = tf10 a0 
+-- 		(sf2, d0) = tf20 c0 
+-- 
+-- 	-- Naming convention: ps<X><Y> where  <X> and <Y> is one of:
+--         -- X - arbitrary signal function
+--         -- A - arbitrary pure arrow
+--         -- C - constant arrow
+-- 
+--         psXX :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
+--         psXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr (fdPar fd1 fd2)
+--         psXX (SFArr _ FDI)       sf2                 = spAux sf2	-- New
+-- 	psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
+-- 	psXX (SFArr _ fd1)       sf2                 = psAX (fdFun fd1) sf2
+--         psXX sf1                 (SFArr _ FDI)       = fpAux sf1	-- New
+-- 	psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
+-- 	psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
+-- -- !!! Unclear if this really is a gain.
+-- -- !!! potentially unnecessary tupling and untupling.
+-- -- !!! To be investigated.
+-- -- !!! 2005-07-01: At least for MEP 6, the corresponding opt for
+-- -- !!! &&& was harmfull. On that basis, disable it here too.
+-- --        psXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
+-- --            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
+-- 	psXX sf1 sf2 = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 && sfIsInv sf2 then
+-- 		psXXInv sf1 sf2
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
+-- 		    where
+-- 		        (sf1', b) = (sfTF' sf1) dt a
+-- 			(sf2', d) = (sfTF' sf2) dt c
+-- 
+-- {-
+--         psXXInv :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
+-- 	psXXInv sf1 sf2 = SF' tf True
+-- 	    where
+-- 		tf dt ~(a, c) = sf1 `seq` sf2 `seq` (psXXInv sf1' sf2',
+--                                                        (b, d))
+-- 		    where
+-- 		        (sf1', b) = (sfTF' sf1) dt a
+-- 			(sf2', d) = (sfTF' sf2) dt c
+-- -}
+-- 
+--         psCX :: b -> SF' c d -> SF' (a,c) (b,d)
+-- 	psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
+-- 	psCX b sf2                 = SF' tf
+-- {-
+-- 	    if sfIsInv sf2 then
+-- 	        psCXInv b sf2
+-- 	    else
+-- 	        SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt ~(_, c) = (psCX b sf2', (b, d))
+-- 		    where
+-- 			(sf2', d) = (sfTF' sf2) dt c
+-- 
+-- {-
+--         psCXInv :: b -> SF' c d -> SF' (a,c) (b,d)
+-- 	psCXInv b sf2 = SF' tf True
+-- 	    where
+-- 		tf dt ~(_, c) = sf2 `seq` (psCXInv b sf2', (b, d))
+-- 		    where
+-- 			(sf2', d) = (sfTF' sf2) dt c
+-- -}
+-- 
+--         psXC :: SF' a b -> d -> SF' (a,c) (b,d)
+--         psXC (SFArr _ fd1)       d = sfArr (fdPar fd1 (FDC d))
+-- 	psXC sf1                 d = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		psXCInv sf1 d
+-- 	    else
+--                 SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt ~(a, _) = (psXC sf1' d, (b, d))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- 
+-- {-
+--         psXCInv :: SF' a b -> d -> SF' (a,c) (b,d)
+-- 	psXCInv sf1 d = SF' tf True
+-- 	    where
+-- 		tf dt ~(a, _) = sf1 `seq` (psXCInv sf1' d, (b, d))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- -}
+-- 
+--         psAX :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
+-- 	psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
+-- 	psAX f1 sf2                 = SF' tf
+-- {-
+-- 	    if sfIsInv sf2 then
+-- 	    	psAXInv f1 sf2
+-- 	    else
+--                 SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
+-- 		    where
+-- 			(sf2', d) = (sfTF' sf2) dt c
+-- 
+-- {-
+--         psAXInv :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
+-- 	psAXInv f1 sf2 = SF' tf True
+-- 	    where
+-- 		tf dt ~(a, c) = sf2 `seq` (psAXInv f1 sf2', (f1 a, d))
+-- 		    where
+-- 			(sf2', d) = (sfTF' sf2) dt c
+-- -}
+-- 
+--         psXA :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
+-- 	psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
+-- 	psXA sf1                 f2 = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		psXAInv sf1 f2 
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- 
+-- {-
+--         psXAInv :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
+-- 	psXAInv sf1 f2 = SF' tf True
+-- 	    where
+-- 		tf dt ~(a, c) = sf1 `seq` (psXAInv sf1' f2, (b, f2 c))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- -}
+-- 
+-- 
+-- -- !!! Hmmm. Why don't we optimize the FDE cases here???
+-- -- !!! Seems pretty obvious that we should!
+-- -- !!! It should also be possible to optimize an event processor in
+-- -- !!! parallel with another event processor or an Arr FDE.
+-- 
+-- parFanOutPrim :: SF a b -> SF a c -> SF a (b, c)
+-- parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 = (pfoXX sf1 sf2, (b0, c0))
+-- 	    where
+-- 		(sf1, b0) = tf10 a0 
+-- 		(sf2, c0) = tf20 a0 
+-- 
+-- 	-- Naming convention: pfo<X><Y> where  <X> and <Y> is one of:
+--         -- X - arbitrary signal function
+--         -- A - arbitrary pure arrow
+--         -- I - identity arrow
+--         -- C - constant arrow
+-- 
+--         pfoXX :: SF' a b -> SF' a c -> SF' a (b ,c)
+--         pfoXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr(fdFanOut fd1 fd2)
+--         pfoXX (SFArr _ FDI)       sf2                 = pfoIX sf2
+-- 	pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
+-- 	pfoXX (SFArr _ fd1)       sf2                 = pfoAX (fdFun fd1) sf2
+--         pfoXX sf1                 (SFArr _ FDI)       = pfoXI sf1
+-- 	pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
+-- 	pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
+-- -- !!! Unclear if this really would be a gain
+-- -- !!! 2005-07-01: NOT a win for MEP 6.
+-- --        pfoXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
+-- --            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
+-- 	pfoXX sf1 sf2 = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 && sfIsInv sf2 then
+-- 		pfoXXInv sf1 sf2
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a = (pfoXX sf1' sf2', (b, c))
+-- 		    where
+-- 		        (sf1', b) = (sfTF' sf1) dt a
+-- 			(sf2', c) = (sfTF' sf2) dt a
+-- 
+-- {-
+--         pfoXXInv :: SF' a b -> SF' a c -> SF' a (b ,c)
+-- 	pfoXXInv sf1 sf2 = SF' tf True
+-- 	    where
+-- 		tf dt a = sf1 `seq` sf2 `seq` (pfoXXInv sf1' sf2', (b, c))
+-- 		    where
+-- 		        (sf1', b) = (sfTF' sf1) dt a
+-- 			(sf2', c) = (sfTF' sf2) dt a
+-- -}
+-- 
+--         pfoIX :: SF' a c -> SF' a (a ,c)
+-- 	pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
+-- 	pfoIX sf2 = SF' tf
+-- {-
+-- 	    if sfIsInv sf2 then
+-- 		pfoIXInv sf2
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a = (pfoIX sf2', (a, c))
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt a
+-- 
+-- {-
+--         pfoIXInv :: SF' a c -> SF' a (a ,c)
+-- 	pfoIXInv sf2 = SF' tf True
+-- 	    where
+-- 		tf dt a = sf2 `seq` (pfoIXInv sf2', (a, c))
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt a
+-- -}
+-- 
+--         pfoXI :: SF' a b -> SF' a (b ,a)
+-- 	pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
+-- 	pfoXI sf1 = SF' tf
+-- {-
+--             if sfIsInv sf1 then
+-- 		pfoXIInv sf1
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a = (pfoXI sf1', (b, a))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- 
+-- {-
+--         pfoXIInv :: SF' a b -> SF' a (b ,a)
+-- 	pfoXIInv sf1 = SF' tf True
+-- 	    where
+-- 		tf dt a = sf1 `seq` (pfoXIInv sf1', (b, a))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- -}
+-- 
+--         pfoCX :: b -> SF' a c -> SF' a (b ,c)
+--         pfoCX b (SFArr _ fd2) = sfArr (fdFanOut (FDC b) fd2)
+-- 	pfoCX b sf2 = SF' tf
+-- {-
+-- 	    if sfIsInv sf2 then
+-- 		pfoCXInv b sf2
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a = (pfoCX b sf2', (b, c))
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt a
+-- 
+-- {-
+--         pfoCXInv :: b -> SF' a c -> SF' a (b ,c)
+-- 	pfoCXInv b sf2 = SF' tf True
+-- 	    where
+-- 		tf dt a = sf2 `seq` (pfoCXInv b sf2', (b, c))
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt a
+-- -}
+-- 
+--         pfoXC :: SF' a b -> c -> SF' a (b ,c)
+-- 	pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
+-- 	pfoXC sf1 c = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		pfoXCInv sf1 c
+-- 	    else
+-- 	        SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a = (pfoXC sf1' c, (b, c))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- 
+-- {-
+--         pfoXCInv :: SF' a b -> c -> SF' a (b ,c)
+-- 	pfoXCInv sf1 c = SF' tf True
+-- 	    where
+-- 		tf dt a = sf1 `seq` (pfoXCInv sf1' c, (b, c))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- -}
+-- 
+--         pfoAX :: (a -> b) -> SF' a c -> SF' a (b ,c)
+-- 	pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
+-- 	pfoAX f1 sf2 = SF' tf
+-- {-
+-- 	    if sfIsInv sf2 then
+-- 		pfoAXInv f1 sf2
+-- 	    else
+--                 SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a = (pfoAX f1 sf2', (f1 a, c))
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt a
+-- 
+-- {-
+--         pfoAXInv :: (a -> b) -> SF' a c -> SF' a (b ,c)
+-- 	pfoAXInv f1 sf2 = SF' tf True
+-- 	    where
+-- 		tf dt a = sf2 `seq` (pfoAXInv f1 sf2', (f1 a, c))
+-- 		    where
+-- 			(sf2', c) = (sfTF' sf2) dt a
+-- -}
+-- 
+--         pfoXA :: SF' a b -> (a -> c) -> SF' a (b ,c)
+-- 	pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
+-- 	pfoXA sf1 f2 = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		pfoXAInv sf1 f2
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a = (pfoXA sf1' f2, (b, f2 a))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- 
+-- {-
+--         pfoXAInv :: SF' a b -> (a -> c) -> SF' a (b ,c)
+-- 	pfoXAInv sf1 f2 = SF' tf True
+-- 	    where
+-- 		tf dt a = sf1 `seq` (pfoXAInv sf1' f2, (b, f2 a))
+-- 		    where
+-- 			(sf1', b) = (sfTF' sf1) dt a
+-- -}
+-- 
+-- 
+-- ------------------------------------------------------------------------------
+-- -- ArrowLoop instance and implementation
+-- ------------------------------------------------------------------------------
+-- 
+-- instance ArrowLoop SF where
+--     loop = loopPrim
+-- 
+-- 
+-- loopPrim :: SF (a,c) (b,c) -> SF a b
+-- loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 = (loopAux sf1, b0)
+-- 	    where
+-- 	        (sf1, (b0, c0)) = tf10 (a0, c0)
+-- 
+--         loopAux :: SF' (a,c) (b,c) -> SF' a b
+-- 	loopAux (SFArr _ FDI) = sfId
+--         loopAux (SFArr _ (FDC (b, _))) = sfConst b
+-- 	loopAux (SFArr _ fd1) =
+--             sfArrG (\a -> let (b,c) = (fdFun fd1) (a,c) in b)
+-- 	loopAux sf1 = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		loopInv sf1
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a = (loopAux sf1', b)
+-- 		    where
+-- 		        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
+-- 
+-- {-
+--         loopInv :: SF' (a,c) (b,c) -> SF' a b
+-- 	loopInv sf1 = SF' tf True
+-- 	    where
+-- 		tf dt a = sf1 `seq` (loopInv sf1', b)
+-- 		    where
+-- 		        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
+-- -}
+-- 
+-- 
+-- -- ------------------------------------------------------------------------------
+-- -- -- Basic signal functions
+-- -- ------------------------------------------------------------------------------
+-- -- 
+-- -- -- | Identity: identity = arr id
+-- -- -- 
+-- -- -- Using 'identity' is preferred over lifting id, since the arrow combinators
+-- -- -- know how to optimise certain networks based on the transformations being
+-- -- -- applied.
+-- -- identity :: SF a a
+-- -- identity = SF {sfTF = \a -> (sfId, a)}
+-- -- 
+-- -- -- | Identity: constant b = arr (const b)
+-- -- -- 
+-- -- -- Using 'constant' is preferred over lifting const, since the arrow combinators
+-- -- -- know how to optimise certain networks based on the transformations being
+-- -- -- applied.
+-- -- constant :: b -> SF a b
+-- -- constant b = SF {sfTF = \_ -> (sfConst b, b)}
+-- -- 
+-- -- | Outputs the time passed since the signal function instance was started.
+-- localTime :: SF a Time
+-- localTime = constant 1.0 >>> integral
+-- 
+-- -- | Alternative name for localTime.
+-- time :: SF a Time
+-- time = localTime
+-- -- 
+-- -- ------------------------------------------------------------------------------
+-- -- -- Initialization
+-- -- ------------------------------------------------------------------------------
+-- -- 
+-- -- -- | Initialization operator (cf. Lustre/Lucid Synchrone).
+-- -- --
+-- -- -- The output at time zero is the first argument, and from
+-- -- -- that point on it behaves like the signal function passed as
+-- -- -- second argument.
+-- -- (-->) :: b -> SF a b -> SF a b
+-- -- b0 --> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (fst (tf10 a0), b0)}
+-- -- 
+-- -- -- | Input initialization operator.
+-- -- --
+-- -- -- The input at time zero is the first argument, and from
+-- -- -- that point on it behaves like the signal function passed as
+-- -- -- second argument.
+-- -- (>--) :: a -> SF a b -> SF a b
+-- -- a0 >-- (SF {sfTF = tf10}) = SF {sfTF = \_ -> tf10 a0}
+-- -- 
+-- -- 
+-- -- -- | Transform initial output value.
+-- -- --
+-- -- -- Applies a transformation 'f' only to the first output value at
+-- -- -- time zero.
+-- -- (-=>) :: (b -> b) -> SF a b -> SF a b
+-- -- f -=> (SF {sfTF = tf10}) =
+-- --     SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
+-- -- 
+-- -- 
+-- -- -- | Transform initial input value.
+-- -- --
+-- -- -- Applies a transformation 'f' only to the first input value at
+-- -- -- time zero.
+-- -- (>=-) :: (a -> a) -> SF a b -> SF a b
+-- -- f >=- (SF {sfTF = tf10}) = SF {sfTF = \a0 -> tf10 (f a0)}
+-- -- 
+-- -- -- | Override initial value of input signal.
+-- -- initially :: a -> SF a a
+-- -- initially = (--> identity)
+-- -- 
+-- -- 
+-- -- ------------------------------------------------------------------------------
+-- -- -- Simple, stateful signal processing
+-- -- ------------------------------------------------------------------------------
+-- -- 
+-- -- -- New sscan primitive. It should be possible to define lots of functions
+-- -- -- in terms of this one. Eventually a new constructor will be introduced if
+-- -- -- this works out.
+-- -- 
+-- -- sscan :: (b -> a -> b) -> b -> SF a b
+-- -- sscan f b_init = sscanPrim f' b_init b_init
+-- --     where
+-- --         f' b a = let b' = f b a in Just (b', b')
+-- -- 
+-- -- 
+-- -- {-
+-- -- sscanPrim :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
+-- -- sscanPrim f c_init b_init = SF {sfTF = tf0}
+-- --     where
+-- --         tf0 a0 = case f c_init a0 of
+-- --                      Nothing       -> (spAux f c_init b_init, b_init)
+-- --                      Just (c', b') -> (spAux f c' b', b')
+-- --  
+-- --         spAux :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
+-- --         spAux f c b = sf
+-- --             where
+-- --                 -- sf = SF' tf True
+-- --                 sf = SF' tf
+-- --                 tf _ a = case f c a of
+-- --                              Nothing       -> (sf, b)
+-- --                              Just (c', b') -> (spAux f c' b', b')
+-- -- -}
 
 
 ------------------------------------------------------------------------------
@@ -2210,685 +2212,684 @@ dropEvents n | n <= 0  = identity
 dropEvents n = dSwitch (never &&& identity)
                              (const (NoEvent >-- dropEvents (n - 1)))
 
-
-------------------------------------------------------------------------------
--- Basic switchers
-------------------------------------------------------------------------------
-
--- !!! Interesting case. It seems we need scoped type variables
--- !!! to be able to write down the local type signatures.
--- !!! On the other hand, the scoped type variables seem to
--- !!! prohibit the kind of unification that is needed for GADTs???
--- !!! Maybe this could be made to wok if it actually WAS known
--- !!! that scoped type variables indeed corresponds to universally
--- !!! quantified variables? Or if one were to keep track of those
--- !!! scoped type variables that actually do?
--- !!!
--- !!! Find a simpler case to experiment further. For now, elim.
--- !!! the free variable.
-
-{-
--- Basic switch.
-switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
-switch (SF {sfTF = tf10} :: SF a (b, Event c)) (k :: c -> SF a b) = SF {sfTF = tf0}
-    where
-	tf0 a0 =
-	    case tf10 a0 of
-	    	(sf1, (b0, NoEvent))  -> (switchAux sf1, b0)
-		(_,   (_,  Event c0)) -> sfTF (k c0) a0
-
-        -- It would be nice to optimize further here. E.g. if it would be
-        -- possible to observe the event source only.
-        switchAux :: SF' a (b, Event c) -> SF' a b
-        switchAux (SFId _)                 = switchAuxA1 id	-- New
-	switchAux (SFConst _ (b, NoEvent)) = sfConst b
-	switchAux (SFArr _ f1)             = switchAuxA1 f1
-	switchAux sf1                      = SF' tf
-	    where
-		tf dt a =
-		    case (sfTF' sf1) dt a of
-			(sf1', (b, NoEvent)) -> (switchAux sf1', b)
-			(_,    (_, Event c)) -> sfTF (k c) a
-
-	-- Could be optimized a little bit further by having a case for
-        -- identity, switchAuxI1
-
-	-- Note: While switch behaves as a stateless arrow at this point, that
-	-- could change after a switch. Hence, SF' overall.
-        switchAuxA1 :: (a -> (b, Event c)) -> SF' a b
-	switchAuxA1 f1 = sf
-	    where
-		sf     = SF' tf
-		tf _ a =
-		    case f1 a of
-			(b, NoEvent) -> (sf, b)
-			(_, Event c) -> sfTF (k c) a
--}
-
--- | Basic switch.
+-- ------------------------------------------------------------------------------
+-- -- Basic switchers
+-- ------------------------------------------------------------------------------
 -- 
--- By default, the first signal function is applied.
---
--- Whenever the second value in the pair actually is an event,
--- the value carried by the event is used to obtain a new signal
--- function to be applied *at that time and at future times*.
+-- -- !!! Interesting case. It seems we need scoped type variables
+-- -- !!! to be able to write down the local type signatures.
+-- -- !!! On the other hand, the scoped type variables seem to
+-- -- !!! prohibit the kind of unification that is needed for GADTs???
+-- -- !!! Maybe this could be made to wok if it actually WAS known
+-- -- !!! that scoped type variables indeed corresponds to universally
+-- -- !!! quantified variables? Or if one were to keep track of those
+-- -- !!! scoped type variables that actually do?
+-- -- !!!
+-- -- !!! Find a simpler case to experiment further. For now, elim.
+-- -- !!! the free variable.
 -- 
--- Until that happens, the first value in the pair is produced
--- in the output signal.
---
--- Important note: at the time of switching, the second
--- signal function is applied immediately. If that second
--- SF can also switch at time zero, then a double (nested)
--- switch might take place. If the second SF refers to the
--- first one, the switch might take place infinitely many
--- times and never be resolved.
---
--- Remember: The continuation is evaluated strictly at the time
--- of switching!
-switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
-switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
-    where
-	tf0 a0 =
-	    case tf10 a0 of
-	    	(sf1, (b0, NoEvent))  -> (switchAux sf1 k, b0)
-		(_,   (_,  Event c0)) -> sfTF (k c0) a0
-
-        -- It would be nice to optimize further here. E.g. if it would be
-        -- possible to observe the event source only.
-        switchAux :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-	switchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
-	switchAux (SFArr _ fd1)                k = switchAuxA1 (fdFun fd1) k
-	switchAux sf1                          k = SF' tf
-{-
-	    if sfIsInv sf1 then
-		switchInv sf1 k
-	    else
-		SF' tf False
--}
-	    where
-		tf dt a =
-		    case (sfTF' sf1) dt a of
-			(sf1', (b, NoEvent)) -> (switchAux sf1' k, b)
-			(_,    (_, Event c)) -> sfTF (k c) a
-
-{-
-        -- Note: subordinate signal function being invariant does NOT
-        -- imply that the overall signal function is.
-        switchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-	switchInv sf1 k = SF' tf False
-	    where
-		tf dt a =
-		    case (sfTF' sf1) dt a of
-			(sf1', (b, NoEvent)) -> (switchInv sf1' k, b)
-			(_,    (_, Event c)) -> sfTF (k c) a
--}
-
-	-- !!! Could be optimized a little bit further by having a case for
-        -- !!! identity, switchAuxI1. But I'd expect identity is so unlikely
-        -- !!! that there is no point.
-
-	-- Note: While switch behaves as a stateless arrow at this point, that
-	-- could change after a switch. Hence, SF' overall.
-        switchAuxA1 :: (a -> (b, Event c)) -> (c -> SF a b) -> SF' a b
-	switchAuxA1 f1 k = sf
-	    where
-		sf     = SF' tf -- False
-		tf _ a =
-		    case f1 a of
-			(b, NoEvent) -> (sf, b)
-			(_, Event c) -> sfTF (k c) a
-
-
--- | Switch with delayed observation.
+-- {-
+-- -- Basic switch.
+-- switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
+-- switch (SF {sfTF = tf10} :: SF a (b, Event c)) (k :: c -> SF a b) = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 =
+-- 	    case tf10 a0 of
+-- 	    	(sf1, (b0, NoEvent))  -> (switchAux sf1, b0)
+-- 		(_,   (_,  Event c0)) -> sfTF (k c0) a0
 -- 
--- By default, the first signal function is applied.
---
--- Whenever the second value in the pair actually is an event,
--- the value carried by the event is used to obtain a new signal
--- function to be applied *at future times*.
+--         -- It would be nice to optimize further here. E.g. if it would be
+--         -- possible to observe the event source only.
+--         switchAux :: SF' a (b, Event c) -> SF' a b
+--         switchAux (SFId _)                 = switchAuxA1 id	-- New
+-- 	switchAux (SFConst _ (b, NoEvent)) = sfConst b
+-- 	switchAux (SFArr _ f1)             = switchAuxA1 f1
+-- 	switchAux sf1                      = SF' tf
+-- 	    where
+-- 		tf dt a =
+-- 		    case (sfTF' sf1) dt a of
+-- 			(sf1', (b, NoEvent)) -> (switchAux sf1', b)
+-- 			(_,    (_, Event c)) -> sfTF (k c) a
 -- 
--- Until that happens, the first value in the pair is produced
--- in the output signal.
---
--- Important note: at the time of switching, the second
--- signal function is used immediately, but the current
--- input is fed by it (even though the actual output signal
--- value at time 0 is discarded). 
+-- 	-- Could be optimized a little bit further by having a case for
+--         -- identity, switchAuxI1
 -- 
--- If that second SF can also switch at time zero, then a
--- double (nested) -- switch might take place. If the second SF refers to the
--- first one, the switch might take place infinitely many times and never be
--- resolved.
---
--- Remember: The continuation is evaluated strictly at the time
--- of switching!
-
--- Alternative name: "decoupled switch"?
--- (The SFId optimization is highly unlikley to be of much use, but it
--- does raise an interesting typing issue.)
-dSwitch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
-dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
-    where
-	tf0 a0 =
-	    let (sf1, (b0, ec0)) = tf10 a0
-            in (case ec0 of
-                    NoEvent  -> dSwitchAux sf1 k
-		    Event c0 -> fst (sfTF (k c0) a0),
-                b0)
-
-        -- It would be nice to optimize further here. E.g. if it would be
-        -- possible to observe the event source only.
-        dSwitchAux :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-	dSwitchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
-	dSwitchAux (SFArr _ fd1)                k = dSwitchAuxA1 (fdFun fd1) k
-	dSwitchAux sf1                          k = SF' tf
-{-
-	    if sfIsInv sf1 then
-		dSwitchInv sf1 k
-	    else
-		SF' tf False
--}
-	    where
-		tf dt a =
-		    let (sf1', (b, ec)) = (sfTF' sf1) dt a
-                    in (case ec of
-			    NoEvent -> dSwitchAux sf1' k
-			    Event c -> fst (sfTF (k c) a),
-
-			b)
-
-{-
-        -- Note: that the subordinate signal function is invariant does NOT
-        -- imply that the overall signal function is.
-        dSwitchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-	dSwitchInv sf1 k = SF' tf False
-	    where
-		tf dt a =
-		    let (sf1', (b, ec)) = (sfTF' sf1) dt a
-                    in (case ec of
-			    NoEvent -> dSwitchInv sf1' k
-			    Event c -> fst (sfTF (k c) a),
-
-			b)
--}
-
-	-- !!! Could be optimized a little bit further by having a case for
-        -- !!! identity, switchAuxI1
-
-	-- Note: While dSwitch behaves as a stateless arrow at this point, that
-	-- could change after a switch. Hence, SF' overall.
-        dSwitchAuxA1 :: (a -> (b, Event c)) -> (c -> SF a b) -> SF' a b
-	dSwitchAuxA1 f1 k = sf
-	    where
-		sf = SF' tf -- False
-		tf _ a =
-		    let (b, ec) = f1 a
-                    in (case ec of
-			    NoEvent -> sf
-			    Event c -> fst (sfTF (k c) a),
-
-			b)
-
-
--- | Recurring switch.
+-- 	-- Note: While switch behaves as a stateless arrow at this point, that
+-- 	-- could change after a switch. Hence, SF' overall.
+--         switchAuxA1 :: (a -> (b, Event c)) -> SF' a b
+-- 	switchAuxA1 f1 = sf
+-- 	    where
+-- 		sf     = SF' tf
+-- 		tf _ a =
+-- 		    case f1 a of
+-- 			(b, NoEvent) -> (sf, b)
+-- 			(_, Event c) -> sfTF (k c) a
+-- -}
 -- 
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
--- information on how this switch works.
-
--- !!! Suboptimal. Overall, the constructor is invarying since rSwitch is
--- !!! being invoked recursively on a switch. In fact, we don't even care
--- !!! whether the subordinate signal function is invarying or not.
--- !!! We could make use of a signal function transformer sfInv to
--- !!! mark the constructor as invarying. Would that make sense?
--- !!! The price would be an extra loop with case analysis.
--- !!! The potential gain is fewer case analyses in superior loops.
-rSwitch :: SF a b -> SF (a, Event (SF a b)) b
-rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
-
-{-
--- Old version. New is more efficient. Which one is clearer?
-rSwitch :: SF a b -> SF (a, Event (SF a b)) b
-rSwitch sf = switch (first sf) rSwitch'
-    where
-        rSwitch' sf = switch (sf *** notYet) rSwitch'
--}
-
-
--- | Recurring switch with delayed observation.
+-- -- | Basic switch.
+-- -- 
+-- -- By default, the first signal function is applied.
+-- --
+-- -- Whenever the second value in the pair actually is an event,
+-- -- the value carried by the event is used to obtain a new signal
+-- -- function to be applied *at that time and at future times*.
+-- -- 
+-- -- Until that happens, the first value in the pair is produced
+-- -- in the output signal.
+-- --
+-- -- Important note: at the time of switching, the second
+-- -- signal function is applied immediately. If that second
+-- -- SF can also switch at time zero, then a double (nested)
+-- -- switch might take place. If the second SF refers to the
+-- -- first one, the switch might take place infinitely many
+-- -- times and never be resolved.
+-- --
+-- -- Remember: The continuation is evaluated strictly at the time
+-- -- of switching!
+-- switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
+-- switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 =
+-- 	    case tf10 a0 of
+-- 	    	(sf1, (b0, NoEvent))  -> (switchAux sf1 k, b0)
+-- 		(_,   (_,  Event c0)) -> sfTF (k c0) a0
 -- 
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
--- information on how this switch works.
-drSwitch :: SF a b -> SF (a, Event (SF a b)) b
-drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
-
-{-
--- Old version. New is more efficient. Which one is clearer?
-drSwitch :: SF a b -> SF (a, Event (SF a b)) b
-drSwitch sf = dSwitch (first sf) drSwitch'
-    where
-        drSwitch' sf = dSwitch (sf *** notYet) drSwitch'
--}
-
-
--- | "Call-with-current-continuation" switch.
+--         -- It would be nice to optimize further here. E.g. if it would be
+--         -- possible to observe the event source only.
+--         switchAux :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
+-- 	switchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
+-- 	switchAux (SFArr _ fd1)                k = switchAuxA1 (fdFun fd1) k
+-- 	switchAux sf1                          k = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		switchInv sf1 k
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a =
+-- 		    case (sfTF' sf1) dt a of
+-- 			(sf1', (b, NoEvent)) -> (switchAux sf1' k, b)
+-- 			(_,    (_, Event c)) -> sfTF (k c) a
 -- 
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
--- information on how this switch works.
-
--- !!! Has not been optimized properly.
--- !!! Nor has opts been tested!
--- !!! Don't forget Inv opts!
-kSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
-kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
-    where
-        tf0 a0 =
-	    let (sf1, b0) = tf10 a0
-            in
-	        case tfe0 (a0, b0) of
-		    (sfe, NoEvent)  -> (kSwitchAux sf1 sfe, b0)
-		    (_,   Event c0) -> sfTF (k sf10 c0) a0
-
--- Same problem as above: must pass k explicitly???
---        kSwitchAux (SFId _)      sfe                 = kSwitchAuxI1 sfe
-        kSwitchAux (SFArr _ (FDC b)) sfe = kSwitchAuxC1 b sfe
-        kSwitchAux (SFArr _ fd1)     sfe = kSwitchAuxA1 (fdFun fd1) sfe
-        -- kSwitchAux (SFArrE _ f1)  sfe                 = kSwitchAuxA1 f1 sfe
-        -- kSwitchAux (SFArrEE _ f1) sfe                 = kSwitchAuxA1 f1 sfe
-        kSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
-        kSwitchAux sf1 (SFArr _ fde) = kSwitchAuxAE sf1 (fdFun fde) 
-        -- kSwitchAux sf1            (SFArrE _ fe)       = kSwitchAuxAE sf1 fe 
-        -- kSwitchAux sf1            (SFArrEE _ fe)      = kSwitchAuxAE sf1 fe 
-        kSwitchAux sf1            sfe                 = SF' tf -- False
-	    where
-		tf dt a =
-		    let	(sf1', b) = (sfTF' sf1) dt a
-		    in
-		        case (sfTF' sfe) dt (a, b) of
-			    (sfe', NoEvent) -> (kSwitchAux sf1' sfe', b)
-			    (_,    Event c) -> sfTF (k (freeze sf1 dt) c) a
-
-{-
--- !!! Untested optimization!
-        kSwitchAuxI1 (SFConst _ NoEvent) = sfId
-        kSwitchAuxI1 (SFArr _ fe)        = kSwitchAuxI1AE fe
-        kSwitchAuxI1 sfe                 = SF' tf
-	    where
-		tf dt a =
-		    case (sfTF' sfe) dt (a, a) of
-			(sfe', NoEvent) -> (kSwitchAuxI1 sfe', a)
-			(_,    Event c) -> sfTF (k identity c) a
--}
-
--- !!! Untested optimization!
-        kSwitchAuxC1 b (SFArr _ (FDC NoEvent)) = sfConst b
-        kSwitchAuxC1 b (SFArr _ fde)        = kSwitchAuxC1AE b (fdFun fde)
-        -- kSwitchAuxC1 b (SFArrE _ fe)       = kSwitchAuxC1AE b fe
-        -- kSwitchAuxC1 b (SFArrEE _ fe)      = kSwitchAuxC1AE b fe
-        kSwitchAuxC1 b sfe                 = SF' tf -- False
-	    where
-		tf dt a =
-		    case (sfTF' sfe) dt (a, b) of
-			(sfe', NoEvent) -> (kSwitchAuxC1 b sfe', b)
-			(_,    Event c) -> sfTF (k (constant b) c) a
-
--- !!! Untested optimization!
-        kSwitchAuxA1 f1 (SFArr _ (FDC NoEvent)) = sfArrG f1
-        kSwitchAuxA1 f1 (SFArr _ fde)        = kSwitchAuxA1AE f1 (fdFun fde)
-        -- kSwitchAuxA1 f1 (SFArrE _ fe)       = kSwitchAuxA1AE f1 fe
-        -- kSwitchAuxA1 f1 (SFArrEE _ fe)      = kSwitchAuxA1AE f1 fe
-        kSwitchAuxA1 f1 sfe                 = SF' tf -- False
-	    where
-		tf dt a =
-		    let	b = f1 a
-		    in
-		        case (sfTF' sfe) dt (a, b) of
-			    (sfe', NoEvent) -> (kSwitchAuxA1 f1 sfe', b)
-			    (_,    Event c) -> sfTF (k (arr f1) c) a
-
--- !!! Untested optimization!
---        kSwitchAuxAE (SFId _)      fe = kSwitchAuxI1AE fe
-        kSwitchAuxAE (SFArr _ (FDC b))  fe = kSwitchAuxC1AE b fe
-        kSwitchAuxAE (SFArr _ fd1)   fe = kSwitchAuxA1AE (fdFun fd1) fe
-        -- kSwitchAuxAE (SFArrE _ f1)  fe = kSwitchAuxA1AE f1 fe
-        -- kSwitchAuxAE (SFArrEE _ f1) fe = kSwitchAuxA1AE f1 fe
-        kSwitchAuxAE sf1            fe = SF' tf -- False
-	    where
-		tf dt a =
-		    let	(sf1', b) = (sfTF' sf1) dt a
-		    in
-		        case fe (a, b) of
-			    NoEvent -> (kSwitchAuxAE sf1' fe, b)
-			    Event c -> sfTF (k (freeze sf1 dt) c) a
-
-{-
--- !!! Untested optimization!
-        kSwitchAuxI1AE fe = SF' tf -- False
-	    where
-		tf dt a =
-		    case fe (a, a) of
-			NoEvent -> (kSwitchAuxI1AE fe, a)
-			Event c -> sfTF (k identity c) a
--}
-
--- !!! Untested optimization!
-        kSwitchAuxC1AE b fe = SF' tf -- False
-	    where
-		tf _ a =
-		    case fe (a, b) of
-			NoEvent -> (kSwitchAuxC1AE b fe, b)
-			Event c -> sfTF (k (constant b) c) a
-
--- !!! Untested optimization!
-        kSwitchAuxA1AE f1 fe = SF' tf -- False
-	    where
-		tf _ a =
-		    let	b = f1 a
-		    in
-		        case fe (a, b) of
-			    NoEvent -> (kSwitchAuxA1AE f1 fe, b)
-			    Event c -> sfTF (k (arr f1) c) a
-
-
--- | 'kSwitch' with delayed observation.
+-- {-
+--         -- Note: subordinate signal function being invariant does NOT
+--         -- imply that the overall signal function is.
+--         switchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
+-- 	switchInv sf1 k = SF' tf False
+-- 	    where
+-- 		tf dt a =
+-- 		    case (sfTF' sf1) dt a of
+-- 			(sf1', (b, NoEvent)) -> (switchInv sf1' k, b)
+-- 			(_,    (_, Event c)) -> sfTF (k c) a
+-- -}
 -- 
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
--- information on how this switch works.
-
--- !!! Has not been optimized properly. Should be like kSwitch.
-dkSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
-dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
-    where
-        tf0 a0 =
-	    let (sf1, b0) = tf10 a0
-            in (case tfe0 (a0, b0) of
-		    (sfe, NoEvent)  -> dkSwitchAux sf1 sfe
-		    (_,   Event c0) -> fst (sfTF (k sf10 c0) a0),
-                b0)
-
-        dkSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
-        dkSwitchAux sf1 sfe                     = SF' tf -- False
-	    where
-		tf dt a =
-		    let	(sf1', b) = (sfTF' sf1) dt a
-		    in (case (sfTF' sfe) dt (a, b) of
-			    (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
-			    (_, Event c) -> fst (sfTF (k (freeze sf1 dt) c) a),
-		        b)
-
-
-------------------------------------------------------------------------------
--- Parallel composition and switching over collections with broadcasting
-------------------------------------------------------------------------------
-
--- | Tuple a value up with every element of a collection of signal
--- functions.
-broadcast :: Functor col => a -> col sf -> col (a, sf)
-broadcast a sfs = fmap (\sf -> (a, sf)) sfs
-
-
--- !!! Hmm. We should really optimize here.
--- !!! Check for Arr in parallel!
--- !!! Check for Arr FDE in parallel!!!
--- !!! Check for EP in parallel!!!!!
--- !!! Cf &&&.
--- !!! But how??? All we know is that the collection is a functor ...
--- !!! Maybe that kind of generality does not make much sense for
--- !!! par and parB? (Although it is niceto be able to switch into a
--- !!! par or parB from within a pSwitch[B].)
--- !!! If we had a parBList, that could be defined in terms of &&&, surely?
--- !!! E.g.
--- !!! parBList []       = constant []
--- !!! parBList (sf:sfs) = sf &&& parBList sfs >>> arr (\(x,xs) -> x:xs)
--- !!!
--- !!! This ought to optimize quite well. E.g.
--- !!! parBList [arr1,arr2,arr3]
--- !!! = arr1 &&& parBList [arr2,arr3] >>> arrX
--- !!! = arr1 &&& (arr2 &&& parBList [arr3] >>> arrX) >>> arrX
--- !!! = arr1 &&& (arr2 &&& (arr3 &&& parBList [] >>> arrX) >>> arrX) >>> arrX
--- !!! = arr1 &&& (arr2 &&& (arr3C >>> arrX) >>> arrX) >>> arrX
--- !!! = arr1 &&& (arr2 &&& (arr3CcpX) >>> arrX) >>> arrX
--- !!! = arr1 &&& (arr23CcpX >>> arrX) >>> arrX
--- !!! = arr1 &&& (arr23CcpXcpX) >>> arrX
--- !!! = arr123CcpXcpXcpX
-
--- | Spatial parallel composition of a signal function collection.
--- Given a collection of signal functions, it returns a signal
--- function that 'broadcast's its input signal to every element
--- of the collection, to return a signal carrying a collection
--- of outputs. See 'par'.
---
--- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
-parB :: Functor col => col (SF a b) -> SF a (col b)
-parB = par broadcast
-
--- | Parallel switch (dynamic collection of signal functions spatially composed
--- in parallel). See 'pSwitch'.
---
--- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
-pSwitchB :: Functor col =>
-    col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c-> SF a (col b))
-    -> SF a (col b)
-pSwitchB = pSwitch broadcast
-
--- | Delayed parallel switch with broadcasting (dynamic collection of
---   signal functions spatially composed in parallel). See 'dpSwitch'.
+-- 	-- !!! Could be optimized a little bit further by having a case for
+--         -- !!! identity, switchAuxI1. But I'd expect identity is so unlikely
+--         -- !!! that there is no point.
 -- 
--- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
-dpSwitchB :: Functor col =>
-    col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c->SF a (col b))
-    -> SF a (col b)
-dpSwitchB = dpSwitch broadcast
-
--- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
-rpSwitchB :: Functor col =>
-    col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
-rpSwitchB = rpSwitch broadcast
-
--- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
-drpSwitchB :: Functor col =>
-    col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
-drpSwitchB = drpSwitch broadcast
-
-
-------------------------------------------------------------------------------
--- Parallel composition and switching over collections with general routing
-------------------------------------------------------------------------------
-
--- | Spatial parallel composition of a signal function collection parameterized
--- on the routing function.
---
-par :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf))) -- ^ Determines the input to each signal function
-                                               --     in the collection. IMPORTANT! The routing function MUST
-                                               --     preserve the structure of the signal function collection.
-
-    -> col (SF b c)                            -- ^ Signal function collection.
-    -> SF a (col c)
-par rf sfs0 = SF {sfTF = tf0}
-    where
-	tf0 a0 =
-	    let bsfs0 = rf a0 sfs0
-		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-		sfs   = fmap fst sfcs0
-		cs0   = fmap snd sfcs0
-	    in
-		(parAux rf sfs, cs0)
-
-
--- Internal definition. Also used in parallel swithers.
-parAux :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf)))
-    -> col (SF' b c)
-    -> SF' a (col c)
-parAux rf sfs = SF' tf -- True
-    where
-	tf dt a = 
-	    let bsfs  = rf a sfs
-		sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-		sfs'  = fmap fst sfcs'
-		cs    = fmap snd sfcs'
-	    in
-	        (parAux rf sfs', cs)
-
-
--- | Parallel switch parameterized on the routing function. This is the most
--- general switch from which all other (non-delayed) switches in principle
--- can be derived. The signal function collection is spatially composed in
--- parallel and run until the event signal function has an occurrence. Once
--- the switching event occurs, all signal function are "frozen" and their
--- continuations are passed to the continuation function, along with the
--- event value.
---
-
--- rf .........	Routing function: determines the input to each signal function
---		in the collection. IMPORTANT! The routing function has an
---		obligation to preserve the structure of the signal function
---		collection.
--- sfs0 .......	Signal function collection.
--- sfe0 .......	Signal function generating the switching event.
--- k .......... Continuation to be invoked once event occurs.
--- Returns the resulting signal function.
---
--- !!! Could be optimized on the event source being SFArr, SFArrE, SFArrEE
-pSwitch :: Functor col
-    => (forall sf . (a -> col sf -> col (b, sf))) -- ^ Routing function: determines the input to each signal function
-                                                  --   in the collection. IMPORTANT! The routing function has an
-                                                  --   obligation to preserve the structure of the signal function
-                                                  --   collection.
-
-    -> col (SF b c)                               -- ^ Signal function collection.
-    -> SF (a, col c) (Event d)                    -- ^ Signal function generating the switching event.
-    -> (col (SF b c) -> d -> SF a (col c))        -- ^ Continuation to be invoked once event occurs.
-    -> SF a (col c)
-pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
-    where
-	tf0 a0 =
-	    let bsfs0 = rf a0 sfs0
-		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-		sfs   = fmap fst sfcs0
-		cs0   = fmap snd sfcs0
-	    in
-		case (sfTF sfe0) (a0, cs0) of
-		    (sfe, NoEvent)  -> (pSwitchAux sfs sfe, cs0)
-		    (_,   Event d0) -> sfTF (k sfs0 d0) a0
-
-	pSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
-	pSwitchAux sfs sfe = SF' tf -- False
-	    where
-		tf dt a =
-		    let bsfs  = rf a sfs
-			sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-			sfs'  = fmap fst sfcs'
-			cs    = fmap snd sfcs'
-		    in
-			case (sfTF' sfe) dt (a, cs) of
-			    (sfe', NoEvent) -> (pSwitchAux sfs' sfe', cs)
-			    (_,    Event d) -> sfTF (k (freezeCol sfs dt) d) a
-
-
--- | Parallel switch with delayed observation parameterized on the routing
--- function.
---
--- The collection argument to the function invoked on the
--- switching event is of particular interest: it captures the
--- continuations of the signal functions running in the collection
--- maintained by 'dpSwitch' at the time of the switching event,
--- thus making it possible to preserve their state across a switch.
--- Since the continuations are plain, ordinary signal functions,
--- they can be resumed, discarded, stored, or combined with
--- other signal functions.
-
--- !!! Could be optimized on the event source being SFArr, SFArrE, SFArrEE.
---
-dpSwitch :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf))) -- ^ Routing function. Its purpose is
-                                               --   to pair up each running signal function in the collection
-                                               --   maintained by 'dpSwitch' with the input it is going to see
-                                               --   at each point in time. All the routing function can do is specify
-                                               --   how the input is distributed.
-    -> col (SF b c)                            -- ^ Initial collection of signal functions.
-    -> SF (a, col c) (Event d)                 -- ^ Signal function that observes the external
-                                               --   input signal and the output signals from the collection in order
-                                               --   to produce a switching event.
-    -> (col (SF b c) -> d -> SF a (col c))     -- ^ The fourth argument is a function that is invoked when the
-                                               --   switching event occurs, yielding a new signal function to switch
-                                               --   into based on the collection of signal functions previously
-                                               --   running and the value carried by the switching event. This
-                                               --   allows the collection to be updated and then switched back
-                                               --   in, typically by employing 'dpSwitch' again.
-    -> SF a (col c)
-dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
-    where
-	tf0 a0 =
-	    let bsfs0 = rf a0 sfs0
-		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-		cs0   = fmap snd sfcs0
-	    in
-		(case (sfTF sfe0) (a0, cs0) of
-		     (sfe, NoEvent)  -> dpSwitchAux (fmap fst sfcs0) sfe
-		     (_,   Event d0) -> fst (sfTF (k sfs0 d0) a0),
-	         cs0)
-
-	dpSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
-	dpSwitchAux sfs sfe = SF' tf -- False
-	    where
-		tf dt a =
-		    let bsfs  = rf a sfs
-			sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-			cs    = fmap snd sfcs'
-		    in
-			(case (sfTF' sfe) dt (a, cs) of
-			     (sfe', NoEvent) -> dpSwitchAux (fmap fst sfcs')
-							    sfe'
-			     (_,    Event d) -> fst (sfTF (k (freezeCol sfs dt)
-							     d)
-							  a),
-                         cs)
-
-
--- Recurring parallel switch parameterized on the routing function.
--- rf .........	Routing function: determines the input to each signal function
---		in the collection. IMPORTANT! The routing function has an
---		obligation to preserve the structure of the signal function
---		collection.
--- sfs ........	Initial signal function collection.
--- Returns the resulting signal function.
-
-rpSwitch :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf)))
-    -> col (SF b c) -> SF (a, Event (col (SF b c) -> col (SF b c))) (col c)
-rpSwitch rf sfs =
-    pSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
-    noEventSnd >=- rpSwitch rf (f sfs')
-
-
-{-
-rpSwitch rf sfs = pSwitch (rf . fst) sfs (arr (snd . fst)) k
-    where
-	k sfs f = rpSwitch' (f sfs)
-	rpSwitch' sfs = pSwitch (rf . fst) sfs (NoEvent --> arr (snd . fst)) k
--}
-
--- Recurring parallel switch with delayed observation parameterized on the
--- routing function.
-drpSwitch :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf)))
-    -> col (SF b c) -> SF (a, Event (col (SF b c) -> col (SF b c))) (col c)
-drpSwitch rf sfs =
-    dpSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
-    noEventSnd >=- drpSwitch rf (f sfs')
-
-{-
-drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
-    where
-	k sfs f = drpSwitch' (f sfs)
-	drpSwitch' sfs = dpSwitch (rf . fst) sfs (NoEvent-->arr (snd . fst)) k
--}
+-- 	-- Note: While switch behaves as a stateless arrow at this point, that
+-- 	-- could change after a switch. Hence, SF' overall.
+--         switchAuxA1 :: (a -> (b, Event c)) -> (c -> SF a b) -> SF' a b
+-- 	switchAuxA1 f1 k = sf
+-- 	    where
+-- 		sf     = SF' tf -- False
+-- 		tf _ a =
+-- 		    case f1 a of
+-- 			(b, NoEvent) -> (sf, b)
+-- 			(_, Event c) -> sfTF (k c) a
+-- 
+-- 
+-- -- | Switch with delayed observation.
+-- -- 
+-- -- By default, the first signal function is applied.
+-- --
+-- -- Whenever the second value in the pair actually is an event,
+-- -- the value carried by the event is used to obtain a new signal
+-- -- function to be applied *at future times*.
+-- -- 
+-- -- Until that happens, the first value in the pair is produced
+-- -- in the output signal.
+-- --
+-- -- Important note: at the time of switching, the second
+-- -- signal function is used immediately, but the current
+-- -- input is fed by it (even though the actual output signal
+-- -- value at time 0 is discarded). 
+-- -- 
+-- -- If that second SF can also switch at time zero, then a
+-- -- double (nested) -- switch might take place. If the second SF refers to the
+-- -- first one, the switch might take place infinitely many times and never be
+-- -- resolved.
+-- --
+-- -- Remember: The continuation is evaluated strictly at the time
+-- -- of switching!
+-- 
+-- -- Alternative name: "decoupled switch"?
+-- -- (The SFId optimization is highly unlikley to be of much use, but it
+-- -- does raise an interesting typing issue.)
+-- dSwitch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
+-- dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 =
+-- 	    let (sf1, (b0, ec0)) = tf10 a0
+--             in (case ec0 of
+--                     NoEvent  -> dSwitchAux sf1 k
+-- 		    Event c0 -> fst (sfTF (k c0) a0),
+--                 b0)
+-- 
+--         -- It would be nice to optimize further here. E.g. if it would be
+--         -- possible to observe the event source only.
+--         dSwitchAux :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
+-- 	dSwitchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
+-- 	dSwitchAux (SFArr _ fd1)                k = dSwitchAuxA1 (fdFun fd1) k
+-- 	dSwitchAux sf1                          k = SF' tf
+-- {-
+-- 	    if sfIsInv sf1 then
+-- 		dSwitchInv sf1 k
+-- 	    else
+-- 		SF' tf False
+-- -}
+-- 	    where
+-- 		tf dt a =
+-- 		    let (sf1', (b, ec)) = (sfTF' sf1) dt a
+--                     in (case ec of
+-- 			    NoEvent -> dSwitchAux sf1' k
+-- 			    Event c -> fst (sfTF (k c) a),
+-- 
+-- 			b)
+-- 
+-- {-
+--         -- Note: that the subordinate signal function is invariant does NOT
+--         -- imply that the overall signal function is.
+--         dSwitchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
+-- 	dSwitchInv sf1 k = SF' tf False
+-- 	    where
+-- 		tf dt a =
+-- 		    let (sf1', (b, ec)) = (sfTF' sf1) dt a
+--                     in (case ec of
+-- 			    NoEvent -> dSwitchInv sf1' k
+-- 			    Event c -> fst (sfTF (k c) a),
+-- 
+-- 			b)
+-- -}
+-- 
+-- 	-- !!! Could be optimized a little bit further by having a case for
+--         -- !!! identity, switchAuxI1
+-- 
+-- 	-- Note: While dSwitch behaves as a stateless arrow at this point, that
+-- 	-- could change after a switch. Hence, SF' overall.
+--         dSwitchAuxA1 :: (a -> (b, Event c)) -> (c -> SF a b) -> SF' a b
+-- 	dSwitchAuxA1 f1 k = sf
+-- 	    where
+-- 		sf = SF' tf -- False
+-- 		tf _ a =
+-- 		    let (b, ec) = f1 a
+--                     in (case ec of
+-- 			    NoEvent -> sf
+-- 			    Event c -> fst (sfTF (k c) a),
+-- 
+-- 			b)
+-- 
+-- 
+-- -- | Recurring switch.
+-- -- 
+-- -- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- -- information on how this switch works.
+-- 
+-- -- !!! Suboptimal. Overall, the constructor is invarying since rSwitch is
+-- -- !!! being invoked recursively on a switch. In fact, we don't even care
+-- -- !!! whether the subordinate signal function is invarying or not.
+-- -- !!! We could make use of a signal function transformer sfInv to
+-- -- !!! mark the constructor as invarying. Would that make sense?
+-- -- !!! The price would be an extra loop with case analysis.
+-- -- !!! The potential gain is fewer case analyses in superior loops.
+-- rSwitch :: SF a b -> SF (a, Event (SF a b)) b
+-- rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
+-- 
+-- {-
+-- -- Old version. New is more efficient. Which one is clearer?
+-- rSwitch :: SF a b -> SF (a, Event (SF a b)) b
+-- rSwitch sf = switch (first sf) rSwitch'
+--     where
+--         rSwitch' sf = switch (sf *** notYet) rSwitch'
+-- -}
+-- 
+-- 
+-- -- | Recurring switch with delayed observation.
+-- -- 
+-- -- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- -- information on how this switch works.
+-- drSwitch :: SF a b -> SF (a, Event (SF a b)) b
+-- drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
+-- 
+-- {-
+-- -- Old version. New is more efficient. Which one is clearer?
+-- drSwitch :: SF a b -> SF (a, Event (SF a b)) b
+-- drSwitch sf = dSwitch (first sf) drSwitch'
+--     where
+--         drSwitch' sf = dSwitch (sf *** notYet) drSwitch'
+-- -}
+-- 
+-- 
+-- -- | "Call-with-current-continuation" switch.
+-- -- 
+-- -- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- -- information on how this switch works.
+-- 
+-- -- !!! Has not been optimized properly.
+-- -- !!! Nor has opts been tested!
+-- -- !!! Don't forget Inv opts!
+-- kSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
+-- kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
+--     where
+--         tf0 a0 =
+-- 	    let (sf1, b0) = tf10 a0
+--             in
+-- 	        case tfe0 (a0, b0) of
+-- 		    (sfe, NoEvent)  -> (kSwitchAux sf1 sfe, b0)
+-- 		    (_,   Event c0) -> sfTF (k sf10 c0) a0
+-- 
+-- -- Same problem as above: must pass k explicitly???
+-- --        kSwitchAux (SFId _)      sfe                 = kSwitchAuxI1 sfe
+--         kSwitchAux (SFArr _ (FDC b)) sfe = kSwitchAuxC1 b sfe
+--         kSwitchAux (SFArr _ fd1)     sfe = kSwitchAuxA1 (fdFun fd1) sfe
+--         -- kSwitchAux (SFArrE _ f1)  sfe                 = kSwitchAuxA1 f1 sfe
+--         -- kSwitchAux (SFArrEE _ f1) sfe                 = kSwitchAuxA1 f1 sfe
+--         kSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
+--         kSwitchAux sf1 (SFArr _ fde) = kSwitchAuxAE sf1 (fdFun fde) 
+--         -- kSwitchAux sf1            (SFArrE _ fe)       = kSwitchAuxAE sf1 fe 
+--         -- kSwitchAux sf1            (SFArrEE _ fe)      = kSwitchAuxAE sf1 fe 
+--         kSwitchAux sf1            sfe                 = SF' tf -- False
+-- 	    where
+-- 		tf dt a =
+-- 		    let	(sf1', b) = (sfTF' sf1) dt a
+-- 		    in
+-- 		        case (sfTF' sfe) dt (a, b) of
+-- 			    (sfe', NoEvent) -> (kSwitchAux sf1' sfe', b)
+-- 			    (_,    Event c) -> sfTF (k (freeze sf1 dt) c) a
+-- 
+-- {-
+-- -- !!! Untested optimization!
+--         kSwitchAuxI1 (SFConst _ NoEvent) = sfId
+--         kSwitchAuxI1 (SFArr _ fe)        = kSwitchAuxI1AE fe
+--         kSwitchAuxI1 sfe                 = SF' tf
+-- 	    where
+-- 		tf dt a =
+-- 		    case (sfTF' sfe) dt (a, a) of
+-- 			(sfe', NoEvent) -> (kSwitchAuxI1 sfe', a)
+-- 			(_,    Event c) -> sfTF (k identity c) a
+-- -}
+-- 
+-- -- !!! Untested optimization!
+--         kSwitchAuxC1 b (SFArr _ (FDC NoEvent)) = sfConst b
+--         kSwitchAuxC1 b (SFArr _ fde)        = kSwitchAuxC1AE b (fdFun fde)
+--         -- kSwitchAuxC1 b (SFArrE _ fe)       = kSwitchAuxC1AE b fe
+--         -- kSwitchAuxC1 b (SFArrEE _ fe)      = kSwitchAuxC1AE b fe
+--         kSwitchAuxC1 b sfe                 = SF' tf -- False
+-- 	    where
+-- 		tf dt a =
+-- 		    case (sfTF' sfe) dt (a, b) of
+-- 			(sfe', NoEvent) -> (kSwitchAuxC1 b sfe', b)
+-- 			(_,    Event c) -> sfTF (k (constant b) c) a
+-- 
+-- -- !!! Untested optimization!
+--         kSwitchAuxA1 f1 (SFArr _ (FDC NoEvent)) = sfArrG f1
+--         kSwitchAuxA1 f1 (SFArr _ fde)        = kSwitchAuxA1AE f1 (fdFun fde)
+--         -- kSwitchAuxA1 f1 (SFArrE _ fe)       = kSwitchAuxA1AE f1 fe
+--         -- kSwitchAuxA1 f1 (SFArrEE _ fe)      = kSwitchAuxA1AE f1 fe
+--         kSwitchAuxA1 f1 sfe                 = SF' tf -- False
+-- 	    where
+-- 		tf dt a =
+-- 		    let	b = f1 a
+-- 		    in
+-- 		        case (sfTF' sfe) dt (a, b) of
+-- 			    (sfe', NoEvent) -> (kSwitchAuxA1 f1 sfe', b)
+-- 			    (_,    Event c) -> sfTF (k (arr f1) c) a
+-- 
+-- -- !!! Untested optimization!
+-- --        kSwitchAuxAE (SFId _)      fe = kSwitchAuxI1AE fe
+--         kSwitchAuxAE (SFArr _ (FDC b))  fe = kSwitchAuxC1AE b fe
+--         kSwitchAuxAE (SFArr _ fd1)   fe = kSwitchAuxA1AE (fdFun fd1) fe
+--         -- kSwitchAuxAE (SFArrE _ f1)  fe = kSwitchAuxA1AE f1 fe
+--         -- kSwitchAuxAE (SFArrEE _ f1) fe = kSwitchAuxA1AE f1 fe
+--         kSwitchAuxAE sf1            fe = SF' tf -- False
+-- 	    where
+-- 		tf dt a =
+-- 		    let	(sf1', b) = (sfTF' sf1) dt a
+-- 		    in
+-- 		        case fe (a, b) of
+-- 			    NoEvent -> (kSwitchAuxAE sf1' fe, b)
+-- 			    Event c -> sfTF (k (freeze sf1 dt) c) a
+-- 
+-- {-
+-- -- !!! Untested optimization!
+--         kSwitchAuxI1AE fe = SF' tf -- False
+-- 	    where
+-- 		tf dt a =
+-- 		    case fe (a, a) of
+-- 			NoEvent -> (kSwitchAuxI1AE fe, a)
+-- 			Event c -> sfTF (k identity c) a
+-- -}
+-- 
+-- -- !!! Untested optimization!
+--         kSwitchAuxC1AE b fe = SF' tf -- False
+-- 	    where
+-- 		tf _ a =
+-- 		    case fe (a, b) of
+-- 			NoEvent -> (kSwitchAuxC1AE b fe, b)
+-- 			Event c -> sfTF (k (constant b) c) a
+-- 
+-- -- !!! Untested optimization!
+--         kSwitchAuxA1AE f1 fe = SF' tf -- False
+-- 	    where
+-- 		tf _ a =
+-- 		    let	b = f1 a
+-- 		    in
+-- 		        case fe (a, b) of
+-- 			    NoEvent -> (kSwitchAuxA1AE f1 fe, b)
+-- 			    Event c -> sfTF (k (arr f1) c) a
+-- 
+-- 
+-- -- | 'kSwitch' with delayed observation.
+-- -- 
+-- -- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- -- information on how this switch works.
+-- 
+-- -- !!! Has not been optimized properly. Should be like kSwitch.
+-- dkSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
+-- dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
+--     where
+--         tf0 a0 =
+-- 	    let (sf1, b0) = tf10 a0
+--             in (case tfe0 (a0, b0) of
+-- 		    (sfe, NoEvent)  -> dkSwitchAux sf1 sfe
+-- 		    (_,   Event c0) -> fst (sfTF (k sf10 c0) a0),
+--                 b0)
+-- 
+--         dkSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
+--         dkSwitchAux sf1 sfe                     = SF' tf -- False
+-- 	    where
+-- 		tf dt a =
+-- 		    let	(sf1', b) = (sfTF' sf1) dt a
+-- 		    in (case (sfTF' sfe) dt (a, b) of
+-- 			    (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
+-- 			    (_, Event c) -> fst (sfTF (k (freeze sf1 dt) c) a),
+-- 		        b)
+-- 
+-- 
+-- ------------------------------------------------------------------------------
+-- -- Parallel composition and switching over collections with broadcasting
+-- ------------------------------------------------------------------------------
+-- 
+-- -- | Tuple a value up with every element of a collection of signal
+-- -- functions.
+-- broadcast :: Functor col => a -> col sf -> col (a, sf)
+-- broadcast a sfs = fmap (\sf -> (a, sf)) sfs
+-- 
+-- 
+-- -- !!! Hmm. We should really optimize here.
+-- -- !!! Check for Arr in parallel!
+-- -- !!! Check for Arr FDE in parallel!!!
+-- -- !!! Check for EP in parallel!!!!!
+-- -- !!! Cf &&&.
+-- -- !!! But how??? All we know is that the collection is a functor ...
+-- -- !!! Maybe that kind of generality does not make much sense for
+-- -- !!! par and parB? (Although it is niceto be able to switch into a
+-- -- !!! par or parB from within a pSwitch[B].)
+-- -- !!! If we had a parBList, that could be defined in terms of &&&, surely?
+-- -- !!! E.g.
+-- -- !!! parBList []       = constant []
+-- -- !!! parBList (sf:sfs) = sf &&& parBList sfs >>> arr (\(x,xs) -> x:xs)
+-- -- !!!
+-- -- !!! This ought to optimize quite well. E.g.
+-- -- !!! parBList [arr1,arr2,arr3]
+-- -- !!! = arr1 &&& parBList [arr2,arr3] >>> arrX
+-- -- !!! = arr1 &&& (arr2 &&& parBList [arr3] >>> arrX) >>> arrX
+-- -- !!! = arr1 &&& (arr2 &&& (arr3 &&& parBList [] >>> arrX) >>> arrX) >>> arrX
+-- -- !!! = arr1 &&& (arr2 &&& (arr3C >>> arrX) >>> arrX) >>> arrX
+-- -- !!! = arr1 &&& (arr2 &&& (arr3CcpX) >>> arrX) >>> arrX
+-- -- !!! = arr1 &&& (arr23CcpX >>> arrX) >>> arrX
+-- -- !!! = arr1 &&& (arr23CcpXcpX) >>> arrX
+-- -- !!! = arr123CcpXcpXcpX
+-- 
+-- -- | Spatial parallel composition of a signal function collection.
+-- -- Given a collection of signal functions, it returns a signal
+-- -- function that 'broadcast's its input signal to every element
+-- -- of the collection, to return a signal carrying a collection
+-- -- of outputs. See 'par'.
+-- --
+-- -- For more information on how parallel composition works, check
+-- -- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- parB :: Functor col => col (SF a b) -> SF a (col b)
+-- parB = par broadcast
+-- 
+-- -- | Parallel switch (dynamic collection of signal functions spatially composed
+-- -- in parallel). See 'pSwitch'.
+-- --
+-- -- For more information on how parallel composition works, check
+-- -- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- pSwitchB :: Functor col =>
+--     col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c-> SF a (col b))
+--     -> SF a (col b)
+-- pSwitchB = pSwitch broadcast
+-- 
+-- -- | Delayed parallel switch with broadcasting (dynamic collection of
+-- --   signal functions spatially composed in parallel). See 'dpSwitch'.
+-- -- 
+-- -- For more information on how parallel composition works, check
+-- -- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- dpSwitchB :: Functor col =>
+--     col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c->SF a (col b))
+--     -> SF a (col b)
+-- dpSwitchB = dpSwitch broadcast
+-- 
+-- -- For more information on how parallel composition works, check
+-- -- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- rpSwitchB :: Functor col =>
+--     col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
+-- rpSwitchB = rpSwitch broadcast
+-- 
+-- -- For more information on how parallel composition works, check
+-- -- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- drpSwitchB :: Functor col =>
+--     col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
+-- drpSwitchB = drpSwitch broadcast
+-- 
+-- 
+-- ------------------------------------------------------------------------------
+-- -- Parallel composition and switching over collections with general routing
+-- ------------------------------------------------------------------------------
+-- 
+-- -- | Spatial parallel composition of a signal function collection parameterized
+-- -- on the routing function.
+-- --
+-- par :: Functor col =>
+--     (forall sf . (a -> col sf -> col (b, sf))) -- ^ Determines the input to each signal function
+--                                                --     in the collection. IMPORTANT! The routing function MUST
+--                                                --     preserve the structure of the signal function collection.
+-- 
+--     -> col (SF b c)                            -- ^ Signal function collection.
+--     -> SF a (col c)
+-- par rf sfs0 = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 =
+-- 	    let bsfs0 = rf a0 sfs0
+-- 		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+-- 		sfs   = fmap fst sfcs0
+-- 		cs0   = fmap snd sfcs0
+-- 	    in
+-- 		(parAux rf sfs, cs0)
+-- 
+-- 
+-- -- Internal definition. Also used in parallel swithers.
+-- parAux :: Functor col =>
+--     (forall sf . (a -> col sf -> col (b, sf)))
+--     -> col (SF' b c)
+--     -> SF' a (col c)
+-- parAux rf sfs = SF' tf -- True
+--     where
+-- 	tf dt a = 
+-- 	    let bsfs  = rf a sfs
+-- 		sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+-- 		sfs'  = fmap fst sfcs'
+-- 		cs    = fmap snd sfcs'
+-- 	    in
+-- 	        (parAux rf sfs', cs)
+-- 
+-- 
+-- -- | Parallel switch parameterized on the routing function. This is the most
+-- -- general switch from which all other (non-delayed) switches in principle
+-- -- can be derived. The signal function collection is spatially composed in
+-- -- parallel and run until the event signal function has an occurrence. Once
+-- -- the switching event occurs, all signal function are "frozen" and their
+-- -- continuations are passed to the continuation function, along with the
+-- -- event value.
+-- --
+-- 
+-- -- rf .........	Routing function: determines the input to each signal function
+-- --		in the collection. IMPORTANT! The routing function has an
+-- --		obligation to preserve the structure of the signal function
+-- --		collection.
+-- -- sfs0 .......	Signal function collection.
+-- -- sfe0 .......	Signal function generating the switching event.
+-- -- k .......... Continuation to be invoked once event occurs.
+-- -- Returns the resulting signal function.
+-- --
+-- -- !!! Could be optimized on the event source being SFArr, SFArrE, SFArrEE
+-- pSwitch :: Functor col
+--     => (forall sf . (a -> col sf -> col (b, sf))) -- ^ Routing function: determines the input to each signal function
+--                                                   --   in the collection. IMPORTANT! The routing function has an
+--                                                   --   obligation to preserve the structure of the signal function
+--                                                   --   collection.
+-- 
+--     -> col (SF b c)                               -- ^ Signal function collection.
+--     -> SF (a, col c) (Event d)                    -- ^ Signal function generating the switching event.
+--     -> (col (SF b c) -> d -> SF a (col c))        -- ^ Continuation to be invoked once event occurs.
+--     -> SF a (col c)
+-- pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 =
+-- 	    let bsfs0 = rf a0 sfs0
+-- 		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+-- 		sfs   = fmap fst sfcs0
+-- 		cs0   = fmap snd sfcs0
+-- 	    in
+-- 		case (sfTF sfe0) (a0, cs0) of
+-- 		    (sfe, NoEvent)  -> (pSwitchAux sfs sfe, cs0)
+-- 		    (_,   Event d0) -> sfTF (k sfs0 d0) a0
+-- 
+-- 	pSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
+-- 	pSwitchAux sfs sfe = SF' tf -- False
+-- 	    where
+-- 		tf dt a =
+-- 		    let bsfs  = rf a sfs
+-- 			sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+-- 			sfs'  = fmap fst sfcs'
+-- 			cs    = fmap snd sfcs'
+-- 		    in
+-- 			case (sfTF' sfe) dt (a, cs) of
+-- 			    (sfe', NoEvent) -> (pSwitchAux sfs' sfe', cs)
+-- 			    (_,    Event d) -> sfTF (k (freezeCol sfs dt) d) a
+-- 
+-- 
+-- -- | Parallel switch with delayed observation parameterized on the routing
+-- -- function.
+-- --
+-- -- The collection argument to the function invoked on the
+-- -- switching event is of particular interest: it captures the
+-- -- continuations of the signal functions running in the collection
+-- -- maintained by 'dpSwitch' at the time of the switching event,
+-- -- thus making it possible to preserve their state across a switch.
+-- -- Since the continuations are plain, ordinary signal functions,
+-- -- they can be resumed, discarded, stored, or combined with
+-- -- other signal functions.
+-- 
+-- -- !!! Could be optimized on the event source being SFArr, SFArrE, SFArrEE.
+-- --
+-- dpSwitch :: Functor col =>
+--     (forall sf . (a -> col sf -> col (b, sf))) -- ^ Routing function. Its purpose is
+--                                                --   to pair up each running signal function in the collection
+--                                                --   maintained by 'dpSwitch' with the input it is going to see
+--                                                --   at each point in time. All the routing function can do is specify
+--                                                --   how the input is distributed.
+--     -> col (SF b c)                            -- ^ Initial collection of signal functions.
+--     -> SF (a, col c) (Event d)                 -- ^ Signal function that observes the external
+--                                                --   input signal and the output signals from the collection in order
+--                                                --   to produce a switching event.
+--     -> (col (SF b c) -> d -> SF a (col c))     -- ^ The fourth argument is a function that is invoked when the
+--                                                --   switching event occurs, yielding a new signal function to switch
+--                                                --   into based on the collection of signal functions previously
+--                                                --   running and the value carried by the switching event. This
+--                                                --   allows the collection to be updated and then switched back
+--                                                --   in, typically by employing 'dpSwitch' again.
+--     -> SF a (col c)
+-- dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
+--     where
+-- 	tf0 a0 =
+-- 	    let bsfs0 = rf a0 sfs0
+-- 		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+-- 		cs0   = fmap snd sfcs0
+-- 	    in
+-- 		(case (sfTF sfe0) (a0, cs0) of
+-- 		     (sfe, NoEvent)  -> dpSwitchAux (fmap fst sfcs0) sfe
+-- 		     (_,   Event d0) -> fst (sfTF (k sfs0 d0) a0),
+-- 	         cs0)
+-- 
+-- 	dpSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
+-- 	dpSwitchAux sfs sfe = SF' tf -- False
+-- 	    where
+-- 		tf dt a =
+-- 		    let bsfs  = rf a sfs
+-- 			sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+-- 			cs    = fmap snd sfcs'
+-- 		    in
+-- 			(case (sfTF' sfe) dt (a, cs) of
+-- 			     (sfe', NoEvent) -> dpSwitchAux (fmap fst sfcs')
+-- 							    sfe'
+-- 			     (_,    Event d) -> fst (sfTF (k (freezeCol sfs dt)
+-- 							     d)
+-- 							  a),
+--                          cs)
+-- 
+-- 
+-- -- Recurring parallel switch parameterized on the routing function.
+-- -- rf .........	Routing function: determines the input to each signal function
+-- --		in the collection. IMPORTANT! The routing function has an
+-- --		obligation to preserve the structure of the signal function
+-- --		collection.
+-- -- sfs ........	Initial signal function collection.
+-- -- Returns the resulting signal function.
+-- 
+-- rpSwitch :: Functor col =>
+--     (forall sf . (a -> col sf -> col (b, sf)))
+--     -> col (SF b c) -> SF (a, Event (col (SF b c) -> col (SF b c))) (col c)
+-- rpSwitch rf sfs =
+--     pSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
+--     noEventSnd >=- rpSwitch rf (f sfs')
+-- 
+-- 
+-- {-
+-- rpSwitch rf sfs = pSwitch (rf . fst) sfs (arr (snd . fst)) k
+--     where
+-- 	k sfs f = rpSwitch' (f sfs)
+-- 	rpSwitch' sfs = pSwitch (rf . fst) sfs (NoEvent --> arr (snd . fst)) k
+-- -}
+-- 
+-- -- Recurring parallel switch with delayed observation parameterized on the
+-- -- routing function.
+-- drpSwitch :: Functor col =>
+--     (forall sf . (a -> col sf -> col (b, sf)))
+--     -> col (SF b c) -> SF (a, Event (col (SF b c) -> col (SF b c))) (col c)
+-- drpSwitch rf sfs =
+--     dpSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
+--     noEventSnd >=- drpSwitch rf (f sfs')
+-- 
+-- {-
+-- drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
+--     where
+-- 	k sfs f = drpSwitch' (f sfs)
+-- 	drpSwitch' sfs = dpSwitch (rf . fst) sfs (NoEvent-->arr (snd . fst)) k
+-- -}
 
 ------------------------------------------------------------------------------
 -- Wave-form generation
