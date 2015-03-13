@@ -56,8 +56,14 @@ library
     FRP.Yampa.Internals
     FRP.Yampa.Core
     FRP.Yampa.Integration
+    FRP.Yampa.Random
+    FRP.Yampa.Delays
+    FRP.Yampa.EventS
+    FRP.Yampa.Simulation
     FRP.Yampa.Switches
     FRP.Yampa.Time
+    FRP.Yampa.Loop
+    FRP.Yampa.Hybrid
   other-modules:
     FRP.Yampa.Diagnostics
 

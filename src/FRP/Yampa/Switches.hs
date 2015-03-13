@@ -184,22 +184,22 @@ module FRP.Yampa.Switches (
 ) where
 
 import Control.Arrow
-#if __GLASGOW_HASKELL__ >= 610
-import qualified Control.Category (Category(..))
-#else
-#endif
-import Control.Monad (unless)
-import Data.IORef
-import Data.Maybe (fromMaybe)
-import System.Random (RandomGen(..), Random(..))
+-- #if __GLASGOW_HASKELL__ >= 610
+-- import qualified Control.Category (Category(..))
+-- #else
+-- #endif
+-- import Control.Monad (unless)
+-- import Data.IORef
+-- import Data.Maybe (fromMaybe)
+-- import System.Random (RandomGen(..), Random(..))
 
 
 import FRP.Yampa.Core
-import FRP.Yampa.Diagnostics
-import FRP.Yampa.Miscellany (( # ), dup, swap)
+-- import FRP.Yampa.Diagnostics
+-- import FRP.Yampa.Miscellany (( # ), dup, swap)
 import FRP.Yampa.Event
-import FRP.Yampa.VectorSpace
-import FRP.Yampa.Integration
+-- import FRP.Yampa.VectorSpace
+-- import FRP.Yampa.Integration
 
 ------------------------------------------------------------------------------
 -- Basic switchers

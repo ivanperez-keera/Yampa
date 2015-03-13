@@ -140,37 +140,36 @@
 --   as well give up?
 -----------------------------------------------------------------------------------------
 
-module FRP.Yampa.Time (
-    localTime,		-- :: SF a Time
-    time,               -- :: SF a Time,	Other name for localTime.
+module FRP.Yampa.Loop (
+
+-- * State keeping combinators
+
+-- ** Loops with guaranteed well-defined feedback
+    loopPre, 		-- :: c -> SF (a,c) (b,c) -> SF a b
+    loopIntegral,	-- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
+
 ) where
 
 import Control.Arrow
--- #if __GLASGOW_HASKELL__ >= 610
--- import qualified Control.Category (Category(..))
--- #else
--- #endif
--- import Control.Monad (unless)
--- import Data.IORef
--- import Data.Maybe (fromMaybe)
--- import System.Random (RandomGen(..), Random(..))
-
 
 import FRP.Yampa.Core
--- import FRP.Yampa.Diagnostics
--- import FRP.Yampa.Event
--- import FRP.Yampa.Miscellany (( # ), dup, swap)
 import FRP.Yampa.Integration
--- import FRP.Yampa.VectorSpace
+import FRP.Yampa.Delays
+import FRP.Yampa.VectorSpace
 
--- -- 
--- | Outputs the time passed since the signal function instance was started.
-localTime :: SF a Time
-localTime = constant 1.0 >>> integral
+------------------------------------------------------------------------------
+-- Loops with guaranteed well-defined feedback
+------------------------------------------------------------------------------
 
--- | Alternative name for localTime.
-time :: SF a Time
-time = localTime
+-- | Loop with an initial value for the signal being fed back.
+loopPre :: c -> SF (a,c) (b,c) -> SF a b
+loopPre c_init sf = loop (second (iPre c_init) >>> sf)
+
+-- | Loop by integrating the second value in the pair and feeding the
+-- result back. Because the integral at time 0 is zero, this is always
+-- well defined.
+loopIntegral :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
+loopIntegral sf = loop (second integral >>> sf)
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:
