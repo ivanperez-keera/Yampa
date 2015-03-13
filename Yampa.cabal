@@ -40,30 +40,35 @@ library
   build-Depends: base < 5, random
   exposed-modules:
     FRP.Yampa
-    FRP.Yampa.AffineSpace
-    FRP.Yampa.Event
-    FRP.Yampa.Geometry
-    FRP.Yampa.MergeableRecord
-    FRP.Yampa.Point2
-    FRP.Yampa.Utilities
-    FRP.Yampa.Vector3
-    FRP.Yampa.Forceable
-    FRP.Yampa.Point3
-    FRP.Yampa.Vector2
-    FRP.Yampa.VectorSpace
-    FRP.Yampa.Miscellany
-    FRP.Yampa.Task
-    FRP.Yampa.Internals
+    -- Main FRP modules
     FRP.Yampa.Core
-    FRP.Yampa.Integration
-    FRP.Yampa.Random
     FRP.Yampa.Delays
+    FRP.Yampa.Event
     FRP.Yampa.EventS
+    FRP.Yampa.Hybrid
+    FRP.Yampa.Integration
+    FRP.Yampa.Internals
+    FRP.Yampa.Loop
+    FRP.Yampa.Random
     FRP.Yampa.Simulation
     FRP.Yampa.Switches
+    FRP.Yampa.Task
     FRP.Yampa.Time
-    FRP.Yampa.Loop
-    FRP.Yampa.Hybrid
+
+    -- Auxiliary (commonly used) types
+    FRP.Yampa.AffineSpace
+    FRP.Yampa.Geometry
+    FRP.Yampa.Point2
+    FRP.Yampa.Point3
+    FRP.Yampa.Vector2
+    FRP.Yampa.Vector3
+    FRP.Yampa.VectorSpace
+
+    -- Auxiliary definitions
+    FRP.Yampa.Forceable
+    FRP.Yampa.MergeableRecord
+    FRP.Yampa.Miscellany
+    FRP.Yampa.Utilities
   other-modules:
     FRP.Yampa.Diagnostics
 
