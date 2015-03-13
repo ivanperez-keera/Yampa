@@ -8,8 +8,7 @@ combinators.
 # Installation
 
 ```
-$ cabal sandbox init          # Optional, but recommended if you are not in a
-                              # sandbox already
+$ cabal sandbox init         # Optional, but recommended
 $ cabal update
 $ cabal install Yampa
 ```
