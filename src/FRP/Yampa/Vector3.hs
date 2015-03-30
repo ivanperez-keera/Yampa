@@ -16,18 +16,18 @@
 
 module FRP.Yampa.Vector3 (
     -- module AFRPVectorSpace,
-    Vector3,		-- Abstract, instance of VectorSpace
-    vector3,		-- :: RealFloat a => a -> a -> a -> Vector3 a
-    vector3X,		-- :: RealFloat a => Vector3 a -> a
-    vector3Y,		-- :: RealFloat a => Vector3 a -> a
-    vector3Z,		-- :: RealFloat a => Vector3 a -> a
-    vector3XYZ,		-- :: RealFloat a => Vector3 a -> (a, a, a)
-    vector3Spherical,	-- :: RealFloat a => a -> a -> a -> Vector3 a
-    vector3Rho,		-- :: RealFloat a => Vector3 a -> a
-    vector3Theta,	-- :: RealFloat a => Vector3 a -> a
-    vector3Phi,		-- :: RealFloat a => Vector3 a -> a
-    vector3RhoThetaPhi,	-- :: RealFloat a => Vector3 a -> (a, a, a)
-    vector3Rotate 	-- :: RealFloat a => a -> a -> Vector3 a -> Vector3 a
+    Vector3,            -- Abstract, instance of VectorSpace
+    vector3,            -- :: RealFloat a => a -> a -> a -> Vector3 a
+    vector3X,           -- :: RealFloat a => Vector3 a -> a
+    vector3Y,           -- :: RealFloat a => Vector3 a -> a
+    vector3Z,           -- :: RealFloat a => Vector3 a -> a
+    vector3XYZ,         -- :: RealFloat a => Vector3 a -> (a, a, a)
+    vector3Spherical,   -- :: RealFloat a => a -> a -> a -> Vector3 a
+    vector3Rho,         -- :: RealFloat a => Vector3 a -> a
+    vector3Theta,       -- :: RealFloat a => Vector3 a -> a
+    vector3Phi,         -- :: RealFloat a => Vector3 a -> a
+    vector3RhoThetaPhi, -- :: RealFloat a => Vector3 a -> (a, a, a)
+    vector3Rotate       -- :: RealFloat a => a -> a -> Vector3 a -> Vector3 a
 ) where
 
 import FRP.Yampa.VectorSpace
@@ -63,7 +63,7 @@ vector3Spherical :: RealFloat a => a -> a -> a -> Vector3 a
 vector3Spherical rho theta phi =
     Vector3 (rhoSinPhi * cos theta) (rhoSinPhi * sin theta) (rho * cos phi)
     where
-	rhoSinPhi = rho * sin phi
+        rhoSinPhi = rho * sin phi
 
 vector3Rho :: RealFloat a => Vector3 a -> a
 vector3Rho (Vector3 x y z) = sqrt (x * x + y * y + z * z)
@@ -79,7 +79,7 @@ vector3RhoThetaPhi (Vector3 x y z) = (rho, theta, phi)
     where
         rho   = sqrt (x * x + y * y + z * z)
         theta = atan2 y x
-	phi   = acos (z / rho)
+        phi   = acos (z / rho)
 
 
 ------------------------------------------------------------------------------
@@ -109,8 +109,8 @@ instance RealFloat a => VectorSpace (Vector3 a) a where
 vector3Rotate :: RealFloat a => a -> a -> Vector3 a -> Vector3 a
 vector3Rotate theta' phi' v =
     vector3Spherical (vector3Rho v)
-		     (vector3Theta v + theta')
-		     (vector3Phi v + phi')
+                     (vector3Theta v + theta')
+                     (vector3Phi v + phi')
 
 
 ------------------------------------------------------------------------------

@@ -249,8 +249,8 @@ mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 -- merging the results. The first three arguments are mapping functions,
 -- the third of which will only be used when both events are present.
 -- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
-mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c) 
-	    -> Event a -> Event b -> Event c
+mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c)
+            -> Event a -> Event b -> Event c
 mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
 mapMerge lf _  _   (Event l) NoEvent   = Event (lf l)
 mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
@@ -263,8 +263,8 @@ mergeEvents = foldr lMerge NoEvent
 -- | Collect simultaneous event occurrences; no event if none.
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
-		    [] -> NoEvent
-		    as -> Event as
+                    [] -> NoEvent
+                    as -> Event as
 
 -- | Join (conjunction) of two events. Only produces an event
 -- if both events exist.
@@ -295,8 +295,8 @@ filterE _ NoEvent     = NoEvent
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
 mapFilterE _ NoEvent   = NoEvent
 mapFilterE f (Event a) = case f a of
-			    Nothing -> NoEvent
-			    Just b  -> Event b
+                            Nothing -> NoEvent
+                            Just b  -> Event b
 
 
 -- | Enable/disable event occurences based on an external condition.
