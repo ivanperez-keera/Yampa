@@ -53,7 +53,7 @@
 
 module FRP.Yampa.MergeableRecord (
     MergeableRecord(..),
-    MR,			-- Abstract
+    MR,                 -- Abstract
     mrMake,
     (~+~),
     mrMerge,

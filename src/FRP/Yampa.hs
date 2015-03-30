@@ -148,10 +148,10 @@ module FRP.Yampa (
     Random(..),
 
     -- * Basic definitions
-    Time,	-- [s] Both for time w.r.t. some reference and intervals.
-    DTime,	-- [s] Sampling interval, always > 0.
-    SF,		-- Signal Function.
-    Event(..),	-- Events; conceptually similar to Maybe (but abstract).
+    Time,       -- [s] Both for time w.r.t. some reference and intervals.
+    DTime,      -- [s] Sampling interval, always > 0.
+    SF,         -- Signal Function.
+    Event(..),  -- Events; conceptually similar to Maybe (but abstract).
 
 -- Temporray!
 --    SF(..), sfTF',
@@ -179,136 +179,136 @@ module FRP.Yampa (
 -- * Signal functions
 
 -- ** Basic signal functions
-    identity,		-- :: SF a a
-    constant,		-- :: b -> SF a b
-    localTime,		-- :: SF a Time
-    time,               -- :: SF a Time,	Other name for localTime.
+    identity,           -- :: SF a a
+    constant,           -- :: b -> SF a b
+    localTime,          -- :: SF a Time
+    time,               -- :: SF a Time,        Other name for localTime.
 
 -- ** Initialization
-    (-->),		-- :: b -> SF a b -> SF a b,		infixr 0
-    (>--),		-- :: a -> SF a b -> SF a b,		infixr 0
+    (-->),              -- :: b -> SF a b -> SF a b,            infixr 0
+    (>--),              -- :: a -> SF a b -> SF a b,            infixr 0
     (-=>),              -- :: (b -> b) -> SF a b -> SF a b      infixr 0
     (>=-),              -- :: (a -> a) -> SF a b -> SF a b      infixr 0
-    initially,		-- :: a -> SF a a
+    initially,          -- :: a -> SF a a
 
 -- ** Simple, stateful signal processing
-    sscan,		-- :: (b -> a -> b) -> b -> SF a b
-    sscanPrim,		-- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
+    sscan,              -- :: (b -> a -> b) -> b -> SF a b
+    sscanPrim,          -- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
 
 -- * Events
 -- ** Basic event sources
-    never, 		-- :: SF a (Event b)
-    now,		-- :: b -> SF a (Event b)
-    after,		-- :: Time -> b -> SF a (Event b)
-    repeatedly,		-- :: Time -> b -> SF a (Event b)
-    afterEach,		-- :: [(Time,b)] -> SF a (Event b)
+    never,              -- :: SF a (Event b)
+    now,                -- :: b -> SF a (Event b)
+    after,              -- :: Time -> b -> SF a (Event b)
+    repeatedly,         -- :: Time -> b -> SF a (Event b)
+    afterEach,          -- :: [(Time,b)] -> SF a (Event b)
     afterEachCat,       -- :: [(Time,b)] -> SF a (Event [b])
-    delayEvent,		-- :: Time -> SF (Event a) (Event a)
-    delayEventCat,	-- :: Time -> SF (Event a) (Event [a])
-    edge,		-- :: SF Bool (Event ())
-    iEdge,		-- :: Bool -> SF Bool (Event ())
-    edgeTag,		-- :: a -> SF Bool (Event a)
-    edgeJust,		-- :: SF (Maybe a) (Event a)
-    edgeBy,		-- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
+    delayEvent,         -- :: Time -> SF (Event a) (Event a)
+    delayEventCat,      -- :: Time -> SF (Event a) (Event [a])
+    edge,               -- :: SF Bool (Event ())
+    iEdge,              -- :: Bool -> SF Bool (Event ())
+    edgeTag,            -- :: a -> SF Bool (Event a)
+    edgeJust,           -- :: SF (Maybe a) (Event a)
+    edgeBy,             -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 
 -- ** Stateful event suppression
-    notYet,		-- :: SF (Event a) (Event a)
-    once,		-- :: SF (Event a) (Event a)
-    takeEvents,		-- :: Int -> SF (Event a) (Event a)
-    dropEvents,		-- :: Int -> SF (Event a) (Event a)
+    notYet,             -- :: SF (Event a) (Event a)
+    once,               -- :: SF (Event a) (Event a)
+    takeEvents,         -- :: Int -> SF (Event a) (Event a)
+    dropEvents,         -- :: Int -> SF (Event a) (Event a)
 
 -- ** Pointwise functions on events
-    noEvent,		-- :: Event a
-    noEventFst,		-- :: (Event a, b) -> (Event c, b)
-    noEventSnd,		-- :: (a, Event b) -> (a, Event c)
-    event, 		-- :: a -> (b -> a) -> Event b -> a
-    fromEvent,		-- :: Event a -> a
-    isEvent,		-- :: Event a -> Bool
-    isNoEvent,		-- :: Event a -> Bool
-    tag, 		-- :: Event a -> b -> Event b,		infixl 8
+    noEvent,            -- :: Event a
+    noEventFst,         -- :: (Event a, b) -> (Event c, b)
+    noEventSnd,         -- :: (a, Event b) -> (a, Event c)
+    event,              -- :: a -> (b -> a) -> Event b -> a
+    fromEvent,          -- :: Event a -> a
+    isEvent,            -- :: Event a -> Bool
+    isNoEvent,          -- :: Event a -> Bool
+    tag,                -- :: Event a -> b -> Event b,          infixl 8
     tagWith,            -- :: b -> Event a -> Event b,
-    attach,		-- :: Event a -> b -> Event (a, b),	infixl 8
-    lMerge, 		-- :: Event a -> Event a -> Event a,	infixl 6
-    rMerge,		-- :: Event a -> Event a -> Event a,	infixl 6
-    merge,		-- :: Event a -> Event a -> Event a,	infixl 6
-    mergeBy,		-- :: (a -> a -> a) -> Event a -> Event a -> Event a
+    attach,             -- :: Event a -> b -> Event (a, b),     infixl 8
+    lMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
+    rMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
+    merge,              -- :: Event a -> Event a -> Event a,    infixl 6
+    mergeBy,            -- :: (a -> a -> a) -> Event a -> Event a -> Event a
     mapMerge,           -- :: (a -> c) -> (b -> c) -> (a -> b -> c) 
                         --    -> Event a -> Event b -> Event c
     mergeEvents,        -- :: [Event a] -> Event a
-    catEvents,		-- :: [Event a] -> Event [a]
-    joinE,		-- :: Event a -> Event b -> Event (a,b),infixl 7
-    splitE,		-- :: Event (a,b) -> (Event a, Event b)
-    filterE,	 	-- :: (a -> Bool) -> Event a -> Event a
-    mapFilterE,		-- :: (a -> Maybe b) -> Event a -> Event b
-    gate,		-- :: Event a -> Bool -> Event a,	infixl 8
+    catEvents,          -- :: [Event a] -> Event [a]
+    joinE,              -- :: Event a -> Event b -> Event (a,b),infixl 7
+    splitE,             -- :: Event (a,b) -> (Event a, Event b)
+    filterE,            -- :: (a -> Bool) -> Event a -> Event a
+    mapFilterE,         -- :: (a -> Maybe b) -> Event a -> Event b
+    gate,               -- :: Event a -> Bool -> Event a,       infixl 8
 
 -- * Switching
 -- ** Basic switchers
-    switch,  dSwitch,	-- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
-    rSwitch, drSwitch,	-- :: SF a b -> SF (a,Event (SF a b)) b
-    kSwitch, dkSwitch,	-- :: SF a b
-			--    -> SF (a,b) (Event c)
-			--    -> (SF a b -> c -> SF a b)
-			--    -> SF a b
+    switch,  dSwitch,   -- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
+    rSwitch, drSwitch,  -- :: SF a b -> SF (a,Event (SF a b)) b
+    kSwitch, dkSwitch,  -- :: SF a b
+                        --    -> SF (a,b) (Event c)
+                        --    -> (SF a b -> c -> SF a b)
+                        --    -> SF a b
 
 -- ** Parallel composition and switching
 -- *** Parallel composition and switching over collections with broadcasting
-    parB,		-- :: Functor col => col (SF a b) -> SF a (col b)
+    parB,               -- :: Functor col => col (SF a b) -> SF a (col b)
     pSwitchB,dpSwitchB, -- :: Functor col =>
-			--        col (SF a b)
-			--	  -> SF (a, col b) (Event c)
-			--	  -> (col (SF a b) -> c -> SF a (col b))
-			--	  -> SF a (col b)
+                        --        col (SF a b)
+                        --        -> SF (a, col b) (Event c)
+                        --        -> (col (SF a b) -> c -> SF a (col b))
+                        --        -> SF a (col b)
     rpSwitchB,drpSwitchB,-- :: Functor col =>
-			--        col (SF a b)
-			--	  -> SF (a, Event (col (SF a b)->col (SF a b)))
-			--	        (col b)
+                        --        col (SF a b)
+                        --        -> SF (a, Event (col (SF a b)->col (SF a b)))
+                        --              (col b)
 
 -- *** Parallel composition and switching over collections with general routing
-    par,		-- Functor col =>
-    			--     (forall sf . (a -> col sf -> col (b, sf)))
-    			--     -> col (SF b c)
-    			--     -> SF a (col c)
+    par,                -- Functor col =>
+                        --     (forall sf . (a -> col sf -> col (b, sf)))
+                        --     -> col (SF b c)
+                        --     -> SF a (col c)
     pSwitch, dpSwitch,  -- pSwitch :: Functor col =>
-			--     (forall sf . (a -> col sf -> col (b, sf)))
-			--     -> col (SF b c)
-			--     -> SF (a, col c) (Event d)
-			--     -> (col (SF b c) -> d -> SF a (col c))
-			--     -> SF a (col c)
+                        --     (forall sf . (a -> col sf -> col (b, sf)))
+                        --     -> col (SF b c)
+                        --     -> SF (a, col c) (Event d)
+                        --     -> (col (SF b c) -> d -> SF a (col c))
+                        --     -> SF a (col c)
     rpSwitch,drpSwitch, -- Functor col =>
-			--    (forall sf . (a -> col sf -> col (b, sf)))
-    			--    -> col (SF b c)
-			--    -> SF (a, Event (col (SF b c) -> col (SF b c)))
-			--	    (col c)
+                        --    (forall sf . (a -> col sf -> col (b, sf)))
+                        --    -> col (SF b c)
+                        --    -> SF (a, Event (col (SF b c) -> col (SF b c)))
+                        --	    (col c)
 
 -- * Discrete to continuous-time signal functions
 -- ** Wave-form generation
-    old_hold,		-- :: a -> SF (Event a) a
-    hold,		-- :: a -> SF (Event a) a
-    dHold,		-- :: a -> SF (Event a) a
-    trackAndHold,	-- :: a -> SF (Maybe a) a
+    old_hold,           -- :: a -> SF (Event a) a
+    hold,               -- :: a -> SF (Event a) a
+    dHold,              -- :: a -> SF (Event a) a
+    trackAndHold,       -- :: a -> SF (Maybe a) a
 
 -- ** Accumulators
-    accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    accumHold,		-- :: a -> SF (Event (a -> a)) a
-    dAccumHold,		-- :: a -> SF (Event (a -> a)) a
-    accumBy,		-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    accumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
-    dAccumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
-    accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
-			--    -> SF (Event a) (Event b)
-    old_accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    old_accumBy,	-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    old_accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
+    accum,              -- :: a -> SF (Event (a -> a)) (Event a)
+    accumHold,          -- :: a -> SF (Event (a -> a)) a
+    dAccumHold,         -- :: a -> SF (Event (a -> a)) a
+    accumBy,            -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    accumHoldBy,        -- :: (b -> a -> b) -> b -> SF (Event a) b
+    dAccumHoldBy,       -- :: (b -> a -> b) -> b -> SF (Event a) b
+    accumFilter,        -- :: (c -> a -> (c, Maybe b)) -> c
+                        --    -> SF (Event a) (Event b)
+    old_accum,          -- :: a -> SF (Event (a -> a)) (Event a)
+    old_accumBy,        -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    old_accumFilter,    -- :: (c -> a -> (c, Maybe b)) -> c
 
 -- * Delays
 -- ** Basic delays
-    pre,		-- :: SF a a
-    iPre,		-- :: a -> SF a a
+    pre,                -- :: SF a a
+    iPre,               -- :: a -> SF a a
     old_pre, old_iPre,
 
 -- ** Timed delays
-    delay,		-- :: Time -> a -> SF a a
+    delay,              -- :: Time -> a -> SF a a
 
 -- ** Variable delay
     pause,              -- :: b -> SF a b -> SF a Bool -> SF a b
@@ -316,31 +316,31 @@ module FRP.Yampa (
 -- * State keeping combinators
 
 -- ** Loops with guaranteed well-defined feedback
-    loopPre, 		-- :: c -> SF (a,c) (b,c) -> SF a b
-    loopIntegral,	-- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
+    loopPre,            -- :: c -> SF (a,c) (b,c) -> SF a b
+    loopIntegral,       -- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
 
 -- ** Integration and differentiation
-    integral,		-- :: VectorSpace a s => SF a a
+    integral,           -- :: VectorSpace a s => SF a a
 
-    derivative,		-- :: VectorSpace a s => SF a a		-- Crude!
-    imIntegral,		-- :: VectorSpace a s => a -> SF a a
+    derivative,         -- :: VectorSpace a s => SF a a		-- Crude!
+    imIntegral,         -- :: VectorSpace a s => a -> SF a a
 
     -- Temporarily hidden, but will eventually be made public.
     -- iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 
 -- * Noise (random signal) sources and stochastic event sources
-    noise,		-- :: noise :: (RandomGen g, Random b) =>
-			--        g -> SF a b
-    noiseR,		-- :: noise :: (RandomGen g, Random b) =>
-			--        (b,b) -> g -> SF a b
-    occasionally,	-- :: RandomGen g => g -> Time -> b -> SF a (Event b)
+    noise,              -- :: noise :: (RandomGen g, Random b) =>
+                        --        g -> SF a b
+    noiseR,             -- :: noise :: (RandomGen g, Random b) =>
+                        --        (b,b) -> g -> SF a b
+    occasionally,       -- :: RandomGen g => g -> Time -> b -> SF a (Event b)
 
 -- * Reactimation
-    reactimate,		-- :: IO a
-	      		--    -> (Bool -> IO (DTime, Maybe a))
-	      		--    -> (Bool -> b -> IO Bool)
-              		--    -> SF a b
-	      		--    -> IO ()
+    reactimate,         -- :: IO a
+                        --    -> (Bool -> IO (DTime, Maybe a))
+                        --    -> (Bool -> b -> IO Bool)
+                        --    -> SF a b
+                        --    -> IO ()
     ReactHandle,
     reactInit,          --    IO a -- init
                         --    -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
@@ -354,17 +354,17 @@ module FRP.Yampa (
 -- * Embedding
 
 --  (tentative: will be revisited)
-    embed,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
-    embedSynch,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
-    deltaEncode,	-- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
-    deltaEncodeBy,	-- :: (a -> a -> Bool) -> DTime -> [a]
-			--    -> (a, [(DTime, Maybe a)])
+    embed,              -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
+    embedSynch,         -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
+    deltaEncode,        -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
+    deltaEncodeBy,      -- :: (a -> a -> Bool) -> DTime -> [a]
+                        --    -> (a, [(DTime, Maybe a)])
 
     -- * Auxiliary definitions
     --   Reverse function composition and arrow plumbing aids
-    ( # ),		-- :: (a -> b) -> (b -> c) -> (a -> c),	infixl 9
-    dup,		-- :: a -> (a,a)
-    swap,		-- :: (a,b) -> (b,a)
+    ( # ),              -- :: (a -> b) -> (b -> c) -> (a -> c),	infixl 9
+    dup,                -- :: a -> (a,a)
+    swap,               -- :: (a,b) -> (b,a)
 
 
 ) where
@@ -409,13 +409,13 @@ infixr 0 -->, >--, -=>, >=-
 -- agreed reference point in time.
 
 --  Conceptually, Time = R, i.e. time can be 0 -- or even negative.
-type Time = Double	-- [s]
+type Time = Double      -- [s]
 
 
 -- | DTime is the time type for lengths of sample intervals. Conceptually,
 -- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
 -- same representation.
-type DTime = Double	-- [s]
+type DTime = Double     -- [s]
 
 -- Representation of signal function in initial state.
 -- (Naming: "TF" stands for Transition Function.)
@@ -523,13 +523,13 @@ sfArr (FDG f)     = sfArrG f
 sfId :: SF' a a
 sfId = sf
     where
-	sf = SFArr (\_ a -> (sf, a)) FDI
+        sf = SFArr (\_ a -> (sf, a)) FDI
 
 
 sfConst :: b -> SF' a b
 sfConst b = sf
     where
-	sf = SFArr (\_ _ -> (sf, b)) (FDC b)
+        sf = SFArr (\_ _ -> (sf, b)) (FDC b)
 
 
 sfNever :: SF' a (Event b)
@@ -545,23 +545,23 @@ sfArrE f fne = sf
 sfArrG :: (a -> b) -> SF' a b
 sfArrG f = sf
     where
-	sf = SFArr (\_ a -> (sf, f a)) (FDG f)
+        sf = SFArr (\_ a -> (sf, f a)) (FDG f)
 
 
 sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
 sfSScan f c b = sf 
     where
         sf = SFSScan tf f c b
-	tf _ a = case f c a of
-		     Nothing       -> (sf, b)
-		     Just (c', b') -> (sfSScan f c' b', b')
+        tf _ a = case f c a of
+                     Nothing       -> (sf, b)
+                     Just (c', b') -> (sfSScan f c' b', b')
 
 sscanPrim :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
 sscanPrim f c_init b_init = SF {sfTF = tf0}
     where
         tf0 a0 = case f c_init a0 of
                      Nothing       -> (sfSScan f c_init b_init, b_init)
-	             Just (c', b') -> (sfSScan f c' b', b')
+                     Just (c', b') -> (sfSScan f c' b', b')
 
 
 -- The event-processing function *could* accept the present NoEvent
@@ -630,10 +630,10 @@ sfMkInv sf = SF {sfTF = ...}
 -- f NoEvent.
 
 data FunDesc a b where
-    FDI :: FunDesc a a					-- Identity function
-    FDC :: b -> FunDesc a b				-- Constant function
-    FDE :: (Event a -> b) -> b -> FunDesc (Event a) b	-- Event-processing fun
-    FDG :: (a -> b) -> FunDesc a b			-- General function
+    FDI :: FunDesc a a                                  -- Identity function
+    FDC :: b -> FunDesc a b                             -- Constant function
+    FDE :: (Event a -> b) -> b -> FunDesc (Event a) b   -- Event-processing fun
+    FDG :: (a -> b) -> FunDesc a b                      -- General function
 
 fdFun :: FunDesc a b -> (a -> b)
 fdFun FDI       = id
@@ -769,10 +769,10 @@ arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
 compPrim :: SF a b -> SF b c -> SF a c
 compPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
-	tf0 a0 = (cpXX sf1 sf2, c0)
-	    where
-		(sf1, b0) = tf10 a0
-		(sf2, c0) = tf20 b0
+        tf0 a0 = (cpXX sf1 sf2, c0)
+            where
+                (sf1, b0) = tf10 a0
+                (sf2, c0) = tf20 b0
 
 -- The following defs are not local to compPrim because cpAXA needs to be
 -- called from parSplitPrim.
@@ -873,11 +873,11 @@ cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
 cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
     sfEP f (s1, s2, cne) (vfyNoEv bne cne)
     where
-	f (s1, s2, cne) a =
-	    case f1 s1 a of
-		(s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
-		(s1', Event b, NoEvent) ->
-		    let (s2', c, cne') = f2 s2 b in ((s1', s2', cne'), c, cne')
+        f (s1, s2, cne) a =
+            case f1 s1 a of
+                (s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
+                (s1', Event b, NoEvent) ->
+                    let (s2', c, cne') = f2 s2 b in ((s1', s2', cne'), c, cne')
                 _ -> usrErr "AFRP" "cpXX" "Assertion failed: Functions on events must not map NoEvent to Event."
 -- !!! 2005-06-28: Why isn't SFCpAXA (FDC ...) checked for?
 -- !!! No invariant rules that out, and it would allow to drop the
@@ -910,9 +910,9 @@ cpXX sf1 sf2 = SF' tf --  False
     -- if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
     where
         tf dt a = (cpXX sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
+            where
+                (sf1', b) = (sfTF' sf1) dt a
+                (sf2', c) = (sfTF' sf2) dt b
 
 
 {-
@@ -985,7 +985,7 @@ cpAXA fd1     sf2 fd3     =
     cpAXAAux fd1 (fdFun fd1) fd3 (fdFun fd3) sf2
     where
         -- Really: cpAXAAux :: SF' b c -> SF' a d
-	-- Note: Event cases are not optimized (EXA etc.)
+        -- Note: Event cases are not optimized (EXA etc.)
         cpAXAAux :: FunDesc a b -> (a -> b) -> FunDesc c d -> (c -> d)
                     -> SF' b c -> SF' a d
         cpAXAAux fd1 _ fd3 _ (SFArr _ fd2) =
@@ -1003,10 +1003,10 @@ cpAXA fd1     sf2 fd3     =
 	    else
 		SFCpAXA tf False fd1 sf2 fd3
 -}
-	    where
-		tf dt a = (cpAXAAux fd1 f1 fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
+            where
+                tf dt a = (cpAXAAux fd1 f1 fd3 f3 sf2', f3 c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt (f1 a)
 
 {-
 	cpAXAInv fd1 f1 fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
@@ -1048,9 +1048,9 @@ cpCX b sf2 = SFCpAXA tf (FDC b) sf2 FDI
 	SFCpAXA tf False (FDC b) sf2 FDI
 -}
     where
-	tf dt _ = (cpCX b sf2', c)
-	    where
-		(sf2', c) = (sfTF' sf2) dt b
+        tf dt _ = (cpCX b sf2', c)
+            where
+                (sf2', c) = (sfTF' sf2) dt b
 
 
 {-
@@ -1070,29 +1070,29 @@ cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
         -- fd1 = FDC b
         -- f3  = fdFun fd3
 
-	-- Really: SF' b c -> SF' a d
+        -- Really: SF' b c -> SF' a d
         cpCXAAux :: FunDesc a b -> b -> FunDesc c d -> (c -> d)
                     -> SF' b c -> SF' a d
         cpCXAAux _ b _ f3 (SFArr _ fd2)     = sfConst (f3 ((fdFun fd2) b))
         cpCXAAux _ b _ f3 (SFSScan _ f s c) = sfSScan f' s (f3 c)
             where
-	        f' s _ = case f s b of
+                f' s _ = case f s b of
                              Nothing -> Nothing
                              Just (s', c') -> Just (s', f3 c') 
         cpCXAAux _ b _   f3 (SFEP _ _ _ cne) = sfConst (f3 (vfyNoEv b cne))
         cpCXAAux _ b fd3 _  (SFCpAXA _ fd21 sf22 fd23) =
-	    cpCXA ((fdFun fd21) b) sf22 (fdComp fd23 fd3)
-	cpCXAAux fd1 b fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
+            cpCXA ((fdFun fd21) b) sf22 (fdComp fd23 fd3)
+        cpCXAAux fd1 b fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
 {-
 	    if sfIsInv sf2 then
 		cpCXAInv fd1 b fd3 f3 sf2
             else
 	        SFCpAXA tf False fd1 sf2 fd3
 -}
-	    where
-		tf dt _ = (cpCXAAux fd1 b fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt b
+            where
+                tf dt _ = (cpCXAAux fd1 b fd3 f3 sf2', f3 c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt b
 
 {-
         -- For some reason, seq on sf2' in tf is faster than making
@@ -1109,64 +1109,64 @@ cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
 cpGX :: (a -> b) -> SF' b c -> SF' a c
 cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
     where
-	cpGXAux :: FunDesc a b -> (a -> b) -> SF' b c -> SF' a c
-	cpGXAux fd1 _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
+        cpGXAux :: FunDesc a b -> (a -> b) -> SF' b c -> SF' a c
+        cpGXAux fd1 _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
         -- We actually do know that (fdComp (FDG f1) fd21) is going to
-	-- result in an FDG. So we *could* call a cpGXA here. But the
-	-- price is "inlining" of part of fdComp.
+        -- result in an FDG. So we *could* call a cpGXA here. But the
+        -- price is "inlining" of part of fdComp.
         cpGXAux _ f1 (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
         -- We really shouldn't see an EP here, as that would mean
         -- an arrow INTRODUCING events ...
-	cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
-	    cpAXA (fdComp fd1 fd21) sf22 fd23
-	cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
+        cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
+            cpAXA (fdComp fd1 fd21) sf22 fd23
+        cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
 {-
-	    if sfIsInv sf2 then
-	        cpGXInv fd1 f1 sf2
-	    else
-	        SFCpAXA tf False fd1 sf2 FDI
+            if sfIsInv sf2 then
+                cpGXInv fd1 f1 sf2
+            else
+                SFCpAXA tf False fd1 sf2 FDI
 -}
-	    where
-		tf dt a = (cpGXAux fd1 f1 sf2', c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
+            where
+                tf dt a = (cpGXAux fd1 f1 sf2', c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt (f1 a)
 
 {-
-	cpGXInv fd1 f1 sf2 = SFCpAXA tf True fd1 sf2 FDI
-	    where
-		tf dt a = sf2 `seq` (cpGXInv fd1 f1 sf2', c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
+        cpGXInv fd1 f1 sf2 = SFCpAXA tf True fd1 sf2 FDI
+            where
+                tf dt a = sf2 `seq` (cpGXInv fd1 f1 sf2', c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt (f1 a)
 -}
 
 
 cpXG :: SF' a b -> (b -> c) -> SF' a c
 cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
     where
-	-- Really: cpXGAux :: SF' a b -> SF' a c
-	cpXGAux :: FunDesc b c -> (b -> c) -> SF' a b -> SF' a c
-	cpXGAux fd2 _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
+        -- Really: cpXGAux :: SF' a b -> SF' a c
+        cpXGAux :: FunDesc b c -> (b -> c) -> SF' a b -> SF' a c
+        cpXGAux fd2 _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
         cpXGAux _ f2 (SFSScan _ f s b) = sfSScan f' s (f2 b)
             where
-	        f' s a = case f s a of
+                f' s a = case f s a of
                              Nothing -> Nothing
                              Just (s', b') -> Just (s', f2 b') 
         cpXGAux _ f2 (SFEP _ f1 s bne) = sfEP f s (f2 bne)
             where
                 f s a = let (s', b, bne') = f1 s a in (s', f2 b, f2 bne')
-	cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
+        cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
             cpAXA fd11 sf12 (fdComp fd22 fd2)
-	cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
+        cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
 {-
-	    if sfIsInv sf1 then
-		cpXGInv fd2 f2 sf1
-	    else
-		SFCpAXA tf False FDI sf1 fd2
+            if sfIsInv sf1 then
+                cpXGInv fd2 f2 sf1
+            else
+                SFCpAXA tf False FDI sf1 fd2
 -}
-	    where
-		tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
 	cpXGInv fd2 f2 sf1 = SFCpAXA tf True FDI sf1 fd2
@@ -1179,100 +1179,100 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
 cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
 cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
     where
-	cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b 
+        cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b 
                    -> SF' b c -> SF' (Event a) c
-	cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
+        cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
         cpEXAux _ f1 _   (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
         -- We must not capture cne in the f closure since cne can change!
         -- See cpXX the SFEP/SFEP case for a similar situation. However,
         -- FDE represent a state-less signal function, so *its* NoEvent
         -- value never changes. Hence we only need to verify that it is
         -- NoEvent once.
-	cpEXAux _ f1 f1ne (SFEP _ f2 s cne) =
-	    sfEP f (s, cne) (vfyNoEv f1ne cne)
+        cpEXAux _ f1 f1ne (SFEP _ f2 s cne) =
+            sfEP f (s, cne) (vfyNoEv f1ne cne)
             where
                 f scne@(s, cne) a =
                     case f1 (Event a) of
                         NoEvent -> (scne, cne, cne)
                         Event b ->
                             let (s', c, cne') = f2 s b in ((s', cne'), c, cne')
-	cpEXAux fd1 _ _ (SFCpAXA _ fd21 sf22 fd23) =
+        cpEXAux fd1 _ _ (SFCpAXA _ fd21 sf22 fd23) =
             cpAXA (fdComp fd1 fd21) sf22 fd23
         -- The rationale for the following is that the case analysis
-	-- is typically not going to be more expensive than applying
-	-- the function and possibly a bit cheaper. Thus if events
-	-- are sparse, we might win, and if not, we don't loose to
-	-- much.
-	cpEXAux fd1 f1 f1ne sf2 = SFCpAXA tf fd1 sf2 FDI
+        -- is typically not going to be more expensive than applying
+        -- the function and possibly a bit cheaper. Thus if events
+        -- are sparse, we might win, and if not, we don't loose to
+        -- much.
+        cpEXAux fd1 f1 f1ne sf2 = SFCpAXA tf fd1 sf2 FDI
 {-
-	    if sfIsInv sf2 then
-		cpEXInv fd1 f1 f1ne sf2
-	    else
-	    	SFCpAXA tf False fd1 sf2 FDI
+            if sfIsInv sf2 then
+                cpEXInv fd1 f1 f1ne sf2
+            else
+                SFCpAXA tf False fd1 sf2 FDI
 -}
-	    where
-		tf dt ea = (cpEXAux fd1 f1 f1ne sf2', c)
-		    where
+            where
+                tf dt ea = (cpEXAux fd1 f1 f1ne sf2', c)
+                    where
                         (sf2', c) =
-			    case ea of
-				NoEvent -> (sfTF' sf2) dt f1ne
-				_       -> (sfTF' sf2) dt (f1 ea)
+                            case ea of
+                                NoEvent -> (sfTF' sf2) dt f1ne
+                                _       -> (sfTF' sf2) dt (f1 ea)
 
 {-
-	cpEXInv fd1 f1 f1ne sf2 = SFCpAXA tf True fd1 sf2 FDI
-	    where
-		tf dt ea = sf2 `seq` (cpEXInv fd1 f1 f1ne sf2', c)
-		    where
+        cpEXInv fd1 f1 f1ne sf2 = SFCpAXA tf True fd1 sf2 FDI
+            where
+                tf dt ea = sf2 `seq` (cpEXInv fd1 f1 f1ne sf2', c)
+                    where
                         (sf2', c) =
-			    case ea of
-				NoEvent -> (sfTF' sf2) dt f1ne
-				_       -> (sfTF' sf2) dt (f1 ea)
+                            case ea of
+                                NoEvent -> (sfTF' sf2) dt f1ne
+                                _       -> (sfTF' sf2) dt (f1 ea)
 -}
 
 cpXE :: SF' a (Event b) -> (Event b -> c) -> c -> SF' a c
 cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
     where
-	cpXEAux :: FunDesc (Event b) c -> (Event b -> c) -> c
-		   -> SF' a (Event b) -> SF' a c
+        cpXEAux :: FunDesc (Event b) c -> (Event b -> c) -> c
+                   -> SF' a (Event b) -> SF' a c
         cpXEAux fd2 _ _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
         cpXEAux _ f2 f2ne (SFSScan _ f s eb) = sfSScan f' s (f2 eb)
             where
-	        f' s a = case f s a of
+                f' s a = case f s a of
                              Nothing -> Nothing
                              Just (s', NoEvent) -> Just (s', f2ne) 
                              Just (s', eb')     -> Just (s', f2 eb') 
         cpXEAux _ f2 f2ne (SFEP _ f1 s ebne) =
-	    sfEP f s (vfyNoEv ebne f2ne)
+            sfEP f s (vfyNoEv ebne f2ne)
             where
                 f s a =
                     case f1 s a of
                         (s', NoEvent, NoEvent) -> (s', f2ne,  f2ne)
                         (s', eb,      NoEvent) -> (s', f2 eb, f2ne)
-		        _ -> usrErr "AFRP" "cpXEAux" "Assertion failed: Functions on events must not map NoEvent to Event."
+                        _ -> usrErr "AFRP" "cpXEAux" "Assertion failed: Functions on events must not map NoEvent to Event."
         cpXEAux fd2 _ _ (SFCpAXA _ fd11 sf12 fd13) =
             cpAXA fd11 sf12 (fdComp fd13 fd2)
-	cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2
+        cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2
 {-
-	    if sfIsInv sf1 then
-		cpXEInv fd2 f2 f2ne sf1
-	    else
-		SFCpAXA tf False FDI sf1 fd2
+            if sfIsInv sf1 then
+                cpXEInv fd2 f2 f2ne sf1
+            else
+                SFCpAXA tf False FDI sf1 fd2
 -}
-	    where
-		tf dt a = (cpXEAux fd2 f2 f2ne sf1',
+            where
+                tf dt a = (cpXEAux fd2 f2 f2ne sf1',
                            case eb of NoEvent -> f2ne; _ -> f2 eb)
-		    where
+                    where
                         (sf1', eb) = (sfTF' sf1) dt a
 
 {-
-	cpXEInv fd2 f2 f2ne sf1 = SFCpAXA tf True FDI sf1 fd2
-	    where
-		tf dt a = sf1 `seq` (cpXEInv fd2 f2 f2ne sf1',
+        cpXEInv fd2 f2 f2ne sf1 = SFCpAXA tf True FDI sf1 fd2
+            where
+                tf dt a = sf1 `seq` (cpXEInv fd2 f2 f2ne sf1',
                            case eb of NoEvent -> f2ne; _ -> f2 eb)
-		    where
+                    where
                         (sf1', eb) = (sfTF' sf1) dt a
 -}
-	
+
 
 -- Widening.
 -- The definition exploits the following identities:
@@ -1283,21 +1283,21 @@ firstPrim :: SF a b -> SF (a,c) (b,c)
 firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
     where
         tf0 ~(a0, c0) = (fpAux sf1, (b0, c0))
-	    where
-		(sf1, b0) = tf10 a0 
+            where
+                (sf1, b0) = tf10 a0 
 
 
 -- Also used in parSplitPrim
 fpAux :: SF' a b -> SF' (a,c) (b,c)
-fpAux (SFArr _ FDI)       = sfId			-- New
+fpAux (SFArr _ FDI)       = sfId                        -- New
 fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
 fpAux (SFArr _ fd1)       = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
 fpAux sf1 = SF' tf
     -- if sfIsInv sf1 then fpInv sf1 else SF' tf False
     where
         tf dt ~(a, c) = (fpAux sf1', (b, c))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
+            where
+                (sf1', b) = (sfTF' sf1) dt a 
 
 
 {-
@@ -1305,8 +1305,8 @@ fpInv :: SF' a b -> SF' (a,c) (b,c)
 fpInv sf1 = SF' tf True
     where
         tf dt ~(a, c) = sf1 `seq` (fpInv sf1', (b, c))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
+            where
+                (sf1', b) = (sfTF' sf1) dt a 
 -}
 
 
@@ -1315,21 +1315,21 @@ secondPrim :: SF a b -> SF (c,a) (c,b)
 secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
     where
         tf0 ~(c0, a0) = (spAux sf1, (c0, b0))
-	    where
-		(sf1, b0) = tf10 a0 
+            where
+                (sf1, b0) = tf10 a0 
 
 
 -- Also used in parSplitPrim
 spAux :: SF' a b -> SF' (c,a) (c,b)
-spAux (SFArr _ FDI)       = sfId			-- New
+spAux (SFArr _ FDI)       = sfId                        -- New
 spAux (SFArr _ (FDC b))   = sfArrG (\(~(c, _)) -> (c, b))
 spAux (SFArr _ fd1)       = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
 spAux sf1 = SF' tf
     -- if sfIsInv sf1 then spInv sf1 else SF' tf False
     where
         tf dt ~(c, a) = (spAux sf1', (c, b))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
+            where
+                (sf1', b) = (sfTF' sf1) dt a 
 
 
 {-
@@ -1337,16 +1337,16 @@ spInv :: SF' a b -> SF' (c,a) (c,b)
 spInv sf1 = SF' tf True
     where
         tf dt ~(c, a) = sf1 `seq` (spInv sf1', (c, b))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
+            where
+                (sf1', b) = (sfTF' sf1) dt a 
 -}
 
 
 -- Parallel composition.
 -- The definition exploits the following identities (that hold for SF):
---     identity   *** identity   = identity		-- New
---     sf         *** identity   = first sf		-- New
---     identity   *** sf         = second sf		-- New
+--     identity   *** identity   = identity             -- New
+--     sf         *** identity   = first sf             -- New
+--     identity   *** sf         = second sf            -- New
 --     constant b *** constant d = constant (b, d)
 --     constant b *** arr f2     = arr (\(_, c) -> (b, f2 c)
 --     arr f1     *** constant d = arr (\(a, _) -> (f1 a, d)
@@ -1354,24 +1354,24 @@ spInv sf1 = SF' tf True
 parSplitPrim :: SF a b -> SF c d  -> SF (a,c) (b,d)
 parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
-	tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
-	    where
-		(sf1, b0) = tf10 a0 
-		(sf2, d0) = tf20 c0 
+        tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
+            where
+                (sf1, b0) = tf10 a0 
+                (sf2, d0) = tf20 c0 
 
-	-- Naming convention: ps<X><Y> where  <X> and <Y> is one of:
+        -- Naming convention: ps<X><Y> where  <X> and <Y> is one of:
         -- X - arbitrary signal function
         -- A - arbitrary pure arrow
         -- C - constant arrow
 
         psXX :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
         psXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr (fdPar fd1 fd2)
-        psXX (SFArr _ FDI)       sf2                 = spAux sf2	-- New
-	psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
-	psXX (SFArr _ fd1)       sf2                 = psAX (fdFun fd1) sf2
-        psXX sf1                 (SFArr _ FDI)       = fpAux sf1	-- New
-	psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
-	psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
+        psXX (SFArr _ FDI)       sf2                 = spAux sf2        -- New
+        psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
+        psXX (SFArr _ fd1)       sf2                 = psAX (fdFun fd1) sf2
+        psXX sf1                 (SFArr _ FDI)       = fpAux sf1        -- New
+        psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
+        psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
 -- !!! Unclear if this really is a gain.
 -- !!! potentially unnecessary tupling and untupling.
 -- !!! To be investigated.
@@ -1379,120 +1379,120 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 -- !!! &&& was harmfull. On that basis, disable it here too.
 --        psXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
 --            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
-	psXX sf1 sf2 = SF' tf
+        psXX sf1 sf2 = SF' tf
 {-
-	    if sfIsInv sf1 && sfIsInv sf2 then
-		psXXInv sf1 sf2
-	    else
-		SF' tf False
+            if sfIsInv sf1 && sfIsInv sf2 then
+                psXXInv sf1 sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', d) = (sfTF' sf2) dt c
+            where
+                tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
+                        (sf2', d) = (sfTF' sf2) dt c
 
 {-
         psXXInv :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
-	psXXInv sf1 sf2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf1 `seq` sf2 `seq` (psXXInv sf1' sf2',
+        psXXInv sf1 sf2 = SF' tf True
+            where
+                tf dt ~(a, c) = sf1 `seq` sf2 `seq` (psXXInv sf1' sf2',
                                                        (b, d))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', d) = (sfTF' sf2) dt c
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
+                        (sf2', d) = (sfTF' sf2) dt c
 -}
 
         psCX :: b -> SF' c d -> SF' (a,c) (b,d)
-	psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
-	psCX b sf2                 = SF' tf
+        psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
+        psCX b sf2                 = SF' tf
 {-
-	    if sfIsInv sf2 then
-	        psCXInv b sf2
-	    else
-	        SF' tf False
+            if sfIsInv sf2 then
+                psCXInv b sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt ~(_, c) = (psCX b sf2', (b, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
+            where
+                tf dt ~(_, c) = (psCX b sf2', (b, d))
+                    where
+                        (sf2', d) = (sfTF' sf2) dt c
 
 {-
         psCXInv :: b -> SF' c d -> SF' (a,c) (b,d)
-	psCXInv b sf2 = SF' tf True
-	    where
-		tf dt ~(_, c) = sf2 `seq` (psCXInv b sf2', (b, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
+        psCXInv b sf2 = SF' tf True
+            where
+                tf dt ~(_, c) = sf2 `seq` (psCXInv b sf2', (b, d))
+                    where
+                        (sf2', d) = (sfTF' sf2) dt c
 -}
 
         psXC :: SF' a b -> d -> SF' (a,c) (b,d)
         psXC (SFArr _ fd1)       d = sfArr (fdPar fd1 (FDC d))
-	psXC sf1                 d = SF' tf
+        psXC sf1                 d = SF' tf
 {-
-	    if sfIsInv sf1 then
-		psXCInv sf1 d
-	    else
+            if sfIsInv sf1 then
+                psXCInv sf1 d
+            else
                 SF' tf False
 -}
-	    where
-		tf dt ~(a, _) = (psXC sf1' d, (b, d))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt ~(a, _) = (psXC sf1' d, (b, d))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         psXCInv :: SF' a b -> d -> SF' (a,c) (b,d)
-	psXCInv sf1 d = SF' tf True
-	    where
-		tf dt ~(a, _) = sf1 `seq` (psXCInv sf1' d, (b, d))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        psXCInv sf1 d = SF' tf True
+            where
+                tf dt ~(a, _) = sf1 `seq` (psXCInv sf1' d, (b, d))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
         psAX :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
-	psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
-	psAX f1 sf2                 = SF' tf
+        psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
+        psAX f1 sf2                 = SF' tf
 {-
-	    if sfIsInv sf2 then
-	    	psAXInv f1 sf2
-	    else
+            if sfIsInv sf2 then
+                psAXInv f1 sf2
+            else
                 SF' tf False
 -}
-	    where
-		tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
+            where
+                tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
+                    where
+                        (sf2', d) = (sfTF' sf2) dt c
 
 {-
         psAXInv :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
-	psAXInv f1 sf2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf2 `seq` (psAXInv f1 sf2', (f1 a, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
+        psAXInv f1 sf2 = SF' tf True
+            where
+                tf dt ~(a, c) = sf2 `seq` (psAXInv f1 sf2', (f1 a, d))
+                    where
+                        (sf2', d) = (sfTF' sf2) dt c
 -}
 
         psXA :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
-	psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
-	psXA sf1                 f2 = SF' tf
+        psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
+        psXA sf1                 f2 = SF' tf
 {-
 	    if sfIsInv sf1 then
 		psXAInv sf1 f2 
 	    else
 		SF' tf False
 -}
-	    where
-		tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         psXAInv :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
-	psXAInv sf1 f2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf1 `seq` (psXAInv sf1' f2, (b, f2 c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        psXAInv sf1 f2 = SF' tf True
+            where
+                tf dt ~(a, c) = sf1 `seq` (psXAInv sf1' f2, (b, f2 c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
 
@@ -1504,12 +1504,12 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 parFanOutPrim :: SF a b -> SF a c -> SF a (b, c)
 parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
-	tf0 a0 = (pfoXX sf1 sf2, (b0, c0))
-	    where
-		(sf1, b0) = tf10 a0 
-		(sf2, c0) = tf20 a0 
+        tf0 a0 = (pfoXX sf1 sf2, (b0, c0))
+            where
+                (sf1, b0) = tf10 a0 
+                (sf2, c0) = tf20 a0 
 
-	-- Naming convention: pfo<X><Y> where  <X> and <Y> is one of:
+        -- Naming convention: pfo<X><Y> where  <X> and <Y> is one of:
         -- X - arbitrary signal function
         -- A - arbitrary pure arrow
         -- I - identity arrow
@@ -1518,174 +1518,174 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
         pfoXX :: SF' a b -> SF' a c -> SF' a (b ,c)
         pfoXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr(fdFanOut fd1 fd2)
         pfoXX (SFArr _ FDI)       sf2                 = pfoIX sf2
-	pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
-	pfoXX (SFArr _ fd1)       sf2                 = pfoAX (fdFun fd1) sf2
+        pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
+        pfoXX (SFArr _ fd1)       sf2                 = pfoAX (fdFun fd1) sf2
         pfoXX sf1                 (SFArr _ FDI)       = pfoXI sf1
-	pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
-	pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
+        pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
+        pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
 -- !!! Unclear if this really would be a gain
 -- !!! 2005-07-01: NOT a win for MEP 6.
 --        pfoXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
 --            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
-	pfoXX sf1 sf2 = SF' tf
+        pfoXX sf1 sf2 = SF' tf
 {-
-	    if sfIsInv sf1 && sfIsInv sf2 then
-		pfoXXInv sf1 sf2
-	    else
-		SF' tf False
+            if sfIsInv sf1 && sfIsInv sf2 then
+                pfoXXInv sf1 sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoXX sf1' sf2', (b, c))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', c) = (sfTF' sf2) dt a
+            where
+                tf dt a = (pfoXX sf1' sf2', (b, c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
+                        (sf2', c) = (sfTF' sf2) dt a
 
 {-
         pfoXXInv :: SF' a b -> SF' a c -> SF' a (b ,c)
-	pfoXXInv sf1 sf2 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` sf2 `seq` (pfoXXInv sf1' sf2', (b, c))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', c) = (sfTF' sf2) dt a
+        pfoXXInv sf1 sf2 = SF' tf True
+            where
+                tf dt a = sf1 `seq` sf2 `seq` (pfoXXInv sf1' sf2', (b, c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
+                        (sf2', c) = (sfTF' sf2) dt a
 -}
 
         pfoIX :: SF' a c -> SF' a (a ,c)
-	pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
-	pfoIX sf2 = SF' tf
+        pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
+        pfoIX sf2 = SF' tf
 {-
-	    if sfIsInv sf2 then
-		pfoIXInv sf2
-	    else
-		SF' tf False
+            if sfIsInv sf2 then
+                pfoIXInv sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoIX sf2', (a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+            where
+                tf dt a = (pfoIX sf2', (a, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 
 {-
         pfoIXInv :: SF' a c -> SF' a (a ,c)
-	pfoIXInv sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoIXInv sf2', (a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+        pfoIXInv sf2 = SF' tf True
+            where
+                tf dt a = sf2 `seq` (pfoIXInv sf2', (a, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 -}
 
         pfoXI :: SF' a b -> SF' a (b ,a)
-	pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
-	pfoXI sf1 = SF' tf
+        pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
+        pfoXI sf1 = SF' tf
 {-
             if sfIsInv sf1 then
-		pfoXIInv sf1
-	    else
-		SF' tf False
+                pfoXIInv sf1
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoXI sf1', (b, a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt a = (pfoXI sf1', (b, a))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         pfoXIInv :: SF' a b -> SF' a (b ,a)
-	pfoXIInv sf1 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXIInv sf1', (b, a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        pfoXIInv sf1 = SF' tf True
+            where
+                tf dt a = sf1 `seq` (pfoXIInv sf1', (b, a))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
         pfoCX :: b -> SF' a c -> SF' a (b ,c)
         pfoCX b (SFArr _ fd2) = sfArr (fdFanOut (FDC b) fd2)
-	pfoCX b sf2 = SF' tf
+        pfoCX b sf2 = SF' tf
 {-
-	    if sfIsInv sf2 then
-		pfoCXInv b sf2
-	    else
-		SF' tf False
+            if sfIsInv sf2 then
+                pfoCXInv b sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoCX b sf2', (b, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+            where
+                tf dt a = (pfoCX b sf2', (b, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 
 {-
         pfoCXInv :: b -> SF' a c -> SF' a (b ,c)
-	pfoCXInv b sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoCXInv b sf2', (b, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+        pfoCXInv b sf2 = SF' tf True
+            where
+                tf dt a = sf2 `seq` (pfoCXInv b sf2', (b, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 -}
 
         pfoXC :: SF' a b -> c -> SF' a (b ,c)
-	pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
-	pfoXC sf1 c = SF' tf
+        pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
+        pfoXC sf1 c = SF' tf
 {-
-	    if sfIsInv sf1 then
-		pfoXCInv sf1 c
-	    else
-	        SF' tf False
+            if sfIsInv sf1 then
+                pfoXCInv sf1 c
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoXC sf1' c, (b, c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt a = (pfoXC sf1' c, (b, c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         pfoXCInv :: SF' a b -> c -> SF' a (b ,c)
-	pfoXCInv sf1 c = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXCInv sf1' c, (b, c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        pfoXCInv sf1 c = SF' tf True
+            where
+                tf dt a = sf1 `seq` (pfoXCInv sf1' c, (b, c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
         pfoAX :: (a -> b) -> SF' a c -> SF' a (b ,c)
-	pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
-	pfoAX f1 sf2 = SF' tf
+        pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
+        pfoAX f1 sf2 = SF' tf
 {-
-	    if sfIsInv sf2 then
-		pfoAXInv f1 sf2
-	    else
+            if sfIsInv sf2 then
+                pfoAXInv f1 sf2
+            else
                 SF' tf False
 -}
-	    where
-		tf dt a = (pfoAX f1 sf2', (f1 a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+            where
+                tf dt a = (pfoAX f1 sf2', (f1 a, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 
 {-
         pfoAXInv :: (a -> b) -> SF' a c -> SF' a (b ,c)
-	pfoAXInv f1 sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoAXInv f1 sf2', (f1 a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+        pfoAXInv f1 sf2 = SF' tf True
+            where
+                tf dt a = sf2 `seq` (pfoAXInv f1 sf2', (f1 a, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 -}
 
         pfoXA :: SF' a b -> (a -> c) -> SF' a (b ,c)
-	pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
-	pfoXA sf1 f2 = SF' tf
+        pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
+        pfoXA sf1 f2 = SF' tf
 {-
-	    if sfIsInv sf1 then
-		pfoXAInv sf1 f2
-	    else
-		SF' tf False
+            if sfIsInv sf1 then
+                pfoXAInv sf1 f2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoXA sf1' f2, (b, f2 a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt a = (pfoXA sf1' f2, (b, f2 a))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         pfoXAInv :: SF' a b -> (a -> c) -> SF' a (b ,c)
-	pfoXAInv sf1 f2 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXAInv sf1' f2, (b, f2 a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        pfoXAInv sf1 f2 = SF' tf True
+            where
+                tf dt a = sf1 `seq` (pfoXAInv sf1' f2, (b, f2 a))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
 
@@ -1700,34 +1700,34 @@ instance ArrowLoop SF where
 loopPrim :: SF (a,c) (b,c) -> SF a b
 loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
     where
-	tf0 a0 = (loopAux sf1, b0)
-	    where
-	        (sf1, (b0, c0)) = tf10 (a0, c0)
+        tf0 a0 = (loopAux sf1, b0)
+            where
+                (sf1, (b0, c0)) = tf10 (a0, c0)
 
         loopAux :: SF' (a,c) (b,c) -> SF' a b
-	loopAux (SFArr _ FDI) = sfId
+        loopAux (SFArr _ FDI) = sfId
         loopAux (SFArr _ (FDC (b, _))) = sfConst b
-	loopAux (SFArr _ fd1) =
+        loopAux (SFArr _ fd1) =
             sfArrG (\a -> let (b,c) = (fdFun fd1) (a,c) in b)
-	loopAux sf1 = SF' tf
+        loopAux sf1 = SF' tf
 {-
-	    if sfIsInv sf1 then
-		loopInv sf1
-	    else
-		SF' tf False
+            if sfIsInv sf1 then
+                loopInv sf1
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (loopAux sf1', b)
-		    where
-		        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
+            where
+                tf dt a = (loopAux sf1', b)
+                    where
+                        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
 
 {-
         loopInv :: SF' (a,c) (b,c) -> SF' a b
-	loopInv sf1 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (loopInv sf1', b)
-		    where
-		        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
+        loopInv sf1 = SF' tf True
+            where
+                tf dt a = sf1 `seq` (loopInv sf1', b)
+                    where
+                        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
 -}
 
 
@@ -1929,24 +1929,24 @@ afterEachCat ((q,x):qxs)
     | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
     | otherwise = SF {sfTF = tf0}
     where
-	tf0 _ = if q <= 0 then
+        tf0 _ = if q <= 0 then
                     emitEventsScheduleNext 0.0 [x] qxs
                 else
-		    (awaitNextEvent (-q) x qxs, NoEvent)
+                    (awaitNextEvent (-q) x qxs, NoEvent)
 
-	emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
+        emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
         emitEventsScheduleNext t xs ((q,x):qxs)
-	    | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
-	    | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
-	    | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
-	    where
-	        t' = t - q
-	awaitNextEvent t x qxs = SF' tf -- False
-	    where
-		tf dt _ | t' >= 0   = emitEventsScheduleNext t' [x] qxs
-		        | otherwise = (awaitNextEvent t' x qxs, NoEvent)
-		    where
-		        t' = t + dt
+            | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
+            | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
+            | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
+            where
+                t' = t - q
+        awaitNextEvent t x qxs = SF' tf -- False
+            where
+                tf dt _ | t' >= 0   = emitEventsScheduleNext t' [x] qxs
+                        | otherwise = (awaitNextEvent t' x qxs, NoEvent)
+                    where
+                        t' = t + dt
 
 -- | Delay for events. (Consider it a triggered after, hence /basic/.)
 
@@ -2043,20 +2043,20 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                               NoEvent -> noPendingEvent
                               Event x -> pendingEvents (-q) [] [] (-q) x,
                           NoEvent)
-				 
+
         -- t_next is the present time w.r.t. the next scheduled event.
         -- t_last is the present time w.r.t. the last scheduled event.
         -- In the event queues, events are associated with their time
-	-- w.r.t. to preceding event (positive).
+        -- w.r.t. to preceding event (positive).
         pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
             where
                 tf dt e
                     | t_next' >= 0 =
-			emitEventsScheduleNext e t_last' rqxs qxs t_next' [x]
+                        emitEventsScheduleNext e t_last' rqxs qxs t_next' [x]
                     | otherwise    = 
-			(pendingEvents t_last'' rqxs' qxs t_next' x, NoEvent)
+                        (pendingEvents t_last'' rqxs' qxs t_next' x, NoEvent)
                     where
-		        t_next' = t_next  + dt
+                        t_next' = t_next  + dt
                         t_last' = t_last  + dt 
                         (t_last'', rqxs') =
                             case e of
@@ -2079,13 +2079,13 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
         emitEventsScheduleNext e t_last rqxs ((q', x') : qxs') t_next rxs
             | q' > t_next = (case e of
                                  NoEvent -> 
-				     pendingEvents t_last 
+                                    pendingEvents t_last 
                                                    rqxs 
                                                    qxs'
                                                    (t_next - q')
                                                    x'
                                  Event x'' ->
-				     pendingEvents (-q) 
+                                    pendingEvents (-q) 
                                                    ((t_last+q, x'') : rqxs)
                                                    qxs'
                                                    (t_next - q')
@@ -2164,11 +2164,11 @@ edgeJust = edgeBy isJustEdge (Just undefined)
 edgeBy :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 edgeBy isEdge a_init = SF {sfTF = tf0}
     where
-	tf0 a0 = (ebAux a0, maybeToEvent (isEdge a_init a0))
+        tf0 a0 = (ebAux a0, maybeToEvent (isEdge a_init a0))
 
-	ebAux a_prev = SF' tf -- True
-	    where
-		tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
+        ebAux a_prev = SF' tf -- True
+            where
+                tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
 
 
 ------------------------------------------------------------------------------
@@ -2288,55 +2288,55 @@ switch (SF {sfTF = tf10} :: SF a (b, Event c)) (k :: c -> SF a b) = SF {sfTF = t
 switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
 switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
     where
-	tf0 a0 =
-	    case tf10 a0 of
-	    	(sf1, (b0, NoEvent))  -> (switchAux sf1 k, b0)
-		(_,   (_,  Event c0)) -> sfTF (k c0) a0
+        tf0 a0 =
+            case tf10 a0 of
+                (sf1, (b0, NoEvent))  -> (switchAux sf1 k, b0)
+                (_,   (_,  Event c0)) -> sfTF (k c0) a0
 
         -- It would be nice to optimize further here. E.g. if it would be
         -- possible to observe the event source only.
         switchAux :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-	switchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
-	switchAux (SFArr _ fd1)                k = switchAuxA1 (fdFun fd1) k
-	switchAux sf1                          k = SF' tf
+        switchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
+        switchAux (SFArr _ fd1)                k = switchAuxA1 (fdFun fd1) k
+        switchAux sf1                          k = SF' tf
 {-
-	    if sfIsInv sf1 then
-		switchInv sf1 k
-	    else
-		SF' tf False
+            if sfIsInv sf1 then
+                switchInv sf1 k
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a =
-		    case (sfTF' sf1) dt a of
-			(sf1', (b, NoEvent)) -> (switchAux sf1' k, b)
-			(_,    (_, Event c)) -> sfTF (k c) a
+            where
+                tf dt a =
+                    case (sfTF' sf1) dt a of
+                        (sf1', (b, NoEvent)) -> (switchAux sf1' k, b)
+                        (_,    (_, Event c)) -> sfTF (k c) a
 
 {-
         -- Note: subordinate signal function being invariant does NOT
         -- imply that the overall signal function is.
         switchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-	switchInv sf1 k = SF' tf False
-	    where
-		tf dt a =
-		    case (sfTF' sf1) dt a of
-			(sf1', (b, NoEvent)) -> (switchInv sf1' k, b)
-			(_,    (_, Event c)) -> sfTF (k c) a
+        switchInv sf1 k = SF' tf False
+            where
+                tf dt a =
+                    case (sfTF' sf1) dt a of
+                        (sf1', (b, NoEvent)) -> (switchInv sf1' k, b)
+                        (_,    (_, Event c)) -> sfTF (k c) a
 -}
 
-	-- !!! Could be optimized a little bit further by having a case for
+        -- !!! Could be optimized a little bit further by having a case for
         -- !!! identity, switchAuxI1. But I'd expect identity is so unlikely
         -- !!! that there is no point.
 
-	-- Note: While switch behaves as a stateless arrow at this point, that
-	-- could change after a switch. Hence, SF' overall.
+        -- Note: While switch behaves as a stateless arrow at this point, that
+        -- could change after a switch. Hence, SF' overall.
         switchAuxA1 :: (a -> (b, Event c)) -> (c -> SF a b) -> SF' a b
-	switchAuxA1 f1 k = sf
-	    where
-		sf     = SF' tf -- False
-		tf _ a =
-		    case f1 a of
-			(b, NoEvent) -> (sf, b)
-			(_, Event c) -> sfTF (k c) a
+        switchAuxA1 f1 k = sf
+            where
+                sf     = SF' tf -- False
+                tf _ a =
+                    case f1 a of
+                        (b, NoEvent) -> (sf, b)
+                        (_, Event c) -> sfTF (k c) a
 
 
 -- | Switch with delayed observation.
@@ -2369,65 +2369,65 @@ switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 dSwitch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
 dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
     where
-	tf0 a0 =
-	    let (sf1, (b0, ec0)) = tf10 a0
+        tf0 a0 =
+            let (sf1, (b0, ec0)) = tf10 a0
             in (case ec0 of
                     NoEvent  -> dSwitchAux sf1 k
-		    Event c0 -> fst (sfTF (k c0) a0),
+                    Event c0 -> fst (sfTF (k c0) a0),
                 b0)
 
         -- It would be nice to optimize further here. E.g. if it would be
         -- possible to observe the event source only.
         dSwitchAux :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-	dSwitchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
-	dSwitchAux (SFArr _ fd1)                k = dSwitchAuxA1 (fdFun fd1) k
-	dSwitchAux sf1                          k = SF' tf
+        dSwitchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
+        dSwitchAux (SFArr _ fd1)                k = dSwitchAuxA1 (fdFun fd1) k
+        dSwitchAux sf1                          k = SF' tf
 {-
-	    if sfIsInv sf1 then
-		dSwitchInv sf1 k
-	    else
-		SF' tf False
+            if sfIsInv sf1 then
+                dSwitchInv sf1 k
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a =
-		    let (sf1', (b, ec)) = (sfTF' sf1) dt a
+            where
+                tf dt a =
+                    let (sf1', (b, ec)) = (sfTF' sf1) dt a
                     in (case ec of
-			    NoEvent -> dSwitchAux sf1' k
-			    Event c -> fst (sfTF (k c) a),
+                            NoEvent -> dSwitchAux sf1' k
+                            Event c -> fst (sfTF (k c) a),
 
-			b)
+                        b)
 
 {-
         -- Note: that the subordinate signal function is invariant does NOT
         -- imply that the overall signal function is.
         dSwitchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-	dSwitchInv sf1 k = SF' tf False
-	    where
-		tf dt a =
-		    let (sf1', (b, ec)) = (sfTF' sf1) dt a
+        dSwitchInv sf1 k = SF' tf False
+            where
+                tf dt a =
+                    let (sf1', (b, ec)) = (sfTF' sf1) dt a
                     in (case ec of
-			    NoEvent -> dSwitchInv sf1' k
-			    Event c -> fst (sfTF (k c) a),
+                            NoEvent -> dSwitchInv sf1' k
+                            Event c -> fst (sfTF (k c) a),
 
-			b)
+                        b)
 -}
 
-	-- !!! Could be optimized a little bit further by having a case for
+        -- !!! Could be optimized a little bit further by having a case for
         -- !!! identity, switchAuxI1
 
-	-- Note: While dSwitch behaves as a stateless arrow at this point, that
-	-- could change after a switch. Hence, SF' overall.
+        -- Note: While dSwitch behaves as a stateless arrow at this point, that
+        -- could change after a switch. Hence, SF' overall.
         dSwitchAuxA1 :: (a -> (b, Event c)) -> (c -> SF a b) -> SF' a b
-	dSwitchAuxA1 f1 k = sf
-	    where
-		sf = SF' tf -- False
-		tf _ a =
-		    let (b, ec) = f1 a
+        dSwitchAuxA1 f1 k = sf
+            where
+                sf = SF' tf -- False
+                tf _ a =
+                    let (b, ec) = f1 a
                     in (case ec of
-			    NoEvent -> sf
-			    Event c -> fst (sfTF (k c) a),
+                            NoEvent -> sf
+                            Event c -> fst (sfTF (k c) a),
 
-			b)
+                        b)
 
 
 -- | Recurring switch.
@@ -2482,11 +2482,11 @@ kSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
     where
         tf0 a0 =
-	    let (sf1, b0) = tf10 a0
+            let (sf1, b0) = tf10 a0
             in
-	        case tfe0 (a0, b0) of
-		    (sfe, NoEvent)  -> (kSwitchAux sf1 sfe, b0)
-		    (_,   Event c0) -> sfTF (k sf10 c0) a0
+                case tfe0 (a0, b0) of
+                    (sfe, NoEvent)  -> (kSwitchAux sf1 sfe, b0)
+                    (_,   Event c0) -> sfTF (k sf10 c0) a0
 
 -- Same problem as above: must pass k explicitly???
 --        kSwitchAux (SFId _)      sfe                 = kSwitchAuxI1 sfe
@@ -2499,24 +2499,24 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
         -- kSwitchAux sf1            (SFArrE _ fe)       = kSwitchAuxAE sf1 fe 
         -- kSwitchAux sf1            (SFArrEE _ fe)      = kSwitchAuxAE sf1 fe 
         kSwitchAux sf1            sfe                 = SF' tf -- False
-	    where
-		tf dt a =
-		    let	(sf1', b) = (sfTF' sf1) dt a
-		    in
-		        case (sfTF' sfe) dt (a, b) of
-			    (sfe', NoEvent) -> (kSwitchAux sf1' sfe', b)
-			    (_,    Event c) -> sfTF (k (freeze sf1 dt) c) a
+            where
+                tf dt a =
+                    let (sf1', b) = (sfTF' sf1) dt a
+                    in
+                        case (sfTF' sfe) dt (a, b) of
+                            (sfe', NoEvent) -> (kSwitchAux sf1' sfe', b)
+                            (_,    Event c) -> sfTF (k (freeze sf1 dt) c) a
 
 {-
 -- !!! Untested optimization!
         kSwitchAuxI1 (SFConst _ NoEvent) = sfId
         kSwitchAuxI1 (SFArr _ fe)        = kSwitchAuxI1AE fe
         kSwitchAuxI1 sfe                 = SF' tf
-	    where
-		tf dt a =
-		    case (sfTF' sfe) dt (a, a) of
-			(sfe', NoEvent) -> (kSwitchAuxI1 sfe', a)
-			(_,    Event c) -> sfTF (k identity c) a
+            where
+                tf dt a =
+                    case (sfTF' sfe) dt (a, a) of
+                        (sfe', NoEvent) -> (kSwitchAuxI1 sfe', a)
+                        (_,    Event c) -> sfTF (k identity c) a
 -}
 
 -- !!! Untested optimization!
@@ -2525,11 +2525,11 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
         -- kSwitchAuxC1 b (SFArrE _ fe)       = kSwitchAuxC1AE b fe
         -- kSwitchAuxC1 b (SFArrEE _ fe)      = kSwitchAuxC1AE b fe
         kSwitchAuxC1 b sfe                 = SF' tf -- False
-	    where
-		tf dt a =
-		    case (sfTF' sfe) dt (a, b) of
-			(sfe', NoEvent) -> (kSwitchAuxC1 b sfe', b)
-			(_,    Event c) -> sfTF (k (constant b) c) a
+            where
+                tf dt a =
+                    case (sfTF' sfe) dt (a, b) of
+                        (sfe', NoEvent) -> (kSwitchAuxC1 b sfe', b)
+                        (_,    Event c) -> sfTF (k (constant b) c) a
 
 -- !!! Untested optimization!
         kSwitchAuxA1 f1 (SFArr _ (FDC NoEvent)) = sfArrG f1
@@ -2537,13 +2537,13 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
         -- kSwitchAuxA1 f1 (SFArrE _ fe)       = kSwitchAuxA1AE f1 fe
         -- kSwitchAuxA1 f1 (SFArrEE _ fe)      = kSwitchAuxA1AE f1 fe
         kSwitchAuxA1 f1 sfe                 = SF' tf -- False
-	    where
-		tf dt a =
-		    let	b = f1 a
-		    in
-		        case (sfTF' sfe) dt (a, b) of
-			    (sfe', NoEvent) -> (kSwitchAuxA1 f1 sfe', b)
-			    (_,    Event c) -> sfTF (k (arr f1) c) a
+            where
+                tf dt a =
+                    let b = f1 a
+                    in
+                        case (sfTF' sfe) dt (a, b) of
+                            (sfe', NoEvent) -> (kSwitchAuxA1 f1 sfe', b)
+                            (_,    Event c) -> sfTF (k (arr f1) c) a
 
 -- !!! Untested optimization!
 --        kSwitchAuxAE (SFId _)      fe = kSwitchAuxI1AE fe
@@ -2552,41 +2552,41 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
         -- kSwitchAuxAE (SFArrE _ f1)  fe = kSwitchAuxA1AE f1 fe
         -- kSwitchAuxAE (SFArrEE _ f1) fe = kSwitchAuxA1AE f1 fe
         kSwitchAuxAE sf1            fe = SF' tf -- False
-	    where
-		tf dt a =
-		    let	(sf1', b) = (sfTF' sf1) dt a
-		    in
-		        case fe (a, b) of
-			    NoEvent -> (kSwitchAuxAE sf1' fe, b)
-			    Event c -> sfTF (k (freeze sf1 dt) c) a
+            where
+                tf dt a =
+                    let (sf1', b) = (sfTF' sf1) dt a
+                    in
+                        case fe (a, b) of
+                            NoEvent -> (kSwitchAuxAE sf1' fe, b)
+                            Event c -> sfTF (k (freeze sf1 dt) c) a
 
 {-
 -- !!! Untested optimization!
         kSwitchAuxI1AE fe = SF' tf -- False
-	    where
-		tf dt a =
-		    case fe (a, a) of
-			NoEvent -> (kSwitchAuxI1AE fe, a)
-			Event c -> sfTF (k identity c) a
+            where
+                tf dt a =
+                    case fe (a, a) of
+                        NoEvent -> (kSwitchAuxI1AE fe, a)
+                        Event c -> sfTF (k identity c) a
 -}
 
 -- !!! Untested optimization!
         kSwitchAuxC1AE b fe = SF' tf -- False
-	    where
-		tf _ a =
-		    case fe (a, b) of
-			NoEvent -> (kSwitchAuxC1AE b fe, b)
-			Event c -> sfTF (k (constant b) c) a
+            where
+                tf _ a =
+                    case fe (a, b) of
+                        NoEvent -> (kSwitchAuxC1AE b fe, b)
+                        Event c -> sfTF (k (constant b) c) a
 
 -- !!! Untested optimization!
         kSwitchAuxA1AE f1 fe = SF' tf -- False
-	    where
-		tf _ a =
-		    let	b = f1 a
-		    in
-		        case fe (a, b) of
-			    NoEvent -> (kSwitchAuxA1AE f1 fe, b)
-			    Event c -> sfTF (k (arr f1) c) a
+            where
+                tf _ a =
+                    let b = f1 a
+                    in
+                        case fe (a, b) of
+                            NoEvent -> (kSwitchAuxA1AE f1 fe, b)
+                            Event c -> sfTF (k (arr f1) c) a
 
 
 -- | 'kSwitch' with delayed observation.
@@ -2599,21 +2599,21 @@ dkSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
     where
         tf0 a0 =
-	    let (sf1, b0) = tf10 a0
+            let (sf1, b0) = tf10 a0
             in (case tfe0 (a0, b0) of
-		    (sfe, NoEvent)  -> dkSwitchAux sf1 sfe
-		    (_,   Event c0) -> fst (sfTF (k sf10 c0) a0),
+                    (sfe, NoEvent)  -> dkSwitchAux sf1 sfe
+                    (_,   Event c0) -> fst (sfTF (k sf10 c0) a0),
                 b0)
 
         dkSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
         dkSwitchAux sf1 sfe                     = SF' tf -- False
-	    where
-		tf dt a =
-		    let	(sf1', b) = (sfTF' sf1) dt a
-		    in (case (sfTF' sfe) dt (a, b) of
-			    (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
-			    (_, Event c) -> fst (sfTF (k (freeze sf1 dt) c) a),
-		        b)
+            where
+                tf dt a =
+                    let (sf1', b) = (sfTF' sf1) dt a
+                    in (case (sfTF' sfe) dt (a, b) of
+                            (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
+                            (_, Event c) -> fst (sfTF (k (freeze sf1 dt) c) a),
+                        b)
 
 
 ------------------------------------------------------------------------------
@@ -2711,13 +2711,13 @@ par :: Functor col =>
     -> SF a (col c)
 par rf sfs0 = SF {sfTF = tf0}
     where
-	tf0 a0 =
-	    let bsfs0 = rf a0 sfs0
-		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-		sfs   = fmap fst sfcs0
-		cs0   = fmap snd sfcs0
-	    in
-		(parAux rf sfs, cs0)
+        tf0 a0 =
+            let bsfs0 = rf a0 sfs0
+                sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+                sfs   = fmap fst sfcs0
+                cs0   = fmap snd sfcs0
+            in
+                (parAux rf sfs, cs0)
 
 
 -- Internal definition. Also used in parallel swithers.
@@ -2727,13 +2727,13 @@ parAux :: Functor col =>
     -> SF' a (col c)
 parAux rf sfs = SF' tf -- True
     where
-	tf dt a = 
-	    let bsfs  = rf a sfs
-		sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-		sfs'  = fmap fst sfcs'
-		cs    = fmap snd sfcs'
-	    in
-	        (parAux rf sfs', cs)
+        tf dt a = 
+            let bsfs  = rf a sfs
+                sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+                sfs'  = fmap fst sfcs'
+                cs    = fmap snd sfcs'
+            in
+                (parAux rf sfs', cs)
 
 
 -- | Parallel switch parameterized on the routing function. This is the most
@@ -2767,28 +2767,28 @@ pSwitch :: Functor col
     -> SF a (col c)
 pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
     where
-	tf0 a0 =
-	    let bsfs0 = rf a0 sfs0
-		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-		sfs   = fmap fst sfcs0
-		cs0   = fmap snd sfcs0
-	    in
-		case (sfTF sfe0) (a0, cs0) of
-		    (sfe, NoEvent)  -> (pSwitchAux sfs sfe, cs0)
-		    (_,   Event d0) -> sfTF (k sfs0 d0) a0
+        tf0 a0 =
+            let bsfs0 = rf a0 sfs0
+                sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+                sfs   = fmap fst sfcs0
+                cs0   = fmap snd sfcs0
+            in
+                case (sfTF sfe0) (a0, cs0) of
+                    (sfe, NoEvent)  -> (pSwitchAux sfs sfe, cs0)
+                    (_,   Event d0) -> sfTF (k sfs0 d0) a0
 
-	pSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
-	pSwitchAux sfs sfe = SF' tf -- False
-	    where
-		tf dt a =
-		    let bsfs  = rf a sfs
-			sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-			sfs'  = fmap fst sfcs'
-			cs    = fmap snd sfcs'
-		    in
-			case (sfTF' sfe) dt (a, cs) of
-			    (sfe', NoEvent) -> (pSwitchAux sfs' sfe', cs)
-			    (_,    Event d) -> sfTF (k (freezeCol sfs dt) d) a
+        pSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
+        pSwitchAux sfs sfe = SF' tf -- False
+            where
+                tf dt a =
+                    let bsfs  = rf a sfs
+                        sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+                        sfs'  = fmap fst sfcs'
+                        cs    = fmap snd sfcs'
+                    in
+                        case (sfTF' sfe) dt (a, cs) of
+                            (sfe', NoEvent) -> (pSwitchAux sfs' sfe', cs)
+                            (_,    Event d) -> sfTF (k (freezeCol sfs dt) d) a
 
 
 -- | Parallel switch with delayed observation parameterized on the routing
@@ -2824,30 +2824,30 @@ dpSwitch :: Functor col =>
     -> SF a (col c)
 dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
     where
-	tf0 a0 =
-	    let bsfs0 = rf a0 sfs0
-		sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-		cs0   = fmap snd sfcs0
-	    in
-		(case (sfTF sfe0) (a0, cs0) of
-		     (sfe, NoEvent)  -> dpSwitchAux (fmap fst sfcs0) sfe
-		     (_,   Event d0) -> fst (sfTF (k sfs0 d0) a0),
-	         cs0)
+        tf0 a0 =
+            let bsfs0 = rf a0 sfs0
+                sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+                cs0   = fmap snd sfcs0
+            in
+                (case (sfTF sfe0) (a0, cs0) of
+                    (sfe, NoEvent)  -> dpSwitchAux (fmap fst sfcs0) sfe
+                    (_,   Event d0) -> fst (sfTF (k sfs0 d0) a0),
+                cs0)
 
-	dpSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
-	dpSwitchAux sfs sfe = SF' tf -- False
-	    where
-		tf dt a =
-		    let bsfs  = rf a sfs
-			sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-			cs    = fmap snd sfcs'
-		    in
-			(case (sfTF' sfe) dt (a, cs) of
-			     (sfe', NoEvent) -> dpSwitchAux (fmap fst sfcs')
-							    sfe'
-			     (_,    Event d) -> fst (sfTF (k (freezeCol sfs dt)
-							     d)
-							  a),
+        dpSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
+        dpSwitchAux sfs sfe = SF' tf -- False
+            where
+                tf dt a =
+                    let bsfs  = rf a sfs
+                        sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+                        cs    = fmap snd sfcs'
+                    in
+                        (case (sfTF' sfe) dt (a, cs) of
+                            (sfe', NoEvent) -> dpSwitchAux (fmap fst sfcs')
+                                                            sfe'
+                            (_,    Event d) -> fst (sfTF (k (freezeCol sfs dt)
+                                                            d)
+                                                        a),
                          cs)
 
 
@@ -3120,9 +3120,9 @@ old_pre = SF {sfTF = tf0}
     where
         tf0 a0 = (preAux a0, usrErr "AFRP" "pre" "Uninitialized pre operator.")
 
-	preAux a_prev = SF' tf -- True
-	    where
-		tf _ a = {- a_prev `seq` -} (preAux a, a_prev)
+        preAux a_prev = SF' tf -- True
+            where
+                tf _ a = {- a_prev `seq` -} (preAux a, a_prev)
 
 -- | Initialized delay operator (old implementation).
 old_iPre :: a -> SF a a
@@ -3184,8 +3184,8 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
                               (delayAux rbuf' buf t_diff' a_prev, a_prev)
                         | otherwise = nextSmpl rbuf' buf' (t_diff' - bdt) ba
                     where
-        	        t_diff' = t_diff + dt
-        	        rbuf'   = (dt, a) : rbuf
+                        t_diff' = t_diff + dt
+                        rbuf'   = (dt, a) : rbuf
     
                         nextSmpl rbuf [] t_diff a =
                             nextSmpl [] (reverse rbuf) t_diff a
@@ -3256,13 +3256,13 @@ integral = SF {sfTF = tf0}
     where
         igrl0  = zeroVector
 
-	tf0 a0 = (integralAux igrl0 a0, igrl0)
+        tf0 a0 = (integralAux igrl0 a0, igrl0)
 
-	integralAux igrl a_prev = SF' tf -- True
-	    where
-	        tf dt a = (integralAux igrl' a, igrl')
-		    where
-		       igrl' = igrl ^+^ realToFrac dt *^ a_prev
+        integralAux igrl a_prev = SF' tf -- True
+            where
+                tf dt a = (integralAux igrl' a, igrl')
+                    where
+                        igrl' = igrl ^+^ realToFrac dt *^ a_prev
 
 
 -- "immediate" integration (using the function's value at the current time)
@@ -3280,11 +3280,11 @@ f `iterFrom` b = SF (iterAux b) where
 derivative :: VectorSpace a s => SF a a
 derivative = SF {sfTF = tf0}
     where
-	tf0 a0 = (derivativeAux a0, zeroVector)
+        tf0 a0 = (derivativeAux a0, zeroVector)
 
-	derivativeAux a_prev = SF' tf -- True
-	    where
-	        tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
+        derivativeAux a_prev = SF' tf -- True
+            where
+                tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
 
 
 ------------------------------------------------------------------------------
@@ -3329,10 +3329,10 @@ streamToSF (b:bs) = SF {sfTF = tf0}
         tf0 _ = (stsfAux bs, b)
 
         stsfAux []     = intErr "AFRP" "streamToSF" "Empty list!"
-	-- Invarying since stsfAux [] is an error.
+        -- Invarying since stsfAux [] is an error.
         stsfAux (b:bs) = SF' tf -- True
-	    where
-		tf _ _ = (stsfAux bs, b)
+            where
+                tf _ _ = (stsfAux bs, b)
 
 {- New def, untested:
 
@@ -3355,15 +3355,15 @@ streamToSF = sscan2 f
 occasionally :: RandomGen g => g -> Time -> b -> SF a (Event b)
 occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
                        | otherwise = usrErr "AFRP" "occasionally"
-				            "Non-positive average interval."
+                                            "Non-positive average interval."
     where
-	-- Generally, if events occur with an average frequency of f, the
-	-- probability of at least one event occurring in an interval of t
+        -- Generally, if events occur with an average frequency of f, the
+        -- probability of at least one event occurring in an interval of t
         -- is given by (1 - exp (-f*t)). The goal in the following is to
-	-- decide whether at least one event occurred in the interval of size
-	-- dt preceding the current sample point. For the first point,
-	-- we can think of the preceding interval as being 0, implying
-	-- no probability of an event occurring.
+        -- decide whether at least one event occurred in the interval of size
+        -- dt preceding the current sample point. For the first point,
+        -- we can think of the preceding interval as being 0, implying
+        -- no probability of an event occurring.
 
     tf0 _ = (occAux ((randoms g) :: [Time]), NoEvent)
 
@@ -3432,10 +3432,10 @@ occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
 -- loop yourself for these or other reasons, use 'reactInit' and 'react'.
 
 reactimate :: IO a                                -- ^ IO initialization action
-	      -> (Bool -> IO (DTime, Maybe a))    -- ^ IO input sensing action
-	      -> (Bool -> b -> IO Bool)           -- ^ IO actuaction (output processing) action
+              -> (Bool -> IO (DTime, Maybe a))    -- ^ IO input sensing action
+              -> (Bool -> b -> IO Bool)           -- ^ IO actuaction (output processing) action
               -> SF a b                           -- ^ Signal function
-	      -> IO ()
+              -> IO ()
 reactimate init sense actuate (SF {sfTF = tf0}) =
     do
         a0 <- init
@@ -3443,12 +3443,12 @@ reactimate init sense actuate (SF {sfTF = tf0}) =
         loop sf a0 b0
     where
         loop sf a b = do
-	    done <- actuate True b
+            done <- actuate True b
             unless (a `seq` b `seq` done) $ do
-	        (dt, ma') <- sense False
-		let a' = maybe a id ma'
+                (dt, ma') <- sense False
+                let a' = maybe a id ma'
                     (sf', b') = (sfTF' sf) dt a'
-		loop sf' a' b'
+                loop sf' a' b'
 
 
 -- An API for animating a signal function when some other library
@@ -3460,7 +3460,7 @@ data ReactState a b = ReactState {
     rsSF :: SF' a b,
     rsA :: a,
     rsB :: b
-  }	      
+  }
 
 -- | A reference to reactimate's state, maintained across samples.
 type ReactHandle a b = IORef (ReactState a b)
@@ -3529,14 +3529,14 @@ react rh (dt,ma') =
 embed :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
 embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
     where
-	(sf, b0) = (sfTF sf0) a0
+        (sf, b0) = (sfTF sf0) a0
 
         loop _ _ [] = []
-	loop a_prev sf ((dt, ma) : dtas) =
-	    b : (a `seq` b `seq` (loop a sf' dtas))
-	    where
-		a        = maybe a_prev id ma
-	        (sf', b) = (sfTF' sf) dt a
+        loop a_prev sf ((dt, ma) : dtas) =
+            b : (a `seq` b `seq` (loop a sf' dtas))
+            where
+                a        = maybe a_prev id ma
+                (sf', b) = (sfTF' sf) dt a
 
 
 -- | Synchronous embedding. The embedded signal function is run on the supplied
@@ -3559,30 +3559,30 @@ embedSynch :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
 embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
     where
         tts       = scanl (\t (dt, _) -> t + dt) 0 dtas
-	bbs@(b:_) = embed sf0 (a0, dtas)
+        bbs@(b:_) = embed sf0 (a0, dtas)
 
-	tf0 _ = (esAux 0 (zip tts bbs), b)
+        tf0 _ = (esAux 0 (zip tts bbs), b)
 
-	esAux _       []    = intErr "AFRP" "embedSynch" "Empty list!"
+        esAux _       []    = intErr "AFRP" "embedSynch" "Empty list!"
         -- Invarying below since esAux [] is an error.
-	esAux tp_prev tbtbs = SF' tf -- True
-	    where
-		tf dt r | r < 0     = usrErr "AFRP" "embedSynch"
-					     "Negative ratio."
-			| otherwise = let tp = tp_prev + dt * r
-					  (b, tbtbs') = advance tp tbtbs
-				      in
-					  (esAux tp tbtbs', b)
+        esAux tp_prev tbtbs = SF' tf -- True
+            where
+                tf dt r | r < 0     = usrErr "AFRP" "embedSynch"
+                                             "Negative ratio."
+                        | otherwise = let tp = tp_prev + dt * r
+                                          (b, tbtbs') = advance tp tbtbs
+                                      in
+                                          (esAux tp tbtbs', b)
 
-		-- Advance the time stamped stream to the perceived time tp.
-		-- Under the assumption that the perceived time never goes
-		-- backwards (non-negative ratio), advance maintains the
-		-- invariant that the perceived time is always >= the first
-		-- time stamp.
+                -- Advance the time stamped stream to the perceived time tp.
+                -- Under the assumption that the perceived time never goes
+                -- backwards (non-negative ratio), advance maintains the
+                -- invariant that the perceived time is always >= the first
+                -- time stamp.
         advance _  tbtbs@[(_, b)] = (b, tbtbs)
         advance tp tbtbtbs@((_, b) : tbtbs@((t', _) : _))
-		    | tp <  t' = (b, tbtbtbs)
-		    | t' <= tp = advance tp tbtbs
+                    | tp <  t' = (b, tbtbtbs)
+                    | t' <= tp = advance tp tbtbs
         advance _ _ = undefined
 
 -- | Spaces a list of samples by a fixed time delta, avoiding
@@ -3598,8 +3598,8 @@ deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
 deltaEncodeBy _  _  []      = usrErr "AFRP" "deltaEncodeBy" "Empty input list."
 deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
     where
-	debAux _      []                     = []
-	debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
+        debAux _      []                     = []
+        debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
                              | otherwise     = Just a  : debAux a as 
 
 -- Embedding and missing events.
