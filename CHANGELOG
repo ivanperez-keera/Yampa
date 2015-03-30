@@ -1,9 +1,15 @@
+2015-03-30 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/FRP/Yampa/Task.hs: Adds Functor and Applicative instances,
+          for compatibility with base >= 4.8 (issue #7, pull request by
+          Ryan Scott).
+        * Yampa.cabal: version bump (0.9.6.1).
+
 2015-03-04 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/: Coding style improvements
+        * src/: Coding style improvements.
 
 2014-08-29 Ivan Perez <ivan.perez@keera.co.uk>
 
-        * Yampa.cabal: version bump (0.9.6)
+        * Yampa.cabal: version bump (0.9.6).
         * src/: Adds a substantial amount of documentation.
         * src/FRP/Yampa.hs: Adds a new pause combinator.
 
@@ -13,14 +19,14 @@
 
 2014-04-26 Ivan Perez <ivan.perez@keera.es>
 
-        * Yampa.cabal: version bump (0.9.5)
-        * Adds CHANGELOG to cabal file
+        * Yampa.cabal: version bump (0.9.5).
+        * Adds CHANGELOG to cabal file.
 
 2014-04-07 Ivan Perez <ivan.perez@keera.es>
 
         * Yampa.cabal: new maintainer, version bump (0.9.4).
-        * src/: documentation is exposed so that Haddock can process it
-        * No interface changes
+        * src/: documentation is exposed so that Haddock can process it.
+        * No interface changes.
 
 Copyright (c) 2003, Henrik Nilsson, Antony Courtney and Yale University.
 All rights reserved.
