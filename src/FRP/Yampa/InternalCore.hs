@@ -509,7 +509,7 @@ instance Arrow SF where
     (>>>)  = compPrim
 #endif
 
--- Lifting.
+-- * Lifting.
 
 -- | Lifts a pure function into a signal function (applied pointwise).
 {-# NOINLINE arrPrim #-}
@@ -523,7 +523,7 @@ arrEPrim :: (Event a -> b) -> SF (Event a) b
 arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
 
 
--- Composition.
+-- * Composition.
 -- The definition exploits the following identities:
 --     sf         >>> identity   = sf                           -- New
 --     identity   >>> sf         = sf                           -- New
@@ -1050,7 +1050,7 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
 -}
         
 
--- Widening.
+-- * Widening.
 -- The definition exploits the following identities:
 --     first identity     = identity                            -- New
 --     first (constant b) = arr (\(_, c) -> (b, c))
@@ -1118,7 +1118,7 @@ spInv sf1 = SF' tf True
 -}
 
 
--- Parallel composition.
+-- * Parallel composition.
 -- The definition exploits the following identities (that hold for SF):
 --     identity   *** identity   = identity             -- New
 --     sf         *** identity   = first sf             -- New
@@ -1465,9 +1465,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 -}
 
 
-------------------------------------------------------------------------------
--- ArrowLoop instance and implementation
-------------------------------------------------------------------------------
+-- * ArrowLoop instance and implementation
 
 instance ArrowLoop SF where
     loop = loopPrim
