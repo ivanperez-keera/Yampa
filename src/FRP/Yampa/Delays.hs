@@ -13,16 +13,16 @@
 
 module FRP.Yampa.Delays (
 
--- * Delays
--- ** Basic delays
+    -- * Delays
+    -- ** Basic delays
     pre,                -- :: SF a a
     iPre,               -- :: a -> SF a a
     old_pre, old_iPre,
 
--- ** Timed delays
+    -- ** Timed delays
     delay,              -- :: Time -> a -> SF a a
 
--- ** Variable delay
+    -- ** Variable delay
     pause,              -- :: b -> SF a b -> SF a Bool -> SF a b
 
 ) where
