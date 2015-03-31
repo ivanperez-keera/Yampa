@@ -65,10 +65,12 @@ module FRP.Yampa.EventS (
 
 import Control.Arrow
 
-import FRP.Yampa.Core
+import FRP.Yampa.InternalCore
+import FRP.Yampa.Basic
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
 import FRP.Yampa.Miscellany
+import FRP.Yampa.Scan
 import FRP.Yampa.Switches
 
 sfNever :: SF' a (Event b)

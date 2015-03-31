@@ -24,7 +24,7 @@ module FRP.Yampa.Integration (
 
 ) where
 
-import FRP.Yampa.Core
+import FRP.Yampa.InternalCore
 import FRP.Yampa.VectorSpace
 
 ------------------------------------------------------------------------------

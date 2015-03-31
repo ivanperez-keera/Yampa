@@ -43,7 +43,7 @@ import Control.Monad (unless)
 import Data.IORef
 import Data.Maybe (fromMaybe)
 
-import FRP.Yampa.Core
+import FRP.Yampa.InternalCore
 import FRP.Yampa.Diagnostics
 
 ------------------------------------------------------------------------------

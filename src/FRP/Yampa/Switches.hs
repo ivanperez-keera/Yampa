@@ -56,7 +56,9 @@ module FRP.Yampa.Switches (
 
 import Control.Arrow
 
-import FRP.Yampa.Core
+import FRP.Yampa.InternalCore
+
+import FRP.Yampa.Basic
 import FRP.Yampa.Event
 
 ------------------------------------------------------------------------------

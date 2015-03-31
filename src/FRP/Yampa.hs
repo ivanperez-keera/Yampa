@@ -371,7 +371,9 @@ module FRP.Yampa (
 
 import Control.Arrow
 
-import FRP.Yampa.Core
+import FRP.Yampa.InternalCore
+
+import FRP.Yampa.Basic
 import FRP.Yampa.Delays
 import FRP.Yampa.Event
 import FRP.Yampa.EventS
@@ -380,6 +382,7 @@ import FRP.Yampa.Integration
 import FRP.Yampa.Loop
 import FRP.Yampa.Miscellany (( # ), dup, swap)
 import FRP.Yampa.Random
+import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
 import FRP.Yampa.Switches
 import FRP.Yampa.Time

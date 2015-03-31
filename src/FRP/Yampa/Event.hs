@@ -73,6 +73,11 @@
 
 module FRP.Yampa.Event where
 
+-- Event is an instance of Functor, Eq, and Ord. Some method instances:
+-- fmap	:: (a -> b) -> Event a -> Event b
+-- (==)     :: Event a -> Event a -> Bool
+-- (<=)	:: Event a -> Event a -> Bool
+
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Forceable
 

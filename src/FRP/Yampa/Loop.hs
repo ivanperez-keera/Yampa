@@ -152,7 +152,8 @@ module FRP.Yampa.Loop (
 
 import Control.Arrow
 
-import FRP.Yampa.Core
+import FRP.Yampa.InternalCore
+
 import FRP.Yampa.Integration
 import FRP.Yampa.Delays
 import FRP.Yampa.VectorSpace

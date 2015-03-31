@@ -28,8 +28,11 @@ module FRP.Yampa.Delays (
 ) where
 
 
-import FRP.Yampa.Core
 import FRP.Yampa.Diagnostics
+import FRP.Yampa.InternalCore
+
+import FRP.Yampa.Basic
+import FRP.Yampa.Scan
 
 ------------------------------------------------------------------------------
 -- Delays
