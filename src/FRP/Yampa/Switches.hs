@@ -395,8 +395,8 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 			    (sfe', NoEvent) -> (kSwitchAuxA1 f1 sfe', b)
 			    (_,    Event c) -> sfTF (k (arr f1) c) a
 
--- !!! Untested optimization!
---        kSwitchAuxAE (SFId _)      fe = kSwitchAuxI1AE fe
+        -- !!! Untested optimization!
+        -- kSwitchAuxAE (SFId _)      fe = kSwitchAuxI1AE fe
         kSwitchAuxAE (SFArr _ (FDC b))  fe = kSwitchAuxC1AE b fe
         kSwitchAuxAE (SFArr _ fd1)   fe = kSwitchAuxA1AE (fdFun fd1) fe
         -- kSwitchAuxAE (SFArrE _ f1)  fe = kSwitchAuxA1AE f1 fe
@@ -473,7 +473,7 @@ dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 -- | Tuple a value up with every element of a collection of signal
 -- functions.
 broadcast :: Functor col => a -> col sf -> col (a, sf)
-broadcast a sfs = fmap (\sf -> (a, sf)) sfs
+broadcast a = fmap (\sf -> (a, sf))
 
 
 -- !!! Hmm. We should really optimize here.
