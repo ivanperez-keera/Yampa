@@ -14,8 +14,8 @@
 
 module FRP.Yampa.EventS (
 
--- * Events
--- ** Basic event sources
+    -- * Events
+    -- ** Basic event sources
     never,              -- :: SF a (Event b)
     now,                -- :: b -> SF a (Event b)
     after,              -- :: Time -> b -> SF a (Event b)
@@ -30,13 +30,13 @@ module FRP.Yampa.EventS (
     edgeJust,           -- :: SF (Maybe a) (Event a)
     edgeBy,             -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 
--- ** Stateful event suppression
+    -- ** Stateful event suppression
     notYet,             -- :: SF (Event a) (Event a)
     once,               -- :: SF (Event a) (Event a)
     takeEvents,         -- :: Int -> SF (Event a) (Event a)
     dropEvents,         -- :: Int -> SF (Event a) (Event a)
 
--- ** Pointwise functions on events
+    -- ** Pointwise functions on events
     noEvent,            -- :: Event a
     noEventFst,         -- :: (Event a, b) -> (Event c, b)
     noEventSnd,         -- :: (a, Event b) -> (a, Event c)
