@@ -42,8 +42,8 @@ want. Existing backends include:
 
 * Keera Studios is using it for several Haskell games for Android
   including a game currently available on Google Play. See:
-  http://facebook.com/keerastudios
-  https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
+  * http://facebook.com/keerastudios
+  * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
 
 # Documentation and tutorials
 
