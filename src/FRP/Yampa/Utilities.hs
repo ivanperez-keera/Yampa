@@ -241,8 +241,11 @@ sampleWindow wl q =
 -- Parallel composition/switchers with "zip" routing
 ------------------------------------------------------------------------------
 
+-- IPerez: This is actually unsafezip. Zip is actually safe. It works
+-- regardless of which list is smallest. This version of zip is right-biased:
+-- the second list determines the size of the final list.
 safeZip :: String -> [a] -> [b] -> [(a,b)]
-safeZip fn as bs = safeZip' as bs
+safeZip fn = safeZip'
     where
 	safeZip' _  []     = []
 	safeZip' as (b:bs) = (head' as, b) : safeZip' (tail' as) bs
