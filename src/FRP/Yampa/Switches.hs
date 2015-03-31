@@ -56,7 +56,7 @@ module FRP.Yampa.Switches (
 
 import Control.Arrow
 
-import FRP.Yampa.InternalCore
+import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', sfConst, fdFun, FunDesc(..), freeze, sfArrG, freezeCol)
 
 import FRP.Yampa.Basic
 import FRP.Yampa.Event

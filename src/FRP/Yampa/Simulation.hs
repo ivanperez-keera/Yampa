@@ -43,7 +43,8 @@ import Control.Monad (unless)
 import Data.IORef
 import Data.Maybe (fromMaybe)
 
-import FRP.Yampa.InternalCore
+import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', DTime)
+
 import FRP.Yampa.Diagnostics
 
 ------------------------------------------------------------------------------

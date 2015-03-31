@@ -16,7 +16,7 @@ module FRP.Yampa.Scan (
     sscanPrim,		-- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
 ) where
 
-import FRP.Yampa.InternalCore
+import FRP.Yampa.InternalCore (SF(..), sfSScan)
 
 ------------------------------------------------------------------------------
 -- Simple, stateful signal processing

@@ -29,15 +29,8 @@ module FRP.Yampa.Basic(
 
 ) where
 
--- import Control.Arrow
--- #if __GLASGOW_HASKELL__ >= 610
--- import qualified Control.Category (Category(..))
--- #endif
 
-import FRP.Yampa.InternalCore
--- import FRP.Yampa.Diagnostics
--- import FRP.Yampa.Miscellany (dup)
--- import FRP.Yampa.Event
+import FRP.Yampa.InternalCore (SF(..), sfConst, sfId)
 
 infixr 0 -->, >--, -=>, >=-
 

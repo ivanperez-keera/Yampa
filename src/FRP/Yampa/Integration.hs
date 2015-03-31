@@ -24,7 +24,7 @@ module FRP.Yampa.Integration (
 
 ) where
 
-import FRP.Yampa.InternalCore
+import FRP.Yampa.InternalCore (SF(..), SF'(..), DTime)
 import FRP.Yampa.VectorSpace
 
 ------------------------------------------------------------------------------

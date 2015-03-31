@@ -65,16 +65,14 @@ module FRP.Yampa.EventS (
 
 import Control.Arrow
 
-import FRP.Yampa.InternalCore
+import FRP.Yampa.InternalCore (SF(..), sfConst, Time, SF'(..))
+
 import FRP.Yampa.Basic
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
 import FRP.Yampa.Miscellany
 import FRP.Yampa.Scan
 import FRP.Yampa.Switches
-
-sfNever :: SF' a (Event b)
-sfNever = sfConst NoEvent
 
 -- -- The event-processing function *could* accept the present NoEvent
 -- -- output as an extra state argument. That would facilitate composition
@@ -141,11 +139,13 @@ sfMkInv sf = SF {sfTF = ...}
 never :: SF a (Event b)
 never = SF {sfTF = \_ -> (sfNever, NoEvent)}
 
+sfNever :: SF' a (Event b)
+sfNever = sfConst NoEvent
 
 -- | Event source with a single occurrence at time 0. The value of the event
 -- is given by the function argument.
 now :: b -> SF a (Event b)
-now b0 = (Event b0 --> never)
+now b0 = Event b0 --> never
 
 
 -- | Event source with a single occurrence at or as soon after (local) time /q/

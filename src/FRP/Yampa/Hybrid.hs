@@ -38,7 +38,7 @@ module FRP.Yampa.Hybrid (
 
 import Control.Arrow
 
-import FRP.Yampa.InternalCore
+import FRP.Yampa.InternalCore (SF, epPrim)
 
 import FRP.Yampa.Basic
 import FRP.Yampa.Delays

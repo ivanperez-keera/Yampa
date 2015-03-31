@@ -26,7 +26,7 @@ module FRP.Yampa.Random (
 
 import System.Random (RandomGen(..), Random(..))
 
-import FRP.Yampa.InternalCore
+import FRP.Yampa.InternalCore (SF(..), SF'(..), Time)
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
 
