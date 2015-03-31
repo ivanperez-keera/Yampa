@@ -12,8 +12,8 @@
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Time (
-    localTime,		-- :: SF a Time
-    time,               -- :: SF a Time,	Other name for localTime.
+    localTime,          -- :: SF a Time
+    time,               -- :: SF a Time,        Other name for localTime.
 ) where
 
 import Control.Arrow

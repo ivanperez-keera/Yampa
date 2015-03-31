@@ -187,7 +187,7 @@ snap = switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
 snapAfter :: Time -> SF a (Event a)
 snapAfter t_ev = switch (never
 			 &&& (identity
-			      &&& after t_ev () >>^ \(a, e) -> e `tag` a))
+				  &&& after t_ev () >>^ \(a, e) -> e `tag` a))
 			now
 
 
@@ -234,7 +234,7 @@ sampleWindow wl q =
     where
         updateWindow w as = drop (max (length w' - wl) 0) w'
             where
-	        w' = w ++ as
+			w' = w ++ as
 
 
 ------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ module FRP.Yampa.Vector2 (
     vector2Rho,		-- :: RealFloat a => Vector2 a -> a
     vector2Theta,	-- :: RealFloat a => Vector2 a -> a
     vector2RhoTheta,	-- :: RealFloat a => Vector2 a -> (a, a)
-    vector2Rotate 	-- :: RealFloat a => a -> Vector2 a -> Vector2 a
+    vector2Rotate	-- :: RealFloat a => a -> Vector2 a -> Vector2 a
 ) where
 
 import FRP.Yampa.VectorSpace

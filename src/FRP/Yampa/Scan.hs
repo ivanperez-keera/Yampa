@@ -12,8 +12,8 @@
 
 module FRP.Yampa.Scan (
 -- ** Simple, stateful signal processing
-    sscan,		-- :: (b -> a -> b) -> b -> SF a b
-    sscanPrim,		-- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
+    sscan,              -- :: (b -> a -> b) -> b -> SF a b
+    sscanPrim,          -- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
 ) where
 
 import FRP.Yampa.InternalCore (SF(..), sfSScan)
@@ -36,7 +36,7 @@ sscanPrim f c_init b_init = SF {sfTF = tf0}
     where
         tf0 a0 = case f c_init a0 of
                      Nothing       -> (sfSScan f c_init b_init, b_init)
-	             Just (c', b') -> (sfSScan f c' b', b')
+                     Just (c', b') -> (sfSScan f c' b', b')
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

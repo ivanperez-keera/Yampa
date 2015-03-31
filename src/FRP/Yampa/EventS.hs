@@ -16,50 +16,50 @@ module FRP.Yampa.EventS (
 
 -- * Events
 -- ** Basic event sources
-    never, 		-- :: SF a (Event b)
-    now,		-- :: b -> SF a (Event b)
-    after,		-- :: Time -> b -> SF a (Event b)
-    repeatedly,		-- :: Time -> b -> SF a (Event b)
-    afterEach,		-- :: [(Time,b)] -> SF a (Event b)
+    never,              -- :: SF a (Event b)
+    now,                -- :: b -> SF a (Event b)
+    after,              -- :: Time -> b -> SF a (Event b)
+    repeatedly,         -- :: Time -> b -> SF a (Event b)
+    afterEach,          -- :: [(Time,b)] -> SF a (Event b)
     afterEachCat,       -- :: [(Time,b)] -> SF a (Event [b])
-    delayEvent,		-- :: Time -> SF (Event a) (Event a)
-    delayEventCat,	-- :: Time -> SF (Event a) (Event [a])
-    edge,		-- :: SF Bool (Event ())
-    iEdge,		-- :: Bool -> SF Bool (Event ())
-    edgeTag,		-- :: a -> SF Bool (Event a)
-    edgeJust,		-- :: SF (Maybe a) (Event a)
-    edgeBy,		-- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
+    delayEvent,         -- :: Time -> SF (Event a) (Event a)
+    delayEventCat,      -- :: Time -> SF (Event a) (Event [a])
+    edge,               -- :: SF Bool (Event ())
+    iEdge,              -- :: Bool -> SF Bool (Event ())
+    edgeTag,            -- :: a -> SF Bool (Event a)
+    edgeJust,           -- :: SF (Maybe a) (Event a)
+    edgeBy,             -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 
 -- ** Stateful event suppression
-    notYet,		-- :: SF (Event a) (Event a)
-    once,		-- :: SF (Event a) (Event a)
-    takeEvents,		-- :: Int -> SF (Event a) (Event a)
-    dropEvents,		-- :: Int -> SF (Event a) (Event a)
+    notYet,             -- :: SF (Event a) (Event a)
+    once,               -- :: SF (Event a) (Event a)
+    takeEvents,         -- :: Int -> SF (Event a) (Event a)
+    dropEvents,         -- :: Int -> SF (Event a) (Event a)
 
 -- ** Pointwise functions on events
-    noEvent,		-- :: Event a
-    noEventFst,		-- :: (Event a, b) -> (Event c, b)
-    noEventSnd,		-- :: (a, Event b) -> (a, Event c)
-    event, 		-- :: a -> (b -> a) -> Event b -> a
-    fromEvent,		-- :: Event a -> a
-    isEvent,		-- :: Event a -> Bool
-    isNoEvent,		-- :: Event a -> Bool
-    tag, 		-- :: Event a -> b -> Event b,		infixl 8
+    noEvent,            -- :: Event a
+    noEventFst,         -- :: (Event a, b) -> (Event c, b)
+    noEventSnd,         -- :: (a, Event b) -> (a, Event c)
+    event,              -- :: a -> (b -> a) -> Event b -> a
+    fromEvent,          -- :: Event a -> a
+    isEvent,            -- :: Event a -> Bool
+    isNoEvent,          -- :: Event a -> Bool
+    tag,                -- :: Event a -> b -> Event b,          infixl 8
     tagWith,            -- :: b -> Event a -> Event b,
-    attach,		-- :: Event a -> b -> Event (a, b),	infixl 8
-    lMerge, 		-- :: Event a -> Event a -> Event a,	infixl 6
-    rMerge,		-- :: Event a -> Event a -> Event a,	infixl 6
-    merge,		-- :: Event a -> Event a -> Event a,	infixl 6
-    mergeBy,		-- :: (a -> a -> a) -> Event a -> Event a -> Event a
+    attach,             -- :: Event a -> b -> Event (a, b),     infixl 8
+    lMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
+    rMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
+    merge,              -- :: Event a -> Event a -> Event a,    infixl 6
+    mergeBy,            -- :: (a -> a -> a) -> Event a -> Event a -> Event a
     mapMerge,           -- :: (a -> c) -> (b -> c) -> (a -> b -> c) 
                         --    -> Event a -> Event b -> Event c
     mergeEvents,        -- :: [Event a] -> Event a
-    catEvents,		-- :: [Event a] -> Event [a]
-    joinE,		-- :: Event a -> Event b -> Event (a,b),infixl 7
-    splitE,		-- :: Event (a,b) -> (Event a, Event b)
-    filterE,	 	-- :: (a -> Bool) -> Event a -> Event a
-    mapFilterE,		-- :: (a -> Maybe b) -> Event a -> Event b
-    gate,		-- :: Event a -> Bool -> Event a,	infixl 8
+    catEvents,          -- :: [Event a] -> Event [a]
+    joinE,              -- :: Event a -> Event b -> Event (a,b),infixl 7
+    splitE,             -- :: Event (a,b) -> (Event a, Event b)
+    filterE,            -- :: (a -> Bool) -> Event a -> Event a
+    mapFilterE,         -- :: (a -> Maybe b) -> Event a -> Event b
+    gate,               -- :: Event a -> Bool -> Event a,       infixl 8
 
 ) where
 
@@ -120,8 +120,8 @@ sfMkInv sf = SF {sfTF = ...}
     -- sfMkInvAux sf@(SFAcc _ _ _ _) = sf
     sfMkInvAux sf@(SFEP _ _ _ _) = sf
     sfMkInvAux sf@(SFCpAXA tf inv fd1 sf2 fd3)
-	| inv       = sf
-	| otherwise = SFCpAXA tf' True fd1 sf2 fd3
+        | inv       = sf
+        | otherwise = SFCpAXA tf' True fd1 sf2 fd3
         where
             tf' = \dt a -> let (sf', b) = tf dt a in (sfMkInvAux sf', b)
     sfMkInvAux sf@(SF' tf inv)
@@ -189,24 +189,24 @@ afterEach ((q,x):qxs)
     | q < 0     = usrErr "AFRP" "afterEach" "Negative period."
     | otherwise = SF {sfTF = tf0}
     where
-	tf0 _ = if q <= 0 then
+        tf0 _ = if q <= 0 then
                     (scheduleNextEvent 0.0 qxs, Event x)
                 else
-		    (awaitNextEvent (-q) x qxs, NoEvent)
+                    (awaitNextEvent (-q) x qxs, NoEvent)
 
-	scheduleNextEvent t [] = sfNever
+        scheduleNextEvent t [] = sfNever
         scheduleNextEvent t ((q,x):qxs)
-	    | q < 0     = usrErr "AFRP" "afterEach" "Negative period."
-	    | t' >= 0   = scheduleNextEvent t' qxs
-	    | otherwise = awaitNextEvent t' x qxs
-	    where
-	        t' = t - q
-	awaitNextEvent t x qxs = SF' {sfTF' = tf}
-	    where
-		tf dt _ | t' >= 0   = (scheduleNextEvent t' qxs, Event x)
-		        | otherwise = (awaitNextEvent t' x qxs, NoEvent)
-		    where
-		        t' = t + dt
+            | q < 0     = usrErr "AFRP" "afterEach" "Negative period."
+            | t' >= 0   = scheduleNextEvent t' qxs
+            | otherwise = awaitNextEvent t' x qxs
+            where
+                t' = t - q
+        awaitNextEvent t x qxs = SF' {sfTF' = tf}
+            where
+                tf dt _ | t' >= 0   = (scheduleNextEvent t' qxs, Event x)
+                        | otherwise = (awaitNextEvent t' x qxs, NoEvent)
+                    where
+                        t' = t + dt
 -}
 
 -- | Event source with consecutive occurrences at the given intervals.
@@ -228,24 +228,24 @@ afterEachCat ((q,x):qxs)
     | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
     | otherwise = SF {sfTF = tf0}
     where
-	tf0 _ = if q <= 0 then
+        tf0 _ = if q <= 0 then
                     emitEventsScheduleNext 0.0 [x] qxs
                 else
-		    (awaitNextEvent (-q) x qxs, NoEvent)
+                    (awaitNextEvent (-q) x qxs, NoEvent)
 
-	emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
+        emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
         emitEventsScheduleNext t xs ((q,x):qxs)
-	    | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
-	    | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
-	    | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
-	    where
-	        t' = t - q
-	awaitNextEvent t x qxs = SF' tf -- False
-	    where
-		tf dt _ | t' >= 0   = emitEventsScheduleNext t' [x] qxs
-		        | otherwise = (awaitNextEvent t' x qxs, NoEvent)
-		    where
-		        t' = t + dt
+            | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
+            | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
+            | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
+            where
+                t' = t - q
+        awaitNextEvent t x qxs = SF' tf -- False
+            where
+                tf dt _ | t' >= 0   = emitEventsScheduleNext t' [x] qxs
+                        | otherwise = (awaitNextEvent t' x qxs, NoEvent)
+                    where
+                        t' = t + dt
 
 -- | Delay for events. (Consider it a triggered after, hence /basic/.)
 
@@ -280,31 +280,31 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                 | q == 0    = arr (fmap (:[]))
                 | otherwise = SF {sfTF = tf0}
     where
-	tf0 NoEvent   = (noPendingEvent, NoEvent)
+        tf0 NoEvent   = (noPendingEvent, NoEvent)
         tf0 (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
 
         noPendingEvent = SF' tf -- True
             where
                 tf _ NoEvent   = (noPendingEvent, NoEvent)
                 tf _ (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
-				 
+                                 
         -- t_next is the present time w.r.t. the next scheduled event.
         -- t_last is the present time w.r.t. the last scheduled event.
         -- In the event queues, events are associated with their time
-	-- w.r.t. to preceding event (positive).
+        -- w.r.t. to preceding event (positive).
         pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
             where
-	        tf dt NoEvent    = tf1 (t_last + dt) rqxs (t_next + dt)
+                tf dt NoEvent    = tf1 (t_last + dt) rqxs (t_next + dt)
                 tf dt (Event x') = tf1 (-q) ((q', x') : rqxs) t_next'
-		    where
-		        t_next' = t_next  + dt
+                    where
+                        t_next' = t_next  + dt
                         t_last' = t_last  + dt
                         q'      = t_last' + q
 
                 tf1 t_last' rqxs' t_next'
                     | t_next' >= 0 =
                         emitEventsScheduleNext t_last' rqxs' qxs t_next' [x]
-		    | otherwise =
+                    | otherwise =
                         (pendingEvents t_last' rqxs' qxs t_next' x, NoEvent)
 
         -- t_next is the present time w.r.t. the *scheduled* time of the
@@ -342,20 +342,20 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                               NoEvent -> noPendingEvent
                               Event x -> pendingEvents (-q) [] [] (-q) x,
                           NoEvent)
-				 
+                                 
         -- t_next is the present time w.r.t. the next scheduled event.
         -- t_last is the present time w.r.t. the last scheduled event.
         -- In the event queues, events are associated with their time
-	-- w.r.t. to preceding event (positive).
+        -- w.r.t. to preceding event (positive).
         pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
             where
                 tf dt e
                     | t_next' >= 0 =
-			emitEventsScheduleNext e t_last' rqxs qxs t_next' [x]
+                        emitEventsScheduleNext e t_last' rqxs qxs t_next' [x]
                     | otherwise    = 
-			(pendingEvents t_last'' rqxs' qxs t_next' x, NoEvent)
+                        (pendingEvents t_last'' rqxs' qxs t_next' x, NoEvent)
                     where
-		        t_next' = t_next  + dt
+                        t_next' = t_next  + dt
                         t_last' = t_last  + dt 
                         (t_last'', rqxs') =
                             case e of
@@ -378,13 +378,13 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
         emitEventsScheduleNext e t_last rqxs ((q', x') : qxs') t_next rxs
             | q' > t_next = (case e of
                                  NoEvent -> 
-				     pendingEvents t_last 
+                                     pendingEvents t_last 
                                                    rqxs 
                                                    qxs'
                                                    (t_next - q')
                                                    x'
                                  Event x'' ->
-				     pendingEvents (-q) 
+                                     pendingEvents (-q) 
                                                    ((t_last+q, x'') : rqxs)
                                                    qxs'
                                                    (t_next - q')
@@ -463,11 +463,11 @@ edgeJust = edgeBy isJustEdge (Just undefined)
 edgeBy :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 edgeBy isEdge a_init = SF {sfTF = tf0}
     where
-	tf0 a0 = (ebAux a0, maybeToEvent (isEdge a_init a0))
+        tf0 a0 = (ebAux a0, maybeToEvent (isEdge a_init a0))
 
-	ebAux a_prev = SF' tf -- True
-	    where
-		tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
+        ebAux a_prev = SF' tf -- True
+            where
+                tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
 
 
 ------------------------------------------------------------------------------

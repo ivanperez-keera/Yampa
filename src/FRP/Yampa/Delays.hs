@@ -15,12 +15,12 @@ module FRP.Yampa.Delays (
 
 -- * Delays
 -- ** Basic delays
-    pre,		-- :: SF a a
-    iPre,		-- :: a -> SF a a
+    pre,                -- :: SF a a
+    iPre,               -- :: a -> SF a a
     old_pre, old_iPre,
 
 -- ** Timed delays
-    delay,		-- :: Time -> a -> SF a a
+    delay,              -- :: Time -> a -> SF a a
 
 -- ** Variable delay
     pause,              -- :: b -> SF a b -> SF a Bool -> SF a b
@@ -50,9 +50,9 @@ old_pre = SF {sfTF = tf0}
     where
         tf0 a0 = (preAux a0, usrErr "AFRP" "pre" "Uninitialized pre operator.")
 
-	preAux a_prev = SF' tf -- True
-	    where
-		tf _ a = {- a_prev `seq` -} (preAux a, a_prev)
+        preAux a_prev = SF' tf -- True
+            where
+                tf _ a = {- a_prev `seq` -} (preAux a, a_prev)
 
 -- | Initialized delay operator (old implementation).
 old_iPre :: a -> SF a a
@@ -114,8 +114,8 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
                               (delayAux rbuf' buf t_diff' a_prev, a_prev)
                         | otherwise = nextSmpl rbuf' buf' (t_diff' - bdt) ba
                     where
-        	        t_diff' = t_diff + dt
-        	        rbuf'   = (dt, a) : rbuf
+                        t_diff' = t_diff + dt
+                        rbuf'   = (dt, a) : rbuf
     
                         nextSmpl rbuf [] t_diff a =
                             nextSmpl [] (reverse rbuf) t_diff a

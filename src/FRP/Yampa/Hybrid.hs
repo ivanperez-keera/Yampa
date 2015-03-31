@@ -16,23 +16,23 @@ module FRP.Yampa.Hybrid (
 
 -- * Discrete to continuous-time signal functions
 -- ** Wave-form generation
-    old_hold,		-- :: a -> SF (Event a) a
-    hold,		-- :: a -> SF (Event a) a
-    dHold,		-- :: a -> SF (Event a) a
-    trackAndHold,	-- :: a -> SF (Maybe a) a
+    old_hold,           -- :: a -> SF (Event a) a
+    hold,               -- :: a -> SF (Event a) a
+    dHold,              -- :: a -> SF (Event a) a
+    trackAndHold,       -- :: a -> SF (Maybe a) a
 
 -- ** Accumulators
-    accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    accumHold,		-- :: a -> SF (Event (a -> a)) a
-    dAccumHold,		-- :: a -> SF (Event (a -> a)) a
-    accumBy,		-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    accumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
-    dAccumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
-    accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
-			--    -> SF (Event a) (Event b)
-    old_accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    old_accumBy,	-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    old_accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
+    accum,              -- :: a -> SF (Event (a -> a)) (Event a)
+    accumHold,          -- :: a -> SF (Event (a -> a)) a
+    dAccumHold,         -- :: a -> SF (Event (a -> a)) a
+    accumBy,            -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    accumHoldBy,        -- :: (b -> a -> b) -> b -> SF (Event a) b
+    dAccumHoldBy,       -- :: (b -> a -> b) -> b -> SF (Event a) b
+    accumFilter,        -- :: (c -> a -> (c, Maybe b)) -> c
+                        --    -> SF (Event a) (Event b)
+    old_accum,          -- :: a -> SF (Event (a -> a)) (Event a)
+    old_accumBy,        -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    old_accumFilter,    -- :: (c -> a -> (c, Maybe b)) -> c
 
 ) where
 
@@ -215,13 +215,13 @@ accumBy f b_init = SF {sfTF = tf0}
     where
         tf0 NoEvent    = (abAux b_init, NoEvent) 
         tf0 (Event a0) = let b' = f b_init a0
-		         in (abAux b', Event b')
+                         in (abAux b', Event b')
 
         abAux b = SF' {sfTF' = tf}
-	    where
-		tf _ NoEvent   = (abAux b, NoEvent)
-		tf _ (Event a) = let b' = f b a
-			         in (abAux b', Event b')
+            where
+                tf _ NoEvent   = (abAux b, NoEvent)
+                tf _ (Event a) = let b' = f b a
+                                 in (abAux b', Event b')
 -}
 
 {-
@@ -230,15 +230,15 @@ accumFilter f c_init = SF {sfTF = tf0}
     where
         tf0 NoEvent    = (afAux c_init, NoEvent) 
         tf0 (Event a0) = case f c_init a0 of
-		             (c', Nothing) -> (afAux c', NoEvent)
-			     (c', Just b0) -> (afAux c', Event b0)
+                             (c', Nothing) -> (afAux c', NoEvent)
+                             (c', Just b0) -> (afAux c', Event b0)
 
         afAux c = SF' {sfTF' = tf}
-	    where
-		tf _ NoEvent   = (afAux c, NoEvent)
-		tf _ (Event a) = case f c a of
-			             (c', Nothing) -> (afAux c', NoEvent)
-				     (c', Just b)  -> (afAux c', Event b)
+            where
+                tf _ NoEvent   = (afAux c, NoEvent)
+                tf _ (Event a) = case f c a of
+                                     (c', Nothing) -> (afAux c', NoEvent)
+                                     (c', Just b)  -> (afAux c', Event b)
 -}
 
 -- | See 'accumFilter'.

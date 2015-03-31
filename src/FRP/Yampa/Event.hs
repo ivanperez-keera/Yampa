@@ -68,15 +68,15 @@
 --   or:     introcuce 'event = Event', call what's now 'event' 'fromEvent',
 --           and call what's now called 'fromEvent' something else, like
 --           'unsafeFromEvent'??? Better, dump it! After all, using current
---	     names, 'fromEvent = event undefined'!
+--           names, 'fromEvent = event undefined'!
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Event where
 
 -- Event is an instance of Functor, Eq, and Ord. Some method instances:
--- fmap	:: (a -> b) -> Event a -> Event b
+-- fmap :: (a -> b) -> Event a -> Event b
 -- (==)     :: Event a -> Event a -> Bool
--- (<=)	:: Event a -> Event a -> Bool
+-- (<=) :: Event a -> Event a -> Bool
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Forceable
@@ -255,7 +255,7 @@ mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 -- the third of which will only be used when both events are present.
 -- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
 mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c) 
-	    -> Event a -> Event b -> Event c
+            -> Event a -> Event b -> Event c
 mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
 mapMerge lf _  _   (Event l) NoEvent   = Event (lf l)
 mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
@@ -268,8 +268,8 @@ mergeEvents = foldr lMerge NoEvent
 -- | Collect simultaneous event occurrences; no event if none.
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
-		    [] -> NoEvent
-		    as -> Event as
+                    [] -> NoEvent
+                    as -> Event as
 
 -- | Join (conjunction) of two events. Only produces an event
 -- if both events exist.
@@ -300,8 +300,8 @@ filterE _ NoEvent     = NoEvent
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
 mapFilterE _ NoEvent   = NoEvent
 mapFilterE f (Event a) = case f a of
-			    Nothing -> NoEvent
-			    Just b  -> Event b
+                            Nothing -> NoEvent
+                            Just b  -> Event b
 
 
 -- | Enable/disable event occurences based on an external condition.

@@ -50,7 +50,7 @@ class (Eq a, Floating a) => VectorSpace v a | v -> a where
 
     normalize v = if nv /= 0 then v ^/ nv else error "normalize: zero vector"
         where
-	    nv = norm v
+		nv = norm v
 
 ------------------------------------------------------------------------------
 -- Vector space instances for Float and Double

@@ -14,10 +14,10 @@
 module FRP.Yampa.Integration (
 
     -- ** Integration and differentiation
-    integral,		-- :: VectorSpace a s => SF a a
+    integral,           -- :: VectorSpace a s => SF a a
 
-    derivative,		-- :: VectorSpace a s => SF a a		-- Crude!
-    imIntegral,		-- :: VectorSpace a s => a -> SF a a
+    derivative,         -- :: VectorSpace a s => SF a a         -- Crude!
+    imIntegral,         -- :: VectorSpace a s => a -> SF a a
 
     -- Temporarily hidden, but will eventually be made public.
     -- iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
@@ -38,13 +38,13 @@ integral = SF {sfTF = tf0}
     where
         igrl0  = zeroVector
 
-	tf0 a0 = (integralAux igrl0 a0, igrl0)
+        tf0 a0 = (integralAux igrl0 a0, igrl0)
 
-	integralAux igrl a_prev = SF' tf -- True
-	    where
-	        tf dt a = (integralAux igrl' a, igrl')
-		    where
-		       igrl' = igrl ^+^ realToFrac dt *^ a_prev
+        integralAux igrl a_prev = SF' tf -- True
+            where
+                tf dt a = (integralAux igrl' a, igrl')
+                    where
+                       igrl' = igrl ^+^ realToFrac dt *^ a_prev
 
 
 -- "immediate" integration (using the function's value at the current time)
@@ -62,11 +62,11 @@ f `iterFrom` b = SF (iterAux b) where
 derivative :: VectorSpace a s => SF a a
 derivative = SF {sfTF = tf0}
     where
-	tf0 a0 = (derivativeAux a0, zeroVector)
+        tf0 a0 = (derivativeAux a0, zeroVector)
 
-	derivativeAux a_prev = SF' tf -- True
-	    where
-	        tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
+        derivativeAux a_prev = SF' tf -- True
+            where
+                tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

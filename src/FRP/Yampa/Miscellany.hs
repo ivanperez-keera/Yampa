@@ -20,15 +20,15 @@
 
 module FRP.Yampa.Miscellany (
 -- Reverse function composition
-    ( # ),	-- :: (a -> b) -> (b -> c) -> (a -> c),	infixl 9
+    ( # ),      -- :: (a -> b) -> (b -> c) -> (a -> c), infixl 9
 
 -- Arrow plumbing aids
-    dup,	-- :: a -> (a,a)
-    swap,	-- :: (a,b) -> (b,a)
+    dup,        -- :: a -> (a,a)
+    swap,       -- :: (a,b) -> (b,a)
 
 -- Maps over lists of pairs
-    mapFst,	-- :: (a -> b) -> [(a,c)] -> [(b,c)]
-    mapSnd,	-- :: (a -> b) -> [(c,a)] -> [(c,b)]
+    mapFst,     -- :: (a -> b) -> [(a,c)] -> [(b,c)]
+    mapSnd,     -- :: (a -> b) -> [(c,a)] -> [(c,b)]
 
 -- Generalized tuple selectors
     sel3_1, sel3_2, sel3_3,
@@ -36,9 +36,9 @@ module FRP.Yampa.Miscellany (
     sel5_1, sel5_2, sel5_3, sel5_4, sel5_5,
 
 -- Floating point utilities
-    fDiv,	-- :: (RealFrac a, Integral b) => a -> a -> b
-    fMod,	-- :: RealFrac a => a -> a -> a
-    fDivMod	-- :: (RealFrac a, Integral b) => a -> a -> (b, a)
+    fDiv,       -- :: (RealFrac a, Integral b) => a -> a -> b
+    fMod,       -- :: RealFrac a => a -> a -> a
+    fDivMod     -- :: (RealFrac a, Integral b) => a -> a -> (b, a)
 ) where
 
 infixl 9 #

@@ -27,7 +27,7 @@ module FRP.Yampa.Vector3 (
     vector3Theta,	-- :: RealFloat a => Vector3 a -> a
     vector3Phi,		-- :: RealFloat a => Vector3 a -> a
     vector3RhoThetaPhi,	-- :: RealFloat a => Vector3 a -> (a, a, a)
-    vector3Rotate 	-- :: RealFloat a => a -> a -> Vector3 a -> Vector3 a
+    vector3Rotate	-- :: RealFloat a => a -> a -> Vector3 a -> Vector3 a
 ) where
 
 import FRP.Yampa.VectorSpace
@@ -109,8 +109,8 @@ instance RealFloat a => VectorSpace (Vector3 a) a where
 vector3Rotate :: RealFloat a => a -> a -> Vector3 a -> Vector3 a
 vector3Rotate theta' phi' v =
     vector3Spherical (vector3Rho v)
-		     (vector3Theta v + theta')
-		     (vector3Phi v + phi')
+			 (vector3Theta v + theta')
+			 (vector3Phi v + phi')
 
 
 ------------------------------------------------------------------------------

@@ -14,11 +14,11 @@
 module FRP.Yampa.Simulation (
 -- * Execution/simulation
 -- ** Reactimation
-    reactimate,		-- :: IO a
-	      		--    -> (Bool -> IO (DTime, Maybe a))
-	      		--    -> (Bool -> b -> IO Bool)
-              		--    -> SF a b
-	      		--    -> IO ()
+    reactimate,         -- :: IO a
+                        --    -> (Bool -> IO (DTime, Maybe a))
+                        --    -> (Bool -> b -> IO Bool)
+                        --    -> SF a b
+                        --    -> IO ()
     ReactHandle,
     reactInit,          --    IO a -- init
                         --    -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
@@ -31,11 +31,11 @@ module FRP.Yampa.Simulation (
 
 -- ** Embedding
                         --  (tentative: will be revisited)
-    embed,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
-    embedSynch,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
-    deltaEncode,	-- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
-    deltaEncodeBy,	-- :: (a -> a -> Bool) -> DTime -> [a]
-			--    -> (a, [(DTime, Maybe a)])
+    embed,              -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
+    embedSynch,         -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
+    deltaEncode,        -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
+    deltaEncodeBy,      -- :: (a -> a -> Bool) -> DTime -> [a]
+                        --    -> (a, [(DTime, Maybe a)])
 
 ) where
 
@@ -52,33 +52,33 @@ import FRP.Yampa.Diagnostics
 ------------------------------------------------------------------------------
 
 -- Reactimation of a signal function.
--- init .......	IO action for initialization. Will only be invoked once,
---		at (logical) time 0, before first call to "sense".
---		Expected to return the value of input at time 0.
--- sense ......	IO action for sensing of system input.
---	arg. #1 .......	True: action may block, waiting for an OS event.
---			False: action must not block.
---	res. #1 .......	Time interval since previous invocation of the sensing
---			action (or, the first time round, the init action),
---			returned. The interval must be _strictly_ greater
---			than 0. Thus even a non-blocking invocation must
---			ensure that time progresses.
---	res. #2 .......	Nothing: input is unchanged w.r.t. the previously
---			returned input sample.
---			Just i: the input is currently i.
---			It is OK to always return "Just", even if input is
---			unchanged.
--- actuate ....	IO action for outputting the system output.
---	arg. #1 .......	True: output may have changed from previous output
---			sample.
---			False: output is definitely unchanged from previous
---			output sample.
---			It is OK to ignore argument #1 and assume that the
---			the output has always changed.
---	arg. #2 .......	Current output sample.
---	result .......	Termination flag. Once True, reactimate will exit
---			the reactimation loop and return to its caller.
--- sf .........	Signal function to reactimate.
+-- init ....... IO action for initialization. Will only be invoked once,
+--              at (logical) time 0, before first call to "sense".
+--              Expected to return the value of input at time 0.
+-- sense ...... IO action for sensing of system input.
+--      arg. #1 ....... True: action may block, waiting for an OS event.
+--                      False: action must not block.
+--      res. #1 ....... Time interval since previous invocation of the sensing
+--                      action (or, the first time round, the init action),
+--                      returned. The interval must be _strictly_ greater
+--                      than 0. Thus even a non-blocking invocation must
+--                      ensure that time progresses.
+--      res. #2 ....... Nothing: input is unchanged w.r.t. the previously
+--                      returned input sample.
+--                      Just i: the input is currently i.
+--                      It is OK to always return "Just", even if input is
+--                      unchanged.
+-- actuate .... IO action for outputting the system output.
+--      arg. #1 ....... True: output may have changed from previous output
+--                      sample.
+--                      False: output is definitely unchanged from previous
+--                      output sample.
+--                      It is OK to ignore argument #1 and assume that the
+--                      the output has always changed.
+--      arg. #2 ....... Current output sample.
+--      result .......  Termination flag. Once True, reactimate will exit
+--                      the reactimation loop and return to its caller.
+-- sf ......... Signal function to reactimate.
 
 -- | Convenience function to run a signal function indefinitely, using
 -- a IO actions to obtain new input and process the output.
@@ -104,10 +104,10 @@ import FRP.Yampa.Diagnostics
 -- loop yourself for these or other reasons, use 'reactInit' and 'react'.
 
 reactimate :: IO a                                -- ^ IO initialization action
-	      -> (Bool -> IO (DTime, Maybe a))    -- ^ IO input sensing action
-	      -> (Bool -> b -> IO Bool)           -- ^ IO actuaction (output processing) action
+              -> (Bool -> IO (DTime, Maybe a))    -- ^ IO input sensing action
+              -> (Bool -> b -> IO Bool)           -- ^ IO actuaction (output processing) action
               -> SF a b                           -- ^ Signal function
-	      -> IO ()
+              -> IO ()
 reactimate init sense actuate (SF {sfTF = tf0}) =
     do
         a0 <- init
@@ -115,12 +115,12 @@ reactimate init sense actuate (SF {sfTF = tf0}) =
         loop sf a0 b0
     where
         loop sf a b = do
-	    done <- actuate True b
+            done <- actuate True b
             unless (a `seq` b `seq` done) $ do
-	        (dt, ma') <- sense False
-		let a' = fromMaybe a ma'
+                (dt, ma') <- sense False
+                let a' = fromMaybe a ma'
                     (sf', b') = (sfTF' sf) dt a'
-		loop sf' a' b'
+                loop sf' a' b'
 
 
 -- An API for animating a signal function when some other library
@@ -132,7 +132,7 @@ data ReactState a b = ReactState {
     rsSF :: SF' a b,
     rsA :: a,
     rsB :: b
-  }	      
+  }           
 
 -- | A reference to reactimate's state, maintained across samples.
 type ReactHandle a b = IORef (ReactState a b)
@@ -201,14 +201,14 @@ react rh (dt,ma') =
 embed :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
 embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
     where
-	(sf, b0) = (sfTF sf0) a0
+        (sf, b0) = (sfTF sf0) a0
 
         loop _ _ [] = []
-	loop a_prev sf ((dt, ma) : dtas) =
-	    b : (a `seq` b `seq` loop a sf' dtas)
-	    where
-		a        = fromMaybe a_prev ma
-	        (sf', b) = (sfTF' sf) dt a
+        loop a_prev sf ((dt, ma) : dtas) =
+            b : (a `seq` b `seq` loop a sf' dtas)
+            where
+                a        = fromMaybe a_prev ma
+                (sf', b) = (sfTF' sf) dt a
 
 
 -- | Synchronous embedding. The embedded signal function is run on the supplied
@@ -231,30 +231,30 @@ embedSynch :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
 embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
     where
         tts       = scanl (\t (dt, _) -> t + dt) 0 dtas
-	bbs@(b:_) = embed sf0 (a0, dtas)
+        bbs@(b:_) = embed sf0 (a0, dtas)
 
-	tf0 _ = (esAux 0 (zip tts bbs), b)
+        tf0 _ = (esAux 0 (zip tts bbs), b)
 
-	esAux _       []    = intErr "AFRP" "embedSynch" "Empty list!"
+        esAux _       []    = intErr "AFRP" "embedSynch" "Empty list!"
         -- Invarying below since esAux [] is an error.
-	esAux tp_prev tbtbs = SF' tf -- True
-	    where
-		tf dt r | r < 0     = usrErr "AFRP" "embedSynch"
-					     "Negative ratio."
-			| otherwise = let tp = tp_prev + dt * r
-					  (b, tbtbs') = advance tp tbtbs
-				      in
-					  (esAux tp tbtbs', b)
+        esAux tp_prev tbtbs = SF' tf -- True
+            where
+                tf dt r | r < 0     = usrErr "AFRP" "embedSynch"
+                                             "Negative ratio."
+                        | otherwise = let tp = tp_prev + dt * r
+                                          (b, tbtbs') = advance tp tbtbs
+                                      in
+                                          (esAux tp tbtbs', b)
 
-		-- Advance the time stamped stream to the perceived time tp.
-		-- Under the assumption that the perceived time never goes
-		-- backwards (non-negative ratio), advance maintains the
-		-- invariant that the perceived time is always >= the first
-		-- time stamp.
+                -- Advance the time stamped stream to the perceived time tp.
+                -- Under the assumption that the perceived time never goes
+                -- backwards (non-negative ratio), advance maintains the
+                -- invariant that the perceived time is always >= the first
+                -- time stamp.
         advance _  tbtbs@[(_, b)] = (b, tbtbs)
         advance tp tbtbtbs@((_, b) : tbtbs@((t', _) : _))
-		    | tp <  t' = (b, tbtbtbs)
-		    | t' <= tp = advance tp tbtbs
+                    | tp <  t' = (b, tbtbtbs)
+                    | t' <= tp = advance tp tbtbs
         advance _ _ = undefined
 
 -- | Spaces a list of samples by a fixed time delta, avoiding
@@ -270,8 +270,8 @@ deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
 deltaEncodeBy _  _  []      = usrErr "AFRP" "deltaEncodeBy" "Empty input list."
 deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
     where
-	debAux _      []                     = []
-	debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
+        debAux _      []                     = []
+        debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
                              | otherwise     = Just a  : debAux a as 
 
 -- Embedding and missing events.

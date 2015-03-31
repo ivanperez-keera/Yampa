@@ -143,26 +143,26 @@
 module FRP.Yampa.InternalCore (
     module Control.Arrow,
     -- SF is an instance of Arrow and ArrowLoop. Method instances:
-    -- arr	:: (a -> b) -> SF a b
-    -- (>>>)	:: SF a b -> SF b c -> SF a c
-    -- (<<<)	:: SF b c -> SF a b -> SF a c
-    -- first	:: SF a b -> SF (a,c) (b,c)
-    -- second	:: SF a b -> SF (c,a) (c,b)
-    -- (***)	:: SF a b -> SF a' b' -> SF (a,a') (b,b')
-    -- (&&&)	:: SF a b -> SF a b' -> SF a (b,b')
-    -- returnA	:: SF a a
-    -- loop	:: SF (a,c) (b,c) -> SF a b
+    -- arr      :: (a -> b) -> SF a b
+    -- (>>>)    :: SF a b -> SF b c -> SF a c
+    -- (<<<)    :: SF b c -> SF a b -> SF a c
+    -- first    :: SF a b -> SF (a,c) (b,c)
+    -- second   :: SF a b -> SF (c,a) (c,b)
+    -- (***)    :: SF a b -> SF a' b' -> SF (a,a') (b,b')
+    -- (&&&)    :: SF a b -> SF a b' -> SF a (b,b')
+    -- returnA  :: SF a a
+    -- loop     :: SF (a,c) (b,c) -> SF a b
 
     -- * Basic definitions
     -- ** Time
-    Time,	-- [s] Both for time w.r.t. some reference and intervals.
-    DTime,	-- [s] Sampling interval, always > 0.
+    Time,       -- [s] Both for time w.r.t. some reference and intervals.
+    DTime,      -- [s] Sampling interval, always > 0.
 
     -- ** Signal Functions
-    SF(..),		-- Signal Function.
+    SF(..),             -- Signal Function.
 
     -- ** Future Signal Function
-    SF'(..),		-- Signal Function.
+    SF'(..),            -- Signal Function.
     sfTF',
     sfId,
     sfConst,
@@ -215,13 +215,13 @@ import FRP.Yampa.Event
 -- agreed reference point in time.
 
 --  Conceptually, Time = R, i.e. time can be 0 -- or even negative.
-type Time = Double	-- [s]
+type Time = Double      -- [s]
 
 
 -- | DTime is the time type for lengths of sample intervals. Conceptually,
 -- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
 -- same representation.
-type DTime = Double	-- [s]
+type DTime = Double     -- [s]
 
 -- Representation of signal function in initial state.
 -- (Naming: "TF" stands for Transition Function.)
@@ -327,13 +327,13 @@ sfArr (FDG f)     = sfArrG f
 sfId :: SF' a a
 sfId = sf
     where
-	sf = SFArr (\_ a -> (sf, a)) FDI
+        sf = SFArr (\_ a -> (sf, a)) FDI
 
 
 sfConst :: b -> SF' a b
 sfConst b = sf
     where
-	sf = SFArr (\_ _ -> (sf, b)) (FDC b)
+        sf = SFArr (\_ _ -> (sf, b)) (FDC b)
 
 -- sfNever :: SF' a (Event b)
 -- sfNever = sfConst NoEvent
@@ -348,7 +348,7 @@ sfArrE f fne = sf
 sfArrG :: (a -> b) -> SF' a b
 sfArrG f = sf
     where
-	sf = SFArr (\_ a -> (sf, f a)) (FDG f)
+        sf = SFArr (\_ a -> (sf, f a)) (FDG f)
 
 
 -- epPrim is used to define hold, accum, and other event-processing
@@ -396,8 +396,8 @@ sfMkInv sf = SF {sfTF = ...}
     -- sfMkInvAux sf@(SFAcc _ _ _ _) = sf
     sfMkInvAux sf@(SFEP _ _ _ _) = sf
     sfMkInvAux sf@(SFCpAXA tf inv fd1 sf2 fd3)
-	| inv       = sf
-	| otherwise = SFCpAXA tf' True fd1 sf2 fd3
+        | inv       = sf
+        | otherwise = SFCpAXA tf' True fd1 sf2 fd3
         where
             tf' = \dt a -> let (sf', b) = tf dt a in (sfMkInvAux sf', b)
     sfMkInvAux sf@(SF' tf inv)
@@ -416,10 +416,10 @@ sfMkInv sf = SF {sfTF = ...}
 -- f NoEvent.
 
 data FunDesc a b where
-    FDI :: FunDesc a a					-- Identity function
-    FDC :: b -> FunDesc a b				-- Constant function
-    FDE :: (Event a -> b) -> b -> FunDesc (Event a) b	-- Event-processing fun
-    FDG :: (a -> b) -> FunDesc a b			-- General function
+    FDI :: FunDesc a a                                  -- Identity function
+    FDC :: b -> FunDesc a b                             -- Constant function
+    FDE :: (Event a -> b) -> b -> FunDesc (Event a) b   -- Event-processing fun
+    FDG :: (a -> b) -> FunDesc a b                      -- General function
 
 fdFun :: FunDesc a b -> (a -> b)
 fdFun FDI       = id
@@ -525,8 +525,8 @@ arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
 
 -- Composition.
 -- The definition exploits the following identities:
---     sf         >>> identity   = sf				-- New
---     identity   >>> sf         = sf				-- New
+--     sf         >>> identity   = sf                           -- New
+--     identity   >>> sf         = sf                           -- New
 --     sf         >>> constant c = constant c
 --     constant c >>> arr f      = constant (f c)
 --     arr f      >>> arr g      = arr (g . f)
@@ -545,10 +545,10 @@ arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
 compPrim :: SF a b -> SF b c -> SF a c
 compPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
-	tf0 a0 = (cpXX sf1 sf2, c0)
-	    where
-		(sf1, b0) = tf10 a0
-		(sf2, c0) = tf20 b0
+        tf0 a0 = (cpXX sf1 sf2, c0)
+            where
+                (sf1, b0) = tf10 a0
+                (sf2, c0) = tf20 b0
 
 -- The following defs are not local to compPrim because cpAXA needs to be
 -- called from parSplitPrim.
@@ -649,11 +649,11 @@ cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
 cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
     sfEP f (s1, s2, cne) (vfyNoEv bne cne)
     where
-	f (s1, s2, cne) a =
-	    case f1 s1 a of
-		(s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
-		(s1', Event b, NoEvent) ->
-		    let (s2', c, cne') = f2 s2 b in ((s1', s2', cne'), c, cne')
+        f (s1, s2, cne) a =
+            case f1 s1 a of
+                (s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
+                (s1', Event b, NoEvent) ->
+                    let (s2', c, cne') = f2 s2 b in ((s1', s2', cne'), c, cne')
                 _ -> usrErr "AFRP" "cpXX" "Assertion failed: Functions on events must not map NoEvent to Event."
 -- !!! 2005-06-28: Why isn't SFCpAXA (FDC ...) checked for?
 -- !!! No invariant rules that out, and it would allow to drop the
@@ -686,24 +686,24 @@ cpXX sf1 sf2 = SF' tf --  False
     -- if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
     where
         tf dt a = (cpXX sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
+            where
+                (sf1', b) = (sfTF' sf1) dt a
+                (sf2', c) = (sfTF' sf2) dt b
 
 
 {-
 cpXXAux sf1@(SF' _ _) sf2@(SF' _ _) = SF' tf False
     where
         tf dt a = (cpXXAux sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
+            where
+                (sf1', b) = (sfTF' sf1) dt a
+                (sf2', c) = (sfTF' sf2) dt b
 cpXXAux sf1 sf2 = SF' tf False
     where
         tf dt a = (cpXXAux sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
+            where
+                (sf1', b) = (sfTF' sf1) dt a
+                (sf2', c) = (sfTF' sf2) dt b
 -}
 
 {-
@@ -711,9 +711,9 @@ cpXXAux sf1 sf2 | unsimplifiable sf1 sf2 = SF' tf False
                 | otherwise = cpXX sf1 sf2
     where
         tf dt a = (cpXXAux sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
+            where
+                (sf1', b) = (sfTF' sf1) dt a
+                (sf2', c) = (sfTF' sf2) dt b
 
         unsimplifiable sf1@(SF' _ _) sf2@(SF' _ _) = True
         unsimplifiable sf1           sf2           = True
@@ -729,18 +729,18 @@ cpXXAux sf1 sf2 =
     if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
     where
         tf dt a = (cpXXAux sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
+            where
+                (sf1', b) = (sfTF' sf1) dt a
+                (sf2', c) = (sfTF' sf2) dt b
 -}
 
 {-
 cpXXInv sf1 sf2 = SF' tf True
     where
         tf dt a = sf1 `seq` sf2 `seq` (cpXXInv sf1' sf2', c)
-	    where
-	        (sf1', b) = (sfTF' sf1) dt a
-		(sf2', c) = (sfTF' sf2) dt b
+            where
+                (sf1', b) = (sfTF' sf1) dt a
+                (sf2', c) = (sfTF' sf2) dt b
 -}
 
 -- !!! No. We need local defs. Keep fd1 and fd2. Extract f1 and f2
@@ -761,7 +761,7 @@ cpAXA fd1     sf2 fd3     =
     cpAXAAux fd1 (fdFun fd1) fd3 (fdFun fd3) sf2
     where
         -- Really: cpAXAAux :: SF' b c -> SF' a d
-	-- Note: Event cases are not optimized (EXA etc.)
+        -- Note: Event cases are not optimized (EXA etc.)
         cpAXAAux :: FunDesc a b -> (a -> b) -> FunDesc c d -> (c -> d)
                     -> SF' b c -> SF' a d
         cpAXAAux fd1 _ fd3 _ (SFArr _ fd2) =
@@ -775,21 +775,21 @@ cpAXA fd1     sf2 fd3     =
         cpAXAAux fd1 f1 fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
 {-
             if sfIsInv sf2 then
-		cpAXAInv fd1 f1 fd3 f3 sf2
-	    else
-		SFCpAXA tf False fd1 sf2 fd3
+                cpAXAInv fd1 f1 fd3 f3 sf2
+            else
+                SFCpAXA tf False fd1 sf2 fd3
 -}
-	    where
-		tf dt a = (cpAXAAux fd1 f1 fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
+            where
+                tf dt a = (cpAXAAux fd1 f1 fd3 f3 sf2', f3 c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt (f1 a)
 
 {-
-	cpAXAInv fd1 f1 fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
-	    where
-		tf dt a = sf2 `seq` (cpAXAInv fd1 f1 fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
+        cpAXAInv fd1 f1 fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
+            where
+                tf dt a = sf2 `seq` (cpAXAInv fd1 f1 fd3 f3 sf2', f3 c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt (f1 a)
 -}
 
 cpAX :: FunDesc a b -> SF' b c -> SF' a c
@@ -821,20 +821,20 @@ cpCX b sf2 = SFCpAXA tf (FDC b) sf2 FDI
     if sfIsInv sf2 then
         cpCXInv b sf2
     else
-	SFCpAXA tf False (FDC b) sf2 FDI
+        SFCpAXA tf False (FDC b) sf2 FDI
 -}
     where
-	tf dt _ = (cpCX b sf2', c)
-	    where
-		(sf2', c) = (sfTF' sf2) dt b
+        tf dt _ = (cpCX b sf2', c)
+            where
+                (sf2', c) = (sfTF' sf2) dt b
 
 
 {-
 cpCXInv b sf2 = SFCpAXA tf True (FDC b) sf2 FDI
     where
-	tf dt _ = sf2 `seq` (cpCXInv b sf2', c)
-	    where
-		(sf2', c) = (sfTF' sf2) dt b
+        tf dt _ = sf2 `seq` (cpCXInv b sf2', c)
+            where
+                (sf2', c) = (sfTF' sf2) dt b
 -}
 
 
@@ -846,234 +846,234 @@ cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
         -- fd1 = FDC b
         -- f3  = fdFun fd3
 
-	-- Really: SF' b c -> SF' a d
+        -- Really: SF' b c -> SF' a d
         cpCXAAux :: FunDesc a b -> b -> FunDesc c d -> (c -> d)
                     -> SF' b c -> SF' a d
         cpCXAAux _ b _ f3 (SFArr _ fd2)     = sfConst (f3 ((fdFun fd2) b))
         cpCXAAux _ b _ f3 (SFSScan _ f s c) = sfSScan f' s (f3 c)
             where
-	        f' s _ = case f s b of
+                f' s _ = case f s b of
                              Nothing -> Nothing
                              Just (s', c') -> Just (s', f3 c') 
         cpCXAAux _ b _   f3 (SFEP _ _ _ cne) = sfConst (f3 (vfyNoEv b cne))
         cpCXAAux _ b fd3 _  (SFCpAXA _ fd21 sf22 fd23) =
-	    cpCXA ((fdFun fd21) b) sf22 (fdComp fd23 fd3)
-	cpCXAAux fd1 b fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
+            cpCXA ((fdFun fd21) b) sf22 (fdComp fd23 fd3)
+        cpCXAAux fd1 b fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
 {-
-	    if sfIsInv sf2 then
-		cpCXAInv fd1 b fd3 f3 sf2
+            if sfIsInv sf2 then
+                cpCXAInv fd1 b fd3 f3 sf2
             else
-	        SFCpAXA tf False fd1 sf2 fd3
+                SFCpAXA tf False fd1 sf2 fd3
 -}
-	    where
-		tf dt _ = (cpCXAAux fd1 b fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt b
+            where
+                tf dt _ = (cpCXAAux fd1 b fd3 f3 sf2', f3 c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt b
 
 {-
         -- For some reason, seq on sf2' in tf is faster than making
         -- cpCXAInv strict in sf2 by seq-ing on the top level (which would
-	-- be similar to pattern matching on sf2).
-	cpCXAInv fd1 b fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
-	    where
-		tf dt _ = sf2 `seq` (cpCXAInv fd1 b fd3 f3 sf2', f3 c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt b
+        -- be similar to pattern matching on sf2).
+        cpCXAInv fd1 b fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
+            where
+                tf dt _ = sf2 `seq` (cpCXAInv fd1 b fd3 f3 sf2', f3 c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt b
 -}
 
 
 cpGX :: (a -> b) -> SF' b c -> SF' a c
 cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
     where
-	cpGXAux :: FunDesc a b -> (a -> b) -> SF' b c -> SF' a c
-	cpGXAux fd1 _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
+        cpGXAux :: FunDesc a b -> (a -> b) -> SF' b c -> SF' a c
+        cpGXAux fd1 _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
         -- We actually do know that (fdComp (FDG f1) fd21) is going to
-	-- result in an FDG. So we *could* call a cpGXA here. But the
-	-- price is "inlining" of part of fdComp.
+        -- result in an FDG. So we *could* call a cpGXA here. But the
+        -- price is "inlining" of part of fdComp.
         cpGXAux _ f1 (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
         -- We really shouldn't see an EP here, as that would mean
         -- an arrow INTRODUCING events ...
-	cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
-	    cpAXA (fdComp fd1 fd21) sf22 fd23
-	cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
+        cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
+            cpAXA (fdComp fd1 fd21) sf22 fd23
+        cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
 {-
-	    if sfIsInv sf2 then
-	        cpGXInv fd1 f1 sf2
-	    else
-	        SFCpAXA tf False fd1 sf2 FDI
+            if sfIsInv sf2 then
+                cpGXInv fd1 f1 sf2
+            else
+                SFCpAXA tf False fd1 sf2 FDI
 -}
-	    where
-		tf dt a = (cpGXAux fd1 f1 sf2', c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
+            where
+                tf dt a = (cpGXAux fd1 f1 sf2', c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt (f1 a)
 
 {-
-	cpGXInv fd1 f1 sf2 = SFCpAXA tf True fd1 sf2 FDI
-	    where
-		tf dt a = sf2 `seq` (cpGXInv fd1 f1 sf2', c)
-		    where
-			(sf2', c) = (sfTF' sf2) dt (f1 a)
+        cpGXInv fd1 f1 sf2 = SFCpAXA tf True fd1 sf2 FDI
+            where
+                tf dt a = sf2 `seq` (cpGXInv fd1 f1 sf2', c)
+                    where
+                        (sf2', c) = (sfTF' sf2) dt (f1 a)
 -}
 
 
 cpXG :: SF' a b -> (b -> c) -> SF' a c
 cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
     where
-	-- Really: cpXGAux :: SF' a b -> SF' a c
-	cpXGAux :: FunDesc b c -> (b -> c) -> SF' a b -> SF' a c
-	cpXGAux fd2 _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
+        -- Really: cpXGAux :: SF' a b -> SF' a c
+        cpXGAux :: FunDesc b c -> (b -> c) -> SF' a b -> SF' a c
+        cpXGAux fd2 _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
         cpXGAux _ f2 (SFSScan _ f s b) = sfSScan f' s (f2 b)
             where
-	        f' s a = case f s a of
+                f' s a = case f s a of
                              Nothing -> Nothing
                              Just (s', b') -> Just (s', f2 b') 
         cpXGAux _ f2 (SFEP _ f1 s bne) = sfEP f s (f2 bne)
             where
                 f s a = let (s', b, bne') = f1 s a in (s', f2 b, f2 bne')
-	cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
+        cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
             cpAXA fd11 sf12 (fdComp fd22 fd2)
-	cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
+        cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
 {-
-	    if sfIsInv sf1 then
-		cpXGInv fd2 f2 sf1
-	    else
-		SFCpAXA tf False FDI sf1 fd2
+            if sfIsInv sf1 then
+                cpXGInv fd2 f2 sf1
+            else
+                SFCpAXA tf False FDI sf1 fd2
 -}
-	    where
-		tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
-	cpXGInv fd2 f2 sf1 = SFCpAXA tf True FDI sf1 fd2
-	    where
-		tf dt a = (cpXGInv fd2 f2 sf1', f2 b)
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        cpXGInv fd2 f2 sf1 = SFCpAXA tf True FDI sf1 fd2
+            where
+                tf dt a = (cpXGInv fd2 f2 sf1', f2 b)
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
 cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
 cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
     where
-	cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b 
+        cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b 
                    -> SF' b c -> SF' (Event a) c
-	cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
+        cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
         cpEXAux _ f1 _   (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
         -- We must not capture cne in the f closure since cne can change!
         -- See cpXX the SFEP/SFEP case for a similar situation. However,
         -- FDE represent a state-less signal function, so *its* NoEvent
         -- value never changes. Hence we only need to verify that it is
         -- NoEvent once.
-	cpEXAux _ f1 f1ne (SFEP _ f2 s cne) =
-	    sfEP f (s, cne) (vfyNoEv f1ne cne)
+        cpEXAux _ f1 f1ne (SFEP _ f2 s cne) =
+            sfEP f (s, cne) (vfyNoEv f1ne cne)
             where
                 f scne@(s, cne) a =
                     case f1 (Event a) of
                         NoEvent -> (scne, cne, cne)
                         Event b ->
                             let (s', c, cne') = f2 s b in ((s', cne'), c, cne')
-	cpEXAux fd1 _ _ (SFCpAXA _ fd21 sf22 fd23) =
+        cpEXAux fd1 _ _ (SFCpAXA _ fd21 sf22 fd23) =
             cpAXA (fdComp fd1 fd21) sf22 fd23
         -- The rationale for the following is that the case analysis
-	-- is typically not going to be more expensive than applying
-	-- the function and possibly a bit cheaper. Thus if events
-	-- are sparse, we might win, and if not, we don't loose to
-	-- much.
-	cpEXAux fd1 f1 f1ne sf2 = SFCpAXA tf fd1 sf2 FDI
+        -- is typically not going to be more expensive than applying
+        -- the function and possibly a bit cheaper. Thus if events
+        -- are sparse, we might win, and if not, we don't loose to
+        -- much.
+        cpEXAux fd1 f1 f1ne sf2 = SFCpAXA tf fd1 sf2 FDI
 {-
-	    if sfIsInv sf2 then
-		cpEXInv fd1 f1 f1ne sf2
-	    else
-	    	SFCpAXA tf False fd1 sf2 FDI
+            if sfIsInv sf2 then
+                cpEXInv fd1 f1 f1ne sf2
+            else
+                SFCpAXA tf False fd1 sf2 FDI
 -}
-	    where
-		tf dt ea = (cpEXAux fd1 f1 f1ne sf2', c)
-		    where
+            where
+                tf dt ea = (cpEXAux fd1 f1 f1ne sf2', c)
+                    where
                         (sf2', c) =
-			    case ea of
-				NoEvent -> (sfTF' sf2) dt f1ne
-				_       -> (sfTF' sf2) dt (f1 ea)
+                            case ea of
+                                NoEvent -> (sfTF' sf2) dt f1ne
+                                _       -> (sfTF' sf2) dt (f1 ea)
 
 {-
-	cpEXInv fd1 f1 f1ne sf2 = SFCpAXA tf True fd1 sf2 FDI
-	    where
-		tf dt ea = sf2 `seq` (cpEXInv fd1 f1 f1ne sf2', c)
-		    where
+        cpEXInv fd1 f1 f1ne sf2 = SFCpAXA tf True fd1 sf2 FDI
+            where
+                tf dt ea = sf2 `seq` (cpEXInv fd1 f1 f1ne sf2', c)
+                    where
                         (sf2', c) =
-			    case ea of
-				NoEvent -> (sfTF' sf2) dt f1ne
-				_       -> (sfTF' sf2) dt (f1 ea)
+                            case ea of
+                                NoEvent -> (sfTF' sf2) dt f1ne
+                                _       -> (sfTF' sf2) dt (f1 ea)
 -}
 
 cpXE :: SF' a (Event b) -> (Event b -> c) -> c -> SF' a c
 cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
     where
-	cpXEAux :: FunDesc (Event b) c -> (Event b -> c) -> c
-		   -> SF' a (Event b) -> SF' a c
+        cpXEAux :: FunDesc (Event b) c -> (Event b -> c) -> c
+                   -> SF' a (Event b) -> SF' a c
         cpXEAux fd2 _ _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
         cpXEAux _ f2 f2ne (SFSScan _ f s eb) = sfSScan f' s (f2 eb)
             where
-	        f' s a = case f s a of
+                f' s a = case f s a of
                              Nothing -> Nothing
                              Just (s', NoEvent) -> Just (s', f2ne) 
                              Just (s', eb')     -> Just (s', f2 eb') 
         cpXEAux _ f2 f2ne (SFEP _ f1 s ebne) =
-	    sfEP f s (vfyNoEv ebne f2ne)
+            sfEP f s (vfyNoEv ebne f2ne)
             where
                 f s a =
                     case f1 s a of
                         (s', NoEvent, NoEvent) -> (s', f2ne,  f2ne)
                         (s', eb,      NoEvent) -> (s', f2 eb, f2ne)
-		        _ -> usrErr "AFRP" "cpXEAux" "Assertion failed: Functions on events must not map NoEvent to Event."
+                        _ -> usrErr "AFRP" "cpXEAux" "Assertion failed: Functions on events must not map NoEvent to Event."
         cpXEAux fd2 _ _ (SFCpAXA _ fd11 sf12 fd13) =
             cpAXA fd11 sf12 (fdComp fd13 fd2)
-	cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2
+        cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2
 {-
-	    if sfIsInv sf1 then
-		cpXEInv fd2 f2 f2ne sf1
-	    else
-		SFCpAXA tf False FDI sf1 fd2
+            if sfIsInv sf1 then
+                cpXEInv fd2 f2 f2ne sf1
+            else
+                SFCpAXA tf False FDI sf1 fd2
 -}
-	    where
-		tf dt a = (cpXEAux fd2 f2 f2ne sf1',
+            where
+                tf dt a = (cpXEAux fd2 f2 f2ne sf1',
                            case eb of NoEvent -> f2ne; _ -> f2 eb)
-		    where
+                    where
                         (sf1', eb) = (sfTF' sf1) dt a
 
 {-
-	cpXEInv fd2 f2 f2ne sf1 = SFCpAXA tf True FDI sf1 fd2
-	    where
-		tf dt a = sf1 `seq` (cpXEInv fd2 f2 f2ne sf1',
+        cpXEInv fd2 f2 f2ne sf1 = SFCpAXA tf True FDI sf1 fd2
+            where
+                tf dt a = sf1 `seq` (cpXEInv fd2 f2 f2ne sf1',
                            case eb of NoEvent -> f2ne; _ -> f2 eb)
-		    where
+                    where
                         (sf1', eb) = (sfTF' sf1) dt a
 -}
-	
+        
 
 -- Widening.
 -- The definition exploits the following identities:
---     first identity     = identity				-- New
+--     first identity     = identity                            -- New
 --     first (constant b) = arr (\(_, c) -> (b, c))
 --     (first (arr f))    = arr (\(a, c) -> (f a, c))
 firstPrim :: SF a b -> SF (a,c) (b,c)
 firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
     where
         tf0 ~(a0, c0) = (fpAux sf1, (b0, c0))
-	    where
-		(sf1, b0) = tf10 a0 
+            where
+                (sf1, b0) = tf10 a0 
 
 
 -- Also used in parSplitPrim
 fpAux :: SF' a b -> SF' (a,c) (b,c)
-fpAux (SFArr _ FDI)       = sfId			-- New
+fpAux (SFArr _ FDI)       = sfId                        -- New
 fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
 fpAux (SFArr _ fd1)       = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
 fpAux sf1 = SF' tf
     -- if sfIsInv sf1 then fpInv sf1 else SF' tf False
     where
         tf dt ~(a, c) = (fpAux sf1', (b, c))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
+            where
+                (sf1', b) = (sfTF' sf1) dt a 
 
 
 {-
@@ -1081,8 +1081,8 @@ fpInv :: SF' a b -> SF' (a,c) (b,c)
 fpInv sf1 = SF' tf True
     where
         tf dt ~(a, c) = sf1 `seq` (fpInv sf1', (b, c))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
+            where
+                (sf1', b) = (sfTF' sf1) dt a 
 -}
 
 
@@ -1091,21 +1091,21 @@ secondPrim :: SF a b -> SF (c,a) (c,b)
 secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
     where
         tf0 ~(c0, a0) = (spAux sf1, (c0, b0))
-	    where
-		(sf1, b0) = tf10 a0 
+            where
+                (sf1, b0) = tf10 a0 
 
 
 -- Also used in parSplitPrim
 spAux :: SF' a b -> SF' (c,a) (c,b)
-spAux (SFArr _ FDI)       = sfId			-- New
+spAux (SFArr _ FDI)       = sfId                        -- New
 spAux (SFArr _ (FDC b))   = sfArrG (\(~(c, _)) -> (c, b))
 spAux (SFArr _ fd1)       = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
 spAux sf1 = SF' tf
     -- if sfIsInv sf1 then spInv sf1 else SF' tf False
     where
         tf dt ~(c, a) = (spAux sf1', (c, b))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
+            where
+                (sf1', b) = (sfTF' sf1) dt a 
 
 
 {-
@@ -1113,16 +1113,16 @@ spInv :: SF' a b -> SF' (c,a) (c,b)
 spInv sf1 = SF' tf True
     where
         tf dt ~(c, a) = sf1 `seq` (spInv sf1', (c, b))
-	    where
-		(sf1', b) = (sfTF' sf1) dt a 
+            where
+                (sf1', b) = (sfTF' sf1) dt a 
 -}
 
 
 -- Parallel composition.
 -- The definition exploits the following identities (that hold for SF):
---     identity   *** identity   = identity		-- New
---     sf         *** identity   = first sf		-- New
---     identity   *** sf         = second sf		-- New
+--     identity   *** identity   = identity             -- New
+--     sf         *** identity   = first sf             -- New
+--     identity   *** sf         = second sf            -- New
 --     constant b *** constant d = constant (b, d)
 --     constant b *** arr f2     = arr (\(_, c) -> (b, f2 c)
 --     arr f1     *** constant d = arr (\(a, _) -> (f1 a, d)
@@ -1130,24 +1130,24 @@ spInv sf1 = SF' tf True
 parSplitPrim :: SF a b -> SF c d  -> SF (a,c) (b,d)
 parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
-	tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
-	    where
-		(sf1, b0) = tf10 a0 
-		(sf2, d0) = tf20 c0 
+        tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
+            where
+                (sf1, b0) = tf10 a0 
+                (sf2, d0) = tf20 c0 
 
-	-- Naming convention: ps<X><Y> where  <X> and <Y> is one of:
+        -- Naming convention: ps<X><Y> where  <X> and <Y> is one of:
         -- X - arbitrary signal function
         -- A - arbitrary pure arrow
         -- C - constant arrow
 
         psXX :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
         psXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr (fdPar fd1 fd2)
-        psXX (SFArr _ FDI)       sf2                 = spAux sf2	-- New
-	psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
-	psXX (SFArr _ fd1)       sf2                 = psAX (fdFun fd1) sf2
-        psXX sf1                 (SFArr _ FDI)       = fpAux sf1	-- New
-	psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
-	psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
+        psXX (SFArr _ FDI)       sf2                 = spAux sf2        -- New
+        psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
+        psXX (SFArr _ fd1)       sf2                 = psAX (fdFun fd1) sf2
+        psXX sf1                 (SFArr _ FDI)       = fpAux sf1        -- New
+        psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
+        psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
 -- !!! Unclear if this really is a gain.
 -- !!! potentially unnecessary tupling and untupling.
 -- !!! To be investigated.
@@ -1155,120 +1155,120 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 -- !!! &&& was harmfull. On that basis, disable it here too.
 --        psXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
 --            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
-	psXX sf1 sf2 = SF' tf
+        psXX sf1 sf2 = SF' tf
 {-
-	    if sfIsInv sf1 && sfIsInv sf2 then
-		psXXInv sf1 sf2
-	    else
-		SF' tf False
+            if sfIsInv sf1 && sfIsInv sf2 then
+                psXXInv sf1 sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', d) = (sfTF' sf2) dt c
+            where
+                tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
+                        (sf2', d) = (sfTF' sf2) dt c
 
 {-
         psXXInv :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
-	psXXInv sf1 sf2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf1 `seq` sf2 `seq` (psXXInv sf1' sf2',
+        psXXInv sf1 sf2 = SF' tf True
+            where
+                tf dt ~(a, c) = sf1 `seq` sf2 `seq` (psXXInv sf1' sf2',
                                                        (b, d))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', d) = (sfTF' sf2) dt c
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
+                        (sf2', d) = (sfTF' sf2) dt c
 -}
 
         psCX :: b -> SF' c d -> SF' (a,c) (b,d)
-	psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
-	psCX b sf2                 = SF' tf
+        psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
+        psCX b sf2                 = SF' tf
 {-
-	    if sfIsInv sf2 then
-	        psCXInv b sf2
-	    else
-	        SF' tf False
+            if sfIsInv sf2 then
+                psCXInv b sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt ~(_, c) = (psCX b sf2', (b, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
+            where
+                tf dt ~(_, c) = (psCX b sf2', (b, d))
+                    where
+                        (sf2', d) = (sfTF' sf2) dt c
 
 {-
         psCXInv :: b -> SF' c d -> SF' (a,c) (b,d)
-	psCXInv b sf2 = SF' tf True
-	    where
-		tf dt ~(_, c) = sf2 `seq` (psCXInv b sf2', (b, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
+        psCXInv b sf2 = SF' tf True
+            where
+                tf dt ~(_, c) = sf2 `seq` (psCXInv b sf2', (b, d))
+                    where
+                        (sf2', d) = (sfTF' sf2) dt c
 -}
 
         psXC :: SF' a b -> d -> SF' (a,c) (b,d)
         psXC (SFArr _ fd1)       d = sfArr (fdPar fd1 (FDC d))
-	psXC sf1                 d = SF' tf
+        psXC sf1                 d = SF' tf
 {-
-	    if sfIsInv sf1 then
-		psXCInv sf1 d
-	    else
+            if sfIsInv sf1 then
+                psXCInv sf1 d
+            else
                 SF' tf False
 -}
-	    where
-		tf dt ~(a, _) = (psXC sf1' d, (b, d))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt ~(a, _) = (psXC sf1' d, (b, d))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         psXCInv :: SF' a b -> d -> SF' (a,c) (b,d)
-	psXCInv sf1 d = SF' tf True
-	    where
-		tf dt ~(a, _) = sf1 `seq` (psXCInv sf1' d, (b, d))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        psXCInv sf1 d = SF' tf True
+            where
+                tf dt ~(a, _) = sf1 `seq` (psXCInv sf1' d, (b, d))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
         psAX :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
-	psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
-	psAX f1 sf2                 = SF' tf
+        psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
+        psAX f1 sf2                 = SF' tf
 {-
-	    if sfIsInv sf2 then
-	    	psAXInv f1 sf2
-	    else
+            if sfIsInv sf2 then
+                psAXInv f1 sf2
+            else
                 SF' tf False
 -}
-	    where
-		tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
+            where
+                tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
+                    where
+                        (sf2', d) = (sfTF' sf2) dt c
 
 {-
         psAXInv :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
-	psAXInv f1 sf2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf2 `seq` (psAXInv f1 sf2', (f1 a, d))
-		    where
-			(sf2', d) = (sfTF' sf2) dt c
+        psAXInv f1 sf2 = SF' tf True
+            where
+                tf dt ~(a, c) = sf2 `seq` (psAXInv f1 sf2', (f1 a, d))
+                    where
+                        (sf2', d) = (sfTF' sf2) dt c
 -}
 
         psXA :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
-	psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
-	psXA sf1                 f2 = SF' tf
+        psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
+        psXA sf1                 f2 = SF' tf
 {-
-	    if sfIsInv sf1 then
-		psXAInv sf1 f2 
-	    else
-		SF' tf False
+            if sfIsInv sf1 then
+                psXAInv sf1 f2 
+            else
+                SF' tf False
 -}
-	    where
-		tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         psXAInv :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
-	psXAInv sf1 f2 = SF' tf True
-	    where
-		tf dt ~(a, c) = sf1 `seq` (psXAInv sf1' f2, (b, f2 c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        psXAInv sf1 f2 = SF' tf True
+            where
+                tf dt ~(a, c) = sf1 `seq` (psXAInv sf1' f2, (b, f2 c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
 
@@ -1280,12 +1280,12 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 parFanOutPrim :: SF a b -> SF a c -> SF a (b, c)
 parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
-	tf0 a0 = (pfoXX sf1 sf2, (b0, c0))
-	    where
-		(sf1, b0) = tf10 a0 
-		(sf2, c0) = tf20 a0 
+        tf0 a0 = (pfoXX sf1 sf2, (b0, c0))
+            where
+                (sf1, b0) = tf10 a0 
+                (sf2, c0) = tf20 a0 
 
-	-- Naming convention: pfo<X><Y> where  <X> and <Y> is one of:
+        -- Naming convention: pfo<X><Y> where  <X> and <Y> is one of:
         -- X - arbitrary signal function
         -- A - arbitrary pure arrow
         -- I - identity arrow
@@ -1294,174 +1294,174 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
         pfoXX :: SF' a b -> SF' a c -> SF' a (b ,c)
         pfoXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr(fdFanOut fd1 fd2)
         pfoXX (SFArr _ FDI)       sf2                 = pfoIX sf2
-	pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
-	pfoXX (SFArr _ fd1)       sf2                 = pfoAX (fdFun fd1) sf2
+        pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
+        pfoXX (SFArr _ fd1)       sf2                 = pfoAX (fdFun fd1) sf2
         pfoXX sf1                 (SFArr _ FDI)       = pfoXI sf1
-	pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
-	pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
+        pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
+        pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
 -- !!! Unclear if this really would be a gain
 -- !!! 2005-07-01: NOT a win for MEP 6.
 --        pfoXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
 --            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
-	pfoXX sf1 sf2 = SF' tf
+        pfoXX sf1 sf2 = SF' tf
 {-
-	    if sfIsInv sf1 && sfIsInv sf2 then
-		pfoXXInv sf1 sf2
-	    else
-		SF' tf False
+            if sfIsInv sf1 && sfIsInv sf2 then
+                pfoXXInv sf1 sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoXX sf1' sf2', (b, c))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', c) = (sfTF' sf2) dt a
+            where
+                tf dt a = (pfoXX sf1' sf2', (b, c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
+                        (sf2', c) = (sfTF' sf2) dt a
 
 {-
         pfoXXInv :: SF' a b -> SF' a c -> SF' a (b ,c)
-	pfoXXInv sf1 sf2 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` sf2 `seq` (pfoXXInv sf1' sf2', (b, c))
-		    where
-		        (sf1', b) = (sfTF' sf1) dt a
-			(sf2', c) = (sfTF' sf2) dt a
+        pfoXXInv sf1 sf2 = SF' tf True
+            where
+                tf dt a = sf1 `seq` sf2 `seq` (pfoXXInv sf1' sf2', (b, c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
+                        (sf2', c) = (sfTF' sf2) dt a
 -}
 
         pfoIX :: SF' a c -> SF' a (a ,c)
-	pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
-	pfoIX sf2 = SF' tf
+        pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
+        pfoIX sf2 = SF' tf
 {-
-	    if sfIsInv sf2 then
-		pfoIXInv sf2
-	    else
-		SF' tf False
+            if sfIsInv sf2 then
+                pfoIXInv sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoIX sf2', (a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+            where
+                tf dt a = (pfoIX sf2', (a, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 
 {-
         pfoIXInv :: SF' a c -> SF' a (a ,c)
-	pfoIXInv sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoIXInv sf2', (a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+        pfoIXInv sf2 = SF' tf True
+            where
+                tf dt a = sf2 `seq` (pfoIXInv sf2', (a, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 -}
 
         pfoXI :: SF' a b -> SF' a (b ,a)
-	pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
-	pfoXI sf1 = SF' tf
+        pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
+        pfoXI sf1 = SF' tf
 {-
             if sfIsInv sf1 then
-		pfoXIInv sf1
-	    else
-		SF' tf False
+                pfoXIInv sf1
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoXI sf1', (b, a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt a = (pfoXI sf1', (b, a))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         pfoXIInv :: SF' a b -> SF' a (b ,a)
-	pfoXIInv sf1 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXIInv sf1', (b, a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        pfoXIInv sf1 = SF' tf True
+            where
+                tf dt a = sf1 `seq` (pfoXIInv sf1', (b, a))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
         pfoCX :: b -> SF' a c -> SF' a (b ,c)
         pfoCX b (SFArr _ fd2) = sfArr (fdFanOut (FDC b) fd2)
-	pfoCX b sf2 = SF' tf
+        pfoCX b sf2 = SF' tf
 {-
-	    if sfIsInv sf2 then
-		pfoCXInv b sf2
-	    else
-		SF' tf False
+            if sfIsInv sf2 then
+                pfoCXInv b sf2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoCX b sf2', (b, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+            where
+                tf dt a = (pfoCX b sf2', (b, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 
 {-
         pfoCXInv :: b -> SF' a c -> SF' a (b ,c)
-	pfoCXInv b sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoCXInv b sf2', (b, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+        pfoCXInv b sf2 = SF' tf True
+            where
+                tf dt a = sf2 `seq` (pfoCXInv b sf2', (b, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 -}
 
         pfoXC :: SF' a b -> c -> SF' a (b ,c)
-	pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
-	pfoXC sf1 c = SF' tf
+        pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
+        pfoXC sf1 c = SF' tf
 {-
-	    if sfIsInv sf1 then
-		pfoXCInv sf1 c
-	    else
-	        SF' tf False
+            if sfIsInv sf1 then
+                pfoXCInv sf1 c
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoXC sf1' c, (b, c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt a = (pfoXC sf1' c, (b, c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         pfoXCInv :: SF' a b -> c -> SF' a (b ,c)
-	pfoXCInv sf1 c = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXCInv sf1' c, (b, c))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        pfoXCInv sf1 c = SF' tf True
+            where
+                tf dt a = sf1 `seq` (pfoXCInv sf1' c, (b, c))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
         pfoAX :: (a -> b) -> SF' a c -> SF' a (b ,c)
-	pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
-	pfoAX f1 sf2 = SF' tf
+        pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
+        pfoAX f1 sf2 = SF' tf
 {-
-	    if sfIsInv sf2 then
-		pfoAXInv f1 sf2
-	    else
+            if sfIsInv sf2 then
+                pfoAXInv f1 sf2
+            else
                 SF' tf False
 -}
-	    where
-		tf dt a = (pfoAX f1 sf2', (f1 a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+            where
+                tf dt a = (pfoAX f1 sf2', (f1 a, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 
 {-
         pfoAXInv :: (a -> b) -> SF' a c -> SF' a (b ,c)
-	pfoAXInv f1 sf2 = SF' tf True
-	    where
-		tf dt a = sf2 `seq` (pfoAXInv f1 sf2', (f1 a, c))
-		    where
-			(sf2', c) = (sfTF' sf2) dt a
+        pfoAXInv f1 sf2 = SF' tf True
+            where
+                tf dt a = sf2 `seq` (pfoAXInv f1 sf2', (f1 a, c))
+                    where
+                        (sf2', c) = (sfTF' sf2) dt a
 -}
 
         pfoXA :: SF' a b -> (a -> c) -> SF' a (b ,c)
-	pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
-	pfoXA sf1 f2 = SF' tf
+        pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
+        pfoXA sf1 f2 = SF' tf
 {-
-	    if sfIsInv sf1 then
-		pfoXAInv sf1 f2
-	    else
-		SF' tf False
+            if sfIsInv sf1 then
+                pfoXAInv sf1 f2
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (pfoXA sf1' f2, (b, f2 a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+            where
+                tf dt a = (pfoXA sf1' f2, (b, f2 a))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 
 {-
         pfoXAInv :: SF' a b -> (a -> c) -> SF' a (b ,c)
-	pfoXAInv sf1 f2 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (pfoXAInv sf1' f2, (b, f2 a))
-		    where
-			(sf1', b) = (sfTF' sf1) dt a
+        pfoXAInv sf1 f2 = SF' tf True
+            where
+                tf dt a = sf1 `seq` (pfoXAInv sf1' f2, (b, f2 a))
+                    where
+                        (sf1', b) = (sfTF' sf1) dt a
 -}
 
 
@@ -1476,34 +1476,34 @@ instance ArrowLoop SF where
 loopPrim :: SF (a,c) (b,c) -> SF a b
 loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
     where
-	tf0 a0 = (loopAux sf1, b0)
-	    where
-	        (sf1, (b0, c0)) = tf10 (a0, c0)
+        tf0 a0 = (loopAux sf1, b0)
+            where
+                (sf1, (b0, c0)) = tf10 (a0, c0)
 
         loopAux :: SF' (a,c) (b,c) -> SF' a b
-	loopAux (SFArr _ FDI) = sfId
+        loopAux (SFArr _ FDI) = sfId
         loopAux (SFArr _ (FDC (b, _))) = sfConst b
-	loopAux (SFArr _ fd1) =
+        loopAux (SFArr _ fd1) =
             sfArrG (\a -> let (b,c) = (fdFun fd1) (a,c) in b)
-	loopAux sf1 = SF' tf
+        loopAux sf1 = SF' tf
 {-
-	    if sfIsInv sf1 then
-		loopInv sf1
-	    else
-		SF' tf False
+            if sfIsInv sf1 then
+                loopInv sf1
+            else
+                SF' tf False
 -}
-	    where
-		tf dt a = (loopAux sf1', b)
-		    where
-		        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
+            where
+                tf dt a = (loopAux sf1', b)
+                    where
+                        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
 
 {-
         loopInv :: SF' (a,c) (b,c) -> SF' a b
-	loopInv sf1 = SF' tf True
-	    where
-		tf dt a = sf1 `seq` (loopInv sf1', b)
-		    where
-		        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
+        loopInv sf1 = SF' tf True
+            where
+                tf dt a = sf1 `seq` (loopInv sf1', b)
+                    where
+                        (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
 -}
 
 -- * Scanning
@@ -1512,9 +1512,9 @@ sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
 sfSScan f c b = sf 
     where
         sf = SFSScan tf f c b
-	tf _ a = case f c a of
-		     Nothing       -> (sf, b)
-		     Just (c', b') -> (sfSScan f c' b', b')
+        tf _ a = case f c a of
+                     Nothing       -> (sf, b)
+                     Just (c', b') -> (sfSScan f c' b', b')
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:
