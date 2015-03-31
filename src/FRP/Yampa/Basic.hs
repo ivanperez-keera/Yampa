@@ -1,8 +1,5 @@
 {-# LANGUAGE GADTs, Rank2Types, CPP         #-}
-{-# ANN module "HLint: ignore Avoid lambda" #-}
-{-# ANN module "HLint: ignore Use const"    #-}
------------------------------------------------------------------------------------------
--- |
+
 -- Module      :  FRP.Yampa.Basic
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)
@@ -10,21 +7,19 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
---
---
------------------------------------------------------------------------------------------
 
-module FRP.Yampa.Basic
-  ( -- * Basic signal functions
-    identity            -- :: SF a a
-  , constant            -- :: b -> SF a b
+module FRP.Yampa.Basic (
+
+    -- * Basic signal functions
+    identity,           -- :: SF a a
+    constant,           -- :: b -> SF a b
 
     -- ** Initialization
-  , (-->)               -- :: b -> SF a b -> SF a b,            infixr 0
-  , (>--)               -- :: a -> SF a b -> SF a b,            infixr 0
-  , (-=>)               -- :: (b -> b) -> SF a b -> SF a b      infixr 0
-  , (>=-)               -- :: (a -> a) -> SF a b -> SF a b      infixr 0
-  , initially           -- :: a -> SF a a
+    (-->),              -- :: b -> SF a b -> SF a b,            infixr 0
+    (>--),              -- :: a -> SF a b -> SF a b,            infixr 0
+    (-=>),              -- :: (b -> b) -> SF a b -> SF a b      infixr 0
+    (>=-),              -- :: (a -> a) -> SF a b -> SF a b      infixr 0
+    initially           -- :: a -> SF a a
 
   ) where
 
@@ -45,6 +40,7 @@ infixr 0 -->, >--, -=>, >=-
 identity :: SF a a
 identity = SF {sfTF = \a -> (sfId, a)}
 
+{-# ANN constant "HLint: ignore Use const" #-}
 -- | Identity: constant b = arr (const b)
 --
 -- Using 'constant' is preferred over lifting const, since the arrow combinators
@@ -87,6 +83,7 @@ f -=> (SF {sfTF = tf10}) =
 --
 -- Applies a transformation 'f' only to the first input value at
 -- time zero.
+{-# ANN (>=-) "HLint: ignore Avoid lambda" #-}
 (>=-) :: (a -> a) -> SF a b -> SF a b
 f >=- (SF {sfTF = tf10}) = SF {sfTF = \a0 -> tf10 (f a0)}
 

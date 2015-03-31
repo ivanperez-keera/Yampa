@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs, Rank2Types, CPP #-}
+
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa
@@ -8,7 +9,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 --
 -- Domain-specific language embedded in Haskell for programming hybrid (mixed
 -- discrete-time and continuous-time) systems. Yampa is based on the concepts

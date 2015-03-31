@@ -1,5 +1,4 @@
 {-# LANGUAGE GADTs, Rank2Types, CPP      #-}
-{-# ANN module "HLint: ignore Use const" #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.EventS
@@ -15,8 +14,7 @@
 
 module FRP.Yampa.EventS (
 
-    -- * Events
-    -- ** Basic event sources
+    -- * Basic event sources
     never,              -- :: SF a (Event b)
     now,                -- :: b -> SF a (Event b)
     after,              -- :: Time -> b -> SF a (Event b)
@@ -31,36 +29,36 @@ module FRP.Yampa.EventS (
     edgeJust,           -- :: SF (Maybe a) (Event a)
     edgeBy,             -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 
-    -- ** Stateful event suppression
+    -- * Stateful event suppression
     notYet,             -- :: SF (Event a) (Event a)
     once,               -- :: SF (Event a) (Event a)
     takeEvents,         -- :: Int -> SF (Event a) (Event a)
-    dropEvents,         -- :: Int -> SF (Event a) (Event a)
+    dropEvents          -- :: Int -> SF (Event a) (Event a)
 
     -- ** Pointwise functions on events
-    noEvent,            -- :: Event a
-    noEventFst,         -- :: (Event a, b) -> (Event c, b)
-    noEventSnd,         -- :: (a, Event b) -> (a, Event c)
-    event,              -- :: a -> (b -> a) -> Event b -> a
-    fromEvent,          -- :: Event a -> a
-    isEvent,            -- :: Event a -> Bool
-    isNoEvent,          -- :: Event a -> Bool
-    tag,                -- :: Event a -> b -> Event b,          infixl 8
-    tagWith,            -- :: b -> Event a -> Event b,
-    attach,             -- :: Event a -> b -> Event (a, b),     infixl 8
-    lMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
-    rMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
-    merge,              -- :: Event a -> Event a -> Event a,    infixl 6
-    mergeBy,            -- :: (a -> a -> a) -> Event a -> Event a -> Event a
-    mapMerge,           -- :: (a -> c) -> (b -> c) -> (a -> b -> c) 
-                        --    -> Event a -> Event b -> Event c
-    mergeEvents,        -- :: [Event a] -> Event a
-    catEvents,          -- :: [Event a] -> Event [a]
-    joinE,              -- :: Event a -> Event b -> Event (a,b),infixl 7
-    splitE,             -- :: Event (a,b) -> (Event a, Event b)
-    filterE,            -- :: (a -> Bool) -> Event a -> Event a
-    mapFilterE,         -- :: (a -> Maybe b) -> Event a -> Event b
-    gate,               -- :: Event a -> Bool -> Event a,       infixl 8
+    -- noEvent,            -- :: Event a
+    -- noEventFst,         -- :: (Event a, b) -> (Event c, b)
+    -- noEventSnd,         -- :: (a, Event b) -> (a, Event c)
+    -- event,              -- :: a -> (b -> a) -> Event b -> a
+    -- fromEvent,          -- :: Event a -> a
+    -- isEvent,            -- :: Event a -> Bool
+    -- isNoEvent,          -- :: Event a -> Bool
+    -- tag,                -- :: Event a -> b -> Event b,          infixl 8
+    -- tagWith,            -- :: b -> Event a -> Event b,
+    -- attach,             -- :: Event a -> b -> Event (a, b),     infixl 8
+    -- lMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
+    -- rMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
+    -- merge,              -- :: Event a -> Event a -> Event a,    infixl 6
+    -- mergeBy,            -- :: (a -> a -> a) -> Event a -> Event a -> Event a
+    -- mapMerge,           -- :: (a -> c) -> (b -> c) -> (a -> b -> c) 
+    --                     --    -> Event a -> Event b -> Event c
+    -- mergeEvents,        -- :: [Event a] -> Event a
+    -- catEvents,          -- :: [Event a] -> Event [a]
+    -- joinE,              -- :: Event a -> Event b -> Event (a,b),infixl 7
+    -- splitE,             -- :: Event (a,b) -> (Event a, Event b)
+    -- filterE,            -- :: (a -> Bool) -> Event a -> Event a
+    -- mapFilterE,         -- :: (a -> Maybe b) -> Event a -> Event b
+    -- gate,               -- :: Event a -> Bool -> Event a,       infixl 8
 
 ) where
 
@@ -137,6 +135,7 @@ sfMkInv sf = SF {sfTF = ...}
 ------------------------------------------------------------------------------
 
 -- | Event source that never occurs.
+{-# ANN never "HLint: ignore Use const" #-}
 never :: SF a (Event b)
 never = SF {sfTF = \_ -> (sfNever, NoEvent)}
 
