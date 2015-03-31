@@ -577,7 +577,7 @@ parAux :: Functor col =>
     -> SF' a (col c)
 parAux rf sfs = SF' tf -- True
     where
-        tf dt a = 
+        tf dt a =
             let bsfs  = rf a sfs
                 sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
                 sfs'  = fmap fst sfcs'
@@ -746,7 +746,7 @@ freeze :: SF' a b -> DTime -> SF a b
 freeze sf dt = SF {sfTF = (sfTF' sf) dt}
 
 freezeCol :: Functor col => col (SF' a b) -> DTime -> col (SF a b)
-freezeCol sfs dt = fmap (flip freeze dt) sfs
+freezeCol sfs dt = fmap (`freeze` dt) sfs
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

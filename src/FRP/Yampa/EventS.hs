@@ -1,4 +1,5 @@
-{-# LANGUAGE GADTs, Rank2Types, CPP #-}
+{-# LANGUAGE GADTs, Rank2Types, CPP      #-}
+{-# ANN module "HLint: ignore Use const" #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.EventS

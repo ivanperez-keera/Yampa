@@ -1,4 +1,6 @@
-{-# LANGUAGE GADTs, Rank2Types, CPP #-}
+{-# LANGUAGE GADTs, Rank2Types, CPP         #-}
+{-# ANN module "HLint: ignore Avoid lambda" #-}
+{-# ANN module "HLint: ignore Use const"    #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Basic
@@ -8,26 +10,23 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 --
 -----------------------------------------------------------------------------------------
 
-module FRP.Yampa.Basic(
+module FRP.Yampa.Basic
+  ( -- * Basic signal functions
+    identity            -- :: SF a a
+  , constant            -- :: b -> SF a b
 
--- * Signal functions
+    -- ** Initialization
+  , (-->)               -- :: b -> SF a b -> SF a b,            infixr 0
+  , (>--)               -- :: a -> SF a b -> SF a b,            infixr 0
+  , (-=>)               -- :: (b -> b) -> SF a b -> SF a b      infixr 0
+  , (>=-)               -- :: (a -> a) -> SF a b -> SF a b      infixr 0
+  , initially           -- :: a -> SF a a
 
--- ** Basic signal functions
-    identity,           -- :: SF a a
-    constant,           -- :: b -> SF a b
-
--- ** Initialization
-    (-->),              -- :: b -> SF a b -> SF a b,            infixr 0
-    (>--),              -- :: a -> SF a b -> SF a b,            infixr 0
-    (-=>),              -- :: (b -> b) -> SF a b -> SF a b      infixr 0
-    (>=-),              -- :: (a -> a) -> SF a b -> SF a b      infixr 0
-    initially           -- :: a -> SF a a
-
-) where
+  ) where
 
 
 import FRP.Yampa.InternalCore (SF(..), sfConst, sfId)
@@ -39,7 +38,7 @@ infixr 0 -->, >--, -=>, >=-
 ------------------------------------------------------------------------------
 
 -- | Identity: identity = arr id
--- 
+--
 -- Using 'identity' is preferred over lifting id, since the arrow combinators
 -- know how to optimise certain networks based on the transformations being
 -- applied.
@@ -47,7 +46,7 @@ identity :: SF a a
 identity = SF {sfTF = \a -> (sfId, a)}
 
 -- | Identity: constant b = arr (const b)
--- 
+--
 -- Using 'constant' is preferred over lifting const, since the arrow combinators
 -- know how to optimise certain networks based on the transformations being
 -- applied.

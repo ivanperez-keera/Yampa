@@ -658,15 +658,15 @@ cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
 -- !!! 2005-06-28: Why isn't SFCpAXA (FDC ...) checked for?
 -- !!! No invariant rules that out, and it would allow to drop the
 -- !!! event processor ... Does that happen elsewhere?
-cpXX sf1@(SFEP _ _ _ _) (SFCpAXA _ (FDE f21 f21ne) sf22 fd23) =
+cpXX sf1@(SFEP{}) (SFCpAXA _ (FDE f21 f21ne) sf22 fd23) =
     cpXX (cpXE sf1 f21 f21ne) (cpXA sf22 fd23)
 -- f21 will (hopefully) be invoked less frequently if merged with the
 -- event processor.
-cpXX sf1@(SFEP _ _ _ _) (SFCpAXA _ (FDG f21) sf22 fd23) =
+cpXX sf1@(SFEP{}) (SFCpAXA _ (FDG f21) sf22 fd23) =
     cpXX (cpXG sf1 f21) (cpXA sf22 fd23)
 -- Only functions whose domain is known to be Event can be merged
 -- from the left with event processors.
-cpXX (SFCpAXA _ fd11 sf12 (FDE f13 f13ne)) sf2@(SFEP _ _ _ _) =
+cpXX (SFCpAXA _ fd11 sf12 (FDE f13 f13ne)) sf2@(SFEP{}) =
     cpXX (cpAX fd11 sf12) (cpEX f13 f13ne sf2) 
 -- !!! Other cases to look out for:
 -- !!! any sf >>> SFCpAXA = SFCpAXA if first arr is const.
@@ -766,9 +766,9 @@ cpAXA fd1     sf2 fd3     =
                     -> SF' b c -> SF' a d
         cpAXAAux fd1 _ fd3 _ (SFArr _ fd2) =
             sfArr (fdComp (fdComp fd1 fd2) fd3)
-        cpAXAAux fd1 _ fd3 _ sf2@(SFSScan _ _ _ _) =
+        cpAXAAux fd1 _ fd3 _ sf2@(SFSScan {}) =
             cpAX fd1 (cpXA sf2 fd3)
-        cpAXAAux fd1 _ fd3 _ sf2@(SFEP _ _ _ _) =
+        cpAXAAux fd1 _ fd3 _ sf2@(SFEP {}) =
             cpAX fd1 (cpXA sf2 fd3)
         cpAXAAux fd1 _ fd3 _ (SFCpAXA _ fd21 sf22 fd23) =
             cpAXA (fdComp fd1 fd21) sf22 (fdComp fd23 fd3)

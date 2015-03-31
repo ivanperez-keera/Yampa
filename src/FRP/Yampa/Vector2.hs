@@ -44,7 +44,7 @@ import FRP.Yampa.Forceable
 data RealFloat a => Vector2 a = Vector2 !a !a deriving (Eq,Show)
 
 vector2 :: RealFloat a => a -> a -> Vector2 a
-vector2 x y = Vector2 x y
+vector2 = Vector2
 
 vector2X :: RealFloat a => Vector2 a -> a
 vector2X (Vector2 x _) = x
