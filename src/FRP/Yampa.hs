@@ -61,6 +61,10 @@
 --
 -- * "FRP.Yampa.Task"
 --
+-- Minimal Complete FRP Definition
+--
+-- * "FRP.Yampa.Core"
+--
 -- Different FRP aspects
 --
 -- * "FRP.Yampa.Basic"
@@ -443,7 +447,6 @@ module FRP.Yampa (
 import Control.Arrow
 
 import FRP.Yampa.InternalCore
-
 import FRP.Yampa.Basic
 import FRP.Yampa.Delays
 import FRP.Yampa.Event

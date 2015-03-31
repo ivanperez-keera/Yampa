@@ -39,11 +39,14 @@ library
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   build-Depends: base < 5, random
   exposed-modules:
-    FRP.Yampa
     -- Main FRP modules
+    FRP.Yampa
     FRP.Yampa.Event
     FRP.Yampa.Internals
     FRP.Yampa.Task
+
+    -- FRP Core (minimal complete definition)
+    FRP.Yampa.Core
 
     -- Auxiliary (commonly used) types
     FRP.Yampa.AffineSpace
