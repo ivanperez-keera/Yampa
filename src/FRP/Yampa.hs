@@ -148,223 +148,223 @@ module FRP.Yampa (
     Random(..),
 
     -- * Basic definitions
-    Time,	-- [s] Both for time w.r.t. some reference and intervals.
-    DTime,	-- [s] Sampling interval, always > 0.
-    SF,		-- Signal Function.
-    Event(..),	-- Events; conceptually similar to Maybe (but abstract).
+    Time,      -- [s] Both for time w.r.t. some reference and intervals.
+    DTime,     -- [s] Sampling interval, always > 0.
+    SF,        -- Signal Function.
+    Event(..), -- Events; conceptually similar to Maybe (but abstract).
 
     -- Temporary!
     --    SF(..), sfTF',
 
     -- Main instances
     -- SF is an instance of Arrow and ArrowLoop. Method instances:
-    -- arr	:: (a -> b) -> SF a b
-    -- (>>>)	:: SF a b -> SF b c -> SF a c
-    -- (<<<)	:: SF b c -> SF a b -> SF a c
-    -- first	:: SF a b -> SF (a,c) (b,c)
-    -- second	:: SF a b -> SF (c,a) (c,b)
-    -- (***)	:: SF a b -> SF a' b' -> SF (a,a') (b,b')
-    -- (&&&)	:: SF a b -> SF a b' -> SF a (b,b')
-    -- returnA	:: SF a a
-    -- loop	:: SF (a,c) (b,c) -> SF a b
+    -- arr     :: (a -> b) -> SF a b
+    -- (>>>)   :: SF a b -> SF b c -> SF a c
+    -- (<<<)   :: SF b c -> SF a b -> SF a c
+    -- first   :: SF a b -> SF (a,c) (b,c)
+    -- second  :: SF a b -> SF (c,a) (c,b)
+    -- (***)   :: SF a b -> SF a' b' -> SF (a,a') (b,b')
+    -- (&&&)   :: SF a b -> SF a b' -> SF a (b,b')
+    -- returnA :: SF a a
+    -- loop    :: SF (a,c) (b,c) -> SF a b
 
     -- Event is an instance of Functor, Eq, and Ord. Some method instances:
-    -- fmap	:: (a -> b) -> Event a -> Event b
+    -- fmap    :: (a -> b) -> Event a -> Event b
     -- (==)     :: Event a -> Event a -> Bool
-    -- (<=)	:: Event a -> Event a -> Bool
+    -- (<=)    :: Event a -> Event a -> Bool
 
     -- ** Lifting
     arrPrim, arrEPrim, -- For optimization
 
--- * Signal functions
+    -- * Signal functions
+    
+    -- ** Basic signal functions
+    identity,      -- :: SF a a
+    constant,      -- :: b -> SF a b
+    localTime,     -- :: SF a Time
+    time,          -- :: SF a Time,    Other name for localTime.
 
--- ** Basic signal functions
-    identity,		-- :: SF a a
-    constant,		-- :: b -> SF a b
-    localTime,		-- :: SF a Time
-    time,               -- :: SF a Time,	Other name for localTime.
+    -- ** Initialization
+    (-->),         -- :: b -> SF a b -> SF a b,        infixr 0
+    (>--),         -- :: a -> SF a b -> SF a b,        infixr 0
+    (-=>),         -- :: (b -> b) -> SF a b -> SF a b      infixr 0
+    (>=-),         -- :: (a -> a) -> SF a b -> SF a b      infixr 0
+    initially,     -- :: a -> SF a a
 
--- ** Initialization
-    (-->),		-- :: b -> SF a b -> SF a b,		infixr 0
-    (>--),		-- :: a -> SF a b -> SF a b,		infixr 0
-    (-=>),              -- :: (b -> b) -> SF a b -> SF a b      infixr 0
-    (>=-),              -- :: (a -> a) -> SF a b -> SF a b      infixr 0
-    initially,		-- :: a -> SF a a
+    -- ** Simple, stateful signal processing
+    sscan,         -- :: (b -> a -> b) -> b -> SF a b
+    sscanPrim,     -- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
 
--- ** Simple, stateful signal processing
-    sscan,		-- :: (b -> a -> b) -> b -> SF a b
-    sscanPrim,		-- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
+    -- * Events
+    -- ** Basic event sources
+    never,         -- :: SF a (Event b)
+    now,           -- :: b -> SF a (Event b)
+    after,         -- :: Time -> b -> SF a (Event b)
+    repeatedly,    -- :: Time -> b -> SF a (Event b)
+    afterEach,     -- :: [(Time,b)] -> SF a (Event b)
+    afterEachCat,  -- :: [(Time,b)] -> SF a (Event [b])
+    delayEvent,    -- :: Time -> SF (Event a) (Event a)
+    delayEventCat, -- :: Time -> SF (Event a) (Event [a])
+    edge,          -- :: SF Bool (Event ())
+    iEdge,         -- :: Bool -> SF Bool (Event ())
+    edgeTag,       -- :: a -> SF Bool (Event a)
+    edgeJust,      -- :: SF (Maybe a) (Event a)
+    edgeBy,        -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 
--- * Events
--- ** Basic event sources
-    never, 		-- :: SF a (Event b)
-    now,		-- :: b -> SF a (Event b)
-    after,		-- :: Time -> b -> SF a (Event b)
-    repeatedly,		-- :: Time -> b -> SF a (Event b)
-    afterEach,		-- :: [(Time,b)] -> SF a (Event b)
-    afterEachCat,       -- :: [(Time,b)] -> SF a (Event [b])
-    delayEvent,		-- :: Time -> SF (Event a) (Event a)
-    delayEventCat,	-- :: Time -> SF (Event a) (Event [a])
-    edge,		-- :: SF Bool (Event ())
-    iEdge,		-- :: Bool -> SF Bool (Event ())
-    edgeTag,		-- :: a -> SF Bool (Event a)
-    edgeJust,		-- :: SF (Maybe a) (Event a)
-    edgeBy,		-- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
+    -- ** Stateful event suppression
+    notYet,         -- :: SF (Event a) (Event a)
+    once,           -- :: SF (Event a) (Event a)
+    takeEvents,     -- :: Int -> SF (Event a) (Event a)
+    dropEvents,     -- :: Int -> SF (Event a) (Event a)
 
--- ** Stateful event suppression
-    notYet,		-- :: SF (Event a) (Event a)
-    once,		-- :: SF (Event a) (Event a)
-    takeEvents,		-- :: Int -> SF (Event a) (Event a)
-    dropEvents,		-- :: Int -> SF (Event a) (Event a)
+    -- ** Pointwise functions on events
+    noEvent,        -- :: Event a
+    noEventFst,     -- :: (Event a, b) -> (Event c, b)
+    noEventSnd,     -- :: (a, Event b) -> (a, Event c)
+    event,          -- :: a -> (b -> a) -> Event b -> a
+    fromEvent,      -- :: Event a -> a
+    isEvent,        -- :: Event a -> Bool
+    isNoEvent,      -- :: Event a -> Bool
+    tag,            -- :: Event a -> b -> Event b,        infixl 8
+    tagWith,        -- :: b -> Event a -> Event b,
+    attach,         -- :: Event a -> b -> Event (a, b),    infixl 8
+    lMerge,         -- :: Event a -> Event a -> Event a,    infixl 6
+    rMerge,         -- :: Event a -> Event a -> Event a,    infixl 6
+    merge,          -- :: Event a -> Event a -> Event a,    infixl 6
+    mergeBy,        -- :: (a -> a -> a) -> Event a -> Event a -> Event a
+    mapMerge,       -- :: (a -> c) -> (b -> c) -> (a -> b -> c) 
+                    --    -> Event a -> Event b -> Event c
+    mergeEvents,    -- :: [Event a] -> Event a
+    catEvents,      -- :: [Event a] -> Event [a]
+    joinE,          -- :: Event a -> Event b -> Event (a,b),infixl 7
+    splitE,         -- :: Event (a,b) -> (Event a, Event b)
+    filterE,        -- :: (a -> Bool) -> Event a -> Event a
+    mapFilterE,     -- :: (a -> Maybe b) -> Event a -> Event b
+    gate,           -- :: Event a -> Bool -> Event a,    infixl 8
 
--- ** Pointwise functions on events
-    noEvent,		-- :: Event a
-    noEventFst,		-- :: (Event a, b) -> (Event c, b)
-    noEventSnd,		-- :: (a, Event b) -> (a, Event c)
-    event, 		-- :: a -> (b -> a) -> Event b -> a
-    fromEvent,		-- :: Event a -> a
-    isEvent,		-- :: Event a -> Bool
-    isNoEvent,		-- :: Event a -> Bool
-    tag, 		-- :: Event a -> b -> Event b,		infixl 8
-    tagWith,            -- :: b -> Event a -> Event b,
-    attach,		-- :: Event a -> b -> Event (a, b),	infixl 8
-    lMerge, 		-- :: Event a -> Event a -> Event a,	infixl 6
-    rMerge,		-- :: Event a -> Event a -> Event a,	infixl 6
-    merge,		-- :: Event a -> Event a -> Event a,	infixl 6
-    mergeBy,		-- :: (a -> a -> a) -> Event a -> Event a -> Event a
-    mapMerge,           -- :: (a -> c) -> (b -> c) -> (a -> b -> c) 
-                        --    -> Event a -> Event b -> Event c
-    mergeEvents,        -- :: [Event a] -> Event a
-    catEvents,		-- :: [Event a] -> Event [a]
-    joinE,		-- :: Event a -> Event b -> Event (a,b),infixl 7
-    splitE,		-- :: Event (a,b) -> (Event a, Event b)
-    filterE,	 	-- :: (a -> Bool) -> Event a -> Event a
-    mapFilterE,		-- :: (a -> Maybe b) -> Event a -> Event b
-    gate,		-- :: Event a -> Bool -> Event a,	infixl 8
+    -- * Switching
+    -- ** Basic switchers
+    switch,  dSwitch,     -- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
+    rSwitch, drSwitch,    -- :: SF a b -> SF (a,Event (SF a b)) b
+    kSwitch, dkSwitch,    -- :: SF a b
+                          --    -> SF (a,b) (Event c)
+                          --    -> (SF a b -> c -> SF a b)
+                          --    -> SF a b
 
--- * Switching
--- ** Basic switchers
-    switch,  dSwitch,	-- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
-    rSwitch, drSwitch,	-- :: SF a b -> SF (a,Event (SF a b)) b
-    kSwitch, dkSwitch,	-- :: SF a b
-			--    -> SF (a,b) (Event c)
-			--    -> (SF a b -> c -> SF a b)
-			--    -> SF a b
-
--- ** Parallel composition and switching
--- *** Parallel composition and switching over collections with broadcasting
-    parB,		-- :: Functor col => col (SF a b) -> SF a (col b)
+    -- ** Parallel composition and switching
+    -- *** Parallel composition and switching over collections with broadcasting
+    parB,        -- :: Functor col => col (SF a b) -> SF a (col b)
     pSwitchB,dpSwitchB, -- :: Functor col =>
-			--        col (SF a b)
-			--	  -> SF (a, col b) (Event c)
-			--	  -> (col (SF a b) -> c -> SF a (col b))
-			--	  -> SF a (col b)
-    rpSwitchB,drpSwitchB,-- :: Functor col =>
-			--        col (SF a b)
-			--	  -> SF (a, Event (col (SF a b)->col (SF a b)))
-			--	        (col b)
+                        --        col (SF a b)
+                        --      -> SF (a, col b) (Event c)
+                        --      -> (col (SF a b) -> c -> SF a (col b))
+                        --      -> SF a (col b)
+    rpSwitchB,drpSwitchB, -- :: Functor col =>
+                          --        col (SF a b)
+                          --      -> SF (a, Event (col (SF a b)->col (SF a b)))
+                          --            (col b)
 
--- *** Parallel composition and switching over collections with general routing
-    par,		-- Functor col =>
-    			--     (forall sf . (a -> col sf -> col (b, sf)))
-    			--     -> col (SF b c)
-    			--     -> SF a (col c)
+    -- *** Parallel composition and switching over collections with general routing
+    par,        -- Functor col =>
+                --     (forall sf . (a -> col sf -> col (b, sf)))
+                --     -> col (SF b c)
+                --     -> SF a (col c)
     pSwitch, dpSwitch,  -- pSwitch :: Functor col =>
-			--     (forall sf . (a -> col sf -> col (b, sf)))
-			--     -> col (SF b c)
-			--     -> SF (a, col c) (Event d)
-			--     -> (col (SF b c) -> d -> SF a (col c))
-			--     -> SF a (col c)
+                        --     (forall sf . (a -> col sf -> col (b, sf)))
+                        --     -> col (SF b c)
+                        --     -> SF (a, col c) (Event d)
+                        --     -> (col (SF b c) -> d -> SF a (col c))
+                        --     -> SF a (col c)
     rpSwitch,drpSwitch, -- Functor col =>
-			--    (forall sf . (a -> col sf -> col (b, sf)))
-    			--    -> col (SF b c)
-			--    -> SF (a, Event (col (SF b c) -> col (SF b c)))
-			--	    (col c)
+                        --    (forall sf . (a -> col sf -> col (b, sf)))
+                        --    -> col (SF b c)
+                        --    -> SF (a, Event (col (SF b c) -> col (SF b c)))
+                        --        (col c)
 
--- * Discrete to continuous-time signal functions
--- ** Wave-form generation
-    old_hold,		-- :: a -> SF (Event a) a
-    hold,		-- :: a -> SF (Event a) a
-    dHold,		-- :: a -> SF (Event a) a
-    trackAndHold,	-- :: a -> SF (Maybe a) a
+    -- * Discrete to continuous-time signal functions
+    -- ** Wave-form generation
+    old_hold,         -- :: a -> SF (Event a) a
+    hold,             -- :: a -> SF (Event a) a
+    dHold,            -- :: a -> SF (Event a) a
+    trackAndHold,     -- :: a -> SF (Maybe a) a
 
--- ** Accumulators
-    accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    accumHold,		-- :: a -> SF (Event (a -> a)) a
-    dAccumHold,		-- :: a -> SF (Event (a -> a)) a
-    accumBy,		-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    accumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
-    dAccumHoldBy,	-- :: (b -> a -> b) -> b -> SF (Event a) b
-    accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
-			--    -> SF (Event a) (Event b)
-    old_accum,		-- :: a -> SF (Event (a -> a)) (Event a)
-    old_accumBy,	-- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    old_accumFilter,	-- :: (c -> a -> (c, Maybe b)) -> c
+    -- ** Accumulators
+    accum,            -- :: a -> SF (Event (a -> a)) (Event a)
+    accumHold,        -- :: a -> SF (Event (a -> a)) a
+    dAccumHold,       -- :: a -> SF (Event (a -> a)) a
+    accumBy,          -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    accumHoldBy,      -- :: (b -> a -> b) -> b -> SF (Event a) b
+    dAccumHoldBy,     -- :: (b -> a -> b) -> b -> SF (Event a) b
+    accumFilter,      -- :: (c -> a -> (c, Maybe b)) -> c
+                      --    -> SF (Event a) (Event b)
+    old_accum,        -- :: a -> SF (Event (a -> a)) (Event a)
+    old_accumBy,      -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    old_accumFilter,  -- :: (c -> a -> (c, Maybe b)) -> c
 
--- * Delays
--- ** Basic delays
-    pre,		-- :: SF a a
-    iPre,		-- :: a -> SF a a
+    -- * Delays
+    -- ** Basic delays
+    pre,        -- :: SF a a
+    iPre,        -- :: a -> SF a a
     old_pre, old_iPre,
 
--- ** Timed delays
-    delay,		-- :: Time -> a -> SF a a
+    -- ** Timed delays
+    delay,        -- :: Time -> a -> SF a a
 
--- ** Variable delay
+    -- ** Variable delay
     pause,              -- :: b -> SF a b -> SF a Bool -> SF a b
 
--- * State keeping combinators
+    -- * State keeping combinators
 
--- ** Loops with guaranteed well-defined feedback
-    loopPre, 		-- :: c -> SF (a,c) (b,c) -> SF a b
-    loopIntegral,	-- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
+    -- ** Loops with guaranteed well-defined feedback
+    loopPre,         -- :: c -> SF (a,c) (b,c) -> SF a b
+    loopIntegral,    -- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
 
--- ** Integration and differentiation
-    integral,		-- :: VectorSpace a s => SF a a
+    -- ** Integration and differentiation
+    integral,        -- :: VectorSpace a s => SF a a
 
-    derivative,		-- :: VectorSpace a s => SF a a		-- Crude!
-    imIntegral,		-- :: VectorSpace a s => a -> SF a a
+    derivative,      -- :: VectorSpace a s => SF a a        -- Crude!
+    imIntegral,      -- :: VectorSpace a s => a -> SF a a
 
     -- Temporarily hidden, but will eventually be made public.
-    -- iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
+    -- iterFrom,     -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 
     -- * Noise (random signal) sources and stochastic event sources
-    noise,		-- :: noise :: (RandomGen g, Random b) =>
-			--        g -> SF a b
-    noiseR,		-- :: noise :: (RandomGen g, Random b) =>
-			--        (b,b) -> g -> SF a b
-    occasionally,	-- :: RandomGen g => g -> Time -> b -> SF a (Event b)
+    noise,           -- :: noise :: (RandomGen g, Random b) =>
+                     --              g -> SF a b
+    noiseR,          -- :: noise :: (RandomGen g, Random b) =>
+                     --             (b,b) -> g -> SF a b
+    occasionally,    -- :: RandomGen g => g -> Time -> b -> SF a (Event b)
 
--- * Execution/simulation
--- ** Reactimation
-    reactimate,		-- :: IO a
-	      		--    -> (Bool -> IO (DTime, Maybe a))
-	      		--    -> (Bool -> b -> IO Bool)
-              		--    -> SF a b
-	      		--    -> IO ()
+    -- * Execution/simulation
+    -- ** Reactimation
+    reactimate,      -- :: IO a
+                     --    -> (Bool -> IO (DTime, Maybe a))
+                     --    -> (Bool -> b -> IO Bool)
+                     --    -> SF a b
+                     --    -> IO ()
     ReactHandle,
-    reactInit,          --    IO a -- init
-                        --    -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
-                        --    -> SF a b
-                        --    -> IO (ReactHandle a b)
-                        -- process a single input sample:
-    react,              --    ReactHandle a b
-                        --    -> (DTime,Maybe a)
-                        --    -> IO Bool
+    reactInit,       --    IO a -- init
+                     --    -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
+                     --    -> SF a b
+                     --    -> IO (ReactHandle a b)
+                     -- process a single input sample:
+    react,           --    ReactHandle a b
+                     --    -> (DTime,Maybe a)
+                     --    -> IO Bool
 
--- ** Embedding
-                        --  (tentative: will be revisited)
-    embed,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
-    embedSynch,		-- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
-    deltaEncode,	-- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
-    deltaEncodeBy,	-- :: (a -> a -> Bool) -> DTime -> [a]
-			--    -> (a, [(DTime, Maybe a)])
+    -- ** Embedding
+                     --  (tentative: will be revisited)
+    embed,           -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
+    embedSynch,      -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
+    deltaEncode,     -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
+    deltaEncodeBy,   -- :: (a -> a -> Bool) -> DTime -> [a]
+                     --    -> (a, [(DTime, Maybe a)])
 
     -- * Auxiliary definitions
     --   Reverse function composition and arrow plumbing aids
-    ( # ),		-- :: (a -> b) -> (b -> c) -> (a -> c),	infixl 9
-    dup,		-- :: a -> (a,a)
-    swap,		-- :: (a,b) -> (b,a)
+    ( # ),        -- :: (a -> b) -> (b -> c) -> (a -> c),    infixl 9
+    dup,          -- :: a -> (a,a)
+    swap,        -- :: (a,b) -> (b,a)
 
 
 ) where
