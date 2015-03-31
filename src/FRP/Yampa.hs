@@ -156,7 +156,7 @@ module FRP.Yampa (
     -- Temporary!
     --    SF(..), sfTF',
 
--- Main instances
+    -- Main instances
     -- SF is an instance of Arrow and ArrowLoop. Method instances:
     -- arr	:: (a -> b) -> SF a b
     -- (>>>)	:: SF a b -> SF b c -> SF a c

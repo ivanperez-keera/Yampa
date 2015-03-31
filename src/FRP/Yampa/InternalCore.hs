@@ -154,25 +154,34 @@ module FRP.Yampa.InternalCore (
     -- loop	:: SF (a,c) (b,c) -> SF a b
 
     -- * Basic definitions
+    -- ** Time
     Time,	-- [s] Both for time w.r.t. some reference and intervals.
     DTime,	-- [s] Sampling interval, always > 0.
+
+    -- ** Signal Functions
     SF(..),		-- Signal Function.
+
+    -- ** Future Signal Function
     SF'(..),		-- Signal Function.
     sfTF',
-    Transition,
-    FunDesc(..),
-
-    -- ** Lifting
-    arrPrim, arrEPrim, -- For optimization
     sfId,
-
-    sfArrG,
-    sfSScan,
-    fdFun,
     sfConst,
+    sfArrG,
     freeze,
     freezeCol,
 
+    -- *** Scanning
+    sfSScan,
+
+    Transition,
+
+    -- ** Function descriptions
+    FunDesc(..),
+    fdFun,
+
+    -- ** Lifting
+    arrPrim,
+    arrEPrim, -- For optimization
     epPrim
 
 ) where
@@ -344,7 +353,16 @@ sfArrG f = sf
 	sf = SFArr (\_ a -> (sf, f a)) (FDG f)
 
 
-
+-- epPrim is used to define hold, accum, and other event-processing
+-- functions.
+epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
+epPrim f c bne = SF {sfTF = tf0}
+    where
+        tf0 NoEvent   = (sfEP f c bne, bne)
+        tf0 (Event a) = let
+                            (c', b, bne') = f c a
+                        in
+                            (sfEP f c' bne', b)
 
 -- The event-processing function *could* accept the present NoEvent
 -- output as an extra state argument. That would facilitate composition
@@ -364,18 +382,6 @@ sfEP f c bne = sf
                   f
                   c
                   bne
-
-
--- epPrim is used to define hold, accum, and other event-processing
--- functions.
-epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
-epPrim f c bne = SF {sfTF = tf0}
-    where
-        tf0 NoEvent   = (sfEP f c bne, bne)
-        tf0 (Event a) = let
-                            (c', b, bne') = f c a
-                        in
-                            (sfEP f c' bne', b)
 
 
 {-
@@ -487,7 +493,6 @@ vfyNoEv _       _  = usrErr "AFRP" "vfyNoEv" "Assertion failed: Functions on eve
 -- the form of a plain signal function.
 freeze :: SF' a b -> DTime -> SF a b
 freeze sf dt = SF {sfTF = (sfTF' sf) dt}
-
 
 freezeCol :: Functor col => col (SF' a b) -> DTime -> col (SF a b)
 freezeCol sfs dt = fmap (flip freeze dt) sfs

@@ -46,63 +46,6 @@ import FRP.Yampa.Event
 import FRP.Yampa.EventS
 import FRP.Yampa.Switches
 
--- The event-processing function *could* accept the present NoEvent
--- output as an extra state argument. That would facilitate composition
--- of event-processing functions somewhat, but would presumably incur an
--- extra cost for the more common and simple case of non-composed event
--- processors.
--- 
--- sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
--- sfEP f c bne = sf
---     where
---         sf = SFEP (\_ ea -> case ea of
---                                  NoEvent -> (sf, bne)
---                                  Event a -> let
---                                                 (c', b, bne') = f c a
---                                             in
---                                                 (sfEP f c' bne', b))
---                   f
---                   c
---                   bne
--- 
--- 
--- -- epPrim is used to define hold, accum, and other event-processing
--- -- functions.
--- epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
--- epPrim f c bne = SF {sfTF = tf0}
---     where
---         tf0 NoEvent   = (sfEP f c bne, bne)
---         tf0 (Event a) = let
---                             (c', b, bne') = f c a
---                         in
---                             (sfEP f c' bne', b)
--- 
-
-{-
--- !!! Maybe something like this?
--- !!! But one problem is that the invarying marking would be lost
--- !!! if the signal function is taken apart and re-constructed from
--- !!! the function description and subordinate signal function in
--- !!! cases like SFCpAXA.
-sfMkInv :: SF a b -> SF a b
-sfMkInv sf = SF {sfTF = ...}
-
-    sfMkInvAux :: SF' a b -> SF' a b
-    sfMkInvAux sf@(SFArr _ _) = sf
-    -- sfMkInvAux sf@(SFAcc _ _ _ _) = sf
-    sfMkInvAux sf@(SFEP _ _ _ _) = sf
-    sfMkInvAux sf@(SFCpAXA tf inv fd1 sf2 fd3)
-	| inv       = sf
-	| otherwise = SFCpAXA tf' True fd1 sf2 fd3
-        where
-            tf' = \dt a -> let (sf', b) = tf dt a in (sfMkInvAux sf', b)
-    sfMkInvAux sf@(SF' tf inv)
-        | inv       = sf
-        | otherwise = SF' tf' True
-            tf' = 
-
--}
-
 ------------------------------------------------------------------------------
 -- Wave-form generation
 ------------------------------------------------------------------------------
@@ -315,6 +258,8 @@ accumFilter g c_init = epPrim f c_init NoEvent
         f c a = case g c a of
                     (c', Nothing) -> (c', NoEvent, NoEvent)
                     (c', Just b)  -> (c', Event b, NoEvent)
+
+
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:
