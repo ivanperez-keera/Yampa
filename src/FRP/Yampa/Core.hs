@@ -197,7 +197,9 @@ module FRP.Yampa.Core (
     fdFun,
     freeze,
     sfArrG,
-    freezeCol
+    freezeCol,
+
+    epPrim
 
 ) where
 
@@ -206,16 +208,10 @@ import Control.Arrow
 import qualified Control.Category (Category(..))
 #else
 #endif
--- import Control.Monad (unless)
--- import Data.IORef
--- import Data.Maybe (fromMaybe)
--- import System.Random (RandomGen(..), Random(..))
-
 
 import FRP.Yampa.Diagnostics
-import FRP.Yampa.Miscellany (dup) -- ( # ), dup, swap)
+import FRP.Yampa.Miscellany (dup)
 import FRP.Yampa.Event
--- import FRP.Yampa.VectorSpace
 
 infixr 0 -->, >--, -=>, >=-
 
@@ -295,7 +291,6 @@ data SF a b = SF {sfTF :: a -> Transition a b}
 -- exploits them since there are more type vars than in the type con.
 -- But one could use existentials for those.
 
-
 data SF' a b where
     SFArr   :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
     -- The b is intentionally unstrict as the initial output sometimes
@@ -363,9 +358,8 @@ sfConst b = sf
     where
 	sf = SFArr (\_ _ -> (sf, b)) (FDC b)
 
-
-sfNever :: SF' a (Event b)
-sfNever = sfConst NoEvent
+-- sfNever :: SF' a (Event b)
+-- sfNever = sfConst NoEvent
 
 -- Assumption: fne = f NoEvent
 sfArrE :: (Event a -> b) -> b -> SF' (Event a) b
@@ -416,17 +410,17 @@ sfEP f c bne = sf
                   bne
 
 
--- -- epPrim is used to define hold, accum, and other event-processing
--- -- functions.
--- epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
--- epPrim f c bne = SF {sfTF = tf0}
---     where
---         tf0 NoEvent   = (sfEP f c bne, bne)
---         tf0 (Event a) = let
---                             (c', b, bne') = f c a
---                         in
---                             (sfEP f c' bne', b)
--- 
+-- epPrim is used to define hold, accum, and other event-processing
+-- functions.
+epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
+epPrim f c bne = SF {sfTF = tf0}
+    where
+        tf0 NoEvent   = (sfEP f c bne, bne)
+        tf0 (Event a) = let
+                            (c', b, bne') = f c a
+                        in
+                            (sfEP f c' bne', b)
+
 
 {-
 -- !!! Maybe something like this?
@@ -550,7 +544,6 @@ freezeCol sfs dt = fmap (flip freeze dt) sfs
 instance Control.Category.Category SF where
      (.) = flip compPrim 
      id = SF $ \x -> (sfId,x)
-#else
 #endif
 
 instance Arrow SF where
@@ -559,11 +552,11 @@ instance Arrow SF where
     second = secondPrim
     (***)  = parSplitPrim
     (&&&)  = parFanOutPrim
+
 #if __GLASGOW_HASKELL__ >= 610
 #else
     (>>>)  = compPrim
 #endif
-
 
 -- Lifting.
 

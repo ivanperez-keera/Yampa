@@ -10,7 +10,6 @@
 *                                                                            *
 ******************************************************************************
 -}
-
 module AFRPTestsSwitch (switch_tr, switch_trs) where
 
 import FRP.Yampa
@@ -177,14 +176,14 @@ switch_t4r =
 
 impulseIntegral2 :: VectorSpace a s => SF (a, Event a) a
 impulseIntegral2 =
-    switch (first integral >>> arr (\(a, ea) -> (a, fmap (^+^a) ea)))
-	   impulseIntegral2'
-    where
-	impulseIntegral2' :: VectorSpace a s => a -> SF (a, Event a) a
-	impulseIntegral2' a =
-	    switch ((integral >>> arr (^+^a)) *** notYet
-		    >>> arr (\(a, ea) -> (a, fmap (^+^a) ea)))
-		   impulseIntegral2'
+   switch (first integral >>> arr (\(a, ea) -> (a, fmap (^+^ a) ea)))
+       impulseIntegral2'
+ where
+   impulseIntegral2' :: VectorSpace a s => a -> SF (a, Event a) a
+   impulseIntegral2' a =
+       switch ((integral >>> arr (^+^ a)) *** notYet
+               >>> arr (\(a, ea) -> (a, fmap (^+^ a) ea)))
+              impulseIntegral2'
 
 switch_t5 :: [Double]
 switch_t5 = take 50 $ embed impulseIntegral2
@@ -212,3 +211,4 @@ switch_trs =
     ]
 
 switch_tr = and switch_trs
+

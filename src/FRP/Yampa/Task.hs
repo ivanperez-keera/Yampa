@@ -88,9 +88,9 @@ taskToSF tk = runTask tk
            &&& edgeBy isEdge (Left undefined))
     where
         isEdge (Left _)  (Left _)  = Nothing
-    isEdge (Left _)  (Right c) = Just c
-    isEdge (Right _) (Right _) = Nothing
-    isEdge (Right _) (Left _)  = Nothing
+        isEdge (Left _)  (Right c) = Just c
+        isEdge (Right _) (Right _) = Nothing
+        isEdge (Right _) (Left _)  = Nothing
 
 
 ------------------------------------------------------------------------------

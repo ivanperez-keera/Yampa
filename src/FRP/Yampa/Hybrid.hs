@@ -179,31 +179,31 @@ import FRP.Yampa.Switches
 -- extra cost for the more common and simple case of non-composed event
 -- processors.
 -- 
-sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
-sfEP f c bne = sf
-    where
-        sf = SFEP (\_ ea -> case ea of
-                                 NoEvent -> (sf, bne)
-                                 Event a -> let
-                                                (c', b, bne') = f c a
-                                            in
-                                                (sfEP f c' bne', b))
-                  f
-                  c
-                  bne
-
-
--- epPrim is used to define hold, accum, and other event-processing
--- functions.
-epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
-epPrim f c bne = SF {sfTF = tf0}
-    where
-        tf0 NoEvent   = (sfEP f c bne, bne)
-        tf0 (Event a) = let
-                            (c', b, bne') = f c a
-                        in
-                            (sfEP f c' bne', b)
-
+-- sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
+-- sfEP f c bne = sf
+--     where
+--         sf = SFEP (\_ ea -> case ea of
+--                                  NoEvent -> (sf, bne)
+--                                  Event a -> let
+--                                                 (c', b, bne') = f c a
+--                                             in
+--                                                 (sfEP f c' bne', b))
+--                   f
+--                   c
+--                   bne
+-- 
+-- 
+-- -- epPrim is used to define hold, accum, and other event-processing
+-- -- functions.
+-- epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
+-- epPrim f c bne = SF {sfTF = tf0}
+--     where
+--         tf0 NoEvent   = (sfEP f c bne, bne)
+--         tf0 (Event a) = let
+--                             (c', b, bne') = f c a
+--                         in
+--                             (sfEP f c' bne', b)
+-- 
 
 {-
 -- !!! Maybe something like this?

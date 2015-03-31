@@ -246,7 +246,7 @@ reactimate init sense actuate (SF {sfTF = tf0}) =
 	    done <- actuate True b
             unless (a `seq` b `seq` done) $ do
 	        (dt, ma') <- sense False
-		let a' = maybe a id ma'
+		let a' = fromMaybe a ma'
                     (sf', b') = (sfTF' sf) dt a'
 		loop sf' a' b'
 
@@ -333,9 +333,9 @@ embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
 
         loop _ _ [] = []
 	loop a_prev sf ((dt, ma) : dtas) =
-	    b : (a `seq` b `seq` (loop a sf' dtas))
+	    b : (a `seq` b `seq` loop a sf' dtas)
 	    where
-		a        = maybe a_prev id ma
+		a        = fromMaybe a_prev ma
 	        (sf', b) = (sfTF' sf) dt a
 
 

@@ -375,6 +375,7 @@ import FRP.Yampa.Core
 import FRP.Yampa.Delays
 import FRP.Yampa.Event
 import FRP.Yampa.EventS
+import FRP.Yampa.Hybrid
 import FRP.Yampa.Integration
 import FRP.Yampa.Loop
 import FRP.Yampa.Miscellany (( # ), dup, swap)
