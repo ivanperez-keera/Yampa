@@ -13,11 +13,12 @@
 
 module FRP.Yampa.Integration (
 
-    -- ** Integration and differentiation
+    -- * Integration
     integral,           -- :: VectorSpace a s => SF a a
-
-    derivative,         -- :: VectorSpace a s => SF a a         -- Crude!
     imIntegral,         -- :: VectorSpace a s => a -> SF a a
+
+    -- * Differentiation
+    derivative,         -- :: VectorSpace a s => SF a a         -- Crude!
 
     -- Temporarily hidden, but will eventually be made public.
     -- iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
@@ -36,9 +37,9 @@ import FRP.Yampa.VectorSpace
 integral :: VectorSpace a s => SF a a
 integral = SF {sfTF = tf0}
     where
-        igrl0  = zeroVector
-
         tf0 a0 = (integralAux igrl0 a0, igrl0)
+
+        igrl0  = zeroVector
 
         integralAux igrl a_prev = SF' tf -- True
             where
@@ -47,18 +48,17 @@ integral = SF {sfTF = tf0}
                        igrl' = igrl ^+^ realToFrac dt *^ a_prev
 
 
--- "immediate" integration (using the function's value at the current time)
+-- | \"Immediate\" integration (using the function's value at the current time)
 imIntegral :: VectorSpace a s => a -> SF a a
 imIntegral = ((\ _ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
 
 iterFrom :: (a -> a -> DTime -> b -> b) -> b -> SF a b
-f `iterFrom` b = SF (iterAux b) where
-  -- iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a') True, b)
-  iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a'), b)
+f `iterFrom` b = SF (iterAux b)
+    where
+        iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a'), b)
 
 -- | A very crude version of a derivative. It simply divides the
---   value difference by the time difference. As such, it is very
---   crude. Use at your own risk.
+--   value difference by the time difference. Use at your own risk.
 derivative :: VectorSpace a s => SF a a
 derivative = SF {sfTF = tf0}
     where
