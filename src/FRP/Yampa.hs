@@ -50,6 +50,77 @@
 --
 -- Finally, see [<#g:26>] for sources of randomness (useful in games).
 --
+-- This will be the last version of Yampa to include mergeable records,
+-- point2/3, vector2/3, and other auxiliary definitions. The internals
+-- have now changed. Although not all will be exposed in the next version,
+-- here's the new project structure:
+--
+-- Main Yampa modules:
+--
+-- * "FRP.Yampa"            -- This exports all FRP-related functions
+--
+-- * "FRP.Yampa.Task"
+--
+-- Different FRP aspects
+--
+-- * "FRP.Yampa.Basic"
+--
+-- * "FRP.Yampa.Delays"
+--
+-- * "FRP.Yampa.Event"
+--
+-- * "FRP.Yampa.EventS"       -- Event consuming/producing SFs
+--
+-- * "FRP.Yampa.Hybrid"       -- Hybrid (discrete/continuous) SFs
+--
+-- * "FRP.Yampa.Integration"
+--
+-- * "FRP.Yampa.Loop"
+--
+-- * "FRP.Yampa.Random"
+--
+-- * "FRP.Yampa.Scan"
+--
+-- * "FRP.Yampa.Switches"
+--
+-- * "FRP.Yampa.Time"
+--
+-- * "FRP.Yampa.Simulation" -- Reactimation/evaluation
+--
+-- Internals
+--
+-- * "FRP.Yampa.InternalCore"
+--
+-- Geometry:
+--
+-- * "FRP.Yampa.Geometry"
+--
+-- * "FRP.Yampa.AffineSpace"
+--
+-- * "FRP.Yampa.VectorSpace"
+--
+-- * "FRP.Yampa.Point2"
+--
+-- * "FRP.Yampa.Point3"
+--
+-- * "FRP.Yampa.Vector2"
+--
+-- * "FRP.Yampa.Vector3"
+--
+-- Old legacy code:
+--
+-- * "FRP.Yampa.Diagnostics"
+--
+-- * "FRP.Yampa.Forceable"
+-- 
+-- * "FRP.Yampa.Internals"  -- No longer in use
+--
+-- * "FRP.Yampa.MergeableRecord"
+--
+-- * "FRP.Yampa.Miscellany"
+--
+-- * "FRP.Yampa.Utilities"
+--
 -- CHANGELOG:
 --
 -- * Adds (most) documentation.
