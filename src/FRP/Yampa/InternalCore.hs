@@ -167,8 +167,6 @@ module FRP.Yampa.InternalCore (
     sfId,
     sfConst,
     sfArrG,
-    freeze,
-    freezeCol,
 
     -- *** Scanning
     sfSScan,
@@ -488,14 +486,6 @@ vfyNoEv :: Event a -> b -> b
 vfyNoEv NoEvent b = b
 vfyNoEv _       _  = usrErr "AFRP" "vfyNoEv" "Assertion failed: Functions on events must not map NoEvent to Event."
 
-
--- Freezes a "running" signal function, i.e., turns it into a continuation in
--- the form of a plain signal function.
-freeze :: SF' a b -> DTime -> SF a b
-freeze sf dt = SF {sfTF = (sfTF' sf) dt}
-
-freezeCol :: Functor col => col (SF' a b) -> DTime -> col (SF a b)
-freezeCol sfs dt = fmap (flip freeze dt) sfs
 
 
 ------------------------------------------------------------------------------

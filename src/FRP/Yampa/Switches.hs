@@ -14,8 +14,8 @@
 module FRP.Yampa.Switches (
     -- Re-exported module, classes, and types
 
--- * Switching
--- ** Basic switchers
+    -- * Switching
+    -- ** Basic switchers
     switch,  dSwitch,	-- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
     rSwitch, drSwitch,	-- :: SF a b -> SF (a,Event (SF a b)) b
     kSwitch, dkSwitch,	-- :: SF a b
@@ -23,8 +23,8 @@ module FRP.Yampa.Switches (
 			--    -> (SF a b -> c -> SF a b)
 			--    -> SF a b
 
--- ** Parallel composition and switching
--- *** Parallel composition and switching over collections with broadcasting
+    -- ** Parallel composition and switching
+    -- *** Parallel composition and switching over collections with broadcasting
     parB,		-- :: Functor col => col (SF a b) -> SF a (col b)
     pSwitchB,dpSwitchB, -- :: Functor col =>
 			--        col (SF a b)
@@ -36,7 +36,7 @@ module FRP.Yampa.Switches (
 			--	  -> SF (a, Event (col (SF a b)->col (SF a b)))
 			--	        (col b)
 
--- *** Parallel composition and switching over collections with general routing
+    -- *** Parallel composition and switching over collections with general routing
     par,		-- Functor col =>
     			--     (forall sf . (a -> col sf -> col (b, sf)))
     			--     -> col (SF b c)
@@ -56,7 +56,7 @@ module FRP.Yampa.Switches (
 
 import Control.Arrow
 
-import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', sfConst, fdFun, FunDesc(..), freeze, sfArrG, freezeCol)
+import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', sfConst, fdFun, FunDesc(..), sfArrG, DTime)
 
 import FRP.Yampa.Basic
 import FRP.Yampa.Event
@@ -739,6 +739,14 @@ drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
 	k sfs f = drpSwitch' (f sfs)
 	drpSwitch' sfs = dpSwitch (rf . fst) sfs (NoEvent-->arr (snd . fst)) k
 -}
+
+-- Freezes a "running" signal function, i.e., turns it into a continuation in
+-- the form of a plain signal function.
+freeze :: SF' a b -> DTime -> SF a b
+freeze sf dt = SF {sfTF = (sfTF' sf) dt}
+
+freezeCol :: Functor col => col (SF' a b) -> DTime -> col (SF a b)
+freezeCol sfs dt = fmap (flip freeze dt) sfs
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:
