@@ -146,24 +146,10 @@ module FRP.Yampa.Time (
 ) where
 
 import Control.Arrow
--- #if __GLASGOW_HASKELL__ >= 610
--- import qualified Control.Category (Category(..))
--- #else
--- #endif
--- import Control.Monad (unless)
--- import Data.IORef
--- import Data.Maybe (fromMaybe)
--- import System.Random (RandomGen(..), Random(..))
-
 
 import FRP.Yampa.Core
--- import FRP.Yampa.Diagnostics
--- import FRP.Yampa.Event
--- import FRP.Yampa.Miscellany (( # ), dup, swap)
 import FRP.Yampa.Integration
--- import FRP.Yampa.VectorSpace
 
--- -- 
 -- | Outputs the time passed since the signal function instance was started.
 localTime :: SF a Time
 localTime = constant 1.0 >>> integral

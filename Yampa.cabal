@@ -41,19 +41,9 @@ library
   exposed-modules:
     FRP.Yampa
     -- Main FRP modules
-    FRP.Yampa.Core
-    FRP.Yampa.Delays
     FRP.Yampa.Event
-    FRP.Yampa.EventS
-    FRP.Yampa.Hybrid
-    FRP.Yampa.Integration
     FRP.Yampa.Internals
-    FRP.Yampa.Loop
-    FRP.Yampa.Random
-    FRP.Yampa.Simulation
-    FRP.Yampa.Switches
     FRP.Yampa.Task
-    FRP.Yampa.Time
 
     -- Auxiliary (commonly used) types
     FRP.Yampa.AffineSpace
@@ -70,7 +60,17 @@ library
     FRP.Yampa.Miscellany
     FRP.Yampa.Utilities
   other-modules:
+    FRP.Yampa.Core
+    FRP.Yampa.Delays
     FRP.Yampa.Diagnostics
+    FRP.Yampa.EventS
+    FRP.Yampa.Hybrid
+    FRP.Yampa.Integration
+    FRP.Yampa.Loop
+    FRP.Yampa.Random
+    FRP.Yampa.Simulation
+    FRP.Yampa.Switches
+    FRP.Yampa.Time
 
 source-repository head
   type:     git

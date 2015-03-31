@@ -141,7 +141,7 @@
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa (
--- Re-exported module, classes, and types
+    -- Re-exported module, classes, and types
     module Control.Arrow,
     module FRP.Yampa.VectorSpace,
     RandomGen(..),
@@ -153,8 +153,8 @@ module FRP.Yampa (
     SF,		-- Signal Function.
     Event(..),	-- Events; conceptually similar to Maybe (but abstract).
 
--- Temporray!
---    SF(..), sfTF',
+    -- Temporary!
+    --    SF(..), sfTF',
 
 -- Main instances
     -- SF is an instance of Arrow and ArrowLoop. Method instances:
