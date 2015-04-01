@@ -8,7 +8,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 --
 -- Domain-specific language embedded in Haskell for programming hybrid (mixed
 -- discrete-time and continuous-time) systems. Yampa is based on the concepts
@@ -37,7 +37,7 @@
 -- 'reactimate' (which needs an initialization action,
 -- an input sensing action and an actuation/consumer action and executes
 -- until explicitly stopped), and 'react' (which executes only one cycle).
--- 
+--
 -- Apart from using normal functions and arrow syntax to define 'SF's, you
 -- can also use several combinators. See [<#g:4>] for basic signals combinators,
 -- [<#g:11>] for ways of switching from one signal transformation to another,
@@ -275,7 +275,7 @@ data SF' a b where
     -- is undefined (e.g. when defining pre). In any case, it isn't
     -- necessarily used and should thus not be forced.
     SFSScan :: !(DTime -> a -> Transition a b)
-               -> !(c -> a -> Maybe (c, b)) -> !c -> b 
+               -> !(c -> a -> Maybe (c, b)) -> !c -> b
                -> SF' a b
     SFEP   :: !(DTime -> Event a -> Transition (Event a) b)
               -> !(c -> a -> (c, b, b)) -> !c -> b
@@ -367,7 +367,7 @@ epPrim f c bne = SF {sfTF = tf0}
 -- of event-processing functions somewhat, but would presumably incur an
 -- extra cost for the more common and simple case of non-composed event
 -- processors.
--- 
+--
 sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
 sfEP f c bne = sf
     where
@@ -403,7 +403,7 @@ sfMkInv sf = SF {sfTF = ...}
     sfMkInvAux sf@(SF' tf inv)
         | inv       = sf
         | otherwise = SF' tf' True
-            tf' = 
+            tf' =
 
 -}
 
@@ -493,7 +493,7 @@ vfyNoEv _       _  = usrErr "AFRP" "vfyNoEv" "Assertion failed: Functions on eve
 ------------------------------------------------------------------------------
 #if __GLASGOW_HASKELL__ >= 610
 instance Control.Category.Category SF where
-     (.) = flip compPrim 
+     (.) = flip compPrim
      id = SF $ \x -> (sfId,x)
 #endif
 
@@ -667,7 +667,7 @@ cpXX sf1@(SFEP{}) (SFCpAXA _ (FDG f21) sf22 fd23) =
 -- Only functions whose domain is known to be Event can be merged
 -- from the left with event processors.
 cpXX (SFCpAXA _ fd11 sf12 (FDE f13 f13ne)) sf2@(SFEP{}) =
-    cpXX (cpAX fd11 sf12) (cpEX f13 f13ne sf2) 
+    cpXX (cpAX fd11 sf12) (cpEX f13 f13ne sf2)
 -- !!! Other cases to look out for:
 -- !!! any sf >>> SFCpAXA = SFCpAXA if first arr is const.
 -- !!! But the following will presumably not work due to type restrictions.
@@ -679,7 +679,7 @@ cpXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
     cpAXA fd11 (cpXX (cpXA sf12 (fdComp fd13 fd21)) sf22) fd23
 -- !!! 2005-06-27: The if below accounts for a significant slowdown.
 -- !!! One would really like a cheme where opts only take place
--- !!! after a structural change ... 
+-- !!! after a structural change ...
 -- cpXX sf1 sf2 = cpXXInv sf1 sf2
 -- cpXX sf1 sf2 = cpXXAux sf1 sf2
 cpXX sf1 sf2 = SF' tf --  False
@@ -718,7 +718,7 @@ cpXXAux sf1 sf2 | unsimplifiable sf1 sf2 = SF' tf False
         unsimplifiable sf1@(SF' _ _) sf2@(SF' _ _) = True
         unsimplifiable sf1           sf2           = True
 -}
-                     
+
 {-
 -- wrong ...
 cpXXAux sf1@(SF' _ False)           sf2                         = SF' tf False
@@ -756,8 +756,8 @@ cpAXA :: FunDesc a b -> SF' b c -> FunDesc c d -> SF' a d
 cpAXA FDI     sf2 fd3     = cpXA sf2 fd3
 cpAXA fd1     sf2 FDI     = cpAX fd1 sf2
 cpAXA (FDC b) sf2 fd3     = cpCXA b sf2 fd3
-cpAXA _       _   (FDC d) = sfConst d        
-cpAXA fd1     sf2 fd3     = 
+cpAXA _       _   (FDC d) = sfConst d
+cpAXA fd1     sf2 fd3     =
     cpAXAAux fd1 (fdFun fd1) fd3 (fdFun fd3) sf2
     where
         -- Really: cpAXAAux :: SF' b c -> SF' a d
@@ -854,7 +854,7 @@ cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
             where
                 f' s _ = case f s b of
                              Nothing -> Nothing
-                             Just (s', c') -> Just (s', f3 c') 
+                             Just (s', c') -> Just (s', f3 c')
         cpCXAAux _ b _   f3 (SFEP _ _ _ cne) = sfConst (f3 (vfyNoEv b cne))
         cpCXAAux _ b fd3 _  (SFCpAXA _ fd21 sf22 fd23) =
             cpCXA ((fdFun fd21) b) sf22 (fdComp fd23 fd3)
@@ -926,7 +926,7 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
             where
                 f' s a = case f s a of
                              Nothing -> Nothing
-                             Just (s', b') -> Just (s', f2 b') 
+                             Just (s', b') -> Just (s', f2 b')
         cpXGAux _ f2 (SFEP _ f1 s bne) = sfEP f s (f2 bne)
             where
                 f s a = let (s', b, bne') = f1 s a in (s', f2 b, f2 bne')
@@ -955,7 +955,7 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
 cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
 cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
     where
-        cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b 
+        cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b
                    -> SF' b c -> SF' (Event a) c
         cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
         cpEXAux _ f1 _   (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
@@ -1015,8 +1015,8 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
             where
                 f' s a = case f s a of
                              Nothing -> Nothing
-                             Just (s', NoEvent) -> Just (s', f2ne) 
-                             Just (s', eb')     -> Just (s', f2 eb') 
+                             Just (s', NoEvent) -> Just (s', f2ne)
+                             Just (s', eb')     -> Just (s', f2 eb')
         cpXEAux _ f2 f2ne (SFEP _ f1 s ebne) =
             sfEP f s (vfyNoEv ebne f2ne)
             where
@@ -1048,7 +1048,7 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
                     where
                         (sf1', eb) = (sfTF' sf1) dt a
 -}
-        
+
 
 -- * Widening.
 -- The definition exploits the following identities:
@@ -1060,7 +1060,7 @@ firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
     where
         tf0 ~(a0, c0) = (fpAux sf1, (b0, c0))
             where
-                (sf1, b0) = tf10 a0 
+                (sf1, b0) = tf10 a0
 
 
 -- Also used in parSplitPrim
@@ -1073,7 +1073,7 @@ fpAux sf1 = SF' tf
     where
         tf dt ~(a, c) = (fpAux sf1', (b, c))
             where
-                (sf1', b) = (sfTF' sf1) dt a 
+                (sf1', b) = (sfTF' sf1) dt a
 
 
 {-
@@ -1082,7 +1082,7 @@ fpInv sf1 = SF' tf True
     where
         tf dt ~(a, c) = sf1 `seq` (fpInv sf1', (b, c))
             where
-                (sf1', b) = (sfTF' sf1) dt a 
+                (sf1', b) = (sfTF' sf1) dt a
 -}
 
 
@@ -1092,7 +1092,7 @@ secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
     where
         tf0 ~(c0, a0) = (spAux sf1, (c0, b0))
             where
-                (sf1, b0) = tf10 a0 
+                (sf1, b0) = tf10 a0
 
 
 -- Also used in parSplitPrim
@@ -1105,7 +1105,7 @@ spAux sf1 = SF' tf
     where
         tf dt ~(c, a) = (spAux sf1', (c, b))
             where
-                (sf1', b) = (sfTF' sf1) dt a 
+                (sf1', b) = (sfTF' sf1) dt a
 
 
 {-
@@ -1114,7 +1114,7 @@ spInv sf1 = SF' tf True
     where
         tf dt ~(c, a) = sf1 `seq` (spInv sf1', (c, b))
             where
-                (sf1', b) = (sfTF' sf1) dt a 
+                (sf1', b) = (sfTF' sf1) dt a
 -}
 
 
@@ -1132,8 +1132,8 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
         tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
             where
-                (sf1, b0) = tf10 a0 
-                (sf2, d0) = tf20 c0 
+                (sf1, b0) = tf10 a0
+                (sf2, d0) = tf20 c0
 
         -- Naming convention: ps<X><Y> where  <X> and <Y> is one of:
         -- X - arbitrary signal function
@@ -1253,7 +1253,7 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
         psXA sf1                 f2 = SF' tf
 {-
             if sfIsInv sf1 then
-                psXAInv sf1 f2 
+                psXAInv sf1 f2
             else
                 SF' tf False
 -}
@@ -1282,8 +1282,8 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
         tf0 a0 = (pfoXX sf1 sf2, (b0, c0))
             where
-                (sf1, b0) = tf10 a0 
-                (sf2, c0) = tf20 a0 
+                (sf1, b0) = tf10 a0
+                (sf2, c0) = tf20 a0
 
         -- Naming convention: pfo<X><Y> where  <X> and <Y> is one of:
         -- X - arbitrary signal function
@@ -1507,7 +1507,7 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
 -- * Scanning
 --
 sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
-sfSScan f c b = sf 
+sfSScan f c b = sf
     where
         sf = SFSScan tf f c b
         tf _ a = case f c a of

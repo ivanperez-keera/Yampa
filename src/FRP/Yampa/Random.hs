@@ -8,7 +8,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Random (
@@ -100,7 +100,7 @@ occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
         where
         tf dt _ = let p = 1 - exp (-(dt/t_avg)) -- Probability for at least one event.
                   in (occAux rs, if r < p then Event x else NoEvent)
-                  
+
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

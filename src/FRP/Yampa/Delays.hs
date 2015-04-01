@@ -8,7 +8,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Delays (
@@ -116,13 +116,13 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
                     where
                         t_diff' = t_diff + dt
                         rbuf'   = (dt, a) : rbuf
-    
+
                         nextSmpl rbuf [] t_diff a =
                             nextSmpl [] (reverse rbuf) t_diff a
                         nextSmpl rbuf buf@((bdt, ba) : buf') t_diff a
                             | t_diff < bdt = (delayAux rbuf buf t_diff a, a)
                             | otherwise    = nextSmpl rbuf buf' (t_diff-bdt) ba
-                
+
 
 -- !!! Hmm. Not so easy to do efficiently, it seems ...
 
@@ -134,7 +134,7 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
 -- Variable pause in signal
 ------------------------------------------------------------------------------
 
--- | Given a value in an accumulator (b), a predicate signal function (sfC), 
+-- | Given a value in an accumulator (b), a predicate signal function (sfC),
 --   and a second signal function (sf), pause will produce the accumulator b
 --   if sfC input is True, and will transform the signal using sf otherwise.
 --   It acts as a pause with an accumulator for the moments when the
@@ -162,7 +162,7 @@ pause b_init (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
        -- Very same deal (almost alpha-renameable)
        pause' :: b -> SF' a b -> SF' a Bool -> SF' a b
        pause' b_init' tf10' tfP' = SF' tf0'
-         where tf0' dt a = 
+         where tf0' dt a =
                  case (sfTF' tfP') dt a of
                    (tfP'', True) -> (pause' b_init' tf10' tfP'', b_init')
                    (tfP'', False) -> let (tf10'', b0') = (sfTF' tf10') dt a

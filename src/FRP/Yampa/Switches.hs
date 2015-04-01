@@ -8,7 +8,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Switches (
@@ -116,13 +116,13 @@ switch (SF {sfTF = tf10} :: SF a (b, Event c)) (k :: c -> SF a b) = SF {sfTF = t
 -}
 
 -- | Basic switch.
--- 
+--
 -- By default, the first signal function is applied.
 --
 -- Whenever the second value in the pair actually is an event,
 -- the value carried by the event is used to obtain a new signal
 -- function to be applied *at that time and at future times*.
--- 
+--
 -- Until that happens, the first value in the pair is produced
 -- in the output signal.
 --
@@ -190,21 +190,21 @@ switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 
 
 -- | Switch with delayed observation.
--- 
+--
 -- By default, the first signal function is applied.
 --
 -- Whenever the second value in the pair actually is an event,
 -- the value carried by the event is used to obtain a new signal
 -- function to be applied *at future times*.
--- 
+--
 -- Until that happens, the first value in the pair is produced
 -- in the output signal.
 --
 -- Important note: at the time of switching, the second
 -- signal function is used immediately, but the current
 -- input is fed by it (even though the actual output signal
--- value at time 0 is discarded). 
--- 
+-- value at time 0 is discarded).
+--
 -- If that second SF can also switch at time zero, then a
 -- double (nested) -- switch might take place. If the second SF refers to the
 -- first one, the switch might take place infinitely many times and never be
@@ -281,7 +281,7 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 
 
 -- | Recurring switch.
--- 
+--
 -- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
 -- information on how this switch works.
 
@@ -305,7 +305,7 @@ rSwitch sf = switch (first sf) rSwitch'
 
 
 -- | Recurring switch with delayed observation.
--- 
+--
 -- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
 -- information on how this switch works.
 drSwitch :: SF a b -> SF (a, Event (SF a b)) b
@@ -321,7 +321,7 @@ drSwitch sf = dSwitch (first sf) drSwitch'
 
 
 -- | "Call-with-current-continuation" switch.
--- 
+--
 -- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
 -- information on how this switch works.
 
@@ -345,9 +345,9 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
         -- kSwitchAux (SFArrE _ f1)  sfe                 = kSwitchAuxA1 f1 sfe
         -- kSwitchAux (SFArrEE _ f1) sfe                 = kSwitchAuxA1 f1 sfe
         kSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
-        kSwitchAux sf1 (SFArr _ fde) = kSwitchAuxAE sf1 (fdFun fde) 
-        -- kSwitchAux sf1            (SFArrE _ fe)       = kSwitchAuxAE sf1 fe 
-        -- kSwitchAux sf1            (SFArrEE _ fe)      = kSwitchAuxAE sf1 fe 
+        kSwitchAux sf1 (SFArr _ fde) = kSwitchAuxAE sf1 (fdFun fde)
+        -- kSwitchAux sf1            (SFArrE _ fe)       = kSwitchAuxAE sf1 fe
+        -- kSwitchAux sf1            (SFArrEE _ fe)      = kSwitchAuxAE sf1 fe
         kSwitchAux sf1            sfe                 = SF' tf -- False
             where
                 tf dt a =
@@ -440,7 +440,7 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 
 
 -- | 'kSwitch' with delayed observation.
--- 
+--
 -- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
 -- information on how this switch works.
 
@@ -524,7 +524,7 @@ pSwitchB = pSwitch broadcast
 
 -- | Delayed parallel switch with broadcasting (dynamic collection of
 --   signal functions spatially composed in parallel). See 'dpSwitch'.
--- 
+--
 -- For more information on how parallel composition works, check
 -- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
 dpSwitchB :: Functor col =>

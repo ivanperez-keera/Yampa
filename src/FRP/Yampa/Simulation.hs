@@ -8,7 +8,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Simulation (
@@ -132,7 +132,7 @@ data ReactState a b = ReactState {
     rsSF :: SF' a b,
     rsA :: a,
     rsB :: b
-  }           
+  }
 
 -- | A reference to reactimate's state, maintained across samples.
 type ReactHandle a b = IORef (ReactState a b)
@@ -142,7 +142,7 @@ reactInit :: IO a -- init
              -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
              -> SF a b
              -> IO (ReactHandle a b)
-reactInit init actuate (SF {sfTF = tf0}) = 
+reactInit init actuate (SF {sfTF = tf0}) =
   do a0 <- init
      let (sf,b0) = tf0 a0
      -- TODO: really need to fix this interface, since right now we
@@ -155,13 +155,13 @@ reactInit init actuate (SF {sfTF = tf0}) =
 react :: ReactHandle a b
       -> (DTime,Maybe a)
       -> IO Bool
-react rh (dt,ma') = 
+react rh (dt,ma') =
   do rs@(ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b }) <- readIORef rh
      let a' = fromMaybe a ma'
          (sf',b') = (sfTF' sf) dt a'
      writeIORef rh (rs {rsSF = sf',rsA = a',rsB = b'})
      done <- actuate rh True b'
-     return done     
+     return done
 
 
 ------------------------------------------------------------------------------
@@ -272,7 +272,7 @@ deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
     where
         debAux _      []                     = []
         debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
-                             | otherwise     = Just a  : debAux a as 
+                             | otherwise     = Just a  : debAux a as
 
 -- Embedding and missing events.
 -- Suppose a subsystem is super sampled. Then some of the output

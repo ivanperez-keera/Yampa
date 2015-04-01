@@ -12,7 +12,7 @@
 --
 -- Well-initialised loops
 -----------------------------------------------------------------------------------------
-   
+
 module FRP.Yampa.Loop (
     -- * State keeping combinators
     -- ** Loops with guaranteed well-defined feedback

@@ -37,7 +37,7 @@ class (Eq a, Floating a) => VectorSpace v a | v -> a where
     (^+^)        :: v -> v -> v
     (^-^)        :: v -> v -> v
     dot          :: v -> v -> a
-    norm	 :: v -> a
+    norm	     :: v -> a
     normalize	 :: v -> v
 
     v ^/ a = (1/a) *^ v

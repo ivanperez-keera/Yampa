@@ -8,7 +8,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Hybrid (
@@ -79,7 +79,7 @@ hold a_init = epPrim f () a_init
 -- !!! 2005-06-09: But if iPre can be defined in terms of sscan,
 -- !!! and ep + sscan = sscan, then things might work, and
 -- !!! it might be possible to define dHold simply as hold >>> iPre
--- !!! without any performance penalty. 
+-- !!! without any performance penalty.
 
 -- | Zero-order hold with delay.
 --
@@ -117,7 +117,7 @@ old_accum = accumBy (flip ($))
 --   Every time an 'Event' is received, the function
 --   inside it is applied to the accumulator,
 --   whose new value is outputted in an 'Event'.
---   
+--
 accum :: a -> SF (Event (a -> a)) (Event a)
 accum a_init = epPrim f a_init NoEvent
     where
@@ -136,7 +136,7 @@ accumHold a_init = epPrim f a_init a_init
                 a' = g a
 
 -- | Zero-order hold accumulator with delayed initialization (always produces
--- the last outputted value until an event arrives, but the very initial output 
+-- the last outputted value until an event arrives, but the very initial output
 -- is always the given accumulator).
 dAccumHold :: a -> SF (Event (a -> a)) a
 dAccumHold a_init = accumHold a_init >>> iPre a_init
@@ -213,7 +213,7 @@ But no real improvement in clarity anyway.
 accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
 accumBy f b_init = SF {sfTF = tf0}
     where
-        tf0 NoEvent    = (abAux b_init, NoEvent) 
+        tf0 NoEvent    = (abAux b_init, NoEvent)
         tf0 (Event a0) = let b' = f b_init a0
                          in (abAux b', Event b')
 
@@ -228,7 +228,7 @@ accumBy f b_init = SF {sfTF = tf0}
 accumFilter :: (c -> a -> (c, Maybe b)) -> c -> SF (Event a) (Event b)
 accumFilter f c_init = SF {sfTF = tf0}
     where
-        tf0 NoEvent    = (afAux c_init, NoEvent) 
+        tf0 NoEvent    = (afAux c_init, NoEvent)
         tf0 (Event a0) = case f c_init a0 of
                              (c', Nothing) -> (afAux c', NoEvent)
                              (c', Just b0) -> (afAux c', Event b0)

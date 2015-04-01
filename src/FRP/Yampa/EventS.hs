@@ -8,7 +8,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
--- 
+--
 --
 -----------------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ module FRP.Yampa.EventS (
     -- rMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
     -- merge,              -- :: Event a -> Event a -> Event a,    infixl 6
     -- mergeBy,            -- :: (a -> a -> a) -> Event a -> Event a -> Event a
-    -- mapMerge,           -- :: (a -> c) -> (b -> c) -> (a -> b -> c) 
+    -- mapMerge,           -- :: (a -> c) -> (b -> c) -> (a -> b -> c)
     --                     --    -> Event a -> Event b -> Event c
     -- mergeEvents,        -- :: [Event a] -> Event a
     -- catEvents,          -- :: [Event a] -> Event [a]
@@ -78,7 +78,7 @@ import FRP.Yampa.Switches
 -- -- of event-processing functions somewhat, but would presumably incur an
 -- -- extra cost for the more common and simple case of non-composed event
 -- -- processors.
--- 
+--
 -- sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
 -- sfEP f c bne = sf
 --     where
@@ -91,8 +91,8 @@ import FRP.Yampa.Switches
 --                   f
 --                   c
 --                   bne
--- 
--- 
+--
+--
 -- -- epPrim is used to define hold, accum, and other event-processing
 -- -- functions.
 -- epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
@@ -126,7 +126,7 @@ sfMkInv sf = SF {sfTF = ...}
     sfMkInvAux sf@(SF' tf inv)
         | inv       = sf
         | otherwise = SF' tf' True
-            tf' = 
+            tf' =
 
 -}
 
@@ -172,7 +172,7 @@ repeatedly :: Time -> b -> SF a (Event b)
 repeatedly q x | q > 0 = afterEach qxs
                | otherwise = usrErr "AFRP" "repeatedly" "Non-positive period."
     where
-        qxs = (q,x):qxs        
+        qxs = (q,x):qxs
 
 
 -- Event source with consecutive occurrences at the given intervals.
@@ -287,7 +287,7 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
             where
                 tf _ NoEvent   = (noPendingEvent, NoEvent)
                 tf _ (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
-                                 
+
         -- t_next is the present time w.r.t. the next scheduled event.
         -- t_last is the present time w.r.t. the last scheduled event.
         -- In the event queues, events are associated with their time
@@ -342,7 +342,7 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                               NoEvent -> noPendingEvent
                               Event x -> pendingEvents (-q) [] [] (-q) x,
                           NoEvent)
-                                 
+
         -- t_next is the present time w.r.t. the next scheduled event.
         -- t_last is the present time w.r.t. the last scheduled event.
         -- In the event queues, events are associated with their time
@@ -352,11 +352,11 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                 tf dt e
                     | t_next' >= 0 =
                         emitEventsScheduleNext e t_last' rqxs qxs t_next' [x]
-                    | otherwise    = 
+                    | otherwise    =
                         (pendingEvents t_last'' rqxs' qxs t_next' x, NoEvent)
                     where
                         t_next' = t_next  + dt
-                        t_last' = t_last  + dt 
+                        t_last' = t_last  + dt
                         (t_last'', rqxs') =
                             case e of
                                 NoEvent  -> (t_last', rqxs)
@@ -371,20 +371,20 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
         emitEventsScheduleNext e _ [] [] _ rxs =
             (case e of
                  NoEvent -> noPendingEvent
-                 Event x -> pendingEvents (-q) [] [] (-q) x, 
+                 Event x -> pendingEvents (-q) [] [] (-q) x,
              Event (reverse rxs))
         emitEventsScheduleNext e t_last rqxs [] t_next rxs =
             emitEventsScheduleNext e t_last [] (reverse rqxs) t_next rxs
         emitEventsScheduleNext e t_last rqxs ((q', x') : qxs') t_next rxs
             | q' > t_next = (case e of
-                                 NoEvent -> 
-                                     pendingEvents t_last 
-                                                   rqxs 
+                                 NoEvent ->
+                                     pendingEvents t_last
+                                                   rqxs
                                                    qxs'
                                                    (t_next - q')
                                                    x'
                                  Event x'' ->
-                                     pendingEvents (-q) 
+                                     pendingEvents (-q)
                                                    ((t_last+q, x'') : rqxs)
                                                    qxs'
                                                    (t_next - q')
@@ -392,8 +392,8 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                              Event (reverse rxs))
             | otherwise   = emitEventsScheduleNext e
                                                    t_last
-                                                   rqxs 
-                                                   qxs' 
+                                                   rqxs
+                                                   qxs'
                                                    (t_next - q')
                                                    (x' : rxs)
 

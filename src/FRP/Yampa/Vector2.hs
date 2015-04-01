@@ -56,7 +56,7 @@ vector2XY :: RealFloat a => Vector2 a -> (a, a)
 vector2XY (Vector2 x y) = (x, y)
 
 vector2Polar :: RealFloat a => a -> a -> Vector2 a
-vector2Polar rho theta = Vector2 (rho * cos theta) (rho * sin theta) 
+vector2Polar rho theta = Vector2 (rho * cos theta) (rho * sin theta)
 
 vector2Rho :: RealFloat a => Vector2 a -> a
 vector2Rho (Vector2 x y) = sqrt (x * x + y * y)

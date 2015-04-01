@@ -39,7 +39,7 @@ module FRP.Yampa.Utilities (
 -- General arrow utilities
     (^>>),		-- :: Arrow a => (b -> c) -> a c d -> a b d
     (>>^),		-- :: Arrow a => a b c -> (c -> d) -> a b d
-    (^<<),		-- :: Arrow a => (c -> d) -> a b c -> a b d 
+    (^<<),		-- :: Arrow a => (c -> d) -> a b c -> a b d
     (<<^),		-- :: Arrow a => a c d -> (b -> c) -> a b d
 
 -- Liftings
@@ -116,7 +116,7 @@ f ^>> a = arr f >>> a
 a >>^ f = a >>> arr f
 
 
-(^<<) :: Arrow a => (c -> d) -> a b c -> a b d 
+(^<<) :: Arrow a => (c -> d) -> a b c -> a b d
 f ^<< a = arr f <<< a
 
 
@@ -199,7 +199,7 @@ sample p_ev = identity &&& repeatedly p_ev () >>^ \(a, e) -> e `tag` a
 -- Makes an event source recurring by restarting it as soon as it has an
 -- occurrence.
 -- !!! What about event sources that have an instantaneous occurrence?
--- !!! E.g. recur (now ()). 
+-- !!! E.g. recur (now ()).
 -- !!! Or worse, what about recur identity? (or substitute identity for
 -- !!! a more sensible definition that e.g. merges any incoming event
 -- !!! with an internally generated one, for example)

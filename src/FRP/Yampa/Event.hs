@@ -254,7 +254,7 @@ mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 -- merging the results. The first three arguments are mapping functions,
 -- the third of which will only be used when both events are present.
 -- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
-mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c) 
+mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c)
             -> Event a -> Event b -> Event c
 mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
 mapMerge lf _  _   (Event l) NoEvent   = Event (lf l)
