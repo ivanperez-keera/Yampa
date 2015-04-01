@@ -37,8 +37,8 @@ class (Eq a, Floating a) => VectorSpace v a | v -> a where
     (^+^)        :: v -> v -> v
     (^-^)        :: v -> v -> v
     dot          :: v -> v -> a
-    norm	     :: v -> a
-    normalize	 :: v -> v
+    norm         :: v -> a
+    normalize    :: v -> v
 
     v ^/ a = (1/a) *^ v
 
@@ -50,7 +50,7 @@ class (Eq a, Floating a) => VectorSpace v a | v -> a where
 
     normalize v = if nv /= 0 then v ^/ nv else error "normalize: zero vector"
         where
-		nv = norm v
+        nv = norm v
 
 ------------------------------------------------------------------------------
 -- Vector space instances for Float and Double
