@@ -38,23 +38,12 @@
 -- 'reactimate' (which needs an initialization action,
 -- an input sensing action and an actuation/consumer action and executes
 -- until explicitly stopped), and 'react' (which executes only one cycle).
--- 
--- Apart from using normal functions and arrow syntax to define 'SF's, you
--- can also use several combinators. See [<#g:4>] for basic signals combinators,
--- [<#g:11>] for ways of switching from one signal transformation to another,
--- and [<#g:16>] for ways of transforming Event-carrying signals into continuous
--- signals, [<#g:19>] for ways of delaying signals, and [<#g:21>] for ways to
--- feed a signal back to the same signal transformer.
---
--- Ways to define Event-carrying signals are given in [<#g:7>], and
--- "FRP.Yampa.Event" defines events and event-manipulation functions.
---
--- Finally, see [<#g:26>] for sources of randomness (useful in games).
 --
 -- This will be the last version of Yampa to include mergeable records,
--- point2/3, vector2/3, and other auxiliary definitions. The internals
--- have now changed. Although not all will be exposed in the next version,
--- here's the new project structure:
+-- point2 and point3, vector2 and vector3, and other auxiliary definitions. The
+-- internals have now changed. Although not all will be exposed in the next
+-- version, below is the new project structure. Please, take a look and let us
+-- know if you think there are any potential problems with it.
 --
 -- Main Yampa modules:
 --
@@ -74,7 +63,7 @@
 --
 -- * "FRP.Yampa.Event"
 --
--- * "FRP.Yampa.EventS"       -- Event consuming/producing SFs
+-- * "FRP.Yampa.EventS"       -- Event consuming/producing SFs. To be renamed.
 --
 -- * "FRP.Yampa.Hybrid"       -- Hybrid (discrete/continuous) SFs
 --
