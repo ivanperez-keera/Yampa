@@ -33,7 +33,7 @@ module FRP.Yampa.EventS (
     notYet,             -- :: SF (Event a) (Event a)
     once,               -- :: SF (Event a) (Event a)
     takeEvents,         -- :: Int -> SF (Event a) (Event a)
-    dropEvents          -- :: Int -> SF (Event a) (Event a)
+    dropEvents,         -- :: Int -> SF (Event a) (Event a)
 
     -- ** Pointwise functions on events
     -- noEvent,            -- :: Event a
@@ -59,6 +59,14 @@ module FRP.Yampa.EventS (
     -- filterE,            -- :: (a -> Bool) -> Event a -> Event a
     -- mapFilterE,         -- :: (a -> Maybe b) -> Event a -> Event b
     -- gate,               -- :: Event a -> Bool -> Event a,       infixl 8
+    -- Event sources
+    snap,         -- :: SF a (Event a)
+    snapAfter,    -- :: Time -> SF a (Event a)
+    sample,       -- :: Time -> SF a (Event a)
+    recur,        -- :: SF a (Event b) -> SF a (Event b)
+    andThen       -- :: SF a (Event b)->SF a (Event b)->SF a (Event b)
+
+
 
 ) where
 
@@ -72,6 +80,9 @@ import FRP.Yampa.Event
 import FRP.Yampa.Miscellany
 import FRP.Yampa.Scan
 import FRP.Yampa.Switches
+
+
+infixr 5 `andThen`
 
 -- -- The event-processing function *could* accept the present NoEvent
 -- -- output as an extra state argument. That would facilitate composition
@@ -508,6 +519,51 @@ dropEvents :: Int -> SF (Event a) (Event a)
 dropEvents n | n <= 0  = identity
 dropEvents n = dSwitch (never &&& identity)
                              (const (NoEvent >-- dropEvents (n - 1)))
+
+-- Event source with a single occurrence at time 0. The value of the event
+-- is obtained by sampling the input at that time.
+-- (The outer "switch" ensures that the entire signal function will become
+-- just "constant" once the sample has been taken.)
+snap :: SF a (Event a)
+snap = switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
+
+
+-- Event source with a single occurrence at or as soon after (local) time t_ev
+-- as possible. The value of the event is obtained by sampling the input a
+-- that time.
+snapAfter :: Time -> SF a (Event a)
+snapAfter t_ev = switch (never
+             &&& (identity
+                  &&& after t_ev () >>^ \(a, e) -> e `tag` a))
+            now
+
+
+-- Sample a signal at regular intervals.
+sample :: Time -> SF a (Event a)
+sample p_ev = identity &&& repeatedly p_ev () >>^ \(a, e) -> e `tag` a
+
+
+-- Makes an event source recurring by restarting it as soon as it has an
+-- occurrence.
+-- !!! What about event sources that have an instantaneous occurrence?
+-- !!! E.g. recur (now ()).
+-- !!! Or worse, what about recur identity? (or substitute identity for
+-- !!! a more sensible definition that e.g. merges any incoming event
+-- !!! with an internally generated one, for example)
+-- !!! Possibly we should ignore instantaneous reoccurrences.
+-- New definition:
+recur :: SF a (Event b) -> SF a (Event b)
+recur sfe = switch (never &&& sfe) $ \b -> Event b --> (recur (NoEvent-->sfe))
+
+andThen :: SF a (Event b) -> SF a (Event b) -> SF a (Event b)
+sfe1 `andThen` sfe2 = dSwitch (sfe1 >>^ dup) (const sfe2)
+
+{-
+recur :: SF a (Event b) -> SF a (Event b)
+recur sfe = switch (never &&& sfe) recurAux
+    where
+    recurAux b = switch (now b &&& sfe) recurAux
+-}
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

@@ -52,10 +52,21 @@ module FRP.Yampa.Switches (
                         --    -> col (SF b c)
                         --    -> SF (a, Event (col (SF b c) -> col (SF b c)))
                         --          (col c)
+                        --
+    -- Parallel composition/switchers with "zip" routing
+    parZ,         -- [SF a b] -> SF [a] [b]
+    pSwitchZ,     -- [SF a b] -> SF ([a],[b]) (Event c)
+                  -- -> ([SF a b] -> c -> SF [a] [b]) -> SF [a] [b]
+    dpSwitchZ,    -- [SF a b] -> SF ([a],[b]) (Event c)
+                  -- -> ([SF a b] -> c ->SF [a] [b]) -> SF [a] [b]
+    rpSwitchZ,    -- [SF a b] -> SF ([a], Event ([SF a b]->[SF a b])) [b]
+    drpSwitchZ,   -- [SF a b] -> SF ([a], Event ([SF a b]->[SF a b])) [b]
+
 ) where
 
 import Control.Arrow
 
+import FRP.Yampa.Diagnostics
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', sfConst, fdFun, FunDesc(..), sfArrG, DTime)
 
 import FRP.Yampa.Basic
@@ -739,6 +750,54 @@ drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
         k sfs f = drpSwitch' (f sfs)
         drpSwitch' sfs = dpSwitch (rf . fst) sfs (NoEvent-->arr (snd . fst)) k
 -}
+
+------------------------------------------------------------------------------
+-- * Parallel composition/switchers with "zip" routing
+------------------------------------------------------------------------------
+
+
+parZ :: [SF a b] -> SF [a] [b]
+parZ = par (safeZip "parZ")
+
+
+pSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
+            -> SF [a] [b]
+pSwitchZ = pSwitch (safeZip "pSwitchZ")
+
+
+dpSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c ->SF [a] [b])
+             -> SF [a] [b]
+dpSwitchZ = dpSwitch (safeZip "dpSwitchZ")
+
+
+rpSwitchZ :: [SF a b] -> SF ([a], Event ([SF a b] -> [SF a b])) [b]
+rpSwitchZ = rpSwitch (safeZip "rpSwitchZ")
+
+
+drpSwitchZ :: [SF a b] -> SF ([a], Event ([SF a b] -> [SF a b])) [b]
+drpSwitchZ = drpSwitch (safeZip "drpSwitchZ")
+
+-- IPerez: This is actually unsafezip. Zip is actually safe. It works
+-- regardless of which list is smallest. This version of zip is right-biased:
+-- the second list determines the size of the final list.
+safeZip :: String -> [a] -> [b] -> [(a,b)]
+safeZip fn l1 l2 = safeZip' l1 l2
+  where
+    safeZip' :: [a] -> [b] -> [(a, b)]
+    safeZip' _  []     = []
+    safeZip' as (b:bs) = (head' as, b) : safeZip' (tail' as) bs
+
+    head' :: [a] -> a
+    head' []    = err
+    head' (a:_) = a
+
+    tail' :: [a] -> [a]
+    tail' []     = err
+    tail' (_:as) = as
+
+    err :: a
+    err = usrErr "FRP.Yampa.Switches" fn "Input list too short."
+
 
 -- Freezes a "running" signal function, i.e., turns it into a continuation in
 -- the form of a plain signal function.

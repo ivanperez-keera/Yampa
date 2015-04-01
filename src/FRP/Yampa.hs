@@ -59,6 +59,8 @@
 --
 -- * "FRP.Yampa.Basic"
 --
+-- * "FRP.Yampa.Conditional"
+--
 -- * "FRP.Yampa.Delays"
 --
 -- * "FRP.Yampa.Event"

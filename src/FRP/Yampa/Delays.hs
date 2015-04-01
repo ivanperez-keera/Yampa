@@ -25,14 +25,19 @@ module FRP.Yampa.Delays (
     -- ** Variable delay
     pause,              -- :: b -> SF a b -> SF a Bool -> SF a b
 
+    -- ** To be completed
+    fby,        -- :: b -> SF a b -> SF a b,    infixr 0
 ) where
 
+import Control.Arrow
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', Transition, Time)
 
 import FRP.Yampa.Basic
 import FRP.Yampa.Scan
+
+infixr 0 `fby`
 
 ------------------------------------------------------------------------------
 -- Delays
@@ -174,6 +179,11 @@ pause b_init (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
 --   ok    <- sfThen -< i
 --   notOk <- sfElse -< i
 --   returnA -< if cond then ok else notOk
+
+-- | Lucid-Synchrone-like initialized delay (read "followed by").
+fby :: b -> SF a b -> SF a b
+b0 `fby` sf = b0 --> sf >>> pre
+
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

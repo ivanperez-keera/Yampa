@@ -22,9 +22,14 @@ module FRP.Yampa.Integration (
 
     -- Temporarily hidden, but will eventually be made public.
     -- iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
+    impulseIntegral,
+    count
 
 ) where
 
+import Control.Arrow
+import FRP.Yampa.Event
+import FRP.Yampa.Hybrid
 import FRP.Yampa.InternalCore (SF(..), SF'(..), DTime)
 import FRP.Yampa.VectorSpace
 
@@ -67,6 +72,13 @@ derivative = SF {sfTF = tf0}
         derivativeAux a_prev = SF' tf -- True
             where
                 tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
+
+impulseIntegral :: VectorSpace a k => SF (a, Event a) a
+impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
+
+count :: Integral b => SF (Event a) (Event b)
+count = accumBy (\n _ -> n + 1) 0
+
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

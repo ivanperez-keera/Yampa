@@ -54,53 +54,25 @@ module FRP.Yampa.Utilities (
     lift4,      -- :: Arrow a => (c->d->e->f->g) -> (a b c->...->a b g)
     lift5,      -- :: Arrow a => (c->d->e->f->g->h)->(a b c->...a b h)
 
--- Event sources
-    snap,       -- :: SF a (Event a)
-    snapAfter,      -- :: Time -> SF a (Event a)
-    sample,     -- :: Time -> SF a (Event a)
-    recur,      -- :: SF a (Event b) -> SF a (Event b)
-    andThen,            -- :: SF a (Event b)->SF a (Event b)->SF a (Event b)
-    sampleWindow,   -- :: Int -> Time -> SF a (Event [a])
-
--- Parallel composition/switchers with "zip" routing
-    parZ,       -- [SF a b] -> SF [a] [b]
-    pSwitchZ,       -- [SF a b] -> SF ([a],[b]) (Event c)
-            -- -> ([SF a b] -> c -> SF [a] [b]) -> SF [a] [b]
-    dpSwitchZ,      -- [SF a b] -> SF ([a],[b]) (Event c)
-            -- -> ([SF a b] -> c ->SF [a] [b]) -> SF [a] [b]
-    rpSwitchZ,      -- [SF a b] -> SF ([a], Event ([SF a b]->[SF a b])) [b]
-    drpSwitchZ,     -- [SF a b] -> SF ([a], Event ([SF a b]->[SF a b])) [b]
-
--- Guards and automata-oriented combinators
-    provided,       -- :: (a -> Bool) -> SF a b -> SF a b -> SF a b
 
 -- Wave-form generation
     old_dHold,      -- :: a -> SF (Event a) a
-    dTrackAndHold,  -- :: a -> SF (Maybe a) a
 
 -- Accumulators
-    old_accumHold,  -- :: a -> SF (Event (a -> a)) a
-    old_dAccumHold, -- :: a -> SF (Event (a -> a)) a
-    old_accumHoldBy,    -- :: (b -> a -> b) -> b -> SF (Event a) b
-    old_dAccumHoldBy,   -- :: (b -> a -> b) -> b -> SF (Event a) b
-    count,      -- :: Integral b => SF (Event a) (Event b)
-
--- Delays
-    fby,        -- :: b -> SF a b -> SF a b,    infixr 0
+    old_accumHold,    -- :: a -> SF (Event (a -> a)) a
+    old_dAccumHold,   -- :: a -> SF (Event (a -> a)) a
+    old_accumHoldBy,  -- :: (b -> a -> b) -> b -> SF (Event a) b
+    old_dAccumHoldBy, -- :: (b -> a -> b) -> b -> SF (Event a) b
 
 -- Integrals
-    impulseIntegral,    -- :: VectorSpace a k => SF (a, Event a) a
     old_impulseIntegral -- :: VectorSpace a k => SF (a, Event a) a
+
+    , sampleWindow
 ) where
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa
 
-
-infixr 5 `andThen`
---infixr 1 ^<<, ^>>
---infixr 1 <<^, >>^
-infixr 0 `fby`
 
 
 -- Now defined directly in Control.Arrow.
@@ -173,52 +145,53 @@ lift5 f = \a1 a2 a3 a4 a5 ->(lift4 f) a1 a2 a3 a4 &&& a5 >>> arr2 ($)
 -- Event sources
 ------------------------------------------------------------------------------
 
--- Event source with a single occurrence at time 0. The value of the event
--- is obtained by sampling the input at that time.
--- (The outer "switch" ensures that the entire signal function will become
--- just "constant" once the sample has been taken.)
-snap :: SF a (Event a)
-snap = switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
 
 
--- Event source with a single occurrence at or as soon after (local) time t_ev
--- as possible. The value of the event is obtained by sampling the input a
--- that time.
-snapAfter :: Time -> SF a (Event a)
-snapAfter t_ev = switch (never
-             &&& (identity
-                  &&& after t_ev () >>^ \(a, e) -> e `tag` a))
-            now
 
+------------------------------------------------------------------------------
+-- Wave-form generation
+------------------------------------------------------------------------------
 
--- Sample a signal at regular intervals.
-sample :: Time -> SF a (Event a)
-sample p_ev = identity &&& repeatedly p_ev () >>^ \(a, e) -> e `tag` a
-
-
--- Makes an event source recurring by restarting it as soon as it has an
--- occurrence.
--- !!! What about event sources that have an instantaneous occurrence?
--- !!! E.g. recur (now ()).
--- !!! Or worse, what about recur identity? (or substitute identity for
--- !!! a more sensible definition that e.g. merges any incoming event
--- !!! with an internally generated one, for example)
--- !!! Possibly we should ignore instantaneous reoccurrences.
--- New definition:
-recur :: SF a (Event b) -> SF a (Event b)
-recur sfe = switch (never &&& sfe) $ \b -> Event b --> (recur (NoEvent-->sfe))
-
-andThen :: SF a (Event b) -> SF a (Event b) -> SF a (Event b)
-sfe1 `andThen` sfe2 = dSwitch (sfe1 >>^ dup) (const sfe2)
-
-{-
-recur :: SF a (Event b) -> SF a (Event b)
-recur sfe = switch (never &&& sfe) recurAux
+-- Zero-order hold with delay.
+-- Identity: dHold a0 = hold a0 >>> iPre a0).
+old_dHold :: a -> SF (Event a) a
+old_dHold a0 = dSwitch (constant a0 &&& identity) dHold'
     where
-    recurAux b = switch (now b &&& sfe) recurAux
--}
+    dHold' a = dSwitch (constant a &&& notYet) dHold'
 
--- Window sampling
+
+
+------------------------------------------------------------------------------
+-- Accumulators
+------------------------------------------------------------------------------
+
+{-# DEPRECATED old_accumHold "Use accumHold instead" #-}
+old_accumHold :: a -> SF (Event (a -> a)) a
+old_accumHold a_init = old_accum a_init >>> old_hold a_init
+
+
+{-# DEPRECATED old_dAccumHold "Use dAccumHold instead" #-}
+old_dAccumHold :: a -> SF (Event (a -> a)) a
+old_dAccumHold a_init = old_accum a_init >>> old_dHold a_init
+
+
+{-# DEPRECATED old_accumHoldBy "Use accumHoldBy instead" #-}
+old_accumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
+old_accumHoldBy f b_init = old_accumBy f b_init >>> old_hold b_init
+
+
+{-# DEPRECATED old_dAccumHoldBy "Use dAccumHoldBy instead" #-}
+old_dAccumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
+old_dAccumHoldBy f b_init = old_accumBy f b_init >>> old_dHold b_init
+
+------------------------------------------------------------------------------
+-- Integrals
+------------------------------------------------------------------------------
+
+old_impulseIntegral :: VectorSpace a k => SF (a, Event a) a
+old_impulseIntegral = (integral *** old_accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
+
+-- * Window sampling
 -- First argument is the window length wl, second is the sampling interval t.
 -- The output list should contain (min (truncate (T/t) wl)) samples, where
 -- T is the time the signal function has been running. This requires some
@@ -236,120 +209,3 @@ sampleWindow wl q =
             where
             w' = w ++ as
 
-
-------------------------------------------------------------------------------
--- Parallel composition/switchers with "zip" routing
-------------------------------------------------------------------------------
-
--- IPerez: This is actually unsafezip. Zip is actually safe. It works
--- regardless of which list is smallest. This version of zip is right-biased:
--- the second list determines the size of the final list.
-safeZip :: String -> [a] -> [b] -> [(a,b)]
-safeZip fn = safeZip'
-    where
-    safeZip' _  []     = []
-    safeZip' as (b:bs) = (head' as, b) : safeZip' (tail' as) bs
-
-    head' []    = err
-    head' (a:_) = a
-
-    tail' []     = err
-    tail' (_:as) = as
-
-    err = usrErr "AFRPUtilities" fn "Input list too short."
-
-
-parZ :: [SF a b] -> SF [a] [b]
-parZ = par (safeZip "parZ")
-
-
-pSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
-            -> SF [a] [b]
-pSwitchZ = pSwitch (safeZip "pSwitchZ")
-
-
-dpSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c ->SF [a] [b])
-             -> SF [a] [b]
-dpSwitchZ = dpSwitch (safeZip "dpSwitchZ")
-
-
-rpSwitchZ :: [SF a b] -> SF ([a], Event ([SF a b] -> [SF a b])) [b]
-rpSwitchZ = rpSwitch (safeZip "rpSwitchZ")
-
-
-drpSwitchZ :: [SF a b] -> SF ([a], Event ([SF a b] -> [SF a b])) [b]
-drpSwitchZ = drpSwitch (safeZip "drpSwitchZ")
-
-
-------------------------------------------------------------------------------
--- Guards and automata-oriented combinators
-------------------------------------------------------------------------------
-
--- Runs sft only when the predicate p is satisfied, otherwise runs sff.
-provided :: (a -> Bool) -> SF a b -> SF a b -> SF a b
-provided p sft sff =
-    switch (constant undefined &&& snap) $ \a0 ->
-      if p a0 then stt else stf
-    where
-      stt = switch (sft &&& (not . p ^>> edge)) (const stf)
-      stf = switch (sff &&& (p ^>> edge)) (const stt)
-
-
-------------------------------------------------------------------------------
--- Wave-form generation
-------------------------------------------------------------------------------
-
--- Zero-order hold with delay.
--- Identity: dHold a0 = hold a0 >>> iPre a0).
-old_dHold :: a -> SF (Event a) a
-old_dHold a0 = dSwitch (constant a0 &&& identity) dHold'
-    where
-    dHold' a = dSwitch (constant a &&& notYet) dHold'
-
-
-dTrackAndHold :: a -> SF (Maybe a) a
-dTrackAndHold a_init = trackAndHold a_init >>> iPre a_init
-
-
-------------------------------------------------------------------------------
--- Accumulators
-------------------------------------------------------------------------------
-
-old_accumHold :: a -> SF (Event (a -> a)) a
-old_accumHold a_init = old_accum a_init >>> old_hold a_init
-
-
-old_dAccumHold :: a -> SF (Event (a -> a)) a
-old_dAccumHold a_init = old_accum a_init >>> old_dHold a_init
-
-
-old_accumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
-old_accumHoldBy f b_init = old_accumBy f b_init >>> old_hold b_init
-
-
-old_dAccumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
-old_dAccumHoldBy f b_init = old_accumBy f b_init >>> old_dHold b_init
-
-
-count :: Integral b => SF (Event a) (Event b)
-count = accumBy (\n _ -> n + 1) 0
-
-
-------------------------------------------------------------------------------
--- Delays
-------------------------------------------------------------------------------
-
--- Lucid-Synchrone-like initialized delay (read "followed by").
-fby :: b -> SF a b -> SF a b
-b0 `fby` sf = b0 --> sf >>> pre
-
-
-------------------------------------------------------------------------------
--- Integrals
-------------------------------------------------------------------------------
-
-impulseIntegral :: VectorSpace a k => SF (a, Event a) a
-impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
-
-old_impulseIntegral :: VectorSpace a k => SF (a, Event a) a
-old_impulseIntegral = (integral *** old_accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)

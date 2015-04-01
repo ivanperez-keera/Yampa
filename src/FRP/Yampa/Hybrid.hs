@@ -20,6 +20,7 @@ module FRP.Yampa.Hybrid (
     hold,               -- :: a -> SF (Event a) a
     dHold,              -- :: a -> SF (Event a) a
     trackAndHold,       -- :: a -> SF (Maybe a) a
+    dTrackAndHold,      -- :: a -> SF (Maybe a) a
 
 -- ** Accumulators
     accum,              -- :: a -> SF (Event (a -> a)) (Event a)
@@ -54,6 +55,7 @@ import FRP.Yampa.Switches
 
 -- !!! Should be redone using SFSScan?
 -- !!! Otherwise, we are missing an invarying case.
+{-# DEPRECATED old_hold "Use hold instead" #-}
 old_hold :: a -> SF (Event a) a
 old_hold a_init = switch (constant a_init &&& identity)
                          ((NoEvent >--) . old_hold)
@@ -102,12 +104,15 @@ dHold a_init = epPrim f a_init a_init
 trackAndHold :: a -> SF (Maybe a) a
 trackAndHold a_init = arr (maybe NoEvent Event) >>> hold a_init
 
+dTrackAndHold :: a -> SF (Maybe a) a
+dTrackAndHold a_init = trackAndHold a_init >>> iPre a_init
 
 ------------------------------------------------------------------------------
 -- Accumulators
 ------------------------------------------------------------------------------
 
 -- | See 'accum'.
+{-# DEPRECATED old_accum "Use accum instead" #-}
 old_accum :: a -> SF (Event (a -> a)) (Event a)
 old_accum = accumBy (flip ($))
 

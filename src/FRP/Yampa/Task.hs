@@ -36,7 +36,7 @@ import Control.Applicative (Applicative(..))
 #endif
 
 import FRP.Yampa
-import FRP.Yampa.Utilities (snap)
+import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Diagnostics
 
 infixl 0 `timeOut`, `abortWhen`, `repeatUntil`

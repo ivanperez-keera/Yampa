@@ -71,6 +71,7 @@ library
   other-modules:
     FRP.Yampa.InternalCore
     FRP.Yampa.Basic
+    FRP.Yampa.Conditional
     FRP.Yampa.Delays
     FRP.Yampa.Diagnostics
     FRP.Yampa.EventS
