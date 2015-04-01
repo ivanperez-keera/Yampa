@@ -27,13 +27,13 @@ There are many programs written in Yampa. See the following examples:
   https://github.com/ivanperez-keera/haskanoid
   http://hackage.haskell.org/package/haskanoid
 * Space invaders: a demonstration game used for a paper.
-  https://hackage.haskell.org/package/SpaceInvaders 
+  https://hackage.haskell.org/package/SpaceInvaders
 * Frag: a 3D first person shooting game.
   https://hackage.haskell.org/package/frag
 
 A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
-hackage are listed. 
+hackage are listed.
 
 # Backends
 
@@ -80,7 +80,7 @@ You can collaborate at least in three ways:
 * File an issue (https://github.com/ivanperez-keera/Yampa/issues).
 * Write documentation (send a link and/or a pull request).
 * Research: we are constantly trying to improve Yampa. We'd be glad to have
-  collaborators.  If you are working on this, please, let us know. 
+  collaborators.  If you are working on this, please, let us know.
 
   (_Interactivity and FRP is the main topic of my (ongoing) PhD studies, so I'll
   keep working on this for quite some time._ -- Ivan Perez)
