@@ -1,9 +1,15 @@
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ivanperez-keera&url=https://github.com/ivanperez-keera/Yampa&title=Yampa&language=&tags=github&category=software) 
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ivanperez-keera&url=https://github.com/ivanperez-keera/Yampa&title=Yampa&language=&tags=github&category=software)
 
 Domain-specific language embedded in Haskell for programming hybrid (mixed
 discrete-time and continuous-time) systems. Yampa is based on the concepts of
 Functional Reactive Programming (FRP) and is structured using arrow
-combinators. 
+combinators.
+
+NOTE: A new version of Yampa is under the works. It's maintained in a separate
+branch, and will be merged with master. If you are FRP savvy, please take a
+look around and tell us whether there's anything you'd change.  The
+documentation is available at:
+http://ivanperez-keera.github.io/haddock/Yampa/FRP-Yampa.html
 
 # Installation
 
