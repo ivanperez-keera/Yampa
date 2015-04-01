@@ -17,7 +17,6 @@ module FRP.Yampa.Delays (
     -- ** Basic delays
     pre,                -- :: SF a a
     iPre,               -- :: a -> SF a a
-    old_pre, old_iPre,
 
     -- ** Timed delays
     delay,              -- :: Time -> a -> SF a a
@@ -42,28 +41,6 @@ infixr 0 `fby`
 ------------------------------------------------------------------------------
 -- Delays
 ------------------------------------------------------------------------------
-
--- | Uninitialized delay operator (old implementation).
-
--- !!! The seq helps in the dynamic delay line example. But is it a good
--- !!! idea in general? Are there other accumulators which should be seq'ed
--- !!! as well? E.g. accum? Switch? Anywhere else? What's the underlying
--- !!! design principle? What can the user assume?
---
-old_pre :: SF a a
-old_pre = SF {sfTF = tf0}
-    where
-        tf0 a0 = (preAux a0, usrErr "AFRP" "pre" "Uninitialized pre operator.")
-
-        preAux a_prev = SF' tf -- True
-            where
-                tf _ a = {- a_prev `seq` -} (preAux a, a_prev)
-
--- | Initialized delay operator (old implementation).
-old_iPre :: a -> SF a a
-old_iPre = (--> old_pre)
-
-
 
 -- | Uninitialized delay operator.
 

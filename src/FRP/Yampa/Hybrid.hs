@@ -16,7 +16,6 @@ module FRP.Yampa.Hybrid (
 
 -- * Discrete to continuous-time signal functions
 -- ** Wave-form generation
-    old_hold,           -- :: a -> SF (Event a) a
     hold,               -- :: a -> SF (Event a) a
     dHold,              -- :: a -> SF (Event a) a
     trackAndHold,       -- :: a -> SF (Maybe a) a
@@ -31,9 +30,6 @@ module FRP.Yampa.Hybrid (
     dAccumHoldBy,       -- :: (b -> a -> b) -> b -> SF (Event a) b
     accumFilter,        -- :: (c -> a -> (c, Maybe b)) -> c
                         --    -> SF (Event a) (Event b)
-    old_accum,          -- :: a -> SF (Event (a -> a)) (Event a)
-    old_accumBy,        -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    old_accumFilter,    -- :: (c -> a -> (c, Maybe b)) -> c
 
 ) where
 
@@ -41,24 +37,12 @@ import Control.Arrow
 
 import FRP.Yampa.InternalCore (SF, epPrim)
 
-import FRP.Yampa.Basic
 import FRP.Yampa.Delays
 import FRP.Yampa.Event
-import FRP.Yampa.EventS
-import FRP.Yampa.Switches
 
 ------------------------------------------------------------------------------
 -- Wave-form generation
 ------------------------------------------------------------------------------
-
--- | Zero-order hold.
-
--- !!! Should be redone using SFSScan?
--- !!! Otherwise, we are missing an invarying case.
-{-# DEPRECATED old_hold "Use hold instead" #-}
-old_hold :: a -> SF (Event a) a
-old_hold a_init = switch (constant a_init &&& identity)
-                         ((NoEvent >--) . old_hold)
 
 -- | Zero-order hold.
 hold :: a -> SF (Event a) a
@@ -111,11 +95,6 @@ dTrackAndHold a_init = trackAndHold a_init >>> iPre a_init
 -- Accumulators
 ------------------------------------------------------------------------------
 
--- | See 'accum'.
-{-# DEPRECATED old_accum "Use accum instead" #-}
-old_accum :: a -> SF (Event (a -> a)) (Event a)
-old_accum = accumBy (flip ($))
-
 -- | Given an initial value in an accumulator,
 --   it returns a signal function that processes
 --   an event carrying transformation functions.
@@ -157,12 +136,6 @@ dAccumHold a_init = epPrim f a_init a_init
                 a' = g a
 -}
 
-
--- | See 'accumBy'.
-old_accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-old_accumBy f b_init = switch (never &&& identity) $ \a -> abAux (f b_init a)
-    where
-        abAux b = switch (now b &&& notYet) $ \a -> abAux (f b a)
 
 -- | Accumulator parameterized by the accumulation function.
 accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
@@ -245,13 +218,6 @@ accumFilter f c_init = SF {sfTF = tf0}
                                      (c', Nothing) -> (afAux c', NoEvent)
                                      (c', Just b)  -> (afAux c', Event b)
 -}
-
--- | See 'accumFilter'.
-old_accumFilter :: (c -> a -> (c, Maybe b)) -> c -> SF (Event a) (Event b)
-old_accumFilter f c_init = switch (never &&& identity) $ \a -> afAux (f c_init a)
-    where
-        afAux (c, Nothing) = switch (never &&& notYet) $ \a -> afAux (f c a)
-        afAux (c, Just b)  = switch (now b &&& notYet) $ \a -> afAux (f c a)
 
 -- | Accumulator parameterized by the accumulator function with filtering,
 --   possibly discarding some of the input events based on whether the second

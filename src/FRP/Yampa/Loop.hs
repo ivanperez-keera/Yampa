@@ -14,8 +14,7 @@
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Loop (
-    -- * State keeping combinators
-    -- ** Loops with guaranteed well-defined feedback
+    -- * Loops with guaranteed well-defined feedback
     loopPre,            -- :: c -> SF (a,c) (b,c) -> SF a b
     loopIntegral,       -- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
 ) where
