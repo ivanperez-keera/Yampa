@@ -350,7 +350,6 @@ module FRP.Yampa (
 
     -- * Discrete to continuous-time signal functions
     -- ** Wave-form generation
-    old_hold,         -- :: a -> SF (Event a) a
     hold,             -- :: a -> SF (Event a) a
     dHold,            -- :: a -> SF (Event a) a
     trackAndHold,     -- :: a -> SF (Maybe a) a
@@ -364,15 +363,11 @@ module FRP.Yampa (
     dAccumHoldBy,     -- :: (b -> a -> b) -> b -> SF (Event a) b
     accumFilter,      -- :: (c -> a -> (c, Maybe b)) -> c
                       --    -> SF (Event a) (Event b)
-    old_accum,        -- :: a -> SF (Event (a -> a)) (Event a)
-    old_accumBy,      -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    old_accumFilter,  -- :: (c -> a -> (c, Maybe b)) -> c
 
     -- * Delays
     -- ** Basic delays
     pre,        -- :: SF a a
     iPre,        -- :: a -> SF a a
-    old_pre, old_iPre,
 
     -- ** Timed delays
     delay,        -- :: Time -> a -> SF a a
@@ -432,6 +427,13 @@ module FRP.Yampa (
     ( # ),        -- :: (a -> b) -> (b -> c) -> (a -> c),    infixl 9
     dup,          -- :: a -> (a,a)
     swap,        -- :: (a,b) -> (b,a)
+
+    -- -- * Old (should be removed)
+    -- old_hold,         -- :: a -> SF (Event a) a
+    -- old_accum,        -- :: a -> SF (Event (a -> a)) (Event a)
+    -- old_accumBy,      -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+    -- old_accumFilter,  -- :: (c -> a -> (c, Maybe b)) -> c
+    -- old_pre, old_iPre,
 
 
 ) where

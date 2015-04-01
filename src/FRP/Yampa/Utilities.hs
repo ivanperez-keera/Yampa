@@ -70,10 +70,14 @@ module FRP.Yampa.Utilities (
     , sampleWindow
 ) where
 
-import FRP.Yampa.Diagnostics
-import FRP.Yampa
+import Control.Arrow
 
-
+import FRP.Yampa.Basic
+import FRP.Yampa.Core
+import FRP.Yampa.EventS
+import FRP.Yampa.Hybrid
+import FRP.Yampa.VectorSpace
+import FRP.Yampa.Switches
 
 -- Now defined directly in Control.Arrow.
 -- But while using an old version of Arrows ...
