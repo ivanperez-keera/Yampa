@@ -53,6 +53,7 @@ infixl 7 `fDiv`, `fMod`
 -- !!! Better to use <<< and >>> for, respectively,
 -- !!! function composition and reverse function composition.
 
+{-# DEPRECATED (#) "Use Control.Arrow.(>>>) and Control.Arrow.(<<<)." #-}
 ( # ) :: (a -> b) -> (b -> c) -> (a -> c)
 f # g = g . f
 
@@ -64,6 +65,7 @@ f # g = g . f
 dup :: a -> (a,a)
 dup x = (x,x)
 
+{-# DEPRECATED swap "Use Data.Tuple.Swap" #-}
 swap :: (a,b) -> (b,a)
 swap ~(x,y) = (y,x)
 
@@ -72,9 +74,11 @@ swap ~(x,y) = (y,x)
 -- Maps over lists of pairs
 ------------------------------------------------------------------------------
 
+{-# DEPRECATED mapFst "mapFst is not used by Yampa and will be removed from the next release" #-}
 mapFst :: (a -> b) -> [(a,c)] -> [(b,c)]
 mapFst f = map (\(x,y) -> (f x, y))
 
+{-# DEPRECATED mapSnd "mapSnd is not used by Yampa and will be removed from the next release" #-}
 mapSnd :: (a -> b) -> [(c,a)] -> [(c,b)]
 mapSnd f = map (\(x,y) -> (x, f y))
 
@@ -83,6 +87,7 @@ mapSnd f = map (\(x,y) -> (x, f y))
 -- Generalized tuple selectors
 ------------------------------------------------------------------------------
 
+{-# DEPRECATED sel3_1, sel3_2, sel3_3 "Use the tuple package instead." #-}
 -- Triples
 sel3_1 :: (a, b, c) -> a
 sel3_1 (x,_,_) = x
@@ -92,6 +97,7 @@ sel3_3 :: (a, b, c) -> c
 sel3_3 (_,_,x) = x
 
 
+{-# DEPRECATED sel4_1, sel4_2, sel4_3, sel4_4 "Use the tuple package instead." #-}
 -- 4-tuples
 sel4_1 :: (a, b, c, d) -> a
 sel4_1 (x,_,_,_) = x
@@ -105,6 +111,7 @@ sel4_4 (_,_,_,x) = x
 
 -- 5-tuples
 
+{-# DEPRECATED sel5_1, sel5_2, sel5_3, sel5_4, sel5_5 "Use the tuple package instead." #-}
 sel5_1 :: (a, b, c, d, e) -> a
 sel5_1 (x,_,_,_,_) = x
 sel5_2 :: (a, b, c, d, e) -> b
@@ -123,6 +130,7 @@ sel5_5 (_,_,_,_,x) = x
 
 -- Floating-point div and modulo operators.
 
+{-# DEPRECATED fDiv, fMod, fDivMod "These are not used by Yampa and will be removed." #-}
 fDiv :: (RealFrac a) => a -> a -> Integer
 fDiv x y = fst (fDivMod x y)
 
