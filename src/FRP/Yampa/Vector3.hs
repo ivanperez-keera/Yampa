@@ -16,7 +16,7 @@
 
 module FRP.Yampa.Vector3 (
     -- module AFRPVectorSpace,
-    Vector3,            -- Abstract, instance of VectorSpace
+    Vector3(..),        -- Non-abstract, instance of VectorSpace
     vector3,            -- :: RealFloat a => a -> a -> a -> Vector3 a
     vector3X,           -- :: RealFloat a => Vector3 a -> a
     vector3Y,           -- :: RealFloat a => Vector3 a -> a

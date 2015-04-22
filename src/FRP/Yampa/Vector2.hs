@@ -16,7 +16,7 @@
 
 module FRP.Yampa.Vector2 (
     -- module AFRPVectorSpace,
-    Vector2,            -- Abstract, instance of VectorSpace
+    Vector2(..),        -- Non-abstract, instance of VectorSpace
     vector2,            -- :: RealFloat a => a -> a -> Vector2 a
     vector2X,           -- :: RealFloat a => Vector2 a -> a
     vector2Y,           -- :: RealFloat a => Vector2 a -> a
