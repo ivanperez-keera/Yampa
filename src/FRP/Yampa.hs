@@ -3265,7 +3265,7 @@ integral = SF {sfTF = tf0}
                         igrl' = igrl ^+^ realToFrac dt *^ a_prev
 
 
--- "immediate" integration (using the function's value at the current time)
+-- | "immediate" integration (using the function's value at the current time)
 imIntegral :: VectorSpace a s => a -> SF a a
 imIntegral = ((\ _ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
 
