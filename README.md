@@ -5,8 +5,8 @@ discrete-time and continuous-time) systems. Yampa is based on the concepts of
 Functional Reactive Programming (FRP) and is structured using arrow
 combinators.
 
-This is a new version of Yampa. Although the old API is mainly respected the
-code has been reorganised to facilitate understanding and documentation.  The
+This is a new version of Yampa. Although the old API is mainly respected, the
+code has been reorganised to facilitate understanding and documentation. The
 API is not fully backwards compatible, but most projects should work without
 changes or with minimal adaptations. If that is not the case, please let us
 know. Also, if you are FRP savvy, please take a look around and tell us whether
