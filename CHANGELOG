@@ -1,5 +1,8 @@
 2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
-<<<<<<< HEAD
+        * src/: Reorders code. Marks modules as deprecated. Removes useless functions.
+        * Yampa.cabal: version bump (0.10.0)
+
+2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
         * src/FRP/Yampa.hs: documentation. Removes tabs.
         * README.md: links to games, related projects, documentation.
         * Yampa.cabal: version bump (0.9.7)
@@ -9,10 +12,6 @@
           for compatibility with base >= 4.8 (issue #7, pull request by
           Ryan Scott).
         * Yampa.cabal: version bump (0.9.6.1).
-=======
-        * src/: Reorders code. Marks modules as deprecated. Removes useless functions.
-        * Yampa.cabal: version bump (0.10.0)
->>>>>>> module_reorg
 
 2015-03-04 Ivan Perez <ivan.perez@keera.co.uk>
         * src/: Coding style improvements.
