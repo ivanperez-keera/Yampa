@@ -1,3 +1,7 @@
+2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/: Reorders code. Marks modules as deprecated. Removes useless functions.
+        * Yampa.cabal: version bump (0.10.0)
+
 2015-03-04 Ivan Perez <ivan.perez@keera.co.uk>
         * src/: Coding style improvements
 
