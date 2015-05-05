@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.10.0
+version: 0.10.1
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -68,8 +68,6 @@ library
     FRP.Yampa.MergeableRecord
     FRP.Yampa.Miscellany
     FRP.Yampa.Utilities
-  other-modules:
-    FRP.Yampa.InternalCore
     FRP.Yampa.Basic
     FRP.Yampa.Conditional
     FRP.Yampa.Delays
@@ -83,6 +81,9 @@ library
     FRP.Yampa.Simulation
     FRP.Yampa.Switches
     FRP.Yampa.Time
+
+  other-modules:
+    FRP.Yampa.InternalCore
 
 test-suite hlint
   type: exitcode-stdio-1.0
