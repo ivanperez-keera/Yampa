@@ -1,3 +1,8 @@
+2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/FRP/Yampa.hs: documentation. Removes tabs.
+        * README.md: links to games, related projects, documentation.
+        * Yampa.cabal: version bump (0.9.7)
+
 2015-03-30 Ivan Perez <ivan.perez@keera.co.uk>
         * src/FRP/Yampa/Task.hs: Adds Functor and Applicative instances,
           for compatibility with base >= 4.8 (issue #7, pull request by
