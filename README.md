@@ -15,6 +15,8 @@ http://ivanperez-keera.github.io/haddock/Yampa/FRP-Yampa.html
 
 # Installation
 
+Yampa is available on hackage: http://hackage.haskell.org/package/Yampa.
+
 ```
 $ cabal sandbox init         # Optional, but recommended
 $ cabal update
