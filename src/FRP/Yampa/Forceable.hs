@@ -11,8 +11,9 @@
 -- Hyperstrict evaluation.
 -----------------------------------------------------------------------------------------
 
-module FRP.Yampa.Forceable where
-
+module FRP.Yampa.Forceable
+ {-# DEPRECATED "Use DeepSeq instead" #-}
+ where
 
 class Forceable a where
     force :: a -> a

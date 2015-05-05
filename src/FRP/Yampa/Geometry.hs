@@ -26,5 +26,3 @@ import FRP.Yampa.Vector2
 import FRP.Yampa.Vector3
 import FRP.Yampa.Point2
 import FRP.Yampa.Point3
-
-

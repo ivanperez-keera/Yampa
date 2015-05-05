@@ -15,7 +15,6 @@
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Vector2 (
-    -- module AFRPVectorSpace,
     Vector2,            -- Abstract, instance of VectorSpace
     vector2,            -- :: RealFloat a => a -> a -> Vector2 a
     vector2X,           -- :: RealFloat a => Vector2 a -> a
@@ -44,7 +43,7 @@ import FRP.Yampa.Forceable
 data RealFloat a => Vector2 a = Vector2 !a !a deriving (Eq,Show)
 
 vector2 :: RealFloat a => a -> a -> Vector2 a
-vector2 x y = Vector2 x y
+vector2 = Vector2
 
 vector2X :: RealFloat a => Vector2 a -> a
 vector2X (Vector2 x _) = x
@@ -56,7 +55,7 @@ vector2XY :: RealFloat a => Vector2 a -> (a, a)
 vector2XY (Vector2 x y) = (x, y)
 
 vector2Polar :: RealFloat a => a -> a -> Vector2 a
-vector2Polar rho theta = Vector2 (rho * cos theta) (rho * sin theta) 
+vector2Polar rho theta = Vector2 (rho * cos theta) (rho * sin theta)
 
 vector2Rho :: RealFloat a => Vector2 a -> a
 vector2Rho (Vector2 x y) = sqrt (x * x + y * y)

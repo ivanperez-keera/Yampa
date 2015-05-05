@@ -15,19 +15,19 @@
 
 module FRP.Yampa.Task (
     Task,
-    mkTask,     -- :: SF a (b, Event c) -> Task a b c
-    runTask,    -- :: Task a b c -> SF a (Either b c)	-- Might change.
-    runTask_,   -- :: Task a b c -> SF a b
-    taskToSF,   -- :: Task a b c -> SF a (b, Event c)	-- Might change.
-    constT,     -- :: b -> Task a b c
-    sleepT,     -- :: Time -> b -> Task a b ()
-    snapT,      -- :: Task a b a
-    timeOut,    -- :: Task a b c -> Time -> Task a b (Maybe c)
-    abortWhen,  -- :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
-    repeatUntil,-- :: Monad m => m a -> (a -> Bool) -> m a
-    for,        -- :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
-    forAll,     -- :: Monad m => [a] -> (a -> m b) -> m ()
-    forEver     -- :: Monad m => m a -> m b
+    mkTask,      -- :: SF a (b, Event c) -> Task a b c
+    runTask,     -- :: Task a b c -> SF a (Either b c)    -- Might change.
+    runTask_,    -- :: Task a b c -> SF a b
+    taskToSF,    -- :: Task a b c -> SF a (b, Event c)    -- Might change.
+    constT,      -- :: b -> Task a b c
+    sleepT,      -- :: Time -> b -> Task a b ()
+    snapT,       -- :: Task a b a
+    timeOut,     -- :: Task a b c -> Time -> Task a b (Maybe c)
+    abortWhen,   -- :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
+    repeatUntil, -- :: Monad m => m a -> (a -> Bool) -> m a
+    for,         -- :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
+    forAll,      -- :: Monad m => [a] -> (a -> m b) -> m ()
+    forEver      -- :: Monad m => m a -> m b
 ) where
 
 import Control.Monad (when, forM_)
@@ -36,7 +36,7 @@ import Control.Applicative (Applicative(..))
 #endif
 
 import FRP.Yampa
-import FRP.Yampa.Utilities (snap)
+import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Diagnostics
 
 infixl 0 `timeOut`, `abortWhen`, `repeatUntil`
@@ -94,7 +94,7 @@ taskToSF tk = runTask tk
 
 
 ------------------------------------------------------------------------------
--- Functor, Applicative, and Monad instances
+-- Functor, Applicative and Monad instance
 ------------------------------------------------------------------------------
 
 instance Functor (Task a b) where
@@ -105,7 +105,7 @@ instance Applicative (Task a b) where
     f <*> v = Task (\k -> (unTask f) (\c -> unTask v (k . c)))
 
 instance Monad (Task a b) where
-    tk >>= f = Task (\k -> (unTask tk) (\c -> unTask (f c) k))
+    tk >>= f = Task (\k -> unTask tk (\c -> unTask (f c) k))
     return x = Task (\k -> k x)
 
 {-
@@ -174,8 +174,7 @@ timeOut :: Task a b c -> Time -> Task a b (Maybe c)
 tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
     where
         aux ((b, ec), et) = (b, (lMerge (fmap Just ec)
-                                (fmap (const Nothing) et)))
-
+                                 (fmap (const Nothing) et)))
 
 -- Run a "guarding" event source (SF a (Event b)) in parallel with a
 -- (possibly non-terminating) task. The task will be aborted at the

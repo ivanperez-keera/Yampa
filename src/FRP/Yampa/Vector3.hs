@@ -15,7 +15,6 @@
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Vector3 (
-    -- module AFRPVectorSpace,
     Vector3,            -- Abstract, instance of VectorSpace
     vector3,            -- :: RealFloat a => a -> a -> a -> Vector3 a
     vector3X,           -- :: RealFloat a => Vector3 a -> a
@@ -45,7 +44,7 @@ import FRP.Yampa.Forceable
 data RealFloat a => Vector3 a = Vector3 !a !a !a deriving (Eq, Show)
 
 vector3 :: RealFloat a => a -> a -> a -> Vector3 a
-vector3 x y z = Vector3 x y z
+vector3 = Vector3
 
 vector3X :: RealFloat a => Vector3 a -> a
 vector3X (Vector3 x _ _) = x

@@ -49,8 +49,7 @@ class (Eq a, Floating a) => VectorSpace v a | v -> a where
     norm v = sqrt (v `dot` v)
 
     normalize v = if nv /= 0 then v ^/ nv else error "normalize: zero vector"
-        where
-            nv = norm v
+        where nv = norm v
 
 ------------------------------------------------------------------------------
 -- Vector space instances for Float and Double

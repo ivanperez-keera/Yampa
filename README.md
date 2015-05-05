@@ -5,10 +5,12 @@ discrete-time and continuous-time) systems. Yampa is based on the concepts of
 Functional Reactive Programming (FRP) and is structured using arrow
 combinators.
 
-NOTE: A new version of Yampa is under the works. It's maintained in a separate
-branch, and will be merged with master. If you are FRP savvy, please take a
-look around and tell us whether there's anything you'd change.  The
-documentation is available at:
+This is a new version of Yampa. Although the old API is mainly respected the
+code has been reorganised to facilitate understanding and documentation.  The
+API is not fully backwards compatible, but most projects should work without
+changes or with minimal adaptations. If that is not the case, please let us
+know. Also, if you are FRP savvy, please take a look around and tell us whether
+there's anything you'd change. The documentation is available at:
 http://ivanperez-keera.github.io/haddock/Yampa/FRP-Yampa.html
 
 # Installation
@@ -45,8 +47,10 @@ want. Existing backends include:
 
 # Use in production
 
-* Keera Studios is using it for several Haskell games for Android.
-  http://facebook.com/keerastudios
+* Keera Studios is using it for several Haskell games for Android
+  including a game currently available on Google Play. See:
+  * http://facebook.com/keerastudios
+  * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
 
 # Documentation and tutorials
 

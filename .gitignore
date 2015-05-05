@@ -8,3 +8,4 @@ dist
 *.o
 tests/testAFRPMain
 .virthualenv
+SourceGraph
