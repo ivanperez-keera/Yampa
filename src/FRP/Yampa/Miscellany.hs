@@ -12,10 +12,6 @@
 -- of the Haskell 98 prelude or simply have no better
 -- home.
 --
--- !!! Reverse function composition should go.
--- !!! Better to use '<<<' and '>>>' for, respectively,
--- !!! function composition and reverse function composition.
---
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Miscellany (
@@ -24,7 +20,6 @@ module FRP.Yampa.Miscellany (
 
 -- Arrow plumbing aids
     dup,        -- :: a -> (a,a)
-    swap,       -- :: (a,b) -> (b,a)
 
 -- Maps over lists of pairs
     mapFst,     -- :: (a -> b) -> [(a,c)] -> [(b,c)]
@@ -78,11 +73,6 @@ f # g = g . f
 
 dup :: a -> (a,a)
 dup x = (x,x)
-
-{-# DEPRECATED swap "Use Data.Tuple.Swap" #-}
-swap :: (a,b) -> (b,a)
-swap ~(x,y) = (y,x)
-
 
 ------------------------------------------------------------------------------
 -- Maps over lists of pairs

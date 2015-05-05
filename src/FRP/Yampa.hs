@@ -426,15 +426,6 @@ module FRP.Yampa (
     --   Reverse function composition and arrow plumbing aids
     ( # ),        -- :: (a -> b) -> (b -> c) -> (a -> c),    infixl 9
     dup,          -- :: a -> (a,a)
-    swap,        -- :: (a,b) -> (b,a)
-
-    -- -- * Old (should be removed)
-    -- old_hold,         -- :: a -> SF (Event a) a
-    -- old_accum,        -- :: a -> SF (Event (a -> a)) (Event a)
-    -- old_accumBy,      -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    -- old_accumFilter,  -- :: (c -> a -> (c, Maybe b)) -> c
-    -- old_pre, old_iPre,
-
 
 ) where
 
@@ -442,13 +433,14 @@ import Control.Arrow
 
 import FRP.Yampa.InternalCore
 import FRP.Yampa.Basic
+import FRP.Yampa.Conditional
 import FRP.Yampa.Delays
 import FRP.Yampa.Event
 import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
 import FRP.Yampa.Integration
 import FRP.Yampa.Loop
-import FRP.Yampa.Miscellany (( # ), dup, swap)
+import FRP.Yampa.Miscellany (( # ), dup)
 import FRP.Yampa.Random
 import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
