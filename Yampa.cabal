@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.10.1
+version: 0.10.1.1
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -37,7 +37,7 @@ extra-source-files:
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
-  default: True
+  default: False
   manual: True
 
 library
