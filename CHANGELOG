@@ -1,3 +1,10 @@
+2015-05-06 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: disables tests by default. Version bump (0.10.1.1).
+
+2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: exposes internal modules for documentation purposes.
+          Version bump (0.10.1)
+
 2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
         * src/: Reorders code. Marks modules as deprecated. Removes useless functions.
         * Yampa.cabal: version bump (0.10.0)
