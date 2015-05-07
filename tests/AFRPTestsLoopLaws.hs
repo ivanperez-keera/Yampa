@@ -13,6 +13,8 @@
 
 module AFRPTestsLoopLaws (looplaws_trs, looplaws_tr) where
 
+import Data.Tuple(swap)
+
 import FRP.Yampa
 
 import AFRPTestsCommon

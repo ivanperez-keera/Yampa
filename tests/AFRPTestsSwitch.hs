@@ -13,8 +13,8 @@
 module AFRPTestsSwitch (switch_tr, switch_trs) where
 
 import FRP.Yampa
+import FRP.Yampa.EventS
 import FRP.Yampa.Internals (Event(NoEvent, Event))
-import FRP.Yampa.Utilities (snap)
 
 import AFRPTestsCommon
 

@@ -13,6 +13,8 @@
 
 module AFRPTestsFirstSecond (first_trs, first_tr, second_trs, second_tr) where
 
+import Data.Tuple (swap)
+
 import FRP.Yampa
 
 import AFRPTestsCommon
