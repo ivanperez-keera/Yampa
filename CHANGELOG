@@ -1,3 +1,6 @@
+2015-05-07 Ivan Perez <ivan.perez@keera.co.uk>
+        * tests/: adapts tests to new API.
+
 2015-05-06 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: disables tests by default. Version bump (0.10.1.1).
 
