@@ -348,6 +348,7 @@ module FRP.Yampa (
                           --    -> col (SF b c)
                           --    -> SF (a, Event (col (SF b c) -> col (SF b c)))
                           --          (col c)
+                          --
 
     -- * Discrete to continuous-time signal functions
     -- ** Wave-form generation
