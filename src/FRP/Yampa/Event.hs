@@ -78,6 +78,8 @@ module FRP.Yampa.Event where
 -- (==)     :: Event a -> Event a -> Bool
 -- (<=) :: Event a -> Event a -> Bool
 
+import Control.DeepSeq (NFData(..))
+
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Forceable
 
@@ -161,6 +163,12 @@ instance Forceable a => Forceable (Event a) where
     force ea@NoEvent   = ea
     force ea@(Event a) = force a `seq` ea
 
+------------------------------------------------------------------------------
+-- NFData instance
+------------------------------------------------------------------------------
+instance NFData a => NFData (Event a) where
+    rnf NoEvent   = ()
+    rnf (Event a) = rnf a `seq` ()
 
 ------------------------------------------------------------------------------
 -- Internal utilities for event construction

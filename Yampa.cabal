@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.10.1.1
+version: 0.10.2
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -43,7 +43,7 @@ flag test-hlint
 library
   hs-source-dirs:  src
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
-  build-Depends: base < 5, random
+  build-Depends: base < 5, random, deepseq
   exposed-modules:
     -- Main FRP modules
     FRP.Yampa
