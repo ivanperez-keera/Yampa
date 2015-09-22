@@ -105,6 +105,7 @@ library
     FRP.Yampa.Loop
     FRP.Yampa.Random
     FRP.Yampa.Scan
+    FRP.Yampa.Signal
     FRP.Yampa.Simulation
     FRP.Yampa.Switches
     FRP.Yampa.Task
