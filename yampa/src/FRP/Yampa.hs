@@ -356,6 +356,11 @@ module FRP.Yampa
     , timeOut
     , abortWhen
 
+    -- * Signals, sources and sinks
+    , Source(..)
+    , Sink(..)
+    , Signal(..)
+
       -- * Auxiliary definitions
       --   Reverse function composition and arrow plumbing aids
     , dup
