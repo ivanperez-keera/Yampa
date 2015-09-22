@@ -313,6 +313,11 @@ module FRP.Yampa
     , evalAt
     , evalFuture
 
+    -- * Signals, sources and sinks
+    , Source(..)
+    , Sink(..)
+    , Signal(..)
+
       -- * Auxiliary definitions
       --   Reverse function composition and arrow plumbing aids
     , dup
