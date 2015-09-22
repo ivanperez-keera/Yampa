@@ -168,6 +168,7 @@ module FRP.Yampa
     , constant
     , localTime
     , time
+    , timeTransform
 
       -- ** Initialization
     , (-->)
