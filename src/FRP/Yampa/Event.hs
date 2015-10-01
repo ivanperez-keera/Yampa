@@ -78,7 +78,9 @@ module FRP.Yampa.Event where
 -- (==)     :: Event a -> Event a -> Bool
 -- (<=) :: Event a -> Event a -> Bool
 
+import Control.Applicative
 import Control.DeepSeq (NFData(..))
+import Data.Functor
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Forceable
@@ -156,6 +158,26 @@ instance Functor Event where
 
 
 ------------------------------------------------------------------------------
+-- Applicative instance
+------------------------------------------------------------------------------
+
+instance Applicative Event where
+    pure = Event
+    NoEvent <*> _ = NoEvent
+    Event f <*> x = f <$> x
+
+
+------------------------------------------------------------------------------
+-- Alternative instance
+------------------------------------------------------------------------------
+
+instance Alternative Event where
+    empty = NoEvent
+    NoEvent <|> r = r
+    l       <|> _ = l
+
+
+------------------------------------------------------------------------------
 -- Forceable instance
 ------------------------------------------------------------------------------
 
@@ -211,11 +233,17 @@ isNoEvent = not . isEvent
 ------------------------------------------------------------------------------
 
 -- | Tags an (occurring) event with a value ("replacing" the old value).
+--
+-- Applicative-based definition:
+--  tag = ($>)
 tag :: Event a -> b -> Event b
 e `tag` b = fmap (const b) e
 
 -- | Tags an (occurring) event with a value ("replacing" the old value). Same
 -- as 'tag' with the arguments swapped.
+--
+-- Applicative-based definition:
+-- tagWith = (<$)
 tagWith :: b -> Event a -> Event b
 tagWith = flip tag
 
@@ -238,12 +266,12 @@ e `attach` b = fmap (\a -> (a, b)) e
 
 -- | Left-biased event merge (always prefer left event, if present).
 lMerge :: Event a -> Event a -> Event a
-le `lMerge` re = event re Event le
+lMerge = (<|>)
 
 
 -- | Right-biased event merge (always prefer right event, if present).
 rMerge :: Event a -> Event a -> Event a
-le `rMerge` re = event le Event re
+rMerge = flip (<|>)
 
 
 -- | Unbiased event merge: simultaneous occurrence is an error.
@@ -252,6 +280,9 @@ merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
 
 
 -- | Event merge parameterized by a conflict resolution function.
+--
+-- Applicative-based definition:
+-- mergeBy f re le = (f <$> re <*> le) <|> re <|> le
 mergeBy :: (a -> a -> a) -> Event a -> Event a -> Event a
 mergeBy _       NoEvent      NoEvent      = NoEvent
 mergeBy _       le@(Event _) NoEvent      = le
