@@ -82,7 +82,8 @@ import Control.DeepSeq (NFData(..))
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Forceable
-
+import Data.Functor
+import Control.Applicative
 
 infixl 8 `tag`, `attach`, `gate`
 infixl 7 `joinE`
@@ -156,6 +157,26 @@ instance Functor Event where
 
 
 ------------------------------------------------------------------------------
+-- Applicative instance
+------------------------------------------------------------------------------
+
+instance Applicative Event where
+    pure = Event
+    NoEvent <*> _ = NoEvent
+    Event f <*> x = f <$> x
+
+
+------------------------------------------------------------------------------
+-- Alternative instance
+------------------------------------------------------------------------------
+
+instance Alternative Event where
+    empty = NoEvent
+    NoEvent <|> r = r
+    l       <|> _ = l
+
+
+------------------------------------------------------------------------------
 -- Forceable instance
 ------------------------------------------------------------------------------
 
@@ -212,12 +233,12 @@ isNoEvent = not . isEvent
 
 -- | Tags an (occurring) event with a value ("replacing" the old value).
 tag :: Event a -> b -> Event b
-e `tag` b = fmap (const b) e
+tag = ($>)
 
 -- | Tags an (occurring) event with a value ("replacing" the old value). Same
 -- as 'tag' with the arguments swapped.
 tagWith :: b -> Event a -> Event b
-tagWith = flip tag
+tagWith = (<$)
 
 -- | Attaches an extra value to the value of an occurring event.
 attach :: Event a -> b -> Event (a, b)
@@ -238,12 +259,12 @@ e `attach` b = fmap (\a -> (a, b)) e
 
 -- | Left-biased event merge (always prefer left event, if present).
 lMerge :: Event a -> Event a -> Event a
-le `lMerge` re = event re Event le
+lMerge = (<|>)
 
 
 -- | Right-biased event merge (always prefer right event, if present).
 rMerge :: Event a -> Event a -> Event a
-le `rMerge` re = event le Event re
+rMerge = flip (<|>)
 
 
 -- | Unbiased event merge: simultaneous occurrence is an error.
@@ -253,10 +274,11 @@ merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
 
 -- | Event merge parameterized by a conflict resolution function.
 mergeBy :: (a -> a -> a) -> Event a -> Event a -> Event a
-mergeBy _       NoEvent      NoEvent      = NoEvent
-mergeBy _       le@(Event _) NoEvent      = le
-mergeBy _       NoEvent      re@(Event _) = re
-mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
+--mergeBy _       NoEvent      NoEvent      = NoEvent
+--mergeBy _       le@(Event _) NoEvent      = le
+--mergeBy _       NoEvent      re@(Event _) = re
+--mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
+mergeBy f re le = f <$> re <*> le <|> re <|> le
 
 -- | A generic event merge-map utility that maps event occurrences,
 -- merging the results. The first three arguments are mapping functions,
