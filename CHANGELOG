@@ -1,3 +1,7 @@
+2015-10-02 Ivan Perez <ivan.perez@keera.co.uk>
+        * src:/ Event instances of Applicative and Alternative.
+        * Yampa.cabal: Version bump (0.10.3).
+
 2015-06-19 Ivan Perez <ivan.perez@keera.co.uk>
         * src:/ instances of DeepSeq (see #5).
         * Yampa.cabal: Deepseq added to dependencies. Version bump (0.10.2).
