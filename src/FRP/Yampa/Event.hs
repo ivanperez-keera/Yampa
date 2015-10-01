@@ -84,7 +84,8 @@ import Data.Functor
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Forceable
-
+import Data.Functor
+import Control.Applicative
 
 infixl 8 `tag`, `attach`, `gate`
 infixl 7 `joinE`
@@ -237,7 +238,7 @@ isNoEvent = not . isEvent
 -- Applicative-based definition:
 --  tag = ($>)
 tag :: Event a -> b -> Event b
-e `tag` b = fmap (const b) e
+tag = ($>)
 
 -- | Tags an (occurring) event with a value ("replacing" the old value). Same
 -- as 'tag' with the arguments swapped.
@@ -245,7 +246,7 @@ e `tag` b = fmap (const b) e
 -- Applicative-based definition:
 -- tagWith = (<$)
 tagWith :: b -> Event a -> Event b
-tagWith = flip tag
+tagWith = (<$)
 
 -- | Attaches an extra value to the value of an occurring event.
 attach :: Event a -> b -> Event (a, b)
@@ -284,10 +285,11 @@ merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
 -- Applicative-based definition:
 -- mergeBy f re le = (f <$> re <*> le) <|> re <|> le
 mergeBy :: (a -> a -> a) -> Event a -> Event a -> Event a
-mergeBy _       NoEvent      NoEvent      = NoEvent
-mergeBy _       le@(Event _) NoEvent      = le
-mergeBy _       NoEvent      re@(Event _) = re
-mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
+--mergeBy _       NoEvent      NoEvent      = NoEvent
+--mergeBy _       le@(Event _) NoEvent      = le
+--mergeBy _       NoEvent      re@(Event _) = re
+--mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
+mergeBy f re le = f <$> re <*> le <|> re <|> le
 
 -- | A generic event merge-map utility that maps event occurrences,
 -- merging the results. The first three arguments are mapping functions,
