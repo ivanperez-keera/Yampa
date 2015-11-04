@@ -190,7 +190,6 @@ import qualified Control.Category (Category(..))
 #endif
 
 import FRP.Yampa.Diagnostics
-import FRP.Yampa.Miscellany (dup)
 import FRP.Yampa.Event
 
 ------------------------------------------------------------------------------
@@ -462,7 +461,7 @@ fdPar fd1     fd2     = FDG (\(~(a, c)) -> ((fdFun fd1) a, (fdFun fd2) c))
 
 
 fdFanOut :: FunDesc a b -> FunDesc a c -> FunDesc a (b,c)
-fdFanOut FDI     FDI     = FDG dup
+fdFanOut FDI     FDI     = FDG (\a -> (a, a))
 fdFanOut FDI     (FDC c) = FDG (\a -> (a, c))
 fdFanOut FDI     fd2     = FDG (\a -> (a, (fdFun fd2) a))
 fdFanOut (FDC b) FDI     = FDG (\a -> (b, a))
