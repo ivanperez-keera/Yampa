@@ -383,9 +383,11 @@ module FRP.Yampa (
 
     -- ** Integration and differentiation
     integral,             -- :: VectorSpace a s => SF a a
-
-    derivative,           -- :: VectorSpace a s => SF a a        -- Crude!
     imIntegral,           -- :: VectorSpace a s => a -> SF a a
+    impulseIntegral,      -- :: VectorSpace a k => SF (a, Event a) a
+    count,                -- :: Integral b => SF (Event a) (Event b)
+    derivative,           -- :: VectorSpace a s => SF a a        -- Crude!
+
 
     -- Temporarily hidden, but will eventually be made public.
     -- iterFrom,          -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
