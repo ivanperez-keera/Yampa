@@ -1,0 +1,91 @@
+% Yampa.tex
+\begin{hcarentry}[section,updated]{Yampa}
+\report{Ivan Perez}%11/15
+\label{yampa}
+\makeheader
+
+% \documentclass{article}
+% \usepackage{hyperref}
+% \usepackage{graphicx}
+% 
+% \begin{document}
+
+% \begin{center}
+% \includegraphics[width=.4\linewidth]{kslogo512}
+% \end{center}
+
+Yampa (Github: \href{http://git.io/vTvxQ}{http://git.io/vTvxQ}, Hackage:
+\href{http://goo.gl/JGwycF}{http://goo.gl/JGwycF}), is a Functional Reactive
+Programming implementation in the form of a EDSL to define \emph{Signal
+Functions}, that is, transformations of input signals into output signals (aka.
+\emph{behaviours} in other FRP dialects). 
+
+Yampa systems are defined as combinations of Signal Functions. The core of
+Yampa includes combinators to create constant signals, apply  pointwise (or
+time-wise) functions to signals, access the running time of a signal function,
+introduce delays and create loopbacks (carrying present output as future
+input). These systems can also be dynamic: their structure can change by using
+\emph{switching} combinators, which enable the application of a different
+signal function at some point in the execution. Combined with combinators to
+deal with signal function collections, this enables a form of dynamic FRP in
+which new signals can be introduced, frozen, unfrozen, removed and altered at
+will.
+
+Yampa is designed to guarantee \emph{causality}: the value of an output signal
+at a time $t$ can only depend on values of input signals at times $[0,t]$.
+Yampa restricts access to other signals only to the immediate past, by letting
+signals functions carry \emph{state} for the future.  FRP signal functions
+implement the Arrow and ArrowLoop typeclasses, making it possible to
+use both the arrow notation and arrow combinators. A suitable thinking model
+for FRP in Yampa is that of signal processing, in which components (signal
+functions) transform signals based on their present value and the component's
+internal state. Components can be serialized, applied in parallel, etc.
+
+Unlike other implementations of FRP, Yampa enforces a strict separation of
+effects and pure transformations. All IO code must exist outside the Signal
+Functions, making Yampa systems easier to reason about and debug.
+
+Yampa has been used to create both free/open-source and commercial games.
+Examples of the former include Frag (\href{http://goo.gl/8bfSmz}{http://goo.gl/8bfSmz}), a basic
+reimplementation of the Quake III Arena engine in Haskell, and Haskanoid
+(\href{http://git.io/v8eq3}{http://git.io/v8eq3}), an arkanoid game featuring
+SDL graphics and sound with Wiimote \& Kinect support. Examples of the latter
+include Keera Studios' Magic Cookies!
+(\href{https://goo.gl/0A8z6i}{https://goo.gl/0A8z6i}), a board game for Android
+written in Haskell and avaliable via Google Play for Android store.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=\linewidth]{androidbreakout}
+\caption*{\textit{Haskanoid, a Yampa game with Kinect and Wiimote support,
+running on an Android tablet.}}
+\end{center}
+\end{figure}
+
+% Yampa can be used to express simple physics in a very concise manner.
+% Examples can be seen at \href{http://git.io/v8esW}{http://git.io/v8esW}
+% (Youtube: https://www.youtube.com/watch?v=GOBhhtxfhi0), and and 
+
+Yampa is actively maitained. The last updates have focused on introducing
+documentation, structuring the code to facilitate navigation, eliminating
+legacy code superceeded by other Haskell libraries, and increasing code quality
+in general. Over the years, performance in FRP has been an active topic of
+discussion and Yampa has been optimised heavily (games like Haskanoid have been
+clocked at over 700 frames per second on a standard PC). Also because Yampa is
+\emph{pure}, the introduction of parallelism is straightforward. In future
+versions, the benchmarking package \texttt{criterion} will be used to evaluate
+and increase performance. We encourage all Haskellers to participate by opening
+issues on our Github page (\href{http://git.io/vTvxQ}{http://git.io/vTvxQ}),
+adding improvements, creating tutorials and examples, and using Yampa in their
+next amazing Haskell games.
+
+Extensions to Arrowized Functional Reactive Programming are an active research
+topic. The Functional Programming Laboratory at the University of Nottingham is
+working on several extensions to make Yampa more general and modular,
+facilitate other uses cases, increase performance and work around existing
+limitations. To collaborate with our research on FRP, please contact Ivan Perez
+at \href{mailto:ixp@cs.nott.ac.uk}{ixp@cs.nott.ac.uk} and Henrik
+Nilsson at \href{mailto:nhn@cs.nott.ac.uk}{nhn@cs.nott.ac.uk}.
+
+
+\end{hcarentry}
