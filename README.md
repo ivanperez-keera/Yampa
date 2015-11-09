@@ -34,6 +34,8 @@ There are many programs written in Yampa. See the following examples:
   https://hackage.haskell.org/package/SpaceInvaders
 * Frag: a 3D first person shooting game.
   https://hackage.haskell.org/package/frag
+* Yampa-2048: an implementation of the game 2048 using Yampa and Gloss.
+  https://github.com/ksaveljev/yampa-2048
 
 A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
