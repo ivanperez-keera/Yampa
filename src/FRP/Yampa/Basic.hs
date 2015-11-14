@@ -8,6 +8,14 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 
+-- | Defines basic signal functions, and elementary ways of altering them.
+--
+-- This module defines very basic ways of creating and modifying signal
+-- functions. In particular, it defines ways of creating constant output
+-- producing SFs, and SFs that just pass the signal through unmodified.
+--
+-- It also defines ways of altering the input and the output signal only
+-- by inserting one value in the signal, or by transforming it.
 module FRP.Yampa.Basic (
 
     -- * Basic signal functions
