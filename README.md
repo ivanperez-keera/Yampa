@@ -27,12 +27,11 @@ $ cabal install Yampa
 
 There are many programs written in Yampa. See the following examples:
 
-* Haskanoid: a game that uses SDL multimedia, wiimote and kinect.
-  [(github)](https://github.com/ivanperez-keera/haskanoid) [(hackage)](http://hackage.haskell.org/package/haskanoid)
-
-  A very simplistic and possibly a bit buggy version of Haskanoid now
-  [runs on a website](http://ivanperez-keera.github.io/haskanoid/haskanoid.jsexe/index.html)
-  thanks to [GHCJS](https://github.com/ghcjs/ghcjs).
+* Haskanoid: a game that uses SDL multimedia, wiimote and kinect:
+  * Github: https://github.com/ivanperez-keera/haskanoid
+  * Hackage: http://hackage.haskell.org/package/haskanoid
+  * Running on a browser, compiled with [GHCJS](https://github.com/ghcjs/ghcjs) (beware: bugs ahead):
+  http://ivanperez-keera.github.io/haskanoid/haskanoid.jsexe/index.html
 
 * Space invaders: a demonstration game used for a paper.
   https://hackage.haskell.org/package/SpaceInvaders
