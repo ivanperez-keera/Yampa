@@ -13,7 +13,7 @@ compatible, but most projects should work without changes or with minimal
 adaptations. If that is not the case, please let us know. Also, if you are FRP
 savvy, please take a look around and tell us whether there's anything you'd
 change. The documentation is available at:
-hackage.haskell.org/package/Yampa/docs/FRP-Yampa.html
+http://hackage.haskell.org/package/Yampa/docs/FRP-Yampa.html
 
 # Installation
 
