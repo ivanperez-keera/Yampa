@@ -34,10 +34,14 @@ extra-source-files:
 
   CHANGELOG
 
-
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
   default: False
+  manual: True
+
+-- You can disable the regression test suite with -f-test-regression
+flag test-regression
+  default: True
   manual: True
 
 library
@@ -95,6 +99,17 @@ test-suite hlint
     build-depends:
       base,
       hlint >= 1.7
+
+test-suite regression
+  type: exitcode-stdio-1.0
+  main-is: testAFRPMain.hs
+  hs-source-dirs: tests
+  if !flag(test-regression)
+    buildable: False
+  else
+    build-depends:
+      base,
+      Yampa
 
 source-repository head
   type:     git
