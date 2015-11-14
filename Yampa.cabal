@@ -39,6 +39,11 @@ flag test-hlint
   default: False
   manual: True
 
+-- You can disable the haddock coverage test suite with -f-test-doc-coverage
+flag test-doc-coverage
+  default: False
+  manual: True
+
 -- You can disable the regression test suite with -f-test-regression
 flag test-regression
   default: True
@@ -99,6 +104,23 @@ test-suite hlint
     build-depends:
       base,
       hlint >= 1.7
+
+-- Verify that the code is thoroughly documented
+test-suite haddock-coverage
+  type: exitcode-stdio-1.0
+  main-is: HaddockCoverage.hs
+  ghc-options: -Wall
+  hs-source-dirs: tests
+
+  if !flag(test-doc-coverage)
+    buildable: False
+  else
+    build-depends:
+      base >= 4 && < 5,
+      directory,
+      filepath,
+      process,
+      regex-posix
 
 test-suite regression
   type: exitcode-stdio-1.0
