@@ -1,6 +1,8 @@
-[![Build Status](https://travis-ci.org/ivanperez-keera/Yampa.svg)](https://travis-ci.org/ivanperez-keera/Yampa)
+# Yampa
 
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ivanperez-keera&url=https://github.com/ivanperez-keera/Yampa&title=Yampa&language=&tags=github&category=software)
+[![Build Status](https://travis-ci.org/ivanperez-keera/Yampa.svg)](https://travis-ci.org/ivanperez-keera/Yampa)
+[![Version on Hackage](https://img.shields.io/hackage/v/Yampa.svg)](https://hackage.haskell.org/package/Yampa)
+[![Flattr this](http://api.flattr.com/button/flattr-badge-large.png "Flattr This!")](https://flattr.com/submit/auto?user_id=ivanperez-keera&url=https://github.com/ivanperez-keera/Yampa&title=Yampa&language=&tags=github&category=software)
 
 Domain-specific language embedded in Haskell for programming hybrid (mixed
 discrete-time and continuous-time) systems. Yampa is based on the concepts of
@@ -17,7 +19,7 @@ savvy, please take a look around and tell us whether there's anything you'd
 change. The documentation is available at:
 http://hackage.haskell.org/package/Yampa/docs/FRP-Yampa.html
 
-# Installation
+## Installation
 
 Yampa is available on hackage: http://hackage.haskell.org/package/Yampa.
 
@@ -27,7 +29,7 @@ $ cabal update
 $ cabal install Yampa
 ```
 
-# Examples
+## Examples
 
 There are many programs written in Yampa. See the following examples:
 
@@ -48,7 +50,7 @@ A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
 hackage are listed.
 
-# Backends
+## Backends
 
 Yampa is backend agnostic, you can ultimately connect it to any backend you
 want. Existing backends include:
@@ -56,14 +58,14 @@ want. Existing backends include:
 * OpenGL / GLUT
 * WX (see wxHaskell)
 
-# Use in production
+## Use in production
 
 * Keera Studios is using it for several Haskell games for Android
   including a game currently available on Google Play. See:
   * http://facebook.com/keerastudios
   * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
 
-# Documentation and tutorials
+## Documentation and tutorials
 
 The distribution of Yampa comes with subtantial haddock documentation, which you can
 build using haddock or just [read online](https://hackage.haskell.org/package/Yampa).
@@ -79,7 +81,7 @@ $ cabal configure && cabal haddock --internal
 
 Documentation is also available online: https://wiki.haskell.org/Yampa
 
-# Papers and technical reports
+## Papers and technical reports
 
 For a list of Yampa-related papers, see:
 
@@ -88,7 +90,7 @@ For a list of Yampa-related papers, see:
 See also PhD technical report, chapter 3. http://www.cs.nott.ac.uk/~ixp/
 which includes a review of FRP and outlines some existing issues.
 
-# Help and collaboration
+## Help and collaboration
 
 You can collaborate at least in three ways:
 
@@ -100,11 +102,11 @@ You can collaborate at least in three ways:
   (_Interactivity and FRP is the main topic of my (ongoing) PhD studies, so I'll
   keep working on this for quite some time._ -- Ivan Perez)
 
-# Authors
+## Authors
 
 * Henrik Nilsson
 * Antony Courtney
 
-## Maintainer
+### Maintainer
 
 * Ivan Perez
