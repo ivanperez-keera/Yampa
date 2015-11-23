@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ivanperez-keera/Yampa.svg)](https://travis-ci.org/ivanperez-keera/Yampa)
+
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ivanperez-keera&url=https://github.com/ivanperez-keera/Yampa&title=Yampa&language=&tags=github&category=software)
 
 Domain-specific language embedded in Haskell for programming hybrid (mixed
