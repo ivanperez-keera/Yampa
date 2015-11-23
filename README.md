@@ -50,6 +50,13 @@ A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
 hackage are listed.
 
+## Use in production
+
+* Keera Studios is using it for several Haskell games for Android
+  including a game currently available on Google Play. See:
+  * http://facebook.com/keerastudios
+  * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
+
 ## Backends
 
 Yampa is backend agnostic, you can ultimately connect it to any backend you
@@ -57,13 +64,6 @@ want. Existing backends include:
 * SDL
 * OpenGL / GLUT
 * WX (see wxHaskell)
-
-## Use in production
-
-* Keera Studios is using it for several Haskell games for Android
-  including a game currently available on Google Play. See:
-  * http://facebook.com/keerastudios
-  * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
 
 ## Documentation and tutorials
 
