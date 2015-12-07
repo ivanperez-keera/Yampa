@@ -27,7 +27,7 @@ module FRP.Yampa.Delays (
 import Control.Arrow
 
 import FRP.Yampa.Diagnostics
-import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', Transition, Time)
+import FRP.Yampa.InternalCore (SF(..), SF'(..), Time)
 
 import FRP.Yampa.Basic
 import FRP.Yampa.Scan
