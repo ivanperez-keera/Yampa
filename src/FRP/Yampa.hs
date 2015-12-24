@@ -253,6 +253,7 @@ module FRP.Yampa (
 
     -- ** Initialization
     (-->),                -- :: b -> SF a b -> SF a b,        infixr 0
+    (-:>),                -- :: b -> SF a b -> SF a b,        infixr 0
     (>--),                -- :: a -> SF a b -> SF a b,        infixr 0
     (-=>),                -- :: (b -> b) -> SF a b -> SF a b      infixr 0
     (>=-),                -- :: (a -> a) -> SF a b -> SF a b      infixr 0
