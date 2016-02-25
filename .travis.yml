@@ -16,7 +16,13 @@ install:
  - travis_retry sudo apt-get install cabal-install-1.22 ghc-$GHCVER-prof ghc-$GHCVER-dyn alex-3.1.4 happy-1.19.5
  - export PATH=$HOME/.cabal/bin:/opt/ghc/$GHCVER/bin:/opt/cabal/1.22/bin:/opt/alex/3.1.4/bin:/opt/happy/1.19.5/bin:$PATH
  - travis_retry cabal update
+
 script:
  - travis_retry cabal install --run-tests -v -j1
+
 notifications:
  email: true
+
+branches:
+    only:
+          - master
