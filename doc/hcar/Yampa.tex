@@ -1,18 +1,8 @@
-% Yampa.tex
-\begin{hcarentry}[section,updated]{Yampa}
+% Yampa-IY.tex
+\begin{hcarentry}[new]{Yampa}
 \report{Ivan Perez}%11/15
 \label{yampa}
 \makeheader
-
-% \documentclass{article}
-% \usepackage{hyperref}
-% \usepackage{graphicx}
-% 
-% \begin{document}
-
-% \begin{center}
-% \includegraphics[width=.4\linewidth]{kslogo512}
-% \end{center}
 
 Yampa (Github: \href{http://git.io/vTvxQ}{http://git.io/vTvxQ}, Hackage:
 \href{http://goo.gl/JGwycF}{http://goo.gl/JGwycF}), is a Functional Reactive
@@ -54,24 +44,19 @@ include Keera Studios' Magic Cookies!
 (\href{https://goo.gl/0A8z6i}{https://goo.gl/0A8z6i}), a board game for Android
 written in Haskell and avaliable via Google Play for Android store.
 
-\begin{figure}[h]
+%**<img width=500 src="./androidbreakout.png">
+%*ignore
 \begin{center}
-\includegraphics[width=\linewidth]{androidbreakout}
-\caption*{\textit{Haskanoid, a Yampa game with Kinect and Wiimote support,
-running on an Android tablet.}}
+\includegraphics[width=\linewidth]{html/androidbreakout.png}
 \end{center}
-\end{figure}
-
-% Yampa can be used to express simple physics in a very concise manner.
-% Examples can be seen at \href{http://git.io/v8esW}{http://git.io/v8esW}
-% (Youtube: https://www.youtube.com/watch?v=GOBhhtxfhi0), and and 
+%*endignore
 
 Yampa is actively maitained. The last updates have focused on introducing
-documentation, structuring the code to facilitate navigation, eliminating
+documentation, structuring the code, eliminating
 legacy code superceeded by other Haskell libraries, and increasing code quality
 in general. Over the years, performance in FRP has been an active topic of
-discussion and Yampa has been optimised heavily (games like Haskanoid have been
-clocked at over 700 frames per second on a standard PC). Also because Yampa is
+discussion and Yampa has been heavily optimised (games like Haskanoid have been
+clocked at over 700 frames per second on a standard PC). Also, because Yampa is
 \emph{pure}, the introduction of parallelism is straightforward. In future
 versions, the benchmarking package \texttt{criterion} will be used to evaluate
 and increase performance. We encourage all Haskellers to participate by opening
@@ -86,6 +71,5 @@ facilitate other uses cases, increase performance and work around existing
 limitations. To collaborate with our research on FRP, please contact Ivan Perez
 at \href{mailto:ixp@cs.nott.ac.uk}{ixp@cs.nott.ac.uk} and Henrik
 Nilsson at \href{mailto:nhn@cs.nott.ac.uk}{nhn@cs.nott.ac.uk}.
-
 
 \end{hcarentry}
