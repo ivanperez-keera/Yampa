@@ -1,0 +1,39 @@
+\documentclass[DIV16,twocolumn,10pt]{scrreprt}
+\usepackage{paralist}
+\usepackage{graphicx}
+\usepackage[final]{hcar}
+
+%include polycode.fmt
+%include forall.fmt
+%include greek.fmt
+%include colorcode.fmt
+\definecolor{codecolor}{rgb}{1,1,1}
+\colorhs
+\let\Conid\mathsf
+
+\begin{document}
+
+\begin{hcarentry}{(MYSTUFF)}
+\report{(MY NAME)}
+\status{(PROJECT STATUS IN ONE LINE)}
+\participants{(PARTICIPANTS OTHER THAN MYSELF)}% optional
+\makeheader
+
+Put the text here. 
+If you want to include Haskell code, consider using lhs2tex syntax (\url{http://people.cs.uu.nl/andres/lhs2tex/}).
+
+What's following are suggestions for the content of an entry.
+
+(WHAT IS IT?)
+
+(WHAT IS ITS STATUS? / WHAT HAS HAPPENED SINCE LAST TIME?)
+
+(CAN OTHERS GET IT?)
+
+(WHAT ARE THE IMMEDIATE PLANS?)
+
+\FurtherReading
+  \url{(PROJECT URL)}
+\end{hcarentry}
+
+\end{document}

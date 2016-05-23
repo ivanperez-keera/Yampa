@@ -8,6 +8,14 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 
+-- | Defines basic signal functions, and elementary ways of altering them.
+--
+-- This module defines very basic ways of creating and modifying signal
+-- functions. In particular, it defines ways of creating constant output
+-- producing SFs, and SFs that just pass the signal through unmodified.
+--
+-- It also defines ways of altering the input and the output signal only
+-- by inserting one value in the signal, or by transforming it.
 module FRP.Yampa.Basic (
 
     -- * Basic signal functions
@@ -16,6 +24,7 @@ module FRP.Yampa.Basic (
 
     -- ** Initialization
     (-->),              -- :: b -> SF a b -> SF a b,            infixr 0
+    (-:>),              -- :: b -> SF a b -> SF a b,            infixr 0
     (>--),              -- :: a -> SF a b -> SF a b,            infixr 0
     (-=>),              -- :: (b -> b) -> SF a b -> SF a b      infixr 0
     (>=-),              -- :: (a -> a) -> SF a b -> SF a b      infixr 0
@@ -24,9 +33,9 @@ module FRP.Yampa.Basic (
   ) where
 
 
-import FRP.Yampa.InternalCore (SF(..), sfConst, sfId)
+import FRP.Yampa.InternalCore (SF(..), SF'(..), sfConst, sfId)
 
-infixr 0 -->, >--, -=>, >=-
+infixr 0 -->, -:>, >--, -=>, >=-
 
 ------------------------------------------------------------------------------
 -- Basic signal functions
@@ -60,6 +69,14 @@ constant b = SF {sfTF = \_ -> (sfConst b, b)}
 -- second argument.
 (-->) :: b -> SF a b -> SF a b
 b0 --> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (fst (tf10 a0), b0)}
+
+-- | Output pre-insert operator.
+--
+-- Insert a sample in the output, and from that point on, behave
+-- like the given sf.
+(-:>) :: b -> SF a b -> SF a b
+b0 -:> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (ct, b0)}
+ where ct = SF' $ \_dt a0 -> tf10 a0
 
 -- | Input initialization operator.
 --

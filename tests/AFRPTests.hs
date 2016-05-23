@@ -40,7 +40,6 @@
 module AFRPTests where
 
 import FRP.Yampa
-import FRP.Yampa.Task (forAll)
 
 import AFRPTestsCommon
 import AFRPTestsArr
@@ -141,15 +140,14 @@ failedTests =
 	format n i = "Test " ++ n ++ "_t" ++ show i ++ " failed."
 
 
-runRegTests :: IO ()
+runRegTests :: IO Bool
 runRegTests = do
     putStrLn ""
     putStrLn "Running the AFRP regression tests ..."
-    if allGood then
-	putStrLn "All tests succeeded!"
-     else
-	forAll failedTests putStrLn
-
+    if allGood
+      then putStrLn "All tests succeeded!"
+      else mapM_ putStrLn failedTests
+    return allGood
 
 runSpaceTests :: IO ()
 runSpaceTests = do
