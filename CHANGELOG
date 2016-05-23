@@ -1,3 +1,7 @@
+2016-05-23 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/: Adds new -:> combinator.
+        * Yampa.cabal: Version bump (0.10.5).
+
 2015-11-14 Ivan Perez <ivan.perez@keera.co.uk>
         * tests/: Include haddock. Regression tests now exit with proper exit
           code.
