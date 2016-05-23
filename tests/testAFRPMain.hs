@@ -14,8 +14,10 @@ module Main where
 
 import AFRPTests
 
-import System.IO
+import Control.Monad (when)
 import System.Environment (getArgs, getProgName)
+import System.Exit (exitWith, ExitCode(..))
+import System.IO
 
 -- main = runTests
 -- main = runSpaceTests
@@ -52,20 +54,24 @@ main :: IO ()
 main = do
   pname <- getProgName
   args <- getArgs
-  let eFlags = if (length args) < 1 
-                 then (Left allFlags)
+  let eFlags = if (length args) < 1
+                 then Left allFlags
                  else parseArgs defFlags args
   case eFlags of
-    (Left tFlags) ->  
-      if (tHelp tFlags)
+    Right emsg  -> usage pname (Just emsg)
+    Left tFlags ->
+      if tHelp tFlags
         then usage pname Nothing
         else do
-          if (tReg tFlags)
-            then runRegTests
-            else return ()
-          if (tSpace tFlags)
-            then runSpaceTests
-            else return ()
-    (Right emsg) -> usage pname (Just emsg)
+          -- Run regresion tests, check if passed
+          t <- if tReg tFlags
+                 then runRegTests
+                 else return True
+          -- Run space tests
+          when (tSpace tFlags)
+                  runSpaceTests
+          -- Communicate if all tests have passed
+          let exitCode = if t then ExitSuccess else (ExitFailure 1)
+          exitWith exitCode
 
 
