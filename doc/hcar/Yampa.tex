@@ -1,6 +1,6 @@
 % Yampa-IY.tex
-\begin{hcarentry}[new]{Yampa}
-\report{Ivan Perez}%11/15
+\begin{hcarentry}[updated]{Yampa}
+\report{Ivan Perez}%05/16
 \label{yampa}
 \makeheader
 
@@ -42,7 +42,7 @@ reimplementation of the Quake III Arena engine in Haskell, and Haskanoid
 SDL graphics and sound with Wiimote \& Kinect support. Examples of the latter
 include Keera Studios' Magic Cookies!
 (\href{https://goo.gl/0A8z6i}{https://goo.gl/0A8z6i}), a board game for Android
-written in Haskell and avaliable via Google Play for Android store.
+written in Haskell and avaliable via Google Play for Android.
 
 %**<img width=500 src="./androidbreakout.png">
 %*ignore
@@ -51,25 +51,41 @@ written in Haskell and avaliable via Google Play for Android store.
 \end{center}
 %*endignore
 
-Yampa is actively maitained. The last updates have focused on introducing
-documentation, structuring the code, eliminating
-legacy code superceeded by other Haskell libraries, and increasing code quality
-in general. Over the years, performance in FRP has been an active topic of
-discussion and Yampa has been heavily optimised (games like Haskanoid have been
-clocked at over 700 frames per second on a standard PC). Also, because Yampa is
-\emph{pure}, the introduction of parallelism is straightforward. In future
-versions, the benchmarking package \texttt{criterion} will be used to evaluate
-and increase performance. We encourage all Haskellers to participate by opening
+Guerric Chupin (ENSTA ParisTech), under the supervision of Henrik Nilsson
+(Functional Programming Lab, University of Nottingham) has developed Arpeggigon
+(\href{https://gitlab.com/chupin/arpeggigon}{https://gitlab.com/chupin/arpeggigon}),
+an interactive cellular automaton for composing groove-based music. The aim was
+to evaluate two reactive but complementary frameworks for implementing
+interactive time-aware applications. Arpeggigon uses Yampa for music
+generation, Gtk2HS for Graphical User Interface, jack for handling MIDI I/O,
+and Keera Hails to implement a declarative MVC architecture, based on
+\emph{Reactive Values and Relations} (RVRs).  The results have been written up
+in an application paper, \emph{Funky Grooves: Declarative Programming of
+Full-Fledged Musical Applications}, that will be presented at PADL 2017. The
+code and an extended version of the paper are publicly available
+(\href{https://gitlab.com/chupin/arpeggigon}{https://gitlab.com/chupin/arpeggigon}).
+
+Extensions to Arrowized Functional Reactive Programming are an active research
+topic. Recently, we have published, together with Manuel B\"arenz, a
+monadic arrowized reactive framework called Dunai
+(\href{https://github.com/ivanperez-keera/dunai}{https://github.com/ivanperez-keera/dunai}),
+and a minimal FRP implementation called BearRiver. BearRiver provides all the
+features in core Yampa, as well as additional extensions. We have demonstrated
+the usefulness of our approach and the compatibility with Yampa by using
+BearRiver to compile and execute existing games Haskanoid and Magic Cookies!
+for Android without changing the code of such games.
+
+The Functional Programming Laboratory at the University of Nottingham is
+working on additional extensions to make Yampa more general and modular,
+facilitate other uses cases, increase performance and work around existing
+limitations. To collaborate with our research on FRP, please contact Ivan Perez
+at \href{mailto:ixp@cs.nott.ac.uk}{ixp@cs.nott.ac.uk} and Henrik Nilsson at
+\href{mailto:nhn@cs.nott.ac.uk}{nhn@cs.nott.ac.uk}.
+
+We encourage all Haskellers to participate on Yampa's development by opening
 issues on our Github page (\href{http://git.io/vTvxQ}{http://git.io/vTvxQ}),
 adding improvements, creating tutorials and examples, and using Yampa in their
 next amazing Haskell games.
 
-Extensions to Arrowized Functional Reactive Programming are an active research
-topic. The Functional Programming Laboratory at the University of Nottingham is
-working on several extensions to make Yampa more general and modular,
-facilitate other uses cases, increase performance and work around existing
-limitations. To collaborate with our research on FRP, please contact Ivan Perez
-at \href{mailto:ixp@cs.nott.ac.uk}{ixp@cs.nott.ac.uk} and Henrik
-Nilsson at \href{mailto:nhn@cs.nott.ac.uk}{nhn@cs.nott.ac.uk}.
 
 \end{hcarentry}
