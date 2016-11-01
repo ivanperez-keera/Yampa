@@ -160,6 +160,8 @@ testSFSpaceLeak n sf = unsafePerformIO $ do
 -- Some utilities used for testing laws
 ------------------------------------------------------------------------------
 
+fun_prod f g = \(x,y) -> (f x, g y)
+
 assoc :: ((a,b),c) -> (a,(b,c))
 assoc ((a,b),c) = (a,(b,c))
 
