@@ -13,11 +13,11 @@ Functions}, that is, transformations of input signals into output signals (aka.
 Yampa systems are defined as combinations of Signal Functions.  Yampa includes
 combinators to create constant signals, apply  pointwise (or time-wise)
 transformations, access the running time, introduce delays and create loopbacks
-(carrying present output as future input). Systems can also be dynamic: their
-structure can change by using \emph{switching} combinators, which apply a
-different signal function at some point in the future. Combinators to deal with
-collections enable adding, removing, altering, pausing and
-unpausing signal functions at will.
+(carrying present output as future input). Systems can be dynamic: their
+structure can be changed using \emph{switching} combinators, which apply a
+different signal function at some point in the future. Combinators that deal
+with collections enable adding, removing, altering, pausing and unpausing
+signal functions at will.
 
 A suitable thinking model for FRP in Yampa is that of signal processing, in
 which components (signal functions) transform signals based on their present
@@ -37,10 +37,10 @@ making systems easier to reason about and debug.
 Yampa has been used to create both free/open-source and commercial games.
 Examples of the former include Frag (\href{http://goo.gl/8bfSmz}{http://goo.gl/8bfSmz}), a basic
 reimplementation of the Quake III Arena engine in Haskell, and Haskanoid
-(\href{http://git.io/v8eq3}{http://git.io/v8eq3}), an arkanoid game with
-SDL graphics and sound, Wiimote \& Kinect support, that works on Windows, Linux,
-Mac, Android and web browsers (thanks to GHCJS). Examples of the latter include
-Keera Studios' Magic Cookies!
+(\href{http://git.io/v8eq3}{http://git.io/v8eq3}), an arkanoid game featuring
+SDL graphics and sound with Wiimote \& Kinect support, which works on Windows,
+Linux, Mac, Android and web browsers (thanks to GHCJS). Examples of the latter
+include Keera Studios' Magic Cookies!
 (\href{https://goo.gl/0A8z6i}{https://goo.gl/0A8z6i}), a board game for Android
 written in Haskell and avaliable on Google Play.
 
