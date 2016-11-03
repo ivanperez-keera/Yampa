@@ -671,3 +671,13 @@ tauApp (Always t1) s dt         = Always (tauApp t1 s dt)
 tauApp (Eventually t1) s dt     = Eventually (tauApp t1 s dt)
 tauApp (Next t1) s dt           = Next (tauApp t1 s dt)
 tauApp (Until t1 t2) s dt       = Until (tauApp t1 s dt) (tauApp t2 s dt)
+
+always :: (b -> Bool) -> SF a b -> TestSampleStream a -> Bool
+always p sf inputs =
+     all p $ samples $ fst $ evalSF sf (adaptTestStream inputs)
+
+next :: (b -> Bool) -> FutureSF a b -> DTime -> a -> Bool
+next p sf dt input = p $ fst $ evalAt sf dt input 
+
+now :: (b -> Bool) -> SF a b -> a -> Bool
+now p sf input = p $ fst $ evalAtZero sf input
