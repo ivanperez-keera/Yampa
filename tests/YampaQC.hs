@@ -19,12 +19,14 @@ module YampaQC where
 ------------------------------------------------------------------------------
 import Data.Fixed
 import Data.List
+
 import Distribution.TestSuite.QuickCheck
+import Test.QuickCheck
+import Test.QuickCheck.Function
+
 import FRP.Yampa
 import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Testing
-import Test.QuickCheck
-import Test.QuickCheck.Function
 import AFRPTestsCommon
 
 ------------------------------------------------------------------------------
