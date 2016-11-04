@@ -1,5 +1,19 @@
 {-# LANGUAGE GADTs  #-}
 {-# LANGUAGE Arrows #-}
+-- TODO
+-- Properties in this file have different types.
+-- It's important to agree on the representation type.
+--
+-- It may be a bit hard, because some elements from logic are
+-- provided by QC, while others have to be defined by us.
+-- For example, connectives like implication and always are
+-- provided by us, and forAll is in QuickCheck.
+--
+-- This makes it hard to combine, becase for this language to be
+-- compositional like logic is we need to make everything accept
+-- a QuickCheck predicate, which may not be possible or compatible
+-- with out goals.
+--
 module YampaQC where
 
 ------------------------------------------------------------------------------
@@ -72,6 +86,9 @@ tests = return
     -- Missing: WFG
     ]
 
+-- * Yampa laws
+
+-- ** Arrow laws
 prop_arr_law1 =
    forAll myStream (evalT $ prop_always_equal (arr (**2)) (arr (^2)))
  where myStream :: Gen (SignalSampleStream Float)
@@ -81,18 +98,6 @@ prop_arr_id =
    forAll myStream (evalT $ prop_always_equal (arr id) identity)
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
-
-prop_always_equal sf1 sf2 =
-    Always $ Prop ((sf1 &&& sf2), sameResult)
-  where sameResult = const $ uncurry (==)
-
-
-prop_arr_no_change f xs =
-     samples (fst (evalSF (arr f) xs)) == map f (samples xs)
-
-prop_always_similar margin sf1 sf2 =
-  Always (Prop ((sf1 &&& sf2), similar))
-  where similar _ (x,y) = abs (x-y) <= margin
 
 -- Yampa's internal test cases
 
@@ -558,17 +563,41 @@ simpleF = arr id &&& cond
 delayedF = arr id &&& cond
  where cond = after 1.5 (Event ())
 
--- Sample streams with time information
+
+-- * Generic SF predicate building functions
+
+-- | Compares two SFs, resulting in true if they are always equal
+prop_always_equal sf1 sf2 =
+    Always $ Prop ((sf1 &&& sf2), sameResult)
+  where sameResult = const $ uncurry (==)
+
+prop_arr_no_change f xs =
+     samples (fst (evalSF (arr f) xs)) == map f (samples xs)
+
+-- | Compares two SFs, returning true if they are close enough
+prop_always_similar margin sf1 sf2 =
+  Always (Prop ((sf1 &&& sf2), similar))
+  where similar _ (x,y) = abs (x-y) <= margin
+
+-- * Streams
+
+-- Stream samples, or samples with time information
 newtype TimedSample a = TimedSample { unSample :: (DTime, a) }
  deriving (Eq, Show)
 
+-- | A whole testing sample stream, with an initial sample
+-- and a stream of timed samples.
 type TestSampleStream a = (a, [TimedSample a])
 
+-- | Turn a stream with timedSamples into a plan stream with
+-- pairs of deltas and values.
 adaptTestStream (x, xs) = (x, map unSample xs)
 
+-- | Turn a stream with sampling times into a list
+-- of values.
 samples (a, as) = a : map snd as
 
--- Generators
+-- ** Generators
 positiveSignalStream (a,as) = all (>0) $ map fst as
 
 instance Arbitrary a => Arbitrary (TimedSample a) where
@@ -629,7 +658,7 @@ listOfWith genF = sized $ \n ->
 vectorOfWith :: Int -> (Int -> Gen a) -> Gen [a]
 vectorOfWith k genF = sequence [ genF i | i <- [1..k] ]
 
--- Temporal Logics based on SFs
+-- * Temporal Logics based on SFs
 type SPred a b = (SF a b, a -> b -> Bool)
 
 data TPred a where
