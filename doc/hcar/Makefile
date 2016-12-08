@@ -2,7 +2,9 @@
 
 default: report.pdf
 
-report.pdf: report.tex hcar.sty androidbreakout.png
+report.pdf: report.tex Yampa-IY.tex \
+	    hcar.sty \
+	    androidbreakout.png arpeggigon.png
 
 %.pdf: %.tex
 	pdflatex $<
