@@ -94,6 +94,7 @@ library
     FRP.Yampa.Random
     FRP.Yampa.Scan
     FRP.Yampa.Simulation
+    FRP.Yampa.Stream
     FRP.Yampa.Switches
     FRP.Yampa.Time
 

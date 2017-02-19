@@ -2,6 +2,7 @@ module SampleStreams where
 
 ------------------------------------------------------------------------------
 import FRP.Yampa
+import FRP.Yampa.Stream
 import FRP.Yampa.Testing
 
 -- * Streams

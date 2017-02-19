@@ -25,6 +25,7 @@ import Test.QuickCheck.Function
 
 import FRP.Yampa as Yampa
 import FRP.Yampa.EventS (snap)
+import FRP.Yampa.Stream
 import FRP.Yampa.Testing
 import AFRPTestsCommon
 import TemporalLogic

@@ -1,5 +1,3 @@
-{-# LANGUAGE GADTs  #-}
-{-# LANGUAGE Arrows #-}
 -- TODO
 -- Properties in this file have different types.
 -- It's important to agree on the representation type.
@@ -17,17 +15,10 @@
 module SampleStreamsQC where
 
 ------------------------------------------------------------------------------
-import Data.Fixed
-import Data.List
-
-import Distribution.TestSuite.QuickCheck
 import Test.QuickCheck
-import Test.QuickCheck.Function
 
 import FRP.Yampa as Yampa
-import FRP.Yampa.EventS (snap)
-import FRP.Yampa.Testing
-import AFRPTestsCommon
+import FRP.Yampa.Stream
 import SampleStreams
 
 -- ** Generators

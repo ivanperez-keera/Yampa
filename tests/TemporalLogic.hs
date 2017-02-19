@@ -12,11 +12,18 @@
 -- compositional like logic is we need to make everything accept
 -- a QuickCheck predicate, which may not be possible or compatible
 -- with out goals.
---
+
+-- Important question: because this FRP implement uses CPS,
+-- it is stateful, and sampling twice in one time period
+-- is not necessarily the same as sampling once. This means that
+-- tauApp, or next, might not work correctly. It's important to
+-- see what is going on there... :(
+
 module TemporalLogic where
 
 ------------------------------------------------------------------------------
 import FRP.Yampa as Yampa
+import FRP.Yampa.Stream
 import FRP.Yampa.Testing
 import SampleStreams
 
@@ -34,11 +41,16 @@ data TPred a where
    Next       :: TPred a -> TPred a
    Until      :: TPred a -> TPred a -> TPred a
 
--- TL Evaluation
+-- | Temporal Evaluation
+--
+-- Evaluates a temporal predicate at time T=0 against a sample stream.
+--
+-- Returns true if the temporal proposition is currently true.
 evalT :: TPred a -> SignalSampleStream a -> Bool
-evalT (Prop (sf,p))   = \stream -> let b = fst $ fst $ evalSF sf stream
-                                       a = fst stream
-                                   in p a b 
+evalT (Prop (sf,p))   = \stream -> let (bs, sf') = evalSF sf stream
+                                       b0 = fst bs
+                                       a0 = fst stream
+                                   in p a0 b0
 evalT (And t1 t2)     = \stream -> evalT t1 stream && evalT t2 stream
 evalT (Or  t1 t2)     = \stream -> evalT t1 stream || evalT t2 stream
 evalT (Implies t1 t2) = \stream -> not (evalT t1 stream) || evalT t2 stream
@@ -47,7 +59,10 @@ evalT (Eventually t1) = \stream -> evalT t1 stream || evalT (Next (Eventually t1
 evalT (Until t1 t2)   = \stream -> (evalT t1 stream && evalT (Next (Until t1 t2)) stream)
                                    || evalT t2 stream
 evalT (Next t1)       = \stream -> case stream of
-                                    (a,[]) -> True
+                                    (a,[]) -> True   -- This is important. It determines how
+                                                     -- eventually, always and next behave at the
+                                                     -- end of the stream, which affects that is and isn't
+                                                     -- a tautology. It should be reviewed very carefully.
                                     (a1,(dt, a2):as) -> evalT (tauApp t1 a1 dt) (a2, as)
 
 -- Tau-application (transportation to the future)
