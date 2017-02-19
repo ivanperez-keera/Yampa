@@ -1,3 +1,4 @@
+-- Why is this extra module necessary?
 module SampleStreams where
 
 ------------------------------------------------------------------------------
