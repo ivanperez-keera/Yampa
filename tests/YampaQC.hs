@@ -30,6 +30,7 @@ import FRP.Yampa.Testing
 import AFRPTestsCommon
 import TemporalLogic
 import SampleStreams
+import SampleStreamsQC
 
 ------------------------------------------------------------------------------
 tests :: IO [Test]

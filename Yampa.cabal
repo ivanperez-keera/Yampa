@@ -143,7 +143,7 @@ test-suite yampa-quicheck
   type:        detailed-0.9
   test-module: YampaQC
 
-  other-modules: AFRPTestsCommon TemporalLogic SampleStreams
+  other-modules: AFRPTestsCommon TemporalLogic SampleStreams SampleStreamsQC
 
   hs-source-dirs:   tests
 

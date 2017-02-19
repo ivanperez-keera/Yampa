@@ -47,63 +47,63 @@ adaptTestStream (x, xs) = (x, map unSample xs)
 -- of values.
 samples (a, as) = a : map snd as
 
--- ** Generators
-positiveSignalStream (a,as) = all (>0) $ map fst as
-
-instance Arbitrary a => Arbitrary (TimedSample a) where
-  arbitrary = do
-    x <- arbitrary
-    Positive dt <- arbitrary
-    return (TimedSample (dt, x))
-
-uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)
-uniDistStream = do
-  x <- arbitrary
-  rest <- uniDistFutureStream
-  return (x, rest)
-
-uniDistFutureStream :: Arbitrary a => Gen (FutureSampleStream a)
-uniDistFutureStream = listOf arbitrarySample
-
-arbitrarySample :: Arbitrary a => Gen (DTime, a)
-arbitrarySample = do
-  Positive dt <- arbitrary
-  x <- arbitrary
-  return (dt, x)
-
-fixedDelayStream :: Arbitrary a => DTime -> Gen (SignalSampleStream a)
-fixedDelayStream dt = do
-  x <- arbitrary
-  rest <- fixedDelayFutureStream dt
-  return (x, rest)
-
-fixedDelayFutureStream :: Arbitrary a => DTime -> Gen (FutureSampleStream a)
-fixedDelayFutureStream dt = listOf (arbitrarySampleAt dt)
-
-arbitrarySampleAt :: Arbitrary a => DTime -> Gen (DTime, a)
-arbitrarySampleAt dt = do
-  x <- arbitrary
-  return (dt, x)
-
-fixedDelayStreamWith :: (DTime -> a) -> DTime -> Gen (SignalSampleStream a)
-fixedDelayStreamWith f dt = do
-  rest <- fixedDelayFutureStreamWith f dt
-  return (f 0.0, rest)
-
-fixedDelayFutureStreamWith :: (DTime -> a) -> DTime -> Gen (FutureSampleStream a)
-fixedDelayFutureStreamWith f dt = listOfWith (sampleWithAt f dt)
-
-sampleWithAt :: (DTime -> a) -> DTime -> Int -> Gen (DTime, a)
-sampleWithAt f dt i = do
-  return (dt, f (fromIntegral i * dt))
-
--- | Generates a list of random length. The maximum length depends on the
--- size parameter.
-listOfWith :: (Int -> Gen a) -> Gen [a]
-listOfWith genF = sized $ \n ->
-  do k <- choose (0,n)
-     vectorOfWith k genF
-
--- | Generates a list of the given length.
-vectorOfWith :: Int -> (Int -> Gen a) -> Gen [a]
-vectorOfWith k genF = sequence [ genF i | i <- [1..k] ]
+-- -- ** Generators
+-- positiveSignalStream (a,as) = all (>0) $ map fst as
+-- 
+-- instance Arbitrary a => Arbitrary (TimedSample a) where
+--   arbitrary = do
+--     x <- arbitrary
+--     Positive dt <- arbitrary
+--     return (TimedSample (dt, x))
+-- 
+-- uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)
+-- uniDistStream = do
+--   x <- arbitrary
+--   rest <- uniDistFutureStream
+--   return (x, rest)
+-- 
+-- uniDistFutureStream :: Arbitrary a => Gen (FutureSampleStream a)
+-- uniDistFutureStream = listOf arbitrarySample
+-- 
+-- arbitrarySample :: Arbitrary a => Gen (DTime, a)
+-- arbitrarySample = do
+--   Positive dt <- arbitrary
+--   x <- arbitrary
+--   return (dt, x)
+-- 
+-- fixedDelayStream :: Arbitrary a => DTime -> Gen (SignalSampleStream a)
+-- fixedDelayStream dt = do
+--   x <- arbitrary
+--   rest <- fixedDelayFutureStream dt
+--   return (x, rest)
+-- 
+-- fixedDelayFutureStream :: Arbitrary a => DTime -> Gen (FutureSampleStream a)
+-- fixedDelayFutureStream dt = listOf (arbitrarySampleAt dt)
+-- 
+-- arbitrarySampleAt :: Arbitrary a => DTime -> Gen (DTime, a)
+-- arbitrarySampleAt dt = do
+--   x <- arbitrary
+--   return (dt, x)
+-- 
+-- fixedDelayStreamWith :: (DTime -> a) -> DTime -> Gen (SignalSampleStream a)
+-- fixedDelayStreamWith f dt = do
+--   rest <- fixedDelayFutureStreamWith f dt
+--   return (f 0.0, rest)
+-- 
+-- fixedDelayFutureStreamWith :: (DTime -> a) -> DTime -> Gen (FutureSampleStream a)
+-- fixedDelayFutureStreamWith f dt = listOfWith (sampleWithAt f dt)
+-- 
+-- sampleWithAt :: (DTime -> a) -> DTime -> Int -> Gen (DTime, a)
+-- sampleWithAt f dt i = do
+--   return (dt, f (fromIntegral i * dt))
+-- 
+-- -- | Generates a list of random length. The maximum length depends on the
+-- -- size parameter.
+-- listOfWith :: (Int -> Gen a) -> Gen [a]
+-- listOfWith genF = sized $ \n ->
+--   do k <- choose (0,n)
+--      vectorOfWith k genF
+-- 
+-- -- | Generates a list of the given length.
+-- vectorOfWith :: Int -> (Int -> Gen a) -> Gen [a]
+-- vectorOfWith k genF = sequence [ genF i | i <- [1..k] ]
