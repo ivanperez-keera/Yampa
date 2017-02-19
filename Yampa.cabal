@@ -94,6 +94,7 @@ library
     FRP.Yampa.Random
     FRP.Yampa.Scan
     FRP.Yampa.Simulation
+    FRP.Yampa.Stream
     FRP.Yampa.Switches
     FRP.Yampa.Time
 
@@ -142,8 +143,9 @@ test-suite regression
 test-suite yampa-quicheck
   type:        detailed-0.9
   test-module: YampaQC
+  ghc-options : -Wall
 
-  other-modules: AFRPTestsCommon
+  other-modules: AFRPTestsCommon TemporalLogic SampleStreams SampleStreamsQC
 
   hs-source-dirs:   tests
 
@@ -153,7 +155,7 @@ test-suite yampa-quicheck
     build-depends:
       base < 5,
       random,
-      Cabal,
+      Cabal >= 1.19,
       QuickCheck,
       Yampa,
       cabal-test-quickcheck
