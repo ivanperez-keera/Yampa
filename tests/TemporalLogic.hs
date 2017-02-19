@@ -1,5 +1,4 @@
 {-# LANGUAGE GADTs  #-}
-{-# LANGUAGE Arrows #-}
 -- TODO
 -- Properties in this file have different types.
 -- It's important to agree on the representation type.
@@ -17,17 +16,8 @@
 module TemporalLogic where
 
 ------------------------------------------------------------------------------
-import Data.Fixed
-import Data.List
-
-import Distribution.TestSuite.QuickCheck
-import Test.QuickCheck
-import Test.QuickCheck.Function
-
 import FRP.Yampa as Yampa
-import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Testing
-import AFRPTestsCommon
 import SampleStreams
 
 -- * Temporal Logics based on SFs

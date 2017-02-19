@@ -142,6 +142,7 @@ test-suite regression
 test-suite yampa-quicheck
   type:        detailed-0.9
   test-module: YampaQC
+  ghc-options : -Wall
 
   other-modules: AFRPTestsCommon TemporalLogic SampleStreams SampleStreamsQC
 

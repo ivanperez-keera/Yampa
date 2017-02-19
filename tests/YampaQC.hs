@@ -18,7 +18,6 @@ module YampaQC where
 
 ------------------------------------------------------------------------------
 import Data.Fixed
-import Data.List
 
 import Distribution.TestSuite.QuickCheck
 import Test.QuickCheck
