@@ -24,10 +24,12 @@ import Distribution.TestSuite.QuickCheck
 import Test.QuickCheck
 import Test.QuickCheck.Function
 
-import FRP.Yampa
+import FRP.Yampa as Yampa
 import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Testing
 import AFRPTestsCommon
+import TemporalLogic
+import SampleStreams
 
 ------------------------------------------------------------------------------
 tests :: IO [Test]
@@ -175,10 +177,6 @@ prop_basic_time_fixed_delay =
 
        d :: Time
        d = 0.25
-
-sfMeasureIncrement :: Num b => b -> SF a b -> SF a b
-sfMeasureIncrement init sf = loopPre init sf'
- where sf' = (sf *** identity) >>> arr (\(n, o) -> (n - o, n))
 
 prop_basic_localtime_increasing =
    forAll myStream $ evalT $ Always $ Prop (sf, const (uncurry (>))) 
@@ -373,7 +371,7 @@ prop_event_now =
        And (Prop (sf, p0))                 -- Initially
            (Next $ Always $ Prop (sf, pn)) -- After first sample
 
- where sf = now 42.0
+ where sf = Yampa.now 42.0
 
        p0 x y = y == Event 42.0
        pn x y = y == noEvent
@@ -540,6 +538,7 @@ switch_t1rec x =
     switch (switch_t1b x) $
     switch_t1rec
 
+switch_tr :: SF Double (Double, Double, Double)
 switch_tr = proc (a) -> do
    t <- localTime -< ()
    let mt = fromIntegral $ floor (mod' t 4.0)
@@ -581,134 +580,6 @@ prop_always_similar margin sf1 sf2 =
   Always (Prop ((sf1 &&& sf2), similar))
   where similar _ (x,y) = abs (x-y) <= margin
 
--- * Streams
-
--- Stream samples, or samples with time information
-newtype TimedSample a = TimedSample { unSample :: (DTime, a) }
- deriving (Eq, Show)
-
--- | A whole testing sample stream, with an initial sample
--- and a stream of timed samples.
-type TestSampleStream a = (a, [TimedSample a])
-
--- | Turn a stream with timedSamples into a plan stream with
--- pairs of deltas and values.
-adaptTestStream (x, xs) = (x, map unSample xs)
-
--- | Turn a stream with sampling times into a list
--- of values.
-samples (a, as) = a : map snd as
-
--- ** Generators
-positiveSignalStream (a,as) = all (>0) $ map fst as
-
-instance Arbitrary a => Arbitrary (TimedSample a) where
-  arbitrary = do
-    x <- arbitrary
-    Positive dt <- arbitrary
-    return (TimedSample (dt, x))
-
-uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)
-uniDistStream = do
-  x <- arbitrary
-  rest <- uniDistFutureStream
-  return (x, rest)
-
-uniDistFutureStream :: Arbitrary a => Gen (FutureSampleStream a)
-uniDistFutureStream = listOf arbitrarySample
-
-arbitrarySample :: Arbitrary a => Gen (DTime, a)
-arbitrarySample = do
-  Positive dt <- arbitrary
-  x <- arbitrary
-  return (dt, x)
-
-fixedDelayStream :: Arbitrary a => DTime -> Gen (SignalSampleStream a)
-fixedDelayStream dt = do
-  x <- arbitrary
-  rest <- fixedDelayFutureStream dt
-  return (x, rest)
-
-fixedDelayFutureStream :: Arbitrary a => DTime -> Gen (FutureSampleStream a)
-fixedDelayFutureStream dt = listOf (arbitrarySampleAt dt)
-
-arbitrarySampleAt :: Arbitrary a => DTime -> Gen (DTime, a)
-arbitrarySampleAt dt = do
-  x <- arbitrary
-  return (dt, x)
-
-fixedDelayStreamWith :: (DTime -> a) -> DTime -> Gen (SignalSampleStream a)
-fixedDelayStreamWith f dt = do
-  rest <- fixedDelayFutureStreamWith f dt
-  return (f 0.0, rest)
-
-fixedDelayFutureStreamWith :: (DTime -> a) -> DTime -> Gen (FutureSampleStream a)
-fixedDelayFutureStreamWith f dt = listOfWith (sampleWithAt f dt)
-
-sampleWithAt :: (DTime -> a) -> DTime -> Int -> Gen (DTime, a)
-sampleWithAt f dt i = do
-  return (dt, f (fromIntegral i * dt))
-
--- | Generates a list of random length. The maximum length depends on the
--- size parameter.
-listOfWith :: (Int -> Gen a) -> Gen [a]
-listOfWith genF = sized $ \n ->
-  do k <- choose (0,n)
-     vectorOfWith k genF
-
--- | Generates a list of the given length.
-vectorOfWith :: Int -> (Int -> Gen a) -> Gen [a]
-vectorOfWith k genF = sequence [ genF i | i <- [1..k] ]
-
--- * Temporal Logics based on SFs
-type SPred a b = (SF a b, a -> b -> Bool)
-
-data TPred a where
-   Prop       :: SPred a b -> TPred a
-   And        :: TPred a -> TPred a -> TPred a
-   Or         :: TPred a -> TPred a -> TPred a
-   Not        :: TPred a -> TPred a
-   Implies    :: TPred a -> TPred a -> TPred a
-   Always     :: TPred a -> TPred a
-   Eventually :: TPred a -> TPred a
-   Next       :: TPred a -> TPred a
-   Until      :: TPred a -> TPred a -> TPred a
-
--- TL Evaluation
-evalT :: TPred a -> SignalSampleStream a -> Bool
-evalT (Prop (sf,p))   = \stream -> let b = fst $ fst $ evalSF sf stream
-                                       a = fst stream
-                                   in p a b 
-evalT (And t1 t2)     = \stream -> evalT t1 stream && evalT t2 stream
-evalT (Or  t1 t2)     = \stream -> evalT t1 stream || evalT t2 stream
-evalT (Implies t1 t2) = \stream -> not (evalT t1 stream) || evalT t2 stream
-evalT (Always  t1)    = \stream -> evalT t1 stream && evalT (Next (Always t1)) stream
-evalT (Eventually t1) = \stream -> evalT t1 stream || evalT (Next (Eventually t1)) stream
-evalT (Until t1 t2)   = \stream -> (evalT t1 stream && evalT (Next (Until t1 t2)) stream)
-                                   || evalT t2 stream
-evalT (Next t1)       = \stream -> case stream of
-                                    (a,[]) -> True
-                                    (a1,(dt, a2):as) -> evalT (tauApp t1 a1 dt) (a2, as)
-
--- Tau-application (transportation to the future)
-tauApp :: TPred a -> a -> DTime -> TPred a
-tauApp (Prop (sf,p)) sample dtime = Prop (sf', p)
-  where sf' = fst (prefuturize sf sample dtime)
-tauApp (And t1 t2) s dt         = And (tauApp t1 s dt) (tauApp t2 s dt)
-tauApp (Or t1 t2) s dt          = Or (tauApp t1 s dt) (tauApp t2 s dt)
-tauApp (Not t1) s dt            = Not (tauApp t1 s dt)
-tauApp (Implies t1 t2) s dt     = Implies (tauApp t1 s dt) (tauApp t2 s dt)
-tauApp (Always t1) s dt         = Always (tauApp t1 s dt)
-tauApp (Eventually t1) s dt     = Eventually (tauApp t1 s dt)
-tauApp (Next t1) s dt           = Next (tauApp t1 s dt)
-tauApp (Until t1 t2) s dt       = Until (tauApp t1 s dt) (tauApp t2 s dt)
-
-always :: (b -> Bool) -> SF a b -> TestSampleStream a -> Bool
-always p sf inputs =
-     all p $ samples $ fst $ evalSF sf (adaptTestStream inputs)
-
-next :: (b -> Bool) -> FutureSF a b -> DTime -> a -> Bool
-next p sf dt input = p $ fst $ evalAt sf dt input 
-
-now :: (b -> Bool) -> SF a b -> a -> Bool
-now p sf input = p $ fst $ evalAtZero sf input
+sfMeasureIncrement :: Num b => b -> SF a b -> SF a b
+sfMeasureIncrement init sf = loopPre init sf'
+ where sf' = (sf *** identity) >>> arr (\(n, o) -> (n - o, n))
