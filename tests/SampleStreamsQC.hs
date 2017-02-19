@@ -1,17 +1,5 @@
--- TODO
--- Properties in this file have different types.
--- It's important to agree on the representation type.
---
--- It may be a bit hard, because some elements from logic are
--- provided by QC, while others have to be defined by us.
--- For example, connectives like implication and always are
--- provided by us, and forAll is in QuickCheck.
---
--- This makes it hard to combine, becase for this language to be
--- compositional like logic is we need to make everything accept
--- a QuickCheck predicate, which may not be possible or compatible
--- with out goals.
---
+-- Stream Generators for QuickCheck
+
 module SampleStreamsQC where
 
 ------------------------------------------------------------------------------
