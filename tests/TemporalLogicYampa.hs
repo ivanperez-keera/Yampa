@@ -33,3 +33,26 @@ notSF = arr not
 
 impliesSF :: SF (Bool, Bool) Bool
 impliesSF = arr $ \(i,p) -> not i || p
+
+data UnclearResult = Possibly Bool | Definitely Bool
+
+causally :: SF a Bool -> SF a UnclearResult
+causally = (>>> arr Definitely)
+
+data TSF a = NonCausal (SF a UnclearResult)
+           | Causal    (SF a Bool)
+
+evalTSF :: TSF a -> SignalSampleStream a -> Bool
+evalTSF (Causal sf)    ss = firstSample $ fst $ evalSF sf ss
+evalTSF (NonCausal sf) ss = clarifyResult $ lastSample $ fst $ evalSF sf
+
+clarifyResult :: UnclearResult -> Bool
+clarifyResult (Possibly x)   = x
+clarifyResult (Definitely x) = x
+
+firstSample :: SignalSampleStream a -> a
+firstSample = fst
+
+lastSample :: SignalSampleStream a -> a
+lastSample (a, []) = a
+lastSample (_, ((_,x):xs)) = lastSample x xs
