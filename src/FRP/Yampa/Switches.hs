@@ -65,6 +65,9 @@ module FRP.Yampa.Switches (
     -- Application of an SF to a collections
     parC,         -- SF a b -> SF [a] [b]
 
+    ListSF(..),
+    dlSwitch,
+
 ) where
 
 import Control.Arrow
@@ -835,6 +838,47 @@ listSeq' :: [a] -> [a]
 listSeq' []        = []
 listSeq' rs@(a:as) = a `seq` listSeq' as `seq` rs
 
+newtype ListSF a b = ListSF { listSF :: SF a (b, Bool, [ListSF a b]) }
+
+dlSwitch :: [ListSF a b] -> SF a [b]
+dlSwitch sfs = SF { sfTF = tf0 }
+  where tf0 a0 = let -- results of applying the initial input
+                     bsfs0 = map (\sf -> sfTF (listSF sf) a0) sfs
+
+                     -- Gather outputs
+                     bs    = map (\(_sf,(b,_d,_nfs)) -> b) bsfs0
+
+                     -- Gather new SFs
+                     -- The initial output of each new sf is discarded!
+                     nsfs  = map (\sf -> fst (sfTF (listSF sf) a0)) $
+                               concatMap (\(_sf,(_b,_d,nfs)) -> nfs) bsfs0
+
+                     -- Gather old continuations
+                     osfs  = map (\(sf,(_b,_d,_nfs)) -> sf) $
+                               filter (\(_sf,(_b,d,_nfs)) -> not d) bsfs0
+
+                     cts   = osfs ++ nsfs
+                  in (dlSwitch' cts, bs)
+
+dlSwitch' :: [SF' a (b, Bool, [ListSF a b])] -> SF' a [b]
+dlSwitch' sfs = SF' tf0
+  where tf0 dt a0 = let -- results of applying the initial input
+                        bsfs0 = map (\sf -> sfTF' sf dt a0) sfs
+
+                        -- Gather outputs
+                        bs    = map (\(_sf,(b,_d,_nfs)) -> b) bsfs0
+
+                        -- Gather new SFs
+                        -- The initial output of each new sf is discarded!
+                        nsfs  = map (\sf -> fst (sfTF (listSF sf) a0)) $
+                                  concatMap (\(_sf,(_b,_d,nfs)) -> nfs) bsfs0
+
+                        -- Gather old continuations
+                        osfs  = map (\(sf,(_b,_d,_nfs)) -> sf) $
+                                  filter (\(_sf,(_b,d,_nfs)) -> not d) bsfs0
+
+                        cts   = osfs ++ nsfs
+                  in (dlSwitch' cts, bs)
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:
