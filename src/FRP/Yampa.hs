@@ -391,7 +391,7 @@ module FRP.Yampa (
 
 
     -- Temporarily hidden, but will eventually be made public.
-    -- iterFrom,          -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
+    iterFrom,          -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 
     -- * Noise (random signal) sources and stochastic event sources
     noise,                -- :: noise :: (RandomGen g, Random b) =>
