@@ -20,11 +20,10 @@ module FRP.Yampa.Integration (
     count,              -- :: Integral b => SF (Event a) (Event b)
 
     -- * Differentiation
-    derivative          -- :: VectorSpace a s => SF a a         -- Crude!
-
+    derivative,         -- :: VectorSpace a s => SF a a         -- Crude!
 
     -- Temporarily hidden, but will eventually be made public.
-    -- iterFrom,           -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
+    iterFrom            -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 
 ) where
 
