@@ -91,7 +91,7 @@ library
     FRP.Yampa.Switches
     FRP.Yampa.Time
 
-  other-modules:
+  -- other-modules:
     FRP.Yampa.InternalCore
 
 test-suite hlint
