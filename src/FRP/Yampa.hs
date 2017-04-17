@@ -421,7 +421,7 @@ module FRP.Yampa (
     -- ** Embedding
                           --  (tentative: will be revisited)
     embed,                -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
-    embedSynch,           -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
+    embedSynch,           -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Float b
     deltaEncode,          -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
     deltaEncodeBy,        -- :: (a -> a -> Bool) -> DTime -> [a]
                           --    -> (a, [(DTime, Maybe a)])

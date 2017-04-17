@@ -815,9 +815,8 @@ freezeCol sfs dt = fmap (`freeze` dt) sfs
 
 -- Apply an SF to every element of a list.
 parC :: SF a b -> SF [a] [b]
-parC sf = SF $ \as -> let os  = map (sfTF sf) as
-                          bs  = map snd os
-                          sfs = map fst os
+parC sf = SF $ \as -> let os        = map (sfTF sf) as
+                          (sfs, bs) = unzip os
                       in (parCAux sfs, bs)
 
 -- Internal definition. Also used in parallel switchers.
@@ -825,11 +824,11 @@ parCAux :: [SF' a b] -> SF' [a] [b]
 parCAux sfs = SF' tf
     where
         tf dt as =
-            let os    = map (\(a,sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
-                bs    = map snd os
-                sfcs  = map fst os
+            let os         = map (\(a,sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
+                (sfcs, bs) = unzip os
             in
-                (listSeq sfcs `seq` parCAux sfcs, listSeq bs)
+                -- (listSeq sfcs `seq` parCAux sfcs, listSeq bs)
+                (parCAux sfcs, bs)
 
 listSeq :: [a] -> [a]
 listSeq x = x `seq` (listSeq' x)

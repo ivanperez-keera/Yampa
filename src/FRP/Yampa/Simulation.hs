@@ -32,7 +32,7 @@ module FRP.Yampa.Simulation (
 -- ** Embedding
                         --  (tentative: will be revisited)
     embed,              -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
-    embedSynch,         -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
+    embedSynch,         -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Float b
     deltaEncode,        -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
     deltaEncodeBy,      -- :: (a -> a -> Bool) -> DTime -> [a]
                         --    -> (a, [(DTime, Maybe a)])
@@ -228,7 +228,7 @@ embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
 -- !!! It's kind of hard to se why, but "frame dropping" was a problem
 -- !!! in the old robot simulator. Try to find an example!
 
-embedSynch :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
+embedSynch :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Float b
 embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
     where
         tts       = scanl (\t (dt, _) -> t + dt) 0 dtas

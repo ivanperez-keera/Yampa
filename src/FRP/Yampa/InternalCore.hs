@@ -215,13 +215,13 @@ import FRP.Yampa.Event
 -- agreed reference point in time.
 
 --  Conceptually, Time = R, i.e. time can be 0 -- or even negative.
-type Time = Double      -- [s]
+type Time = Float -- [s]
 
 
 -- | DTime is the time type for lengths of sample intervals. Conceptually,
 -- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
 -- same representation.
-type DTime = Double     -- [s]
+type DTime = Float -- [s]
 
 -- Representation of signal function in initial state.
 -- (Naming: "TF" stands for Transition Function.)
