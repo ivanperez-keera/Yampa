@@ -180,7 +180,7 @@ embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
 -- | Synchronous embedding. The embedded signal function is run on the supplied
 -- input and time stream at a given (but variable) ratio >= 0 to the outer time
 -- flow. When the ratio is 0, the embedded signal function is paused.
-embedSynch :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
+embedSynch :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Float b
 embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
   where
     tts       = scanl (\t (dt, _) -> t + dt) 0 dtas
