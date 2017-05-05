@@ -497,6 +497,25 @@ instance Control.Category.Category SF where
      id = SF $ \x -> (sfId,x)
 #endif
 
+instance ArrowChoice SF where
+    left sf = SF $ \a ->
+                     -- NOTE: there might be a problem with choice here.
+                     -- Do the delta times accumulate for the unused branch?
+                     -- Recommendation by Olivier Charles: take a look
+                     -- at Settable Signals paper, it discusses which
+                     -- option would be best.
+                     case a of
+                       Left x  -> let (sf', b') = sfTF sf x
+                                  in (futureArrowLeft sf', Left b')
+                       Right x -> let sf' = SF' $ \_ -> sfTF sf
+                                  in (futureArrowLeft sf', Right x)
+       where futureArrowLeft fSF = SF' $ \dt a ->
+                case a of
+                  Left x  -> let (sf', b') = sfTF' fSF dt x
+                             in (futureArrowLeft sf', Left b')
+                  Right x -> (futureArrowLeft fSF, Right x)
+          
+
 instance Arrow SF where
     arr    = arrPrim
     first  = firstPrim
