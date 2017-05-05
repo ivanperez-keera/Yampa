@@ -103,11 +103,12 @@ import FRP.Yampa.Diagnostics
 -- at different time steps. If you need to control the main
 -- loop yourself for these or other reasons, use 'reactInit' and 'react'.
 
-reactimate :: IO a                                -- ^ IO initialization action
-              -> (Bool -> IO (DTime, Maybe a))    -- ^ IO input sensing action
-              -> (Bool -> b -> IO Bool)           -- ^ IO actuaction (output processing) action
-              -> SF a b                           -- ^ Signal function
-              -> IO ()
+reactimate :: Monad m
+           => m a                             -- ^ Initialization action
+           -> (Bool -> m (DTime, Maybe a))    -- ^ Input sensing action
+           -> (Bool -> b -> m Bool)           -- ^ Actuaction (output processing) action
+           -> SF a b                          -- ^ Signal function
+           -> m ()
 reactimate init sense actuate (SF {sfTF = tf0}) =
     do
         a0 <- init
