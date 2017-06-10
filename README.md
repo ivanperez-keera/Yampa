@@ -42,7 +42,7 @@ hackage are listed.
 
 ## Use in production
 
-* Keera Studios is using it for several Haskell games for Android
+* Keera Studios is using it for several Haskell games for Android and iOS
   including a game currently available on Google Play. See:
   * http://facebook.com/keerastudios
   * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
