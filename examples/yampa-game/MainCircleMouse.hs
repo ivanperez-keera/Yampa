@@ -3,6 +3,7 @@ import Graphics.UI.SDL as SDL
 import FRP.Yampa       as Yampa
 import Data.IORef
 import Debug.Trace
+import YampaSDL
 
 width  = 640
 height = 480
@@ -19,23 +20,6 @@ main = do
              )
              (\_ e -> display (e) >> return False)
              player
-
--- | Updates the time in an IO Ref and returns the time difference
-updateTime :: IORef Int -> Int -> IO Int
-updateTime timeRef newTime = do
-  previousTime <- readIORef timeRef
-  writeIORef timeRef newTime
-  return (newTime - previousTime)
-
-yampaSDLTimeSense :: IORef Int -> IO Yampa.DTime
-yampaSDLTimeSense timeRef = do
-  -- Get time passed since SDL init
-  newTime <- fmap fromIntegral SDL.getTicks
-
-  -- Obtain time difference
-  dt <- updateTime timeRef newTime
-  let dtSecs = fromIntegral dt / 100
-  return dtSecs
 
 -- Pure SF
 inCircles :: SF (Double, Double) (Double, Double)

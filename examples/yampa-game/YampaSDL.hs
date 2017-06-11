@@ -7,7 +7,13 @@ import Graphics.UI.SDL as SDL
 type TimeRef = IORef Int
 
 yampaSDLTimeInit :: IO TimeRef
-yampaSDLTimeInit = newIORef (0 :: Int)
+yampaSDLTimeInit = do
+  timeRef <- newIORef (0 :: Int)
+  _       <- yampaSDLTimeSense timeRef
+  _       <- yampaSDLTimeSense timeRef
+  _       <- yampaSDLTimeSense timeRef
+  _       <- yampaSDLTimeSense timeRef
+  return timeRef
 
 -- | Updates the time in an IO Ref and returns the time difference
 updateTime :: IORef Int -> Int -> IO Int
