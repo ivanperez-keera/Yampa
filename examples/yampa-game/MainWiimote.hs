@@ -6,7 +6,7 @@ import FRP.Yampa as Yampa
 import FRP.Yampa.Physics
 import Data.IORef
 
-width = 640
+width  = 640
 height = 480
 type Radius  = Float
 
