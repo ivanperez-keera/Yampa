@@ -1,149 +1,110 @@
 {-# LANGUAGE Arrows #-}
-import Graphics.UI.SDL as SDL
-import System.Exit
-import System.Random
-import FRP.Yampa as Yampa
-import FRP.Yampa.Physics
+import Control.Monad
 import Data.IORef
+import Data.Maybe
+import Debug.Trace
+import FRP.Yampa       as Yampa
+import Graphics.UI.SDL as SDL
+import System.CWiid
 
+import YampaSDL
+
+width :: Num a => a
 width  = 640
+height :: Num a => a
 height = 480
-type Radius  = Float
-
-type TotalTime = IORef Int
-
-initGraphs = do
-       SDL.init [InitVideo]
-       screen <- setVideoMode 640 480 16 [SWSurface]
-       setCaption "Test" ""
-       enableUnicode True
-
-display :: Shape -> IO() -- Surface -> IO ()
-display (Shape x y w h) -- image
-    = do screen <- getVideoSurface
-         let format = surfaceGetPixelFormat screen
-         red   <- mapRGB format 0xFF 0 0xAA 
-         green <- mapRGB format 0 0xFF 0
-         fillRect screen Nothing green
-         fillRect screen (Just (Rect x y w h)) red
-         SDL.flip screen
 
 main = do
-  -- initGraphs
-  time <- newIORef (0 :: Int)
-  reactimate (initGraphs >> return Yampa.NoEvent)
-             (\_ -> do
-                e <- getEvent
-                ts <- fmap fromIntegral getTicks
-                pt <- readIORef time
-                let dt  = ts - pt
-                    dtY = fromIntegral dt / 100 
-                writeIORef time ts
-                return (dtY, Just e)) -- 10ms, no input
-             (\_ e -> do
-                case e of
-                  Just e' -> display e' >> return False
-                  _       -> return True)
-             signalSF
+  mWiimote <- initializeWiimote
+  timeRef <- newIORef (0 :: Int)
+  if isNothing mWiimote
+    then putStrLn "Couldn't find wiimote"
+    else do let wiimote = fromJust mWiimote
+            reactimate (initGraphs >> senseWiimote wiimote)
+                       (\_ -> do
+                          dtSecs <- yampaSDLTimeSense timeRef
+                          mInput <- senseWiimote wiimote
+                          return (dtSecs, Just mInput)
+                       )
+                       (\_ e -> display (e) >> return False)
+                       player
 
-data InputAction = Close
-                 | MouseMove Int Int
+-- Pure SF
+inCircles :: SF (Double, Double) (Double, Double)
+inCircles = proc (centerX, centerY) -> do
+  t <- time -< ()
+  let x      = centerX + cos t * radius
+      y      = centerY + sin t * radius
+      radius = 30
+  returnA -< (x,y)
 
-type Output = Maybe Shape
-data Shape = Shape Int Int Int Int
+initGraphs :: IO ()
+initGraphs = do
+  -- Initialise SDL
+  SDL.init [InitVideo]
 
--- signalSF :: SF Int Int
--- signalSF = (maybeCloseSF &&& mouseFollowingSF) >>> mergeResults
-signalSF = arr (const ()) >>> updateG
+  -- Create window
+  screen <- SDL.setVideoMode width height 16 [SWSurface]
+  SDL.setCaption "Test" ""
 
-maybeCloseSF :: SF (Yampa.Event InputAction) (Yampa.Event Output)
-maybeCloseSF = filterClose >>> arr (`tag` Nothing)
+  -- Important if we want the keyboard to work right (I don't know
+  -- how to make it work otherwise)
+  SDL.enableUnicode True
 
-mouseFollowingSF :: SF (Yampa.Event InputAction) Output
-mouseFollowingSF = filterMouseMove >>> computeMouseMove >>> drawShape >>> arr Just
+display :: (Double, Double) -> IO()
+display (playerX, playerY) = do
+  -- Obtain surface
+  screen <- getVideoSurface
 
-mergeResults :: SF (Yampa.Event Output, Output) Output
-mergeResults = arr mergeResults'
-  where mergeResults' (Yampa.NoEvent, e) = e
-        mergeResults' (Event e, _) = e
+  -- Paint screen green
+  let format = surfaceGetPixelFormat screen
+  green <- mapRGB format 0 0xFF 0
+  fillRect screen Nothing green
 
-filterClose = arr (filterE isClose)
+  -- Paint small red square, at an angle 'angle' with respect to the center
+  red <- mapRGB format 0xFF 0 0
+  let side = 10
+      x = round playerX
+      y = round playerY
+  fillRect screen (Just (Rect x y side side)) red
 
-computeMouseMove = hold (MouseMove 0 0)
+  -- Double buffering
+  SDL.flip screen
 
-filterMouseMove = arr $ filterE isMouseMove
+player :: SF (Double, Double) (Double, Double)
+player = inCircles
 
-isMouseMove :: InputAction -> Bool
-isMouseMove (MouseMove _ _) = True
-isMouseMove _               = False
+senseWiimote :: CWiidWiimote -> IO (Double, Double)
+senseWiimote wmdev = do
+  irs   <- cwiidGetIR wmdev
 
-isClose :: InputAction -> Bool
-isClose Close = True
-isClose _     = False
+  -- Obtain positions of leds 1 and 2 (with a normal wii bar, those
+  -- will be the ones we use).
+  let led1   = irs!!0
+      led2   = irs!!1
 
-drawShape = arr (\(MouseMove x y) -> Shape x y 30 30)
+  -- Calculate mid point between sensor bar leds
+  let posX = ((cwiidIRSrcPosX led1) + (cwiidIRSrcPosX led2)) `div` 2
+      posY = ((cwiidIRSrcPosY led1) + (cwiidIRSrcPosY led2)) `div` 2
 
-getEvent :: IO (Yampa.Event InputAction)
-getEvent 
-    = do event <- pollEvent
-         case event of
-           Quit                     -> return (Event Close)
-           KeyDown (Keysym _ _ 'q') -> return (Event Close)
-           MouseMotion x y z w      -> return (Event (MouseMove (fromIntegral x) (fromIntegral y)))
-           _                        -> return Yampa.NoEvent
+  -- Calculate proportional coordinates
+  let propX = fromIntegral (1024 - posX) / 1024.0
+      propY = fromIntegral (max 0 (posY - 384)) / 384.0
 
-data Bounds = Bounds {
-  xMin  :: Float,
-  yMin  :: Float,
-  xMax  :: Float,
-  yMax  :: Float
-}
+  -- Calculate game area coordinates
+  let finX  = width  * propX
+      finY  = height * propY
 
----- The boolean event says whether there has been a 'pat' on the ball or not.
----- Right now, I don't want to complicate this.
---discardInputs :: SF (Event ()) ()
---discardInputs = arr $ const ()
+  return (finX, finY) 
 
--- I just want to process a spacebar!
--- These are ***pointwise*** bindings.
--- TODO Abstract out the initial state.
-updateG :: SF () (Maybe Shape)
-updateG = proc () -> do
-  ((x,y),_vel) <- bouncingBall (0,200) (40,45) (cor defPhysics) ballRadius bounds -< ()
-  returnA  -< Just $ Shape (fI (x-ballRadius)) (fI (maxY-(y-ballRadius))) (fI (2*ballRadius)) (fI (2*ballRadius))
-  where
-    bounds = Bounds { xMin = 0, yMin = 0, xMax = 640, yMax = 480 }
-    ballRadius = 30
-    ballColour = (0.7, 0.7, 0.7)
-    fI = round
-    maxY = 480 - 2 * ballRadius
-
--- fallingBall' pos0 vel0 radius boundaries ground
-
--- This time around, we detect for collisions with the ground given by 'ground',
--- and record the position, velocity, and the direction normal to the
--- at the location of the collision.
--- Carries out a check for each of the four bounds
-fallingBall' :: Pos2 -> Vel2 -> Radius -> Bounds
-             -> SF () ((Pos2, Vel2), Yampa.Event (Dir2,(Pos2,Vel2)))
-fallingBall' p0 v0 rad bounds = proc () -> do
-  pv@(p,_v) <- freeFall p0 v0 -< ()
-  hitXMin  <- edgeTag (1, 0) -< fst p <= xMin bounds + rad
-  hitYMin  <- edgeTag (0, 1) -< snd p <= yMin bounds + rad
-  hitXMax  <- edgeTag (-1,0) -< fst p >= xMax bounds - rad
-  hitYMax  <- edgeTag (0,-1) -< snd p >= yMax bounds - rad
-  let hitInfo = foldr1 (mergeBy mergeHits) [hitXMin,hitYMin,hitXMax,hitYMax]
-  returnA -< (pv, hitInfo `attach` pv)
-  where
-    mergeHits = (^+^) -- simply add the two collision directions together.
-
--- We use the extra collision information as given by fallingBall' to compute
--- the new bouncing ball's velocity.
--- Bounces off all four sides of the screen!
-bouncingBall :: Pos2 -> Vel2 -> COR -> Radius -> Bounds -> SF () (Pos2,Vel2)
-bouncingBall p0 v0 cor rad bounds = bouncingBall' p0 v0
-  where
-    bouncingBall' p0 v0 =
-      switch (fallingBall' p0 v0 rad bounds) $
-        \(dir,(p,v)) -> bouncingBall' p (reflect dir ((-cor) *^ v))
-    reflect l v = (2*(v `dot` l)/(l `dot` l)) *^ l ^-^ v
+-- | Initializes the wiimote, optionally returning the sensing function. It
+-- returns Nothing if the Wiimote cannot be detected. Users should have a BT
+-- device and press 1+2 to connect to it. A message is shown on stdout.
+initializeWiimote :: IO (Maybe CWiidWiimote)
+initializeWiimote = do
+  putStrLn "Initializing WiiMote. Please press 1+2 to connect."
+  wm <- cwiidOpen
+  case wm of
+    Nothing  -> return ()
+    Just wm' -> void $ cwiidSetRptMode wm' 15 -- Enable button reception, acc and IR
+  return wm

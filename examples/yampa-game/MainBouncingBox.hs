@@ -52,11 +52,11 @@ display (boxY,_) = do
 
   -- Paint screen green
   let format = surfaceGetPixelFormat screen
-  green <- mapRGB format 0 0xFF 0
+  green <- mapRGB format 55 60 64
   fillRect screen Nothing green
 
   -- Paint small red square, at an angle 'angle' with respect to the center
-  red <- mapRGB format 0xFF 0 0
+  red <- mapRGB format 212 108 73
   let x = (width - boxSide) `div` 2
       y = round boxY
   fillRect screen (Just (Rect x y boxSide boxSide)) red

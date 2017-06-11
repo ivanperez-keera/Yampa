@@ -156,7 +156,7 @@ executable yampa-examples-sdl-circlingmouse
 executable yampa-examples-sdl-wiimote
   main-is: MainWiimote.hs
   hs-source-dirs:  examples/yampa-game/
-  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing -rtsopts
   build-Depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
   if flag(examples)
     buildable: True
