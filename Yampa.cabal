@@ -142,18 +142,24 @@ executable yampa-examples-sdl-bouncingbox
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   build-Depends: base < 5, random, deepseq, SDL
+  if flag(examples)
+    buildable: True
 
 executable yampa-examples-sdl-circlingmouse
   main-is: MainCirclingMouse
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   build-Depends: base < 5, random, deepseq, SDL
+  if flag(examples)
+    buildable: True
 
 executable yampa-examples-sdl-wiimote
   main-is: MainWiimote
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   build-Depends: base < 5, random, deepseq, SDL, hcwiid
+  if flag(examples)
+    buildable: True
 
 source-repository head
   type:     git
