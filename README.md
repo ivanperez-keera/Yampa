@@ -21,6 +21,16 @@ $ cabal install Yampa
 
 ## Examples
 
+There is a directory with examples, which includes basic SDL examples and
+and one example with a Wiimote controller. You can install them by default
+with 
+
+```
+$ cabal sandbox init         # Optional, but recommended
+$ cabal update
+$ cabal install Yampa -fexamples
+```
+
 There are many programs written in Yampa. See the following examples:
 
 * Haskanoid: a game that uses SDL multimedia, wiimote and kinect:
@@ -35,6 +45,7 @@ There are many programs written in Yampa. See the following examples:
   https://hackage.haskell.org/package/frag
 * Yampa-2048: an implementation of the game 2048 using Yampa and Gloss.
   https://github.com/ksaveljev/yampa-2048
+
 
 A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
