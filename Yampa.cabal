@@ -138,7 +138,7 @@ test-suite regression
       Yampa
 
 executable yampa-examples-sdl-bouncingbox
-  main-is: MainBouncingBox 
+  main-is: MainBouncingBox.hs
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   build-Depends: base < 5, random, deepseq, SDL
@@ -146,7 +146,7 @@ executable yampa-examples-sdl-bouncingbox
     buildable: True
 
 executable yampa-examples-sdl-circlingmouse
-  main-is: MainCirclingMouse
+  main-is: MainCirclingMouse.hs
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   build-Depends: base < 5, random, deepseq, SDL
@@ -154,7 +154,7 @@ executable yampa-examples-sdl-circlingmouse
     buildable: True
 
 executable yampa-examples-sdl-wiimote
-  main-is: MainWiimote
+  main-is: MainWiimote.hs
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   build-Depends: base < 5, random, deepseq, SDL, hcwiid
