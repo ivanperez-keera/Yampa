@@ -1,8 +1,8 @@
 2017-05-05 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.10.6).
         * tests/: do not warn if they contain tabs.
-	* src/: Includes combinators to deal with collections,
-	  to iterate over time (for custom/discrete integration),
+        * src/: Includes combinators to deal with collections,
+          to iterate over time (for custom/discrete integration),
           implements ArrowChoice.
 
 2017-04-26 Ivan Perez <ivan.perez@keera.co.uk>
