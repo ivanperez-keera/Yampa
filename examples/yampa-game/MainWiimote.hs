@@ -7,6 +7,7 @@ import FRP.Yampa       as Yampa
 import Graphics.UI.SDL as SDL
 import System.CWiid
 
+-- Helper functions
 import YampaSDL
 
 width :: Num a => a
@@ -14,6 +15,20 @@ width  = 640
 height :: Num a => a
 height = 480
 
+-- | Reactimation.
+--
+-- This main function runs an FRP system by producing a signal, passing it
+-- through a signal function, and consuming it.
+--
+-- The first two arguments to reactimate are the value of the input signal
+-- at time zero and at subsequent times, together with the times between
+-- samples.
+-- 
+-- The third argument to reactimate is the output consumer that renders
+-- the signal.
+--
+-- The last argument is the actual signal function.
+--
 main = do
   mWiimote <- initializeWiimote
   timeRef <- newIORef (0 :: Int)
@@ -38,6 +53,9 @@ inCircles = proc (centerX, centerY) -> do
       radius = 30
   returnA -< (x,y)
 
+-- * Graphics
+
+-- | Initialise rendering system.
 initGraphs :: IO ()
 initGraphs = do
   -- Initialise SDL
@@ -47,10 +65,7 @@ initGraphs = do
   screen <- SDL.setVideoMode width height 16 [SWSurface]
   SDL.setCaption "Test" ""
 
-  -- Important if we want the keyboard to work right (I don't know
-  -- how to make it work otherwise)
-  SDL.enableUnicode True
-
+-- | Display a box at a position.
 display :: (Double, Double) -> IO()
 display (playerX, playerY) = do
   -- Obtain surface
@@ -58,15 +73,15 @@ display (playerX, playerY) = do
 
   -- Paint screen green
   let format = surfaceGetPixelFormat screen
-  green <- mapRGB format 55 60 64
-  fillRect screen Nothing green
+  bgColor <- mapRGB format 55 60 64
+  fillRect screen Nothing bgColor
 
   -- Paint small red square, at an angle 'angle' with respect to the center
-  red <- mapRGB format 212 108 73
+  foreC <- mapRGB format 212 108 73
   let side = 30
       x = round playerX
       y = round playerY
-  fillRect screen (Just (Rect x y side side)) red
+  fillRect screen (Just (Rect x y side side)) foreC
 
   -- Double buffering
   SDL.flip screen
@@ -88,7 +103,7 @@ senseWiimote wmdev = do
       posY = ((cwiidIRSrcPosY led1) + (cwiidIRSrcPosY led2)) `div` 2
 
   -- Calculate proportional coordinates
-  let propX = fromIntegral (1024 - posX) / 1024.0
+  let propX = fromIntegral (1024 - posX) / width
       propY = fromIntegral (max 0 (posY - 384)) / 384.0
 
   -- Calculate game area coordinates
