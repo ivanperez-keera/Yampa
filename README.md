@@ -21,9 +21,8 @@ $ cabal install Yampa
 
 ## Examples
 
-There is a directory with examples, which includes basic SDL examples and
-and one example with a Wiimote controller. You can install them by default
-with 
+There is a directory with examples, which includes two basic SDL examples and
+and one with using a Nintendo Wii Remote. You can install them with:
 
 ```
 $ cabal sandbox init         # Optional, but recommended
