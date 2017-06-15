@@ -19,7 +19,7 @@ install:
  - travis_retry cabal update
 
 script:
- - travis_retry cabal install --run-tests -v -j1
+ - travis_retry cabal install --run-tests -fexamples -v -j1
 
 notifications:
  email: true
