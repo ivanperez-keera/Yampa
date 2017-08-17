@@ -49,48 +49,48 @@
 -- "FRP.Yampa.Event" defines events and event-manipulation functions.
 --
 -- Finally, see [<#g:26>] for sources of randomness (useful in games).
---
+
 -- CHANGELOG:
 --
--- * Adds (most) documentation.
+-- - Adds (most) documentation.
 --
--- * New version using GADTs.
+-- - New version using GADTs.
 --
 -- ToDo:
 --
--- * Specialize def. of repeatedly. Could have an impact on invaders.
+-- - Specialize def. of repeatedly. Could have an impact on invaders.
 --
--- * New defs for accs using SFAcc
+-- - New defs for accs using SFAcc
 --
--- * Make sure opt worked: e.g.
+-- - Make sure opt worked: e.g.
 --
---   >     repeatedly >>> count >>> arr (fmap sqr)
+-- - >     repeatedly >>> count >>> arr (fmap sqr)
 --
--- * Introduce SFAccHld.
+-- - Introduce SFAccHld.
 --
--- * See if possible to unify AccHld wity Acc??? They are so close.
+-- - See if possible to unify AccHld wity Acc??? They are so close.
 --
--- * Introduce SScan. BUT KEEP IN MIND: Most if not all opts would
---   have been possible without GADTs???
+-- - Introduce SScan. BUT KEEP IN MIND: Most if not all opts would
+-- - have been possible without GADTs???
 --
--- * Look into pairs. At least pairing of SScan ought to be interesting.
+-- - Look into pairs. At least pairing of SScan ought to be interesting.
 --
--- * Would be nice if we could get rid of first & second with impunity
---   thanks to Id optimizations. That's a clear win, with or without
---   an explicit pair combinator.
+-- - Would be nice if we could get rid of first & second with impunity
+-- - thanks to Id optimizations. That's a clear win, with or without
+-- - an explicit pair combinator.
 --
--- * delayEventCat is a bit complicated ...
+-- - delayEventCat is a bit complicated ...
 --
 --
 -- Random ideas:
 --
--- * What if one used rules to optimize
+-- - What if one used rules to optimize
 --   - (arr :: SF a ()) to (constant ())
 --   - (arr :: SF a a) to identity
 --   But inspection of invader source code seem to indicate that
 --   these are not very common cases at all.
 --
--- * It would be nice if it was possible to come up with opt. rules
+-- - It would be nice if it was possible to come up with opt. rules
 --   that are invariant of how signal function expressions are
 --   parenthesized. Right now, we have e.g.
 --       arr f >>> (constant c >>> sf)
@@ -102,7 +102,7 @@
 --      SFComp :: <tfun> -> SF' a b -> SF' b c -> SF' a c
 --   ???
 --
--- * The transition function would still be optimized in (pretty much)
+-- - The transition function would still be optimized in (pretty much)
 --   the current way, but it would still be possible to look "inside"
 --   composed signal functions for lost optimization opts.
 --   Seems to me this could be done without too much extra effort/no dupl.
@@ -118,10 +118,10 @@
 --                      (sf2', c) = (sfTF' sf2) dt b
 -- @
 --
--- * The ONLY change was changing the constructor from SF' to SFComp and
+-- - The ONLY change was changing the constructor from SF' to SFComp and
 --   adding sf1 and sf2 to the constructor app.!
 --
--- * An optimized case:
+-- - An optimized case:
 --     cpAuxC1 b sf1 sf2               = SFComp tf sf1 sf2
 --   So cpAuxC1 gets an extra arg, and we change the constructor.
 --   But how to exploit without writing 1000s of rules???
@@ -130,10 +130,10 @@
 --   recursive call? E.g. we're in the arr case, and the first sf is another
 --   arr, so we'd like to combine the two.
 --
--- * It would also be intersting, then, to know when to STOP playing this
+-- - It would also be intersting, then, to know when to STOP playing this
 --   game, due to the overhead involved.
 --
--- * Why don't we have a "SWITCH" constructor that indicates that the
+-- - Why don't we have a "SWITCH" constructor that indicates that the
 --   structure will change, and thus that it is worthwile to keep
 --   looking for opt. opportunities, whereas a plain "SF'" would
 --   indicate that things NEVER are going to change, and thus we can just
@@ -514,7 +514,7 @@ instance ArrowChoice SF where
                   Left x  -> let (sf', b') = sfTF' fSF dt x
                              in (futureArrowLeft sf', Left b')
                   Right x -> (futureArrowLeft fSF, Right x)
-          
+
 
 instance Arrow SF where
     arr    = arrPrim

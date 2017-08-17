@@ -9,7 +9,25 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
------------------------------------------------------------------------------------------
+-- Switches allow you to change the signal function being applied.
+--
+-- The basic idea of switching is fromed by combining a subordinate signal function
+-- and a signal function continuation parameterised over some initial data.
+--
+-- For example, the most basic switch has the following signature:
+--
+-- @switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b@
+--
+-- which indicates that it has two parameters: a signal function
+-- that produces an output and indicates, with an event, when it is time to
+-- switch, and a signal function that starts with the residual data left by the
+-- first SF in the event and continues onwards.
+--
+-- Note that switching occurs, at most, once. If you want something to switch
+-- repeatedly, you need to loop. However, some switches are immediate (meaning
+-- that the second SF is started at the time of switching). If you use the same
+-- SF that originally provoked the switch, you are very likely to fall into an
+-- infinite loop.
 
 module FRP.Yampa.Switches (
     -- Re-exported module, classes, and types
@@ -296,7 +314,7 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 
 -- | Recurring switch.
 --
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- See <https://wiki.haskell.org/Yampa#Switches> for more
 -- information on how this switch works.
 
 -- !!! Suboptimal. Overall, the constructor is invarying since rSwitch is
@@ -320,7 +338,7 @@ rSwitch sf = switch (first sf) rSwitch'
 
 -- | Recurring switch with delayed observation.
 --
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- See <https://wiki.haskell.org/Yampa#Switches> for more
 -- information on how this switch works.
 drSwitch :: SF a b -> SF (a, Event (SF a b)) b
 drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
@@ -336,7 +354,7 @@ drSwitch sf = dSwitch (first sf) drSwitch'
 
 -- | "Call-with-current-continuation" switch.
 --
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- See <https://wiki.haskell.org/Yampa#Switches> for more
 -- information on how this switch works.
 
 -- !!! Has not been optimized properly.
@@ -455,7 +473,7 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 
 -- | 'kSwitch' with delayed observation.
 --
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- See <https://wiki.haskell.org/Yampa#Switches> for more
 -- information on how this switch works.
 
 -- !!! Has not been optimized properly. Should be like kSwitch.
