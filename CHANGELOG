@@ -1,3 +1,8 @@
+2017-08-17 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.10.6.1).
+        * examples/: new examples, using wiimote.
+        * src/: Minor improvements to documentation.
+
 2017-05-05 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.10.6).
         * tests/: do not warn if they contain tabs.
