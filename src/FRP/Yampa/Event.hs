@@ -284,7 +284,7 @@ merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
 -- | Event merge parameterized by a conflict resolution function.
 --
 -- Applicative-based definition:
--- mergeBy f re le = (f <$> re <*> le) <|> re <|> le
+-- mergeBy f le re = (f <$> le <*> re) <|> le <|> re
 mergeBy :: (a -> a -> a) -> Event a -> Event a -> Event a
 mergeBy _       NoEvent      NoEvent      = NoEvent
 mergeBy _       le@(Event _) NoEvent      = le
@@ -295,6 +295,9 @@ mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 -- merging the results. The first three arguments are mapping functions,
 -- the third of which will only be used when both events are present.
 -- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
+--
+-- Applicative-based definition:
+-- mapMerge lf rf lrf le re = (f <$> le <*> re) <|> (lf <$> le) <|> (rf <$> re)
 mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c)
             -> Event a -> Event b -> Event c
 mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
@@ -303,10 +306,18 @@ mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
 mapMerge _  _  lrf (Event l) (Event r) = Event (lrf l r)
 
 -- | Merge a list of events; foremost event has priority.
+--
+-- Foldable-based definition:
+-- mergeEvents :: Foldable t => t (Event a) -> Event a
+-- mergeEvents =  asum
 mergeEvents :: [Event a] -> Event a
 mergeEvents = foldr lMerge NoEvent
 
 -- | Collect simultaneous event occurrences; no event if none.
+--
+-- Traverable-based definition:
+-- catEvents :: Foldable t => t (Event a) -> Event (t a)
+-- carEvents e  = if (null e) then NoEvent else (sequenceA e)
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
                     [] -> NoEvent
@@ -314,6 +325,9 @@ catEvents eas = case [ a | Event a <- eas ] of
 
 -- | Join (conjunction) of two events. Only produces an event
 -- if both events exist.
+--
+-- Applicative-based definition:
+-- joinE = liftA2 (,)
 joinE :: Event a -> Event b -> Event (a,b)
 joinE NoEvent   _         = NoEvent
 joinE _         NoEvent   = NoEvent
