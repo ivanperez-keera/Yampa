@@ -19,6 +19,8 @@
 -- You can find examples, tutorials and documentation on Yampa here:
 --
 -- <www.haskell.org/haskellwiki/Yampa>
+-- <github.com/ivanperez-keera/Yampa/tree/master/examples>
+--
 --
 -- Structuring a hybrid system in Yampa is done based on two main concepts:
 --
@@ -108,7 +110,7 @@
 -- * "FRP.Yampa.Diagnostics"
 --
 -- * "FRP.Yampa.Forceable"
--- 
+--
 -- * "FRP.Yampa.Internals"  -- No longer in use
 --
 -- * "FRP.Yampa.MergeableRecord"
@@ -300,7 +302,7 @@ module FRP.Yampa (
     rMerge,               -- :: Event a -> Event a -> Event a,    infixl 6
     merge,                -- :: Event a -> Event a -> Event a,    infixl 6
     mergeBy,              -- :: (a -> a -> a) -> Event a -> Event a -> Event a
-    mapMerge,             -- :: (a -> c) -> (b -> c) -> (a -> b -> c) 
+    mapMerge,             -- :: (a -> c) -> (b -> c) -> (a -> b -> c)
                           --    -> Event a -> Event b -> Event c
     mergeEvents,          -- :: [Event a] -> Event a
     catEvents,            -- :: [Event a] -> Event [a]
