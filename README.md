@@ -9,16 +9,6 @@ discrete-time and continuous-time) systems. Yampa is based on the concepts of
 Functional Reactive Programming (FRP) and is structured using arrow
 combinators.
 
-:star2: **New version!**
-
-Although the old API is mainly respected, the code has been reorganised to
-facilitate understanding and documentation. The API is not fully backwards
-compatible, but most projects should work without changes or with minimal
-adaptations. If that is not the case, please let us know. Also, if you are FRP
-savvy, please take a look around and tell us whether there's anything you'd
-change. The documentation is available at:
-http://hackage.haskell.org/package/Yampa/docs/FRP-Yampa.html
-
 ## Installation
 
 Yampa is available on hackage: http://hackage.haskell.org/package/Yampa.
@@ -31,30 +21,38 @@ $ cabal install Yampa
 
 ## Examples
 
+There is a directory with examples, which includes two basic SDL examples and
+and one with using a Nintendo Wii Remote. You can install them with:
+
+```
+$ cabal sandbox init         # Optional, but recommended
+$ cabal update
+$ cabal install Yampa -fexamples
+```
+
+### Other examples
+
 There are many programs written in Yampa. See the following examples:
 
-* Haskanoid: a game that uses SDL multimedia, wiimote and kinect:
-  * Github: https://github.com/ivanperez-keera/haskanoid
-  * Hackage: http://hackage.haskell.org/package/haskanoid
-  * Running on a browser, compiled with [GHCJS](https://github.com/ghcjs/ghcjs) (beware: bugs ahead):
-  http://ivanperez-keera.github.io/haskanoid/haskanoid.jsexe/index.html
-
-* Space invaders: a demonstration game used for a paper.
-  https://hackage.haskell.org/package/SpaceInvaders
-* Frag: a 3D first person shooting game.
-  https://hackage.haskell.org/package/frag
-* Yampa-2048: an implementation of the game 2048 using Yampa and Gloss.
-  https://github.com/ksaveljev/yampa-2048
-
+* [Haskanoid](https://github.com/ivanperez-keera/haskanoid): a game that uses
+  SDL multimedia, wiimote and kinect. It's cross platform and works in desktop,
+  mobile, and [web](http://ivanperez-keera.github.io/haskanoid/haskanoid.jsexe/index.html)
+  (compiled with [GHCJS](https://github.com/ghcjs/ghcjs)).
+* [Space invaders](https://hackage.haskell.org/package/SpaceInvaders).
+* [Frag](https://hackage.haskell.org/package/frag): a 3D first person shooting game.
+* [Yampa-2048](https://github.com/ksaveljev/yampa-2048): an implementation of
+  the game 2048 using Yampa and Gloss.
+  
 A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
 hackage are listed.
 
 ## Use in production
 
-* Keera Studios is using it for several Haskell games for Android
-  including a game currently available on Google Play. See:
+* Keera Studios is using it for several Haskell games for Android and iOS
+  including a game currently available on iTunes and Google Play. See:
   * http://facebook.com/keerastudios
+  * https://itunes.apple.com/us/app/magic-cookies/id1244709871
   * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
 
 ## Backends
@@ -100,7 +98,7 @@ You can collaborate at least in three ways:
   collaborators.  If you are working on this, please, let us know.
 
   (_Interactivity and FRP is the main topic of my (ongoing) PhD studies, so I'll
-  keep working on this for quite some time._ -- Ivan Perez)
+  keep working on this for some time._ -- Ivan Perez)
 
 ## Authors
 

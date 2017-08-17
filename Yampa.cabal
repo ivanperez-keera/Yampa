@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.10.6
+version: 0.10.6.1
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -47,6 +47,10 @@ flag test-doc-coverage
 -- You can disable the regression test suite with -f-test-regression
 flag test-regression
   default: True
+  manual: True
+
+flag examples
+  default: False
   manual: True
 
 library
@@ -132,6 +136,30 @@ test-suite regression
     build-depends:
       base,
       Yampa
+
+executable yampa-examples-sdl-bouncingbox
+  main-is: MainBouncingBox.hs
+  hs-source-dirs:  examples/yampa-game/
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  build-Depends: base < 5, random, deepseq, SDL, Yampa
+  if !flag(examples)
+    buildable: False
+
+executable yampa-examples-sdl-circlingmouse
+  main-is: MainCircleMouse.hs
+  hs-source-dirs:  examples/yampa-game/
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  build-Depends: base < 5, random, deepseq, SDL, Yampa
+  if !flag(examples)
+    buildable: False
+
+executable yampa-examples-sdl-wiimote
+  main-is: MainWiimote.hs
+  hs-source-dirs:  examples/yampa-game/
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing -rtsopts
+  build-Depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
+  if !flag(examples)
+    buildable: False
 
 source-repository head
   type:     git
