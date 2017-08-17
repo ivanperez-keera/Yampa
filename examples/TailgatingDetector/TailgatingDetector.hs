@@ -43,6 +43,8 @@ module TailgatingDetector where
 import Data.List (sortBy, (\\))
 
 import FRP.Yampa
+import FRP.Yampa.Conditional
+import FRP.Yampa.EventS
 import FRP.Yampa.Utilities
 
 
