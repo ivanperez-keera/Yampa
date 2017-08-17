@@ -22,7 +22,7 @@ $ cabal install Yampa
 ## Examples
 
 There is a directory with examples, which includes two basic SDL examples and
-and one with using a Nintendo Wii Remote. You can install them with:
+one with using a Nintendo Wii Remote. You can install them with:
 
 ```
 $ cabal sandbox init         # Optional, but recommended
@@ -42,7 +42,7 @@ There are many programs written in Yampa. See the following examples:
 * [Frag](https://hackage.haskell.org/package/frag): a 3D first person shooting game.
 * [Yampa-2048](https://github.com/ksaveljev/yampa-2048): an implementation of
   the game 2048 using Yampa and Gloss.
-  
+
 A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
 hackage are listed.
