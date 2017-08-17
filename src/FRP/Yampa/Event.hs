@@ -10,6 +10,21 @@
 --
 -- Definition of Yampa Event type.
 --
+-- Yampa Events represent discrete time-signals, meaning those that do not
+-- change continuously. Examples of event-carrying signals would be mouse
+-- clicks (in between clicks it is assumed that there is no click), some
+-- keyboard events, button presses on wiimotes or window-manager events.
+--
+-- The type @Event@ is isomorphic to @Maybe@ (@Event a = NoEvent | Event a@)
+-- but, semantically, a @Maybe@-carrying signal could change continuously,
+-- whereas an @Event@-carrying signal should not. No mechanism in Yampa will
+-- check this or misbehave if this assumption is violated.
+--
+-- Events are essential for many other Yampa constructs, like switches (see
+-- @FRP.Yampa.Switches.switch@ for details).
+--
+----------------------------------------------------------------------------
+--
 -- Note on naming conventions used in this module.
 --
 -- Names here might have to be rethought. It's really a bit messy.
@@ -20,7 +35,7 @@
 --
 -- However, part of the names come from a desire to stay close to similar
 -- functions for the Maybe type. e.g. 'event', 'fromEvent', 'isEvent'.
--- In many cases, this use of 'Event' can could understood to refer to the
+-- In many cases, this use of 'Event' could be understood to refer to the
 -- constructor 'Event', not to the type name 'Event'. Thus this use of
 -- event should not be seen as a suffixing-with-type-name convention. But
 -- that is obviously not easy to see, and, more over, interpreting 'Event'
