@@ -53,11 +53,11 @@
 --
 -- * "FRP.Yampa.Task"
 --
--- Minimal Complete FRP Definition
+-- Minimal Complete FRP Definition:
 --
 -- * "FRP.Yampa.Core"
 --
--- Different FRP aspects
+-- Different FRP aspects:
 --
 -- * "FRP.Yampa.Basic"
 --
@@ -85,9 +85,9 @@
 --
 -- * "FRP.Yampa.Simulation" -- Reactimation/evaluation
 --
--- Internals
+-- Internals:
 --
--- * "FRP.Yampa.InternalCore"
+-- * "FRP.Yampa.InternalCore" -- Module not exposed.
 --
 -- Geometry:
 --
