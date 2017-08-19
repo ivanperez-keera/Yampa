@@ -49,15 +49,14 @@ time = localTime
 -- ** Time transformations (run SFs slower/faster)
 
 -- NOTE: These versions are not optimized.
-type Endo a = a -> a
 
-timeTransform :: Endo DTime -> SF a b -> SF a b
+timeTransform :: (DTime -> DTime) -> SF a b -> SF a b
 timeTransform transform sf = SF tf
  where tf a = let (sf', b) = (sfTF sf) a
                   sf''     = timeTransformF transform sf'
               in (sf'', b)
 
-timeTransformF :: Endo DTime -> SF' a b -> SF' a b
+timeTransformF :: (DTime -> DTime) -> SF a b -> SF a b
 timeTransformF transform sf = SF' tf
  where tf dt a = let dt'      = transform dt
                      (sf', b) = (sfTF' sf) dt' a
