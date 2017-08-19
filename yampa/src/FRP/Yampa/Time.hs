@@ -1,3 +1,8 @@
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE Rank2Types #-}
+-----------------------------------------------------------------------------------------
 -- |
 -- Module      : FRP.Yampa.Time
 -- Copyright   : (c) Ivan Perez, 2014-2022
@@ -36,6 +41,8 @@ import Control.Arrow ((>>>))
 
 -- Internal imports
 import FRP.Yampa.Basic        (constant)
+import FRP.Yampa.Diagnostics  (usrErr)
+import FRP.Yampa.Event        (Event (..))
 import FRP.Yampa.Integration  (integral)
 import FRP.Yampa.InternalCore (DTime, SF (SF), SF' (SF'), Time, sfTF, sfTF')
 
@@ -82,3 +89,147 @@ timeTransformSFF transformSF sf = SF' tf
                      (sf', b)                      = (sfTF' sf) dt' a
                      sf''                          = timeTransformSFF transformSF' sf'
                  in (sf'', b)
+
+reverseTime :: SF a b -> SF a b
+reverseTime = timeTransform ((-1)*)
+
+type History a = [(Time, a)]
+
+lastSample :: History a -> (Time, a)
+lastSample as = last as
+
+cache :: ((Time, a) -> Maybe (Time, a) -> Time -> a) -> SF a a
+cache interpolate = SF tf
+  where
+    tf a = (cache' interpolate ([(0, a)]) 0, a)
+
+cache' :: ((Time, a) -> Maybe (Time, a) -> Time -> a) -> History a -> Time -> SF' a a
+cache' interpolate history globalTime = SF' tf
+  where
+    tf dt a | dt == 0 = (cache' interpolate history globalTime, snd $ lastSample history)
+            | dt <  0 = let globalTime' = globalTime + dt
+                            sample = sampleAt interpolate history globalTime'
+                            history' = discardAfter history globalTime'
+                            history'' = addSample  history' globalTime' sample
+                        in (cache' interpolate history'' globalTime', sample)
+
+sampleAt :: ((Time, a) -> Maybe (Time, a) -> Time -> a) -> History a -> Time -> a
+sampleAt interpolate history time = sampleAt' interpolate time (head history) (tail history)
+sampleAt' interpolate time (t0, a0) [] = interpolate (t0, a0) Nothing time
+sampleAt' interpolate time (t0, a0) ((t1,a1):hs)
+  | time >= t0 && time <= t1 = interpolate (t0, a0) (Just (t1, a1)) time
+  | otherwise                = sampleAt' interpolate time (t1,a1) hs
+
+discardAfter :: History a -> Time -> History a
+discardAfter history time = filter (\(t, a) -> t <= time) history
+
+addSample :: History a -> Time -> a -> History a
+addSample history time sample = addSample' time sample history
+
+addSample' :: Time -> a -> History a -> History a
+addSample' time sample [] = [(time, sample)]
+addSample' time sample h@((t1,a1):hs)
+  | t1 == time = (time, sample):hs
+  | t1 >  time = (time, sample):h
+  | otherwise  = (t1,a1) : addSample' time sample hs
+
+revSwitch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
+revSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
+    where
+        tf0 a0 =
+            case tf10 a0 of
+                (sf1, (b0, NoEvent))  -> (switchAux sf1 k, b0)
+                (sf1, (_,  Event c0)) -> switchingPoint sf1 k (sfTF (k c0) a0)
+
+        switchingPoint :: SF' a (b, Event c) -> (c -> SF a b) -> (SF' a b, b) -> (SF' a b, b)
+        switchingPoint sf1 k (sfN', b) = (sf', b)
+          where sf' = SF' tf'
+                tf' dt a = if | dt < 0  -> sfTF' (switchAux sf1 k) dt a
+                                           -- let (sf1', b') = sfTF' sf1 dt a
+                                           -- in (switchAux sf1' k, b')
+                              | dt > 0  -> switchingPoint' sf1 k dt (sfTF' sfN' dt a)
+                              | dt == 0 -> switchingPoint sf1 k (sfN', b)
+
+        switchingPoint' :: SF' a (b, Event c) -> (c -> SF a b) -> DTime -> (SF' a b, b) -> (SF' a b, b)
+        switchingPoint' sf1 k accumDT (sfN', b) = (sf', b)
+          where sf' = SF' tf'
+                tf' dt a = let dt' = dt + accumDT
+                           in if | dt < 0  -> if | dt' < 0  -> sfTF' (switchAux sf1 k) dt' a
+                                                 | dt' > 0  -> dt' `seq` switchingPoint' sf1 k dt' (sfTF' sfN' dt a)
+                                                 | dt' == 0 -> switchingPoint' sf1 k accumDT (sfN', b)
+                                 | dt > 0  -> dt' `seq` switchingPoint' sf1 k dt' (sfTF' sfN' dt a)
+                                 | dt == 0 -> switchingPoint' sf1 k accumDT (sfN', b)
+
+
+        switchAux :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
+        switchAux sf1                          k = SF' tf
+            where
+                tf dt a =
+                    case (sfTF' sf1) dt a of
+                        (sf1', (b, NoEvent)) -> (switchAux sf1' k, b)
+                        (_,    (_, Event c)) -> switchingPoint sf1 k (sfTF (k c) a)
+
+checkpoint :: SF a (b, Event (), Event ()) -> SF a b
+checkpoint sf = SF $ \a -> let (sf', (b, advance, reset)) = sfTF sf a
+                           in case reset of
+                                Event () -> error "loop"
+                                NoEvent -> let pt = case advance of
+                                                      Event () -> Left sf'
+                                                      NoEvent  -> Right sf
+                                           in (checkpoint' pt sf', b)
+
+checkpoint' :: Either (SF' a (b, Event (), Event ())) (SF a (b, Event (), Event ()))
+            -> (SF' a (b, Event (), Event ()))
+            -> SF' a b
+checkpoint' rstPt sf' = SF' $ \dt a -> let (sf'', (b, advance, reset)) = sfTF' sf' dt a
+                                       in case reset of
+                                            Event () -> case rstPt of
+                                                          Left sf''' -> sfTF' (checkpoint' rstPt sf''') dt a
+                                                          Right sf   -> sfTF (checkpoint sf) a
+                                            NoEvent -> let pt = case advance of
+                                                                  Event () -> Left sf''
+                                                                  NoEvent -> rstPt
+                                                       in (checkpoint' pt sf'', b)
+
+forgetPast sf = SF $ \a -> let (sf', b) = sfTF sf a
+                           in (forgetPast' 0 sf', b)
+
+forgetPast' time sf' = SF' $ \dt a -> let time' = time + dt
+                                      in -- trace (show time') $
+                                          if time' < 0
+                                           then let (sf'', b) = sfTF' sf' (-time) a
+                                                in (forgetPast' 0 sf'', b)
+                                           else let (sf'', b) = sfTF' sf' dt a
+                                                in (forgetPast' time' sf'', b)
+
+alwaysForward :: SF a b -> SF a b
+alwaysForward sf = SF $ \a -> let (sf', b) = sfTF sf a
+                              in (alwaysForward' sf', b)
+
+alwaysForward' :: SF' a b -> SF' a b
+alwaysForward' sf = SF' $ \dt a -> let (sf', b) = sfTF' sf (max dt (-dt)) a
+                                   in (alwaysForward' sf', b)
+
+limitHistory :: DTime -> SF a b -> SF a b
+limitHistory time sf = SF $ \a -> let (sf', b) = sfTF sf a
+                                  in (limitHistory' 0 time sf', b)
+
+limitHistory' :: Time -> DTime -> SF' a b -> SF' a b
+limitHistory' curT maxT sf' = SF' $ \dt a -> let curT' = curT + dt
+                                                 time' = if curT' > maxT then maxT else curT'
+                                             in -- trace (show (dt, curT, maxT, maxMaxT)) $
+                                                 if time' < 0
+                                                  then let (sf'', b) = sfTF' sf' (-curT) a
+                                                       in (limitHistory' 0 maxT sf'', b)
+                                                  else let (sf'', b) = sfTF' sf' dt a
+                                                       in (limitHistory' time' maxT sf'', b)
+
+clocked :: SF a DTime -> SF a b -> SF a b
+clocked clockSF sf = SF $ \a -> let (sf', b)  = sfTF sf a
+                                    (cSF', _) = sfTF clockSF a
+                                in (clocked' cSF' sf', b)
+
+clocked' :: SF' a DTime -> SF' a b -> SF' a b
+clocked' clockSF sf = SF' $ \dt a -> let (cSF', dt') = sfTF' clockSF dt a
+                                         (sf', b) = sfTF' sf dt' a
+                                     in (clocked' cSF' sf', b)
