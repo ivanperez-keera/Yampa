@@ -43,14 +43,14 @@ import FRP.Yampa.Core
 import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
 
--- * Window sampling
+-- | Window sampling
+--
 -- First argument is the window length wl, second is the sampling interval t.
 -- The output list should contain (min (truncate (T/t) wl)) samples, where
 -- T is the time the signal function has been running. This requires some
 -- care in case of sparse sampling. In case of sparse sampling, the
 -- current input value is assumed to have been present at all points where
 -- sampling was missed.
-
 sampleWindow :: Int -> Time -> SF a (Event [a])
 sampleWindow wl q =
     identity &&& afterEachCat (repeat (q, ()))

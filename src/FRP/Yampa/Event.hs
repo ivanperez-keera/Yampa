@@ -10,6 +10,21 @@
 --
 -- Definition of Yampa Event type.
 --
+-- Yampa Events represent discrete time-signals, meaning those that do not
+-- change continuously. Examples of event-carrying signals would be mouse
+-- clicks (in between clicks it is assumed that there is no click), some
+-- keyboard events, button presses on wiimotes or window-manager events.
+--
+-- The type @Event@ is isomorphic to @Maybe@ (@Event a = NoEvent | Event a@)
+-- but, semantically, a @Maybe@-carrying signal could change continuously,
+-- whereas an @Event@-carrying signal should not. No mechanism in Yampa will
+-- check this or misbehave if this assumption is violated.
+--
+-- Events are essential for many other Yampa constructs, like switches (see
+-- @FRP.Yampa.Switches.switch@ for details).
+--
+----------------------------------------------------------------------------
+--
 -- Note on naming conventions used in this module.
 --
 -- Names here might have to be rethought. It's really a bit messy.
@@ -20,7 +35,7 @@
 --
 -- However, part of the names come from a desire to stay close to similar
 -- functions for the Maybe type. e.g. 'event', 'fromEvent', 'isEvent'.
--- In many cases, this use of 'Event' can could understood to refer to the
+-- In many cases, this use of 'Event' could be understood to refer to the
 -- constructor 'Event', not to the type name 'Event'. Thus this use of
 -- event should not be seen as a suffixing-with-type-name convention. But
 -- that is obviously not easy to see, and, more over, interpreting 'Event'
@@ -284,7 +299,7 @@ merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
 -- | Event merge parameterized by a conflict resolution function.
 --
 -- Applicative-based definition:
--- mergeBy f re le = (f <$> re <*> le) <|> re <|> le
+-- mergeBy f le re = (f <$> le <*> re) <|> le <|> re
 mergeBy :: (a -> a -> a) -> Event a -> Event a -> Event a
 mergeBy _       NoEvent      NoEvent      = NoEvent
 mergeBy _       le@(Event _) NoEvent      = le
@@ -295,6 +310,9 @@ mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 -- merging the results. The first three arguments are mapping functions,
 -- the third of which will only be used when both events are present.
 -- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
+--
+-- Applicative-based definition:
+-- mapMerge lf rf lrf le re = (f <$> le <*> re) <|> (lf <$> le) <|> (rf <$> re)
 mapMerge :: (a -> c) -> (b -> c) -> (a -> b -> c)
             -> Event a -> Event b -> Event c
 mapMerge _  _  _   NoEvent   NoEvent   = NoEvent
@@ -303,10 +321,18 @@ mapMerge _  rf _   NoEvent   (Event r) = Event (rf r)
 mapMerge _  _  lrf (Event l) (Event r) = Event (lrf l r)
 
 -- | Merge a list of events; foremost event has priority.
+--
+-- Foldable-based definition:
+-- mergeEvents :: Foldable t => t (Event a) -> Event a
+-- mergeEvents =  asum
 mergeEvents :: [Event a] -> Event a
 mergeEvents = foldr lMerge NoEvent
 
 -- | Collect simultaneous event occurrences; no event if none.
+--
+-- Traverable-based definition:
+-- catEvents :: Foldable t => t (Event a) -> Event (t a)
+-- carEvents e  = if (null e) then NoEvent else (sequenceA e)
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
                     [] -> NoEvent
@@ -314,6 +340,9 @@ catEvents eas = case [ a | Event a <- eas ] of
 
 -- | Join (conjunction) of two events. Only produces an event
 -- if both events exist.
+--
+-- Applicative-based definition:
+-- joinE = liftA2 (,)
 joinE :: Event a -> Event b -> Event (a,b)
 joinE NoEvent   _         = NoEvent
 joinE _         NoEvent   = NoEvent

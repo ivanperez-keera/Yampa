@@ -65,7 +65,7 @@ class MergeableRecord a where
 
 
 -- Type constructor for mergeable records.
-newtype MergeableRecord a => MR a = MR (a -> a)
+newtype MR a = MR (a -> a)
 
 
 -- Construction of a mergeable record.
