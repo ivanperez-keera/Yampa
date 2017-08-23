@@ -11,11 +11,18 @@
 -- - The function uniDistStreamMaxDT had the wrong type and the name on the
 --   paper was: uniDistStream. This has been fixed.
 --
+
+import AFRPTestsCommon
 import Control.Arrow
+import Distribution.TestSuite.QuickCheck
 import FRP.Yampa
-import TemporalLogic
 import FRP.Yampa.Stream
+import FRP.Yampa.Testing
+import SampleStreams
+import SampleStreamsQC
+import TemporalLogic
 import Test.QuickCheck
+import Test.QuickCheck.Function
 import Test.QuickCheck.Property
 
 -- type SignalSampleStream a = (a, FutureSampleStream a)
@@ -23,11 +30,11 @@ import Test.QuickCheck.Property
 
 -- evalT :: TPred a -> SignalSampleStream a -> Bool
 
-fallingBall :: Double -> SF () Double
-fallingBall p0 = proc () -> do
-  v <- integral0 -< -9.8
-  p <- integral0 -< v
-  returnA -< (p0 + p)
+-- fallingBall :: Double -> SF () Double
+-- fallingBall p0 = proc () -> do
+--   v <- integral0 -< -9.8
+--   p <- integral0 -< v
+--   returnA -< (p0 + p)
 
 ballFellLower :: Double -> TPred ()
 ballFellLower p0 = Prop (fallingBall p0 >>> arr (\p1 -> p1 <= p0))
@@ -41,8 +48,8 @@ ballFallingLower p0 = Always (ballFellLower p0)
 -- > evalT (ballFallingLower 100) stream01
 -- True
 
-fallingBallPair :: Double -> SF () (Double, Double)
-fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
+-- fallingBallPair :: Double -> SF () (Double, Double)
+-- fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
 
 ballTrulyFalling :: Double -> TPred ()
 ballTrulyFalling p0 = Always (Prop (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po)))
@@ -59,15 +66,15 @@ ballTrulyFalling' p0 = Next (Always (Prop (fallingBallPair p0 >>> arr (\(pn, po)
 bouncingBall :: Double -> Double -> SF () (Double, Double)
 bouncingBall p0 v0 = switch (fallingBall'' p0 v0 >>> (identity &&& hit))
                             (\(p0', v0') -> bouncingBall p0' (-v0'))
-
-fallingBall'' :: Double -> Double -> SF () (Double, Double)
-fallingBall'' p0 v0 = proc () ->  do
-  v <- arr (v0+) <<< integral -< -9.8
-  p <- arr (p0+) <<< integral -< v
-  returnA -< (p, v)
-
-hit :: SF (Double, Double) (Event (Double, Double))
-hit = arr (\(p0, v0) -> if ((p0 <= 0) && (v0 < 0)) then Event (p0, v0) else NoEvent)
+-- 
+-- fallingBall'' :: Double -> Double -> SF () (Double, Double)
+-- fallingBall'' p0 v0 = proc () ->  do
+--   v <- arr (v0+) <<< integral -< -9.8
+--   p <- arr (p0+) <<< integral -< v
+--   returnA -< (p, v)
+-- 
+-- hit :: SF (Double, Double) (Event (Double, Double))
+-- hit = arr (\(p0, v0) -> if ((p0 <= 0) && (v0 < 0)) then Event (p0, v0) else NoEvent)
 
 ballLower :: Double -> TPred ()
 ballLower p0 = Always (Prop (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
@@ -75,13 +82,13 @@ ballLower p0 = Always (Prop (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
 -- > evalT (ballBouncingLower 100) stream05
 -- False
 
+ballBouncingLower = ballLower
+
 ballOverFloor :: Double -> TPred ()
 ballOverFloor p0 = Always (Prop (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 >= 0)))
 
 -- > evalT (ballOverFloor 100) stream05
 -- False
-
-integral0 = integral
 
 propReverseTwice :: [Int ] -> Property
 propReverseTwice xs = property $ reverse (reverse xs) == xs
@@ -104,15 +111,16 @@ type Length = Maybe (Either Int DTime)
 
 generateStream     :: Arbitrary a => Distribution -> Range -> Length -> Gen (SignalSampleStream a)
 generateStream     = undefined
+
 generateStreamWith :: Arbitrary a => (Int -> DTime -> Gen a) -> Distribution -> Range -> Length -> Gen (SignalSampleStream a)
 generateStreamWith = undefined
 
-uniDistStream            :: Arbitrary a => Gen (SignalSampleStream a)
-uniDistStream            = generateStream DistRandom (Nothing, Nothing) Nothing
+-- uniDistStream            :: Arbitrary a => Gen (SignalSampleStream a)
+-- uniDistStream            = generateStream DistRandom (Nothing, Nothing) Nothing
 uniDistStreamMaxDT       :: Arbitrary a => DTime -> Gen (SignalSampleStream a)
 uniDistStreamMaxDT maxDT = generateStream DistRandom (Nothing, Just maxDT ) Nothing
-fixedDelayStream         :: Arbitrary a => DTime -> Gen (SignalSampleStream a)
-fixedDelayStream dt      = generateStream DistConstant (Just dt, Just dt) Nothing
+-- fixedDelayStream         :: Arbitrary a => DTime -> Gen (SignalSampleStream a)
+-- fixedDelayStream dt      = generateStream DistConstant (Just dt, Just dt) Nothing
 
 sConcat :: SignalSampleStream a -> DTime -> SignalSampleStream a -> SignalSampleStream a
 sConcat (x1, xs1) dt (x2, xs2) = (x1 , xs1 ++ ((dt, x2):xs2))
@@ -155,3 +163,128 @@ sClipBeforeTime dt xs
                   (_,(dt',x'):xs') -> if | dt < dt'  -> -- (dt' - dt, x'):xs'
                                                         (x',xs')
                                          | otherwise -> sClipBeforeTime (dt - dt') (x', xs')
+
+integral0 = imIntegral 0
+
+stream0_1 = ((), [(0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ())])
+
+stream0_2 = ((), [(0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (-1000000, ())])
+
+stream0_5 = ((), [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ())])
+
+stream0_5' = ((), [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ())])
+
+fallingBall :: Double -> SF () Double
+fallingBall p0 = constant (-9.8) >>> integral0 >>> integral0 >>> arr (+p0)
+
+-- ballFellLower :: Double -> TPred ()
+-- ballFellLower p0 = Prop (fallingBall p0, (\_ p1 -> p1 <= p0))
+
+testFellBall = evalT (ballFellLower 100) stream0_1
+
+testFellBall2 = evalT (ballFellLower 100) stream0_2
+
+testFallingBall = evalT (ballFallingLower 100) stream0_1
+
+fallingBallPair :: Double -> SF () (Double, Double)
+fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
+
+-- ballTrulyFalling :: Double -> TPred ()
+-- ballTrulyFalling p0 = Always $ Prop (fallingBallPair p0, \() (pn,po) -> pn < po)
+
+testBallTrulyFalling = evalT (ballTrulyFalling 100) stream0_1
+
+-- ballTrulyFalling' :: Double -> TPred ()
+-- ballTrulyFalling' p0 = Next $ Always $ Prop (fallingBallPair p0, \() (pn,po) -> pn < po)
+
+testBallTrulyFalling' = evalT (ballTrulyFalling' 100) stream0_1
+
+fallingBall'' :: Double -> Double -> SF () (Double, Double)
+fallingBall'' p0 v0 = proc () -> do
+  v <- arr (v0 +) <<< integral -< -9.8
+  p <- arr (p0 +) <<< integral -< v
+  returnA -< (p, v)
+
+hit :: SF (Double, Double) (Event (Double, Double))
+hit = arr (\(p0, v0) -> if (p0 <= 0 && v0 < 0) then Event (p0, v0) else NoEvent)
+
+-- bouncingBall :: Double -> Double -> SF () (Double, Double)
+-- bouncingBall p0 v0 = switch (fallingBall'' p0 v0 >>> (identity &&& hit))
+--   (\(p0', v0') -> bouncingBall p0' (-v0'))
+
+-- ballBouncingLower :: Double -> TPred ()
+-- ballBouncingLower p0 = Always $ Prop (bouncingBall p0 0, (\_ (p1,_) -> p1 <= p0))
+
+testBallBouncing = evalT (ballBouncingLower 100) stream0_5
+
+showBallBouncing = embed (bouncingBall 100 0 >>> arr fst ) ((), map (second Just) [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ())])
+
+-- ballOverFloor :: Double -> TPred ()
+-- ballOverFloor p0 = Always $ Prop (bouncingBall p0 0, (\_ (p1, v1) -> p1 >= 0))
+
+testBallOverFloor = evalT (ballOverFloor 100) stream0_5'
+
+showBallBouncing1 = embed (bouncingBall 110.24999999999999 0 >>> arr fst ) ((), map (second Just) [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ())])
+
+testBallOverFloor' = evalT (ballOverFloor 110.24999999999999) stream0_5'
+
+propTestBallOverFloor =
+  forAll myStream (evalT (ballOverFloor 110.24999999999999))
+ where  myStream :: Gen (SignalSampleStream ())
+        myStream = uniDistStream
+
+propTestBallOverFloorFixed =
+  forAll myStream (evalT (ballOverFloor 110.24999999999999))
+ where  myStream :: Gen (SignalSampleStream ())
+        myStream = fixedDelayStream (1/60)
+
+-- alwaysEqual sf1 sf2 =
+--   Always $ Prop (sf1 &&& sf2, (\_ (o1, o2) -> o1 == o2))
+alwaysEqual sf1 sf2 =
+  Always $ Prop ((sf1 &&& sf2) >>> arr (\(o1, o2) -> o1 == o2))
+
+propTestAlwaysEqual =
+  forAll myStream (evalT (alwaysEqual f1 f2))
+ where  myStream :: Gen (SignalSampleStream Double)
+        myStream = uniDistStream
+        f1 :: SF Double Double
+        f1 = arr (**2)
+        f2 :: SF Double Double
+        f2 = arr (^2)
+
+propTestAlwaysEqual2 =
+  forAll dataStream $ \s ->
+    forAll functionStream $ \f -> 
+      evalT (alwaysEqual (arr (apply f) >>> identity) (arr (apply f))) s
+ where  dataStream :: Gen (SignalSampleStream Int)
+        dataStream = uniDistStream
+
+        functionStream :: Gen (Fun Int Int)
+        functionStream = arbitrary
+
+type SPred a = SF a Bool
+
+notSF     sf        = sf >>> arr (not)
+andSF     sf1 sf2   = (sf1 &&& sf2) >>> arr (uncurry (&&))
+orSF      sf1 sf2   = (sf1 &&& sf2) >>> arr (uncurry (||))
+implySF   sf1 sf2   = orSF sf2 (notSF sf1)
+
+history :: SPred a -> SPred a
+history sf = loopPre True $ proc (a, last) -> do
+  b <- sf -< a
+  let cur = last && b
+  returnA -< (cur, cur)
+
+ever :: SPred a -> SPred a
+ever sf = loopPre False $ proc (a, last) -> do
+  b <- sf -< a
+  let cur = last || b
+  returnA -< (cur, cur)
+
+bouncingBall' p0 v0 = bouncingBall p0 v0 >>> arr fst
+
+ballAboveFloor :: Double -> Double -> SF () (Double, Bool)
+ballAboveFloor p0 v0 = proc () -> do
+  ballPos <- bouncingBall' p0 v0 -< ()
+  let aboveFloor = ballPos >= 0
+  returnA -< (ballPos, aboveFloor)
