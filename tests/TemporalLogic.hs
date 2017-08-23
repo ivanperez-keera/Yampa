@@ -28,10 +28,10 @@ import FRP.Yampa.Testing
 import SampleStreams
 
 -- * Temporal Logics based on SFs
-type SPred a b = (SF a b, a -> b -> Bool)
+-- type SPred a b = (SF a b, a -> b -> Bool)
 
 data TPred a where
-   Prop       :: SPred a b -> TPred a
+   Prop       :: SF a Bool -> TPred a
    And        :: TPred a -> TPred a -> TPred a
    Or         :: TPred a -> TPred a -> TPred a
    Not        :: TPred a -> TPred a
@@ -47,10 +47,10 @@ data TPred a where
 --
 -- Returns true if the temporal proposition is currently true.
 evalT :: TPred a -> SignalSampleStream a -> Bool
-evalT (Prop (sf,p))   = \stream -> let (bs, sf') = evalSF sf stream
-                                       b0 = fst bs
-                                       a0 = fst stream
-                                   in p a0 b0
+evalT (Prop sf)   = \stream -> let (bs, sf') = evalSF sf stream
+                                   b0 = fst bs
+                                   -- a0 = fst stream
+                               in b0
 evalT (And t1 t2)     = \stream -> evalT t1 stream && evalT t2 stream
 evalT (Or  t1 t2)     = \stream -> evalT t1 stream || evalT t2 stream
 evalT (Implies t1 t2) = \stream -> not (evalT t1 stream) || evalT t2 stream
@@ -67,7 +67,7 @@ evalT (Next t1)       = \stream -> case stream of
 
 -- Tau-application (transportation to the future)
 tauApp :: TPred a -> a -> DTime -> TPred a
-tauApp (Prop (sf,p)) sample dtime = Prop (sf', p)
+tauApp (Prop sf) sample dtime = Prop sf'
   where sf' = fst (prefuturize sf sample dtime)
 tauApp (And t1 t2) s dt         = And (tauApp t1 s dt) (tauApp t2 s dt)
 tauApp (Or t1 t2) s dt          = Or (tauApp t1 s dt) (tauApp t2 s dt)
