@@ -53,6 +53,15 @@ flag examples
   default: False
   manual: True
 
+-- WARNING: The following flat exposes Yampa's core. You should avoid using
+-- this at all. The only reason to expose it is that we are using Yampa for
+-- research, and many extensions require that we expose the constructors. No
+-- released project should depend on this. In general, you should always
+-- install Yampa with this flag disabled.
+flag expose-core
+  default: False
+  manual: True
+
 library
   hs-source-dirs:  src
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
@@ -95,8 +104,12 @@ library
     FRP.Yampa.Switches
     FRP.Yampa.Time
 
-  other-modules:
+  if flag(expose-core)
+   exposed-modules:
     FRP.Yampa.InternalCore
+  else
+   other-modules:
+     FRP.Yampa.InternalCore
 
 test-suite hlint
   type: exitcode-stdio-1.0
