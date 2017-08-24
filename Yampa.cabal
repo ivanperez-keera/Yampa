@@ -53,7 +53,7 @@ flag examples
   default: False
   manual: True
 
--- WARNING: The following flat exposes Yampa's core. You should avoid using
+-- WARNING: The following flag exposes Yampa's core. You should avoid using
 -- this at all. The only reason to expose it is that we are using Yampa for
 -- research, and many extensions require that we expose the constructors. No
 -- released project should depend on this. In general, you should always
