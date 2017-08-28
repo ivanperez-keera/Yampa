@@ -1,3 +1,7 @@
+2017-08-28 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.10.6.2), fixes issue with dependencies.
+        * stack.yaml: Includes minimal stack configuration.
+
 2017-08-17 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.10.6.1).
         * examples/: new examples, using wiimote.
