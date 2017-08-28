@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.10.6.1
+version: 0.10.6.2
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -155,8 +155,10 @@ executable yampa-examples-sdl-bouncingbox
   other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
-  build-Depends: base < 5, random, deepseq, SDL, Yampa
-  if !flag(examples)
+  if flag(examples)
+    buildable: True
+    build-Depends: base < 5, random, deepseq, SDL, Yampa
+  else
     buildable: False
 
 executable yampa-examples-sdl-circlingmouse
@@ -164,8 +166,10 @@ executable yampa-examples-sdl-circlingmouse
   other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
-  build-Depends: base < 5, random, deepseq, SDL, Yampa
-  if !flag(examples)
+  if flag(examples)
+    buildable: True
+    build-Depends: base < 5, random, deepseq, SDL, Yampa
+  else
     buildable: False
 
 executable yampa-examples-sdl-wiimote
@@ -173,8 +177,10 @@ executable yampa-examples-sdl-wiimote
   other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing -rtsopts
-  build-Depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
-  if !flag(examples)
+  if flag(examples)
+    buildable: True
+    build-depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
+  else 
     buildable: False
 
 source-repository head
