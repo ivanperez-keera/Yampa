@@ -111,10 +111,13 @@ prop_arr_id =
 -- C1: Arr naturality (testSF1 (arr (+1)))
 -- C2: Arr naturality (testSF2 (arr (+1)))
 prop_arr_naturality = 
-   forAll myStream (evalT (Always (Prop (arr f, \x y -> f x == y))))
+   forAll myStream $ \stream -> 
+     forAll f $ \f' -> 
+       evalT (Always (Prop (arr f', \x y -> f' x == y)))
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
-       f = (+1)
+       f :: Gen (Fun Int Int)
+       f = arbitrary
 
 -- Yampa's Basic SF builders
 prop_basic_identity_1 = 
@@ -427,81 +430,81 @@ prop_arrow_second_2 =
        pred = (\x y -> (x, x + 1) == y)
 
 prop_arrow_id_0 = 
-   forAll myStream $ evalT $ Always $ Prop (sf1 &&& sf2, pred) 
+   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> pred) 
  where sf1 = arr id >>> integral
        sf2 = integral
-       pred = const $ uncurry (==)
+       pred = arr $ uncurry (==)
 
        myStream :: Gen (SignalSampleStream Double)
        myStream = uniDistStream
 
 prop_arrow_id_2 = 
-   forAll myStream $ evalT $ Always $ Prop (sf1 &&& sf2, pred) 
+   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> pred) 
  where sf1 = integral >>> arr id
        sf2 = integral
-       pred = const $ uncurry (==)
+       pred = arr $ uncurry (==)
 
        myStream :: Gen (SignalSampleStream Double)
        myStream = uniDistStream
 
 prop_arrow_assoc = 
-   forAll myStream $ evalT $ Always $ Prop (sf1 &&& sf2, pred) 
+   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> pred) 
  where sf1 = (integral >>> arr (*0.5)) >>> integral
        sf2 = integral >>> (arr (*0.5) >>> integral)
-       pred = const $ uncurry (==)
+       pred = arr $ uncurry (==)
 
        myStream :: Gen (SignalSampleStream Double)
        myStream = uniDistStream
 
 prop_arrow_arr_comp = 
-   forAll myStream $ evalT $ Always $ Prop (sf1 &&& sf2, pred) 
+   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> pred) 
  where sf1 = (arr ((*2.5) . (+3.0)))
        sf2 = (arr (+3.0) >>> arr (*2.5))
-       pred = const $ uncurry (==)
+       pred = arr (uncurry (==))
 
        myStream :: Gen (SignalSampleStream Double)
        myStream = uniDistStream
 
 prop_arrow_first_3 = 
-   forAll myStream $ evalT $ Always $ Prop (sf1 &&& sf2, pred) 
+   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> arr pred) 
  where sf1 = (arr dup >>> first (arr (*2.5)))
        sf2 = (arr dup >>> arr (fun_prod (*2.5) id))
-       pred = const $ uncurry (==)
+       pred = uncurry (==)
 
        myStream :: Gen (SignalSampleStream Double)
        myStream = uniDistStream
 
 prop_arrow_first_distrib = 
-   forAll myStream $ evalT $ Always $ Prop (sf1 &&& sf2, pred) 
+   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> arr pred) 
  where sf1 = (arr dup >>> (first (integral >>> arr (+3.0))))
        sf2 = (arr dup >>> (first integral >>> first (arr (+3.0))))
-       pred = const $ uncurry (==)
+       pred = uncurry (==)
 
        myStream :: Gen (SignalSampleStream Double)
        myStream = uniDistStream
 
 prop_arrow_first_id_comm = 
-   forAll myStream $ evalT $ Always $ Prop (sf1 &&& sf2, pred) 
+   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> arr pred) 
  where sf1 = (arr dup >>> (first integral>>>arr (fun_prod id (+3.0))))
        sf2 = (arr dup >>> (arr (fun_prod id (+3.0))>>>first integral))
-       pred = const $ uncurry (==)
+       pred = uncurry (==)
 
        myStream :: Gen (SignalSampleStream Double)
        myStream = uniDistStream
 
 prop_arrow_first_nested = 
-   forAll myStream $ evalT $ Always $ Prop (sf1 &&& sf2, pred) 
+   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> arr pred) 
  where sf1 = (arr (\x -> ((x,x),())) >>> (first (first integral) >>> arr assoc))
        sf2 = (arr (\x -> ((x,x),())) >>> (arr assoc >>> first integral))
 
-       pred = const $ uncurry (==)
+       pred = uncurry (==)
 
        myStream :: Gen (SignalSampleStream Double)
        myStream = uniDistStream
 
 prop_switch_t1 =
   forAll myStream $ evalT $
-    Always $ Prop (switch_t1rec 42.0 &&& switch_tr, same)
+    Always $ Prop ((switch_t1rec 42.0 &&& switch_tr) >>> arr same)
 
   where myStream :: Gen (SignalSampleStream Double)
         myStream = fixedDelayStreamWith f 1.0
@@ -516,7 +519,7 @@ prop_switch_t1 =
              8.0]
              ++ repeat 9.0
   
-        same = const (uncurry (==))
+        same = (uncurry (==))
 
 -- Outputs current input, local time, and the value of the initializing
 -- argument until some time has passed (determined by integrating a constant),
@@ -570,16 +573,16 @@ delayedF = arr id &&& cond
 
 -- | Compares two SFs, resulting in true if they are always equal
 prop_always_equal sf1 sf2 =
-    Always $ Prop ((sf1 &&& sf2), sameResult)
-  where sameResult = const $ uncurry (==)
+    Always $ Prop ((sf1 &&& sf2) >>> arr sameResult)
+  where sameResult = uncurry (==)
 
 prop_arr_no_change f xs =
      samples (fst (evalSF (arr f) xs)) == map f (samples xs)
 
 -- | Compares two SFs, returning true if they are close enough
 prop_always_similar margin sf1 sf2 =
-  Always (Prop ((sf1 &&& sf2), similar))
-  where similar _ (x,y) = abs (x-y) <= margin
+  Always (Prop ((sf1 &&& sf2) >>> arr similar))
+  where similar (x,y) = abs (x-y) <= margin
 
 sfMeasureIncrement :: Num b => b -> SF a b -> SF a b
 sfMeasureIncrement init sf = loopPre init sf'
