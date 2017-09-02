@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE ExistentialQuantification, MultiParamTypeClasses, FlexibleInstances, StandaloneDeriving #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Point3
@@ -32,7 +32,11 @@ import FRP.Yampa.Forceable
 -- 3D point, constructors and selectors.
 ------------------------------------------------------------------------------
 
-data RealFloat a => Point3 a = Point3 !a !a !a deriving Eq
+data Point3 a = RealFloat a => Point3 !a !a !a
+
+deriving instance Eq a => Eq (Point3 a)
+
+deriving instance Show a => Show (Point3 a)
 
 point3X :: RealFloat a => Point3 a -> a
 point3X (Point3 x _ _) = x

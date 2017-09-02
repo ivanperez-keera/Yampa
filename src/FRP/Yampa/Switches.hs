@@ -9,7 +9,25 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
------------------------------------------------------------------------------------------
+-- Switches allow you to change the signal function being applied.
+--
+-- The basic idea of switching is fromed by combining a subordinate signal function
+-- and a signal function continuation parameterised over some initial data.
+--
+-- For example, the most basic switch has the following signature:
+--
+-- @switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b@
+--
+-- which indicates that it has two parameters: a signal function
+-- that produces an output and indicates, with an event, when it is time to
+-- switch, and a signal function that starts with the residual data left by the
+-- first SF in the event and continues onwards.
+--
+-- Note that switching occurs, at most, once. If you want something to switch
+-- repeatedly, you need to loop. However, some switches are immediate (meaning
+-- that the second SF is started at the time of switching). If you use the same
+-- SF that originally provoked the switch, you are very likely to fall into an
+-- infinite loop.
 
 module FRP.Yampa.Switches (
     -- Re-exported module, classes, and types
@@ -61,6 +79,9 @@ module FRP.Yampa.Switches (
                   -- -> ([SF a b] -> c ->SF [a] [b]) -> SF [a] [b]
     rpSwitchZ,    -- [SF a b] -> SF ([a], Event ([SF a b]->[SF a b])) [b]
     drpSwitchZ,   -- [SF a b] -> SF ([a], Event ([SF a b]->[SF a b])) [b]
+
+    -- Application of an SF to a collections
+    parC,         -- SF a b -> SF [a] [b]
 
 ) where
 
@@ -293,7 +314,7 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 
 -- | Recurring switch.
 --
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- See <https://wiki.haskell.org/Yampa#Switches> for more
 -- information on how this switch works.
 
 -- !!! Suboptimal. Overall, the constructor is invarying since rSwitch is
@@ -317,7 +338,7 @@ rSwitch sf = switch (first sf) rSwitch'
 
 -- | Recurring switch with delayed observation.
 --
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- See <https://wiki.haskell.org/Yampa#Switches> for more
 -- information on how this switch works.
 drSwitch :: SF a b -> SF (a, Event (SF a b)) b
 drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
@@ -333,7 +354,7 @@ drSwitch sf = dSwitch (first sf) drSwitch'
 
 -- | "Call-with-current-continuation" switch.
 --
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- See <https://wiki.haskell.org/Yampa#Switches> for more
 -- information on how this switch works.
 
 -- !!! Has not been optimized properly.
@@ -452,7 +473,7 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 
 -- | 'kSwitch' with delayed observation.
 --
--- See <http://www.haskell.org/haskellwiki/Yampa#Switches> for more
+-- See <https://wiki.haskell.org/Yampa#Switches> for more
 -- information on how this switch works.
 
 -- !!! Has not been optimized properly. Should be like kSwitch.
@@ -581,7 +602,7 @@ par rf sfs0 = SF {sfTF = tf0}
                 (parAux rf sfs, cs0)
 
 
--- Internal definition. Also used in parallel swithers.
+-- Internal definition. Also used in parallel switchers.
 parAux :: Functor col =>
     (forall sf . (a -> col sf -> col (b, sf)))
     -> col (SF' b c)
@@ -806,6 +827,32 @@ freeze sf dt = SF {sfTF = (sfTF' sf) dt}
 
 freezeCol :: Functor col => col (SF' a b) -> DTime -> col (SF a b)
 freezeCol sfs dt = fmap (`freeze` dt) sfs
+
+-- Apply an SF to every element of a list.
+parC :: SF a b -> SF [a] [b]
+parC sf = SF $ \as -> let os  = map (sfTF sf) as
+                          bs  = map snd os
+                          sfs = map fst os
+                      in (parCAux sfs, bs)
+
+-- Internal definition. Also used in parallel switchers.
+parCAux :: [SF' a b] -> SF' [a] [b]
+parCAux sfs = SF' tf
+    where
+        tf dt as =
+            let os    = map (\(a,sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
+                bs    = map snd os
+                sfcs  = map fst os
+            in
+                (listSeq sfcs `seq` parCAux sfcs, listSeq bs)
+
+listSeq :: [a] -> [a]
+listSeq x = x `seq` (listSeq' x)
+
+listSeq' :: [a] -> [a]
+listSeq' []        = []
+listSeq' rs@(a:as) = a `seq` listSeq' as `seq` rs
+
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

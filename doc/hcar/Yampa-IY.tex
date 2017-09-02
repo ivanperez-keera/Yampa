@@ -1,6 +1,6 @@
 % Yampa-IY.tex
 \begin{hcarentry}[updated]{Yampa}
-\report{Ivan Perez}%05/16
+\report{Ivan Perez}%05/17
 \label{yampa}
 \makeheader
 
@@ -8,7 +8,7 @@ Yampa (Github: \href{http://git.io/vTvxQ}{http://git.io/vTvxQ}, Hackage:
 \href{http://goo.gl/JGwycF}{http://goo.gl/JGwycF}), is a Functional Reactive
 Programming implementation in the form of a EDSL to define \emph{Signal
 Functions}, that is, transformations of input signals into output signals (aka.
-\emph{behaviours} in other FRP dialects). 
+\emph{behaviours} in other FRP dialects).
 
 Yampa systems are defined as combinations of Signal Functions.  Yampa includes
 combinators to create constant signals, apply  pointwise (or time-wise)
@@ -24,7 +24,7 @@ which components (signal functions) transform signals based on their present
 value and a component's internal state. Components can, therefore, be
 serialized, applied in parallel, etc. Yampa's signal functions implement the
 Arrow and ArrowLoop typeclasses, making it possible to use both arrow
-notation and arrow combinators. 
+notation and arrow combinators.
 
 Yampa combinators guarantee \emph{causality}: the value of an output signal at
 a time $t$ can only depend on values of input signals at times $[0,t]$.
@@ -44,10 +44,10 @@ include Keera Studios' Magic Cookies!
 (\href{https://goo.gl/0A8z6i}{https://goo.gl/0A8z6i}), a board game for Android
 written in Haskell and avaliable on Google Play.
 
-%**<img width=500 src="./androidbreakout.png">
+%**<img width=700 src="./androidbreakout.png">
 %*ignore
 \begin{center}
-\includegraphics[width=\linewidth]{html/androidbreakout.png}
+\includegraphics[width=.7\columnwidth]{html/androidbreakout.png}
 % \caption{Screenshot of Yampa game Haskanoid running on Android.}
 \end{center}
 %*endignore
@@ -66,14 +66,27 @@ Full-Fledged Musical Applications}, that will be presented at PADL 2017. The
 code and an extended version of the paper are publicly available
 (\href{https://gitlab.com/chupin/arpeggigon}{https://gitlab.com/chupin/arpeggigon}).
 
+%**<img width=700 src="./arpeggigon.png">
+%*ignore
 \begin{center}
-\includegraphics[width=\linewidth]{arpeggigon.png}
-% \caption{Screenshot of Guerric Chupin's Arpeggigon, which combines Reactive Values
-% and FRP.}
+  \includegraphics[width=.7\columnwidth]{html/arpeggigon.png}
+  % \caption{Screenshot of Guerric Chupin's Arpeggigon, which combines Reactive Values
+  % and FRP.}
 \end{center}
+%*endignore
+
+Yampa is under active development. The last few versions of Yampa have featured
+a cleaner API, better documentation and new Signal Function combinators. Our
+github repository includes development branches with features that have been
+used to extend Yampa for custom games, some of which will be included in future
+versions. Furthermore, Yampa will now be extended with testing and debugging
+features, which allow us to express temporal assertions about FRP systems using
+Temporal Logic, and to use QuickCheck to test those properties, as described in
+the paper ``Testing and Debugging Functional Reactive Programming'', accepted
+for ICFP 2017.
 
 Extensions to Arrowized Functional Reactive Programming are an active research
-topic. Recently we have published, together with Manuel B\"arenz, a monadic
+topic. Last year we published, together with Manuel B\"arenz, a monadic
 arrowized reactive framework called Dunai
 (\href{https://git.io/vXsw1}{https://git.io/vXsw1}), and a minimal FRP
 implementation called BearRiver. BearRiver provides all the core features of
@@ -93,6 +106,4 @@ We encourage all Haskellers to participate on Yampa's development by opening
 issues on our Github page (\href{http://git.io/vTvxQ}{http://git.io/vTvxQ}),
 adding improvements, creating tutorials and examples, and using Yampa in their
 next amazing Haskell games.
-
-
 \end{hcarentry}

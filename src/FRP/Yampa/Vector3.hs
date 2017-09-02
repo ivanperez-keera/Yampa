@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE ExistentialQuantification, MultiParamTypeClasses, FlexibleInstances, StandaloneDeriving #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Vector3
@@ -11,7 +11,6 @@
 --
 -- 3D vector abstraction (R^3).
 --
--- ToDo: Deriving Show, or provide dedicated show instance?
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Vector3 (
@@ -41,7 +40,11 @@ import FRP.Yampa.Forceable
 -- result really would be a 3d vector), the only thing causing trouble is the
 -- use of atan2 in vector3Theta and vector3Phi. Maybe atan2 can be generalized?
 
-data RealFloat a => Vector3 a = Vector3 !a !a !a deriving (Eq, Show)
+data Vector3 a = RealFloat a => Vector3 !a !a !a
+
+deriving instance Eq a => Eq (Vector3 a)
+
+deriving instance Show a => Show (Vector3 a)
 
 vector3 :: RealFloat a => a -> a -> a -> Vector3 a
 vector3 = Vector3
