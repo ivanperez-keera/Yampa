@@ -65,6 +65,7 @@ want. Existing backends include:
 * SDL2
 * OpenGL / GLUT
 * WX (see wxHaskell)
+* HTML Canvas
 
 ## Documentation and tutorials
 
