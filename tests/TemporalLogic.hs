@@ -83,7 +83,7 @@ always p sf inputs =
      all p $ samples $ fst $ evalSF sf (adaptTestStream inputs)
 
 next :: (b -> Bool) -> FutureSF a b -> DTime -> a -> Bool
-next p sf dt input = p $ fst $ evalAt sf dt input 
+next p sf dt input = p $ fst $ evalAt sf dt input
 
 now :: (b -> Bool) -> SF a b -> a -> Bool
 now p sf input = p $ fst $ evalAtZero sf input
