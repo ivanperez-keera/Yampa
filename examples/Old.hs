@@ -80,7 +80,3 @@ listOfWith :: (Int -> Gen a) -> Gen [a]
 listOfWith genF = sized $ \n ->
   do k <- choose (0,n)
      vectorOfWith k genF
-
--- | Generates a list of the given length.
-vectorOfWith :: Int -> (Int -> Gen a) -> Gen [a]
-vectorOfWith k genF = sequence [ genF i | i <- [1..k] ]

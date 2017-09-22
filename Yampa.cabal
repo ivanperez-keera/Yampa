@@ -49,11 +49,6 @@ flag test-regression
   default: True
   manual: True
 
--- You can disable the quickcheck regression test suite with -f-test-quickcheck
-flag test-quickcheck
-  default: True
-  manual: True
-
 flag examples
   default: False
   manual: True
@@ -77,7 +72,6 @@ library
     FRP.Yampa.Event
     FRP.Yampa.Internals
     FRP.Yampa.Task
-    FRP.Yampa.Testing
 
     -- FRP Core (minimal complete definition)
     FRP.Yampa.Core
@@ -107,7 +101,6 @@ library
     FRP.Yampa.Random
     FRP.Yampa.Scan
     FRP.Yampa.Simulation
-    FRP.Yampa.Stream
     FRP.Yampa.Switches
     FRP.Yampa.Time
 
@@ -156,26 +149,6 @@ test-suite regression
     build-depends:
       base,
       Yampa
-
-test-suite yampa-quicheck
-  type:        detailed-0.9
-  test-module: YampaQC
-  ghc-options : -Wall
-
-  other-modules: AFRPTestsCommon TemporalLogic SampleStreams SampleStreamsQC
-
-  hs-source-dirs:   tests
-
-  if !flag(test-regression)
-    buildable: False
-  else
-    build-depends:
-      base < 5,
-      random,
-      Cabal >= 1.19,
-      QuickCheck,
-      Yampa,
-      cabal-test-quickcheck
 
 executable yampa-examples-sdl-bouncingbox
   main-is: MainBouncingBox.hs

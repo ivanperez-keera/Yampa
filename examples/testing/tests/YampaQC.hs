@@ -26,11 +26,8 @@ import Test.QuickCheck.Function
 import FRP.Yampa as Yampa
 import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Stream
-import FRP.Yampa.Testing
-import AFRPTestsCommon
-import TemporalLogic
-import SampleStreams
-import SampleStreamsQC
+import FRP.Yampa.QuickCheck
+import FRP.Yampa.LTLFuture
 
 ------------------------------------------------------------------------------
 tests :: IO [Test]
@@ -106,6 +103,9 @@ prop_arr_id =
 
 -- Yampa's internal test cases
 
+-- prop :: SF a b -> (a -> b -> 
+prop (a,b) = Prop ((identity &&& a) >>^ uncurry b)
+
 -- Yampa's Arrow Checks
 
 -- C1: Arr naturality (testSF1 (arr (+1)))
@@ -113,7 +113,7 @@ prop_arr_id =
 prop_arr_naturality = 
    forAll myStream $ \stream -> 
      forAll f $ \f' -> 
-       evalT (Always (Prop (arr f', \x y -> f' x == y)))
+       evalT (Always (prop (arr (apply f'), \x y -> apply f' x == y)))
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
        f :: Gen (Fun Int Int)
@@ -121,7 +121,7 @@ prop_arr_naturality =
 
 -- Yampa's Basic SF builders
 prop_basic_identity_1 = 
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
        sf   = identity
@@ -133,7 +133,7 @@ prop_basic_identity_2 =
        myStream = uniDistStream
 
 prop_basic_constant =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
 
@@ -141,7 +141,7 @@ prop_basic_constant =
        pred = const (== 42.0)
 
 prop_basic_initially =
-   forAll myStream $ evalT $ Prop (sf, pred) 
+   forAll myStream $ evalT $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
 
@@ -154,7 +154,7 @@ prop_basic_initially =
 --   The predicate checks whether the time is always strictly
 --   greater than the acc.
 prop_basic_time_increasing =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
 
@@ -172,7 +172,7 @@ prop_basic_time_increasing =
 
 prop_basic_time_fixed_delay =
    forAll myStream $ evalT $
-         Always (Prop (sf25msec, const (== d)))
+         Always (prop (sf25msec, const (== d)))
 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = fixedDelayStream d
@@ -183,7 +183,7 @@ prop_basic_time_fixed_delay =
        d = 0.25
 
 prop_basic_localtime_increasing =
-   forAll myStream $ evalT $ Always $ Prop (sf, const (uncurry (>))) 
+   forAll myStream $ evalT $ Always $ prop (sf, const (uncurry (>))) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
 
@@ -198,7 +198,7 @@ prop_basic_localtime_increasing =
 
 prop_basic_localtime_fixed_delay =
    forAll myStream $ evalT $
-         Always (Prop (sf25msec, const (== d)))
+         Always (prop (sf25msec, const (== d)))
 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = fixedDelayStream d
@@ -211,7 +211,7 @@ prop_basic_localtime_fixed_delay =
 -- Par with broadcast (collection-oriented combinators)
 -- TODO: Add integral to the list of SFs being tested
 prop_broadcast =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
 
@@ -219,12 +219,12 @@ prop_broadcast =
        pred = (\x [y,z] -> x == y && (x + 1) == z)
 
 prop_arrow_1 = forAll myStream $ evalT $
-  Always $ Prop (arr id, \x y -> x == y) 
+  Always $ prop (arr id, \x y -> x == y) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
 
 prop_arrow_2 = forAll myStream $ evalT $
-  Always $ Prop (sf1 &&& sf2, const $ uncurry (==))
+  Always $ prop (sf1 &&& sf2, const $ uncurry (==))
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
        sf1 = arr (f >>> g) 
@@ -246,13 +246,13 @@ prop_arrow_2' =
        g = arbitrary
 
 prop_arrow_2'' f g =
-  Always $ Prop (sf1 &&& sf2, const $ uncurry (==))
+  Always $ prop (sf1 &&& sf2, const $ uncurry (==))
  where sf1 = arr (f >>> g)
        sf2 = arr f >>> arr g
 
 -- Arrow composition (we use Int to avoid floating-point discrepancies)
 prop_arrow_comp_1 =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Int)
        myStream = uniDistStream
 
@@ -261,7 +261,7 @@ prop_arrow_comp_1 =
 
 -- Arrow composition
 prop_arrow_comp_2 =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
 
@@ -270,7 +270,7 @@ prop_arrow_comp_2 =
 
 -- Arrow composition
 prop_arrow_comp_3 =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = fixedDelayStream 0.25
 
@@ -295,7 +295,7 @@ prop_delay_1 =
 --   time.
 prop_delay_2 =
    forAll myStream $ evalT $
-     (Prop (sfDelayed, (\x y -> y == initialValue)))
+     (prop (sfDelayed, (\x y -> y == initialValue)))
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
 
@@ -309,9 +309,9 @@ prop_insert =
  forAll myStream $ evalT $ 
   let sfStep = initialValue --> constant finalValue
 
-  in And (Prop (sfStep, const (== initialValue)))
+  in And (prop (sfStep, const (== initialValue)))
          (Next $ Always $
-                   (Prop (sfStep, const (== finalValue))))
+                   (prop (sfStep, const (== finalValue))))
 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
@@ -324,7 +324,7 @@ prop_insert =
 
 prop_derivative_1 =
    forAll myStream $ evalT $
-     Next $ Always $ Prop ((sfDer &&& sfDerByHand), const close)
+     Next $ Always $ prop ((sfDer &&& sfDerByHand), const close)
 
   where myStream :: Gen (SignalSampleStream Double)
         myStream = fixedDelayStreamWith (\t -> sin(2 * pi * t)) der_step
@@ -338,7 +338,7 @@ prop_derivative_1 =
 
 prop_derivative_2 =
    forAll myStream $ evalT $
-     Next $ Always $ Prop ( sfDer &&& sfDerByHand
+     Next $ Always $ prop ( sfDer &&& sfDerByHand
                           , const close)
 
   where
@@ -362,7 +362,7 @@ stepDiff z = loopPre z (arr (\(x,y) -> (x - y, x)))
    
 -- Events
 prop_event_noevent =
-   forAll myStream $ evalT $ Always $ Prop (sfNever, const (== noEvent))
+   forAll myStream $ evalT $ Always $ prop (sfNever, const (== noEvent))
 
  where myStream :: Gen (SignalSampleStream Float)
        myStream = uniDistStream
@@ -372,8 +372,8 @@ prop_event_noevent =
 prop_event_now =
    forAll myStream $ evalT $
        -- (sf, p0) /\ O [] (sf, pn)
-       And (Prop (sf, p0))                 -- Initially
-           (Next $ Always $ Prop (sf, pn)) -- After first sample
+       And (prop (sf, p0))                 -- Initially
+           (Next $ Always $ prop (sf, pn)) -- After first sample
 
  where sf = Yampa.now 42.0
 
@@ -386,8 +386,8 @@ prop_event_now =
 prop_event_after_0 =
    forAll myStream $ evalT $
        -- (sf, p0) /\ O [] (sf, pn)
-       And (Prop (sf, p0))                 -- Initially
-           (Next $ Always $ Prop (sf, pn)) -- After first sample
+       And (prop (sf, p0))                 -- Initially
+           (Next $ Always $ prop (sf, pn)) -- After first sample
 
  where sf = after 0.0 42.0
 
@@ -398,7 +398,7 @@ prop_event_after_0 =
        myStream = uniDistStream
 
 prop_arrow_first_1 =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Int)
        myStream = uniDistStream
 
@@ -406,7 +406,7 @@ prop_arrow_first_1 =
        pred = (\x y -> (7 :: Int, x) == y)
 
 prop_arrow_first_2 =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Int)
        myStream = uniDistStream
 
@@ -414,7 +414,7 @@ prop_arrow_first_2 =
        pred = (\x y -> (x + 1, x) == y)
 
 prop_arrow_second_1 =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Int)
        myStream = uniDistStream
 
@@ -422,7 +422,7 @@ prop_arrow_second_1 =
        pred = (\x y -> (x, 7 :: Int) == y)
 
 prop_arrow_second_2 =
-   forAll myStream $ evalT $ Always $ Prop (sf, pred) 
+   forAll myStream $ evalT $ Always $ prop (sf, pred) 
  where myStream :: Gen (SignalSampleStream Int)
        myStream = uniDistStream
 
@@ -555,9 +555,8 @@ switch_tr = proc (a) -> do
    returnA -< (a, mt, v)
 
 infiniteSwitch sf1 sf2 input =
-   switched (evalAtZero sf1 input') /= switched (evalAtZero sf2 input')
-  where input'   = unSample input
-        switched = isEvent . snd . fst
+   switched (evalAtZero sf1 input) /= switched (evalAtZero sf2 input)
+  where switched = isEvent . snd . fst
 
 switch1 = switch (simpleF)
                  (\_ -> switch1)
@@ -587,3 +586,11 @@ prop_always_similar margin sf1 sf2 =
 sfMeasureIncrement :: Num b => b -> SF a b -> SF a b
 sfMeasureIncrement init sf = loopPre init sf'
  where sf' = (sf *** identity) >>> arr (\(n, o) -> (n - o, n))
+
+fun_prod f g = \(x,y) -> (f x, g y)
+
+assoc :: ((a,b),c) -> (a,(b,c))
+assoc ((a,b),c) = (a,(b,c))
+
+assocInv :: (a,(b,c)) -> ((a,b),c)
+assocInv (a,(b,c)) = ((a,b),c)

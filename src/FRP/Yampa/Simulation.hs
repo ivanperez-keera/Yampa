@@ -1,4 +1,6 @@
 {-# LANGUAGE GADTs, Rank2Types, CPP #-}
+{-# LANGUAGE PatternGuards #-}
+{-# LANGUAGE MultiWayIf #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Simulation
@@ -33,9 +35,27 @@ module FRP.Yampa.Simulation (
                         --  (tentative: will be revisited)
     embed,              -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
     embedSynch,         -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
+
     deltaEncode,        -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
     deltaEncodeBy,      -- :: (a -> a -> Bool) -> DTime -> [a]
                         --    -> (a, [(DTime, Maybe a)])
+    -- ** Step by step simulation
+    
+    -- *** Alternative 1
+
+    evalStep,
+    evalFuture,
+
+    -- *** Alternative 2
+    SFN,
+    sfn,
+    sfnEval,
+
+    -- *** Alternative 3
+    FutureSF,
+    evalAtZero,
+    evalAt,
+
 
 ) where
 
@@ -44,6 +64,7 @@ import Data.IORef
 import Data.Maybe (fromMaybe)
 
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', DTime)
+import FRP.Yampa.InternalCore
 
 import FRP.Yampa.Diagnostics
 
@@ -258,22 +279,6 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
                     | t' <= tp = advance tp tbtbs
         advance _ _ = undefined
 
--- | Spaces a list of samples by a fixed time delta, avoiding
---   unnecessary samples when the input has not changed since
---   the last sample.
-deltaEncode :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
-deltaEncode _  []        = usrErr "AFRP" "deltaEncode" "Empty input list."
-deltaEncode dt aas@(_:_) = deltaEncodeBy (==) dt aas
-
-
--- | 'deltaEncode' parameterized by the equality test.
-deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
-deltaEncodeBy _  _  []      = usrErr "AFRP" "deltaEncodeBy" "Empty input list."
-deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
-    where
-        debAux _      []                     = []
-        debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
-                             | otherwise     = Just a  : debAux a as
 
 -- Embedding and missing events.
 -- Suppose a subsystem is super sampled. Then some of the output
@@ -297,6 +302,75 @@ deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
 -- But what do we do if the inner system runs more slowly than the
 -- outer one? Then we need to extrapolate the output from the
 -- inner system, and we have the same problem with events AGAIN!
+
+-- | Spaces a list of samples by a fixed time delta, avoiding
+--   unnecessary samples when the input has not changed since
+--   the last sample.
+deltaEncode :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
+deltaEncode _  []        = usrErr "AFRP" "deltaEncode" "Empty input list."
+deltaEncode dt aas@(_:_) = deltaEncodeBy (==) dt aas
+
+
+-- | 'deltaEncode' parameterized by the equality test.
+deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
+deltaEncodeBy _  _  []      = usrErr "AFRP" "deltaEncodeBy" "Empty input list."
+deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
+    where
+        debAux _      []                     = []
+        debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
+                             | otherwise     = Just a  : debAux a as
+
+
+-- ** Step by step simulation
+
+-- *** Alternative 1
+
+evalStep :: SF a b -> a -> (b, DTime -> SF a b)
+evalStep (SF sf) a = (b, \dt -> SF (sfTF' sf' dt))
+  where (sf', b) = sf a
+
+-- | Given a signal function and time delta, it moves the signal function into
+--   the future, returning a new uninitialized SF and the initial output.
+--
+--   The reason why this is called evalFuture and not simply evalStep is that,
+--   while the input sample refers to the present, the time delta refers to the
+--   future (or to the time between the first sample and the next sample).
+evalFuture :: SF a b -> a -> DTime -> (b, SF a b)
+evalFuture sf a dt = (b, sf' dt)
+  where (b, sf') = evalStep sf a
+
+-- *** Alternative 2
+
+newtype SFN a b = SFN { sfn :: a -> (b, DTime -> SFN a b) }
+
+sfnEval :: SF a b -> SFN a b
+sfnEval (SF { sfTF = tf }) = SFN $ \a -> let (tf', b) = tf a
+                                             sft'     = sfnEvalF tf'
+                                         in (b, sft')
+  where
+    sfnEvalF :: SF' a b -> DTime -> SFN a b
+    sfnEvalF tf dt = SFN $ \a -> let (tf', b) = (sfTF' tf) dt a
+                                 in  (b, sfnEvalF tf')
+
+-- *** Alternative 3
+
+-- | A wrapper around initialized SF continuations.
+newtype FutureSF a b = FutureSF { unsafeSF :: SF' a b }
+
+-- | Evaluate an SF, and return an output and an initialized SF.
+evalAtZero :: SF a b
+           -> a                  -- ^ Input sample
+           -> (b, FutureSF a b)  -- ^ Output x Continuation
+evalAtZero (SF { sfTF = tf }) a = (b, FutureSF tf' )
+  where (tf', b) = tf a
+
+-- | Evaluate an initialized SF, and return an output and a continuation.
+evalAt :: FutureSF a b
+       -> DTime -> a         -- ^ Input sample
+       -> (b, FutureSF a b)  -- ^ Output x Continuation
+evalAt (FutureSF { unsafeSF = tf }) dt a = (b, FutureSF tf')
+  where (tf', b) = (sfTF' tf) dt a
+
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:
