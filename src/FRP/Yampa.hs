@@ -274,7 +274,8 @@ module FRP.Yampa (
     edgeTag,              -- :: a -> SF Bool (Event a)
     edgeJust,             -- :: SF (Maybe a) (Event a)
     edgeBy,               -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
-
+    maybeToEvent,         -- :: Maybe a -> Event a
+    
     -- ** Stateful event suppression
     notYet,               -- :: SF (Event a) (Event a)
     once,                 -- :: SF (Event a) (Event a)
