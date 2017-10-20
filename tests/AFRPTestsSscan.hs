@@ -228,11 +228,6 @@ sscan_t9r =
      NoEvent]
 
 
-maybeToEvent :: Maybe a -> Event a
-maybeToEvent Nothing  = NoEvent
-maybeToEvent (Just a) = Event a
-
-
 edgeBy_sscan :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 edgeBy_sscan f a = sscanPrim g a NoEvent
     where
