@@ -44,6 +44,7 @@ There are many programs written in Yampa. See the following examples:
   the game 2048 using Yampa and Gloss.
 * [Mandelbrot with basic IO](https://github.com/madjestic/Haskell-OpenGL-Tutorial/tree/master/Mandelbrot-FRP-io-sdl2):
   a "hello world" using SDL2, Yampa and OpenGL.
+* [Haskelloids](https://github.com/keera-studios/Haskelloids): a reproduction of the Atari 1979 classic "Asteroids"
 
 A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
