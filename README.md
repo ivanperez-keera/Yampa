@@ -53,7 +53,7 @@ hackage are listed.
 ## Use in production
 
 * Keera Studios is using it for several Haskell games for Android and iOS
-  including a game currently available on iTunes and Google Play. See:
+  including a game currently available on [iTunes](https://itunes.apple.com/us/app/magic-cookies/id1244709871) and [Google Play](https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies). See:
   * http://facebook.com/keerastudios
   * https://itunes.apple.com/us/app/magic-cookies/id1244709871
   * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
