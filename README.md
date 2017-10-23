@@ -52,7 +52,7 @@ hackage are listed.
 
 | <img src="https://raw.githubusercontent.com/ivanperez-keera/haskanoid/master/screenshots/android.gif?raw=true" width="200" alt="Haskanoid Video" style="max-width:200px;"> | <img src="https://raw.githubusercontent.com/ivanperez-keera/SpaceInvaders/develop/screenshots/gameplay.gif?raw=true" width="138" alt="Space Invaders" style="max-width: 138px;"> | <img src="http://ksaveljev.github.io/2048.gif" width="110" alt="Space Invaders" style="max-width: 110px;"> |
 |-------------------------------------------|---------------|-------------------------|
-| Haskanoid, cross-platform arkanoid clone. | SpaceInvaders | Yampa2048, a board game |
+| Haskanoid, SDL cross-platform arkanoid. | SpaceInvaders, GLUT arcade game | Yampa2048, a gloss board game |
 
 ## Use in production
 
