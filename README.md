@@ -50,6 +50,9 @@ A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
 hackage are listed.
 
+| <img src="https://raw.githubusercontent.com/ivanperez-keera/Yampa/develop/screenshots/android.gif?raw=true" alt="Haskanoid Video" style="max-width:200px;"> | ![SpaceInvaders on Debian](https://raw.githubusercontent.com/ivanperez-keera/SpaceInvaders/develop/screenshots/gameplay.gif?raw=true) |
+| Haskanoid, an arkanoid clone that works on desktop and mobile. | SpaceInvaders |
+
 ## Use in production
 
 * Keera Studios is using it for several Haskell games for Android and iOS
