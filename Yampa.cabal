@@ -63,7 +63,7 @@ flag examples
 -- released project should depend on this. In general, you should always
 -- install Yampa with this flag disabled.
 flag expose-core
-  Description: Enable expose-core. Exposes Yampa's core. Only should be used for research.
+  Description: Exposes Yampa's core. Should only be used for research.
   default: False
   manual: True
 
