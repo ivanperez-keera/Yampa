@@ -70,7 +70,7 @@ want. Existing backends include:
 
 ## Documentation and tutorials
 
-The distribution of Yampa comes with subtantial haddock documentation, which you can
+The distribution of Yampa comes with substantial haddock documentation, which you can
 build using haddock or just [read online](https://hackage.haskell.org/package/Yampa).
 To build a local copy, do:
 
