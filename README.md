@@ -51,8 +51,8 @@ A more comprehensive list can be obtained using the reverse dependency finder
 hackage are listed.
 
 | <img src="https://raw.githubusercontent.com/ivanperez-keera/haskanoid/master/screenshots/android.gif?raw=true" width="200" alt="Haskanoid Video" style="max-width:200px;"> | <img src="https://raw.githubusercontent.com/ivanperez-keera/SpaceInvaders/develop/screenshots/gameplay.gif?raw=true" width="138" alt="Space Invaders" style="max-width: 138px;"> |
-|----------------------------------------------------------------|---------------|
-| Haskanoid, an arkanoid clone that works on desktop and mobile. | SpaceInvaders |
+|-------------------------------------------|---------------|
+| Haskanoid, cross-platform arkanoid clone. | SpaceInvaders |
 
 ## Use in production
 
