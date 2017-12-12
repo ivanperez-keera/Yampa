@@ -9,6 +9,16 @@ ghc:
   - "7.10.3"
   - "8.0.1"
 
+before_install:
+  - travis_retry sudo apt-get update
+  - travis_retry sudo apt-get install libcwiid-dev libsdl1.2-dev
+
+install:
+  - cabal install -fexample --only-dependencies --enable-tests
+
+script:
+  - configure -fexample --enable-tests && cabal build && cabal test
+
 branches:
     only:
           - master
