@@ -17,8 +17,7 @@ install:
   - travis_retry cabal install -fexamples --only-dependencies --enable-tests
 
 script:
-  - travis_retry cabal configure -fexamples --enable-tests && cabal build && cabal test
-
+  - travis_retry cabal install --run-tests -fexamples -v -j1
 branches:
     only:
           - master
