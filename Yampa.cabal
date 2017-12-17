@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.10.6.2
+version: 0.10.7
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -36,20 +36,24 @@ extra-source-files:
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
+  Description: Enable hlint test suite
   default: False
   manual: True
 
 -- You can disable the haddock coverage test suite with -f-test-doc-coverage
 flag test-doc-coverage
+  Description: Enable haddock coverage test suite
   default: False
   manual: True
 
 -- You can disable the regression test suite with -f-test-regression
 flag test-regression
+  Description: Enable regression test suite
   default: True
   manual: True
 
 flag examples
+  Description: Enable examples
   default: False
   manual: True
 
@@ -139,6 +143,7 @@ test-suite regression
 
 executable yampa-examples-sdl-bouncingbox
   main-is: MainBouncingBox.hs
+  other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
@@ -149,6 +154,7 @@ executable yampa-examples-sdl-bouncingbox
 
 executable yampa-examples-sdl-circlingmouse
   main-is: MainCircleMouse.hs
+  other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
@@ -159,6 +165,7 @@ executable yampa-examples-sdl-circlingmouse
 
 executable yampa-examples-sdl-wiimote
   main-is: MainWiimote.hs
+  other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing -rtsopts
   if flag(examples)

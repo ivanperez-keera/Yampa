@@ -53,11 +53,11 @@
 --
 -- * "FRP.Yampa.Task"
 --
--- Minimal Complete FRP Definition
+-- Minimal Complete FRP Definition:
 --
 -- * "FRP.Yampa.Core"
 --
--- Different FRP aspects
+-- Different FRP aspects:
 --
 -- * "FRP.Yampa.Basic"
 --
@@ -85,9 +85,9 @@
 --
 -- * "FRP.Yampa.Simulation" -- Reactimation/evaluation
 --
--- Internals
+-- Internals:
 --
--- * "FRP.Yampa.InternalCore"
+-- * "FRP.Yampa.InternalCore" -- Module not exposed.
 --
 -- Geometry:
 --
@@ -274,7 +274,8 @@ module FRP.Yampa (
     edgeTag,              -- :: a -> SF Bool (Event a)
     edgeJust,             -- :: SF (Maybe a) (Event a)
     edgeBy,               -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
-
+    maybeToEvent,         -- :: Maybe a -> Event a
+    
     -- ** Stateful event suppression
     notYet,               -- :: SF (Event a) (Event a)
     once,                 -- :: SF (Event a) (Event a)
