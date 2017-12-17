@@ -1,6 +1,6 @@
 2017-12-17 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.10.7), adds flag descriptions,
-          fixes missing modules.
+        * Yampa.cabal: Version bump (0.10.7), adds flag to expose core,
+          adds flag descriptions, fixes missing modules.
         * README.md: Adds images to descriptions.
         * doc/: New HCAR including iOS release.
         * src/: Exposes new function, removes unused extensions,
