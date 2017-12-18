@@ -1,3 +1,8 @@
+-- | Minimal FRP core.
+--   
+--   This core is here only for documentation purposes, to serve as a
+--   minimal FRP implementation. It is based on Antony Courtney's thesis
+--   "Modeling User Interfaces in a Functional Language", page 48.
 module FRP.Yampa.Core
     (
     -- * Signal function
