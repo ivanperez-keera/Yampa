@@ -22,7 +22,8 @@ module FRP.Yampa.Core
     , Event(..)
     , switch
 
-    -- ** Time (NOTE: integral 1 over time. Not really necessary.)
+    -- ** Time
+    -- | Note: The function 'time' is actually the 'integral' of @1@ over time. So, it's not really necessary.
     , Time
     , time
     )
