@@ -75,6 +75,10 @@ derivative = SF {sfTF = tf0}
 impulseIntegral :: VectorSpace a k => SF (a, Event a) a
 impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
 
+-- | Count the occurrences of input events.
+--
+-- >>> embed count (deltaEncode 1 [Event 'a', NoEvent, Event 'b'])
+-- [Event 1,NoEvent,Event 2]
 count :: Integral b => SF (Event a) (Event b)
 count = accumBy (\n _ -> n + 1) 0
 
