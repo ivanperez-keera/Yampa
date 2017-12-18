@@ -44,6 +44,9 @@ import FRP.Yampa.Event
 ------------------------------------------------------------------------------
 
 -- | Zero-order hold.
+--
+-- >>> embed (hold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
+-- [1,1,2,2,3,3]
 hold :: a -> SF (Event a) a
 hold a_init = epPrim f () a_init
     where
@@ -66,9 +69,10 @@ hold a_init = epPrim f () a_init
 -- !!! it might be possible to define dHold simply as hold >>> iPre
 -- !!! without any performance penalty.
 
--- | Zero-order hold with delay.
+-- | Zero-order hold with a delay.
 --
--- Identity: dHold a0 = hold a0 >>> iPre a0).
+-- >>> embed (dHold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
+-- [1,1,1,2,2,3]
 dHold :: a -> SF (Event a) a
 dHold a0 = hold a0 >>> iPre a0
 {-
@@ -78,14 +82,30 @@ dHold a_init = epPrim f a_init a_init
         f a' a = (a, a', a)
 -}
 
--- | Tracks input signal when available, holds last value when disappears.
+-- | Tracks input signal when available, holding the last value when the input
+-- is 'Nothing'.
+-- 
+-- This behaves similarly to 'hold', but there is a conceptual difference, as
+-- it takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
 --
+-- >>> embed (trackAndHold 1) (deltaEncode 0.1 [Nothing, Nothing, Just 2, Nothing, Just 3, Nothing])
+-- [1,1,2,2,3,3]
+
 -- !!! DANGER!!! Event used inside arr! Probably OK because arr will not be
 -- !!! optimized to arrE. But still. Maybe rewrite this using, say, scan?
 -- !!! or switch? Switching (in hold) for every input sample does not
 -- !!! seem like such a great idea anyway.
 trackAndHold :: a -> SF (Maybe a) a
 trackAndHold a_init = arr (maybe NoEvent Event) >>> hold a_init
+
+-- | Tracks input signal when available, holding the last value when the input is 'Nothing',
+-- with a delay.
+-- 
+-- This behaves similarly to 'hold', but there is a conceptual difference, as
+-- it takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
+--
+-- >>> embed (dTrackAndHold 1) (deltaEncode 0.1 [Nothing, Nothing, Just 2, Nothing, Just 3, Nothing])
+-- [1,1,1,2,2,3]
 
 dTrackAndHold :: a -> SF (Maybe a) a
 dTrackAndHold a_init = trackAndHold a_init >>> iPre a_init
