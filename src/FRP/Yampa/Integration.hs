@@ -56,6 +56,9 @@ integral = SF {sfTF = tf0}
 imIntegral :: VectorSpace a s => a -> SF a a
 imIntegral = ((\ _ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
 
+-- | Integrate using an auxiliary function that takes the current and the last
+--   input, the time between those samples, and the last output, and returns a
+--   new output.
 iterFrom :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 f `iterFrom` b = SF (iterAux b)
     where
@@ -72,6 +75,8 @@ derivative = SF {sfTF = tf0}
             where
                 tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
 
+-- | Integrate the first input signal and add the /discrete/ accumulation (sum)
+--   of the second, discrete, input signal.
 impulseIntegral :: VectorSpace a k => SF (a, Event a) a
 impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
 
