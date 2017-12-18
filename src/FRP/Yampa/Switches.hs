@@ -777,6 +777,24 @@ drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
 ------------------------------------------------------------------------------
 
 
+-- | Parallel composition of a list of SFs.
+--
+--   Given a list of SFs, returns an SF that takes a list of inputs, applies
+--   each SF to each input in order, and returns the SFs' outputs.
+--
+--   >>> embed (parZ [arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+--   [[1,2],[2,3]]
+--   
+--   If there are more SFs than inputs, an exception is thrown.
+--
+--   >>> embed (parZ [arr (+1), arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+--   [[1,1,*** Exception: FRP.Yampa.Switches.parZ: Input list too short.
+--
+--   If there are more inputs than SFs, the unused inputs are ignored.
+--
+--   >>> embed (parZ [arr (+1)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+--   [[1],[2]]
+
 parZ :: [SF a b] -> SF [a] [b]
 parZ = par (safeZip "parZ")
 
