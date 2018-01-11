@@ -228,7 +228,7 @@ type DTime = Double     -- [s]
 -- into a signal carrying values of some type 'b'. You can think of it as
 -- (Signal a -> Signal b). A signal is, conceptually, a
 -- function from 'Time' to value.
-data SF a b = SF {sfTF :: a -> Transition a b}
+newtype SF a b = SF {sfTF :: a -> Transition a b}
 
 
 -- | Signal function in "running" state.
