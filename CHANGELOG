@@ -1,3 +1,17 @@
+2017-12-17 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.10.7), adds flag to expose core,
+          adds flag descriptions, fixes missing modules.
+        * README.md: Adds images to descriptions.
+        * doc/: New HCAR including iOS release.
+        * src/: Exposes new function, removes unused extensions,
+          simplifies code, adds documentation, fixes multiple bugs.
+        * stack.yaml: Fixes nix setup.
+        * tests/: Adapts to new API.
+        * examples/: Adapts to new API.
+        * Thanks to @chriz-keera, @suzumiyasmith, @meimisaki, 
+          @RyanGlScott, @madjestic, @mgttlinger, @eapcochran, 
+          @jonmouchou.
+
 2017-08-28 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.10.6.2), fixes issue with dependencies.
         * stack.yaml: Includes minimal stack configuration.
