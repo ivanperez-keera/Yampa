@@ -10,8 +10,6 @@
 --
 -- Framework for record merging.
 --
--- Idea:
---
 -- MergeableRecord is intended to be a super class for classes providing
 -- update operations on records. The ADT induced by such a set of operations
 -- can be considered a "mergeable record", which can be merged into larger
@@ -60,27 +58,29 @@ module FRP.Yampa.MergeableRecord (
     mrFinalize
 ) where
 
+-- | Superclass providing operations on records. Record operations can be
+-- merged (composed). To obtain a record from a sequence of merging operations
+-- (see 'mrFinalize'), one needs only to provide an initial value, or
+-- 'mrDefault'.
 class MergeableRecord a where
     mrDefault :: a
 
-
--- Type constructor for mergeable records.
+-- | Type constructor for mergeable records.
 newtype MR a = MR (a -> a)
 
-
--- Construction of a mergeable record.
+-- | Construction of a mergeable record.
 mrMake :: MergeableRecord a => (a -> a) -> MR a
 mrMake f = (MR f)
 
-
--- Merge two mergeable records. Left "overrides" in case of conflict.
+-- | Merge two mergeable records. Left "overrides" in case of conflict.
 (~+~) :: MergeableRecord a => MR a -> MR a -> MR a
 (MR f1) ~+~ (MR f2) = MR (f1 . f2)
 
+-- | Merge two mergeable records. Left "overrides" in case of conflict.
+-- Synonym for '~+~'.
 mrMerge :: MergeableRecord a => MR a -> MR a -> MR a
 mrMerge = (~+~)
 
-
--- Finalization: turn a mergeable record into a record.
+-- | Finalization: turn a mergeable record into a record.
 mrFinalize :: MergeableRecord a => MR a -> a
 mrFinalize (MR f) = f mrDefault
