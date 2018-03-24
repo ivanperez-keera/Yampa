@@ -1,6 +1,14 @@
 {-# LANGUAGE GADTs, Rank2Types, CPP      #-}
------------------------------------------------------------------------------------------
--- |
+-- | Event Signal Functions and SF combinators.
+--
+-- Events represent values that only exist instantaneously, at discrete points
+-- in time. Examples include mouse clicks, zero-crosses of monotonic continuous
+-- signals, and square waves.
+--
+-- For signals that carry events, there should be a limit in the number of
+-- events we can observe in a time period, no matter how much we increase the
+-- sampling frequency.
+
 -- Module      :  FRP.Yampa.EventS
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)
@@ -8,9 +16,7 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
---
---
------------------------------------------------------------------------------------------
+
 
 module FRP.Yampa.EventS (
 
@@ -35,38 +41,14 @@ module FRP.Yampa.EventS (
     takeEvents,         -- :: Int -> SF (Event a) (Event a)
     dropEvents,         -- :: Int -> SF (Event a) (Event a)
 
-    -- ** Pointwise functions on events
-    -- noEvent,            -- :: Event a
-    -- noEventFst,         -- :: (Event a, b) -> (Event c, b)
-    -- noEventSnd,         -- :: (a, Event b) -> (a, Event c)
-    -- event,              -- :: a -> (b -> a) -> Event b -> a
-    -- fromEvent,          -- :: Event a -> a
-    -- isEvent,            -- :: Event a -> Bool
-    -- isNoEvent,          -- :: Event a -> Bool
-    -- tag,                -- :: Event a -> b -> Event b,          infixl 8
-    -- tagWith,            -- :: b -> Event a -> Event b,
-    -- attach,             -- :: Event a -> b -> Event (a, b),     infixl 8
-    -- lMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
-    -- rMerge,             -- :: Event a -> Event a -> Event a,    infixl 6
-    -- merge,              -- :: Event a -> Event a -> Event a,    infixl 6
-    -- mergeBy,            -- :: (a -> a -> a) -> Event a -> Event a -> Event a
-    -- mapMerge,           -- :: (a -> c) -> (b -> c) -> (a -> b -> c)
-    --                     --    -> Event a -> Event b -> Event c
-    -- mergeEvents,        -- :: [Event a] -> Event a
-    -- catEvents,          -- :: [Event a] -> Event [a]
-    -- joinE,              -- :: Event a -> Event b -> Event (a,b),infixl 7
-    -- splitE,             -- :: Event (a,b) -> (Event a, Event b)
-    -- filterE,            -- :: (a -> Bool) -> Event a -> Event a
-    -- mapFilterE,         -- :: (a -> Maybe b) -> Event a -> Event b
-    -- gate,               -- :: Event a -> Bool -> Event a,       infixl 8
-    -- Event sources
-    snap,         -- :: SF a (Event a)
-    snapAfter,    -- :: Time -> SF a (Event a)
-    sample,       -- :: Time -> SF a (Event a)
-    recur,        -- :: SF a (Event b) -> SF a (Event b)
-    andThen       -- :: SF a (Event b)->SF a (Event b)->SF a (Event b)
+    -- * Hybrid SF combinators
+    snap,               -- :: SF a (Event a)
+    snapAfter,          -- :: Time -> SF a (Event a)
+    sample,             -- :: Time -> SF a (Event a)
 
-
+    -- * Repetition and switching
+    recur,              -- :: SF a (Event b) -> SF a (Event b)
+    andThen             -- :: SF a (Event b) -> SF a (Event b) -> SF a (Event b)
 
 ) where
 
@@ -80,7 +62,6 @@ import FRP.Yampa.Event
 import FRP.Yampa.Miscellany
 import FRP.Yampa.Scan
 import FRP.Yampa.Switches
-
 
 infixr 5 `andThen`
 
@@ -116,30 +97,27 @@ infixr 5 `andThen`
 --                             (sfEP f c' bne', b)
 
 
-{-
--- !!! Maybe something like this?
--- !!! But one problem is that the invarying marking would be lost
--- !!! if the signal function is taken apart and re-constructed from
--- !!! the function description and subordinate signal function in
--- !!! cases like SFCpAXA.
-sfMkInv :: SF a b -> SF a b
-sfMkInv sf = SF {sfTF = ...}
-
-    sfMkInvAux :: SF' a b -> SF' a b
-    sfMkInvAux sf@(SFArr _ _) = sf
-    -- sfMkInvAux sf@(SFAcc _ _ _ _) = sf
-    sfMkInvAux sf@(SFEP _ _ _ _) = sf
-    sfMkInvAux sf@(SFCpAXA tf inv fd1 sf2 fd3)
-        | inv       = sf
-        | otherwise = SFCpAXA tf' True fd1 sf2 fd3
-        where
-            tf' = \dt a -> let (sf', b) = tf dt a in (sfMkInvAux sf', b)
-    sfMkInvAux sf@(SF' tf inv)
-        | inv       = sf
-        | otherwise = SF' tf' True
-            tf' =
-
--}
+-- -- !!! Maybe something like this?
+-- -- !!! But one problem is that the invarying marking would be lost
+-- -- !!! if the signal function is taken apart and re-constructed from
+-- -- !!! the function description and subordinate signal function in
+-- -- !!! cases like SFCpAXA.
+-- sfMkInv :: SF a b -> SF a b
+-- sfMkInv sf = SF {sfTF = ...}
+-- 
+--     sfMkInvAux :: SF' a b -> SF' a b
+--     sfMkInvAux sf@(SFArr _ _) = sf
+--     -- sfMkInvAux sf@(SFAcc _ _ _ _) = sf
+--     sfMkInvAux sf@(SFEP _ _ _ _) = sf
+--     sfMkInvAux sf@(SFCpAXA tf inv fd1 sf2 fd3)
+--         | inv       = sf
+--         | otherwise = SFCpAXA tf' True fd1 sf2 fd3
+--         where
+--             tf' = \dt a -> let (sf', b) = tf dt a in (sfMkInvAux sf', b)
+--     sfMkInvAux sf@(SF' tf inv)
+--         | inv       = sf
+--         | otherwise = SF' tf' True
+--             tf' =
 
 ------------------------------------------------------------------------------
 -- Basic event sources
@@ -284,56 +262,54 @@ delayEvent q | q < 0     = usrErr "AFRP" "delayEvent" "Negative delay."
 -- inseparable".)
 -- The events in the list are ordered temporally to the extent possible.
 
-{-
--- This version is too strict!
-delayEventCat :: Time -> SF (Event a) (Event [a])
-delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
-                | q == 0    = arr (fmap (:[]))
-                | otherwise = SF {sfTF = tf0}
-    where
-        tf0 NoEvent   = (noPendingEvent, NoEvent)
-        tf0 (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
-
-        noPendingEvent = SF' tf -- True
-            where
-                tf _ NoEvent   = (noPendingEvent, NoEvent)
-                tf _ (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
-
-        -- t_next is the present time w.r.t. the next scheduled event.
-        -- t_last is the present time w.r.t. the last scheduled event.
-        -- In the event queues, events are associated with their time
-        -- w.r.t. to preceding event (positive).
-        pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
-            where
-                tf dt NoEvent    = tf1 (t_last + dt) rqxs (t_next + dt)
-                tf dt (Event x') = tf1 (-q) ((q', x') : rqxs) t_next'
-                    where
-                        t_next' = t_next  + dt
-                        t_last' = t_last  + dt
-                        q'      = t_last' + q
-
-                tf1 t_last' rqxs' t_next'
-                    | t_next' >= 0 =
-                        emitEventsScheduleNext t_last' rqxs' qxs t_next' [x]
-                    | otherwise =
-                        (pendingEvents t_last' rqxs' qxs t_next' x, NoEvent)
-
-        -- t_next is the present time w.r.t. the *scheduled* time of the
-        -- event that is about to be emitted (i.e. >= 0).
-        -- The time associated with any event at the head of the event
-        -- queue is also given w.r.t. the event that is about to be emitted.
-        -- Thus, t_next - q' is the present time w.r.t. the event at the head
-        -- of the event queue.
-        emitEventsScheduleNext t_last [] [] t_next rxs =
-            (noPendingEvent, Event (reverse rxs))
-        emitEventsScheduleNext t_last rqxs [] t_next rxs =
-            emitEventsScheduleNext t_last [] (reverse rqxs) t_next rxs
-        emitEventsScheduleNext t_last rqxs ((q', x') : qxs') t_next rxs
-            | q' > t_next = (pendingEvents t_last rqxs qxs' (t_next - q') x',
-                             Event (reverse rxs))
-            | otherwise   = emitEventsScheduleNext t_last rqxs qxs' (t_next-q')
-                                                   (x' : rxs)
--}
+-- -- This version is too strict!
+-- delayEventCat :: Time -> SF (Event a) (Event [a])
+-- delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
+--                 | q == 0    = arr (fmap (:[]))
+--                 | otherwise = SF {sfTF = tf0}
+--     where
+--         tf0 NoEvent   = (noPendingEvent, NoEvent)
+--         tf0 (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
+-- 
+--         noPendingEvent = SF' tf -- True
+--             where
+--                 tf _ NoEvent   = (noPendingEvent, NoEvent)
+--                 tf _ (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
+-- 
+--         -- t_next is the present time w.r.t. the next scheduled event.
+--         -- t_last is the present time w.r.t. the last scheduled event.
+--         -- In the event queues, events are associated with their time
+--         -- w.r.t. to preceding event (positive).
+--         pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
+--             where
+--                 tf dt NoEvent    = tf1 (t_last + dt) rqxs (t_next + dt)
+--                 tf dt (Event x') = tf1 (-q) ((q', x') : rqxs) t_next'
+--                     where
+--                         t_next' = t_next  + dt
+--                         t_last' = t_last  + dt
+--                         q'      = t_last' + q
+-- 
+--                 tf1 t_last' rqxs' t_next'
+--                     | t_next' >= 0 =
+--                         emitEventsScheduleNext t_last' rqxs' qxs t_next' [x]
+--                     | otherwise =
+--                         (pendingEvents t_last' rqxs' qxs t_next' x, NoEvent)
+-- 
+--         -- t_next is the present time w.r.t. the *scheduled* time of the
+--         -- event that is about to be emitted (i.e. >= 0).
+--         -- The time associated with any event at the head of the event
+--         -- queue is also given w.r.t. the event that is about to be emitted.
+--         -- Thus, t_next - q' is the present time w.r.t. the event at the head
+--         -- of the event queue.
+--         emitEventsScheduleNext t_last [] [] t_next rxs =
+--             (noPendingEvent, Event (reverse rxs))
+--         emitEventsScheduleNext t_last rqxs [] t_next rxs =
+--             emitEventsScheduleNext t_last [] (reverse rqxs) t_next rxs
+--         emitEventsScheduleNext t_last rqxs ((q', x') : qxs') t_next rxs
+--             | q' > t_next = (pendingEvents t_last rqxs qxs' (t_next - q') x',
+--                              Event (reverse rxs))
+--             | otherwise   = emitEventsScheduleNext t_last rqxs qxs' (t_next-q')
+--                                                    (x' : rxs)
 
 -- | Delay an event by a given delta and catenate events that occur so closely
 -- so as to be /inseparable/.
@@ -440,14 +416,12 @@ edgeTag :: a -> SF Bool (Event a)
 -- edgeTag a = edgeBy (isBoolRaisingEdge a) True
 edgeTag a = edge >>> arr (`tag` a)
 
-
 -- Internal utility.
 -- isBoolRaisingEdge :: a -> Bool -> Bool -> Maybe a
 -- isBoolRaisingEdge _ False False = Nothing
 -- isBoolRaisingEdge a False True  = Just a
 -- isBoolRaisingEdge _ True  True  = Nothing
 -- isBoolRaisingEdge _ True  False = Nothing
-
 
 -- | Edge detector particularized for detecting transtitions
 --   on a 'Maybe' signal from 'Nothing' to 'Just'.
@@ -462,7 +436,6 @@ edgeJust = edgeBy isJustEdge (Just undefined)
         isJustEdge Nothing  ma@(Just _) = ma
         isJustEdge (Just _) (Just _)    = Nothing
         isJustEdge (Just _) Nothing     = Nothing
-
 
 -- | Edge detector parameterized on the edge detection function and initial
 -- state, i.e., the previous input sample. The first argument to the
@@ -520,16 +493,20 @@ dropEvents n | n <= 0  = identity
 dropEvents n = dSwitch (never &&& identity)
                              (const (NoEvent >-- dropEvents (n - 1)))
 
--- Event source with a single occurrence at time 0. The value of the event
--- is obtained by sampling the input at that time.
+
+-- ** Hybrid continuous-to-discrete SF combinators.
+
+-- | Event source with a single occurrence at time 0. The value of the event is
+-- obtained by sampling the input at that time.
+
 -- (The outer "switch" ensures that the entire signal function will become
 -- just "constant" once the sample has been taken.)
 snap :: SF a (Event a)
 snap = switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
 
 
--- Event source with a single occurrence at or as soon after (local) time t_ev
--- as possible. The value of the event is obtained by sampling the input a
+-- | Event source with a single occurrence at or as soon after (local) time
+-- @t_ev@ as possible. The value of the event is obtained by sampling the input a
 -- that time.
 snapAfter :: Time -> SF a (Event a)
 snapAfter t_ev = switch (never
@@ -538,13 +515,15 @@ snapAfter t_ev = switch (never
             now
 
 
--- Sample a signal at regular intervals.
+-- | Sample a signal at regular intervals.
 sample :: Time -> SF a (Event a)
 sample p_ev = identity &&& repeatedly p_ev () >>^ \(a, e) -> e `tag` a
 
+-- * Repetition and switching
 
--- Makes an event source recurring by restarting it as soon as it has an
+-- | Makes an event source recurring by restarting it as soon as it has an
 -- occurrence.
+
 -- !!! What about event sources that have an instantaneous occurrence?
 -- !!! E.g. recur (now ()).
 -- !!! Or worse, what about recur identity? (or substitute identity for
@@ -555,6 +534,9 @@ sample p_ev = identity &&& repeatedly p_ev () >>^ \(a, e) -> e `tag` a
 recur :: SF a (Event b) -> SF a (Event b)
 recur sfe = switch (never &&& sfe) $ \b -> Event b --> (recur (NoEvent-->sfe))
 
+-- | Apply the first SF until it produces an event, and, afterwards, switch to
+-- the second SF. This is just a convenience function, used to write what
+-- sometimes is more understandable switch-based code.
 andThen :: SF a (Event b) -> SF a (Event b) -> SF a (Event b)
 sfe1 `andThen` sfe2 = dSwitch (sfe1 >>^ dup) (const sfe2)
 
