@@ -26,9 +26,11 @@ infixl 6 ^+^, ^-^
 -- | Vector space type relation.
 --
 --   A vector space is a set (type) closed under addition and multiplication by
---   a scalar. The encoding uses a type class |VectorSpace| @v a@, where @v@
---   represents the type of the vectors and @a@ represents the types of the
---   scalars.
+--   a scalar. The type of the scalar is the /field/ of the vector space, and
+--   it is said that @v@ is a vector space over @a@.
+--
+--   The encoding uses a type class |VectorSpace| @v a@, where @v@ represents
+--   the type of the vectors and @a@ represents the types of the scalars.
 
 class (Eq a, Floating a) => VectorSpace v a | v -> a where
     -- | Vector with no magnitude (unit for addition).
