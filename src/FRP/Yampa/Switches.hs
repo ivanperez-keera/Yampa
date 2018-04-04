@@ -582,7 +582,7 @@ broadcast a = fmap (\sf -> (a, sf))
 
 -- | Spatial parallel composition of a signal function collection.
 -- Given a collection of signal functions, it returns a signal
--- function that 'broadcast's its input signal to every element
+-- function that broadcasts its input signal to every element
 -- of the collection, to return a signal carrying a collection
 -- of outputs. See 'par'.
 --
@@ -864,7 +864,7 @@ drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
 --
 --   >>> embed (parZ [arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
 --   [[1,2],[2,3]]
---   
+--
 --   If there are more SFs than inputs, an exception is thrown.
 --
 --   >>> embed (parZ [arr (+1), arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
@@ -961,14 +961,14 @@ freezeCol sfs dt = fmap (`freeze` dt) sfs
 -- | Apply an SF to every element of a list.
 --
 --   Example:
--- 
+--
 --   >>> embed (parC integral) (deltaEncode 0.1 [[1, 2], [2, 4], [3, 6], [4.0, 8.0 :: Float]])
 --   [[0.0,0.0],[0.1,0.2],[0.3,0.6],[0.6,1.2]]
 --
 --   The number of SFs or expected inputs is determined by the first input
 --   list, and not expected to vary over time.
 --
---   If more inputs come in a subsequent list, they are ignored. 
+--   If more inputs come in a subsequent list, they are ignored.
 --
 --   >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
 --   [[1],[2],[4],[7],[2],[1],[2]]

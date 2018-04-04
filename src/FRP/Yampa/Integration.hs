@@ -8,6 +8,16 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
+-- Integration and derivation of input signals.
+--
+-- In continuous time, these primitives define SFs that integrate/derive the
+-- input signal. Since this is subject to the sampling resolution, simple
+-- versions are implemented (like the rectangle rule for the integral).
+--
+-- In discrete time, all we do is count the number of events.
+--
+-- The combinator 'iterFrom' gives enough flexibility to program your own
+-- leak-free integration and derivation SFs.
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Integration (
@@ -20,8 +30,6 @@ module FRP.Yampa.Integration (
 
     -- * Differentiation
     derivative,         -- :: VectorSpace a s => SF a a         -- Crude!
-
-    -- Temporarily hidden, but will eventually be made public.
     iterFrom            -- :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 
 ) where

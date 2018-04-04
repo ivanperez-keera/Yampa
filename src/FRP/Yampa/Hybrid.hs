@@ -8,19 +8,18 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
+-- Discrete to continuous-time signal functions.
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Hybrid (
 
-
--- * Discrete to continuous-time signal functions
--- ** Wave-form generation
+    -- * Wave-form generation
     hold,               -- :: a -> SF (Event a) a
     dHold,              -- :: a -> SF (Event a) a
     trackAndHold,       -- :: a -> SF (Maybe a) a
     dTrackAndHold,      -- :: a -> SF (Maybe a) a
 
--- ** Accumulators
+    -- * Accumulators
     accum,              -- :: a -> SF (Event (a -> a)) (Event a)
     accumHold,          -- :: a -> SF (Event (a -> a)) a
     dAccumHold,         -- :: a -> SF (Event (a -> a)) a
@@ -44,6 +43,11 @@ import FRP.Yampa.Event
 ------------------------------------------------------------------------------
 
 -- | Zero-order hold.
+--
+-- Converts a discrete-time signal into a continuous-time signal, by holding
+-- the last value until it changes in the input signal. The given parameter
+-- may be used for time zero, and until the first event occurs in the input
+-- signal, so hold is always well-initialized.
 --
 -- >>> embed (hold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
 -- [1,1,2,2,3,3]
@@ -71,6 +75,11 @@ hold a_init = epPrim f () a_init
 
 -- | Zero-order hold with a delay.
 --
+-- Converts a discrete-time signal into a continuous-time signal, by holding
+-- the last value until it changes in the input signal. The given parameter is
+-- used for time zero (until the first event occurs in the input signal), so
+-- 'dHold' shifts the discrete input by an infinitesimal delay.
+--
 -- >>> embed (dHold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
 -- [1,1,1,2,2,3]
 dHold :: a -> SF (Event a) a
@@ -84,7 +93,7 @@ dHold a_init = epPrim f a_init a_init
 
 -- | Tracks input signal when available, holding the last value when the input
 -- is 'Nothing'.
--- 
+--
 -- This behaves similarly to 'hold', but there is a conceptual difference, as
 -- it takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
 --
@@ -100,7 +109,7 @@ trackAndHold a_init = arr (maybe NoEvent Event) >>> hold a_init
 
 -- | Tracks input signal when available, holding the last value when the input is 'Nothing',
 -- with a delay.
--- 
+--
 -- This behaves similarly to 'hold', but there is a conceptual difference, as
 -- it takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
 --
