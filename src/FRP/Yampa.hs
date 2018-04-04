@@ -18,9 +18,11 @@
 --
 -- You can find examples, tutorials and documentation on Yampa here:
 --
--- <https://wiki.haskell.org/Yampa>
+-- <https://github.com/ivanperez-keera/Yampa>
 --
 -- <https://github.com/ivanperez-keera/Yampa/tree/master/examples>
+--
+-- <https://wiki.haskell.org/Yampa>
 --
 --
 -- Structuring a hybrid system in Yampa is done based on two main concepts:
@@ -275,7 +277,7 @@ module FRP.Yampa (
     edgeJust,             -- :: SF (Maybe a) (Event a)
     edgeBy,               -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
     maybeToEvent,         -- :: Maybe a -> Event a
-    
+
     -- ** Stateful event suppression
     notYet,               -- :: SF (Event a) (Event a)
     once,                 -- :: SF (Event a) (Event a)
