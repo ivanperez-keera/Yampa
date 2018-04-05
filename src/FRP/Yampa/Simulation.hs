@@ -155,7 +155,8 @@ data ReactState a b = ReactState {
   }
 
 -- | A reference to reactimate's state, maintained across samples.
-type ReactHandle a b = IORef (ReactState a b)
+newtype ReactHandle a b = ReactHandle
+  { reactHandle :: IORef (ReactState a b) }
 
 -- | Initialize a top-level reaction handle.
 reactInit :: IO a -- init
@@ -167,7 +168,8 @@ reactInit init actuate (SF {sfTF = tf0}) =
      let (sf,b0) = tf0 a0
      -- TODO: really need to fix this interface, since right now we
      -- just ignore termination at time 0:
-     r <- newIORef (ReactState {rsActuate = actuate, rsSF = sf, rsA = a0, rsB = b0 })
+     r' <- newIORef (ReactState {rsActuate = actuate, rsSF = sf, rsA = a0, rsB = b0 })
+     let r = ReactHandle r'
      _ <- actuate r True b0
      return r
 
@@ -176,10 +178,10 @@ react :: ReactHandle a b
       -> (DTime,Maybe a)
       -> IO Bool
 react rh (dt,ma') =
-  do rs@(ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b }) <- readIORef rh
+  do rs@(ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b }) <- readIORef (reactHandle rh)
      let a' = fromMaybe a ma'
          (sf',b') = (sfTF' sf) dt a'
-     writeIORef rh (rs {rsSF = sf',rsA = a',rsB = b'})
+     writeIORef (reactHandle rh) (rs {rsSF = sf',rsA = a',rsB = b'})
      done <- actuate rh True b'
      return done
 
