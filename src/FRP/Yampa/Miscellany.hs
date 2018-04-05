@@ -185,7 +185,7 @@ arr5 = arr . \h (b, c, d, e, f) -> h b c d e f
 
 -- | Lift an 0-ary function onto an arrow
 --
--- TODO: This is arr0.
+-- If there was an @arr0@ function, this would be a synonym.
 lift0 :: Arrow a => c -> a b c
 lift0 c = arr (const  c)
 

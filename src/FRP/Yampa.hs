@@ -16,11 +16,13 @@
 -- of Functional Reactive Programming (FRP) and is structured using arrow
 -- combinators.
 --
--- You can find examples, tutorials and documentation on Yampa here:
+-- You can find examples, screenshots, tutorials and documentation here:
 --
--- <https://wiki.haskell.org/Yampa>
+-- <https://github.com/ivanperez-keera/Yampa>
 --
 -- <https://github.com/ivanperez-keera/Yampa/tree/master/examples>
+--
+-- <https://wiki.haskell.org/Yampa>
 --
 --
 -- Structuring a hybrid system in Yampa is done based on two main concepts:
@@ -42,10 +44,6 @@
 -- an input sensing action and an actuation/consumer action and executes
 -- until explicitly stopped), and 'react' (which executes only one cycle).
 --
--- This will be the last version of Yampa to include mergeable records, point2
--- and point3, vector2 and vector3, and other auxiliary definitions. The
--- internals have now changed. Also, please let us know if you see any problems
--- with the new project structure.
 --
 -- Main Yampa modules:
 --
@@ -118,6 +116,11 @@
 -- * "FRP.Yampa.Miscellany"
 --
 -- * "FRP.Yampa.Utilities"
+--
+-- This will be the last version of Yampa to include mergeable records, point2
+-- and point3, vector2 and vector3, and other auxiliary definitions. The
+-- internals have now changed. Also, please let us know if you see any problems
+-- with the new project structure.
 
 -- ToDo:
 --
@@ -275,7 +278,7 @@ module FRP.Yampa (
     edgeJust,             -- :: SF (Maybe a) (Event a)
     edgeBy,               -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
     maybeToEvent,         -- :: Maybe a -> Event a
-    
+
     -- ** Stateful event suppression
     notYet,               -- :: SF (Event a) (Event a)
     once,                 -- :: SF (Event a) (Event a)

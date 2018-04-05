@@ -70,7 +70,7 @@ flag expose-core
                useful if you are building an extension of Yampa for research
                and do not wish to fork Yampa completely.
                .
-               No released project should ever depend on this. 
+               No released project should ever depend on this.
   default: False
   manual: True
 
@@ -117,11 +117,11 @@ library
     FRP.Yampa.Time
 
   if flag(expose-core)
-   exposed-modules:
-    FRP.Yampa.InternalCore
+    exposed-modules:
+      FRP.Yampa.InternalCore
   else
-   other-modules:
-     FRP.Yampa.InternalCore
+    other-modules:
+      FRP.Yampa.InternalCore
 
 test-suite hlint
   type: exitcode-stdio-1.0
@@ -192,7 +192,7 @@ executable yampa-examples-sdl-wiimote
   if flag(examples)
     buildable: True
     build-depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
-  else 
+  else
     buildable: False
 
 source-repository head
