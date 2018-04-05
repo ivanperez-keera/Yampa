@@ -90,7 +90,6 @@ module FRP.Yampa.Event where
 
 import Control.Applicative
 import Control.DeepSeq (NFData(..))
-import Data.Functor
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Forceable
