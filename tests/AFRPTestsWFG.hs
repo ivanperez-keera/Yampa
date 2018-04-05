@@ -15,7 +15,7 @@
 module AFRPTestsWFG (wfg_tr, wfg_trs) where
 
 import FRP.Yampa
-import FRP.Yampa.Internals (Event(NoEvent, Event))
+import FRP.Yampa.Event (Event(NoEvent, Event))
 
 import AFRPTestsCommon
 
