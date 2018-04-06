@@ -1,7 +1,9 @@
 2018-04-05 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.11).
-        * src/: Adds documentation, make type synonym a newtype.
-        * Thanks to @thalerjonathan, @turion.
+        * src/: Adds documentation; makes type synonym a newtype.
+        * tests/: Removes deprecated import.
+        * .travis.yml: Tests on travis with GHC 7.6 to 8.4.
+        * Thanks to @ptvirgo, @thalerjonathan, @turion.
 
 2017-12-17 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.10.7), adds flag to expose core,
