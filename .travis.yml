@@ -24,6 +24,8 @@ branches:
     only:
           - master
           - develop
+          - /^release-.*$/
+
 deploy:
   provider: hackage
   username: keera_studios_ci
