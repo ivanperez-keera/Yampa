@@ -16,7 +16,6 @@
 module AFRPTestsSscan (sscan_tr, sscan_trs) where
 
 import FRP.Yampa
-import FRP.Yampa.Internals
 
 import AFRPTestsCommon
 
@@ -50,11 +49,11 @@ sscan_t1r =
 
 
 sscan_t2, sscan_t2r :: [Double]
-sscan_t2 = testSF1 (time 
+sscan_t2 = testSF1 (time
                     >>> arr (\t -> sin (0.5 * t * pi + pi))
-                    >>> loop (arr (\(x1,x2) -> let x' = max x1 x2 in (x',x')) 
+                    >>> loop (arr (\(x1,x2) -> let x' = max x1 x2 in (x',x'))
                               >>> second (iPre_sscan 0.0)))
-sscan_t2r = 
+sscan_t2r =
     take 25
          (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
           in tail (scanl max 0 xs))
@@ -62,11 +61,11 @@ sscan_t2r =
 
 
 sscan_t3, sscan_t3r :: [Double]
-sscan_t3 = testSF1 (time 
+sscan_t3 = testSF1 (time
                     >>> arr (\t -> sin (0.5 * t * pi + pi))
                     >>> sscan max 0.0)
 
-sscan_t3r = 
+sscan_t3r =
     take 25
          (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
           in tail (scanl max 0 xs))
@@ -75,7 +74,7 @@ sscan_t3r =
 hold_sscan :: a -> SF (Event a) a
 hold_sscan a = sscanPrim f () a
     where
-        f _ NoEvent   = Nothing 
+        f _ NoEvent   = Nothing
         f _ (Event a) = Just ((), a)
 
 
@@ -120,16 +119,16 @@ sscan_t5 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
                       arr (\(e,c) -> (e `tag` (c + 1)) `gate` (c < 10))
                       >>> dHold_sscan 0
                       >>> arr dup)
-sscan_t5r = [0,1,1,1,		-- 0s 
-             1,2,2,2,		-- 1s 
-             2,3,3,3,		-- 2s 
-             3,4,4,4,		-- 3s 
-             4,5,5,5,		-- 4s 
-             5,6,6,6,		-- 5s 
-             6,7,7,7,		-- 6s 
-             7,8,8,8,		-- 7s 
-             8,9,9,9,		-- 8s 
-             9,10,10,10,	-- 9s 
+sscan_t5r = [0,1,1,1,		-- 0s
+             1,2,2,2,		-- 1s
+             2,3,3,3,		-- 2s
+             3,4,4,4,		-- 3s
+             4,5,5,5,		-- 4s
+             5,6,6,6,		-- 5s
+             6,7,7,7,		-- 6s
+             7,8,8,8,		-- 7s
+             8,9,9,9,		-- 8s
+             9,10,10,10,	-- 9s
              10,10,10,10,	-- 10s
              10,10,10,10,	-- 11s
              10,10]		-- 12s
@@ -174,18 +173,18 @@ sscan_t7 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
                       | otherwise = Nothing
             where
 	        c' = c + 1
-        
 
-sscan_t7r = [1,1,1,1,		-- 0s 
-             2,2,2,2,		-- 1s 
-             3,3,3,3,		-- 2s 
-             4,4,4,4,		-- 3s 
-             5,5,5,5,		-- 4s 
-             6,6,6,6,		-- 5s 
-             7,7,7,7,		-- 6s 
-             8,8,8,8,		-- 7s 
-             9,9,9,9,		-- 8s 
-             10,10,10,10,	-- 9s 
+
+sscan_t7r = [1,1,1,1,		-- 0s
+             2,2,2,2,		-- 1s
+             3,3,3,3,		-- 2s
+             4,4,4,4,		-- 3s
+             5,5,5,5,		-- 4s
+             6,6,6,6,		-- 5s
+             7,7,7,7,		-- 6s
+             8,8,8,8,		-- 7s
+             9,9,9,9,		-- 8s
+             10,10,10,10,	-- 9s
              10,10,10,10,	-- 10s
              10,10,10,10,	-- 11s
              10,10]		-- 12s
@@ -205,7 +204,7 @@ edge_sscan = sscanPrim f 2 NoEvent
 sscan_t8 :: [Event ()]
 sscan_t8 = testSF1 (localTime >>> arr (>=0) >>> edge_sscan)
 
-sscan_t8r = 
+sscan_t8r =
     [NoEvent, NoEvent, NoEvent, NoEvent,	-- 0.0 s
      NoEvent, NoEvent, NoEvent, NoEvent,	-- 1.0 s
      NoEvent, NoEvent, NoEvent, NoEvent,	-- 2.0 s
@@ -246,7 +245,7 @@ sscan_t10 = testSF1 (localTime
                      >>> arr (>=0)
                      >>> edgeBy_sscan sscan_isEdge False)
 
-sscan_t10r = 
+sscan_t10r =
     [Event (), NoEvent, NoEvent, NoEvent,	-- 0.0 s
      NoEvent,  NoEvent, NoEvent, NoEvent,	-- 1.0 s
      NoEvent,  NoEvent, NoEvent, NoEvent,	-- 2.0 s
@@ -256,7 +255,7 @@ sscan_t10r =
      NoEvent]
 
 sscan_t11 :: [Event ()]
-sscan_t11 = testSF1 (localTime 
+sscan_t11 = testSF1 (localTime
                      >>> arr (>=4.26)
                      >>> edgeBy_sscan sscan_isEdge False)
 
@@ -437,7 +436,7 @@ sscan_t18 = take 100 (embed sf (deltaEncode 0.1 (repeat ())))
              >>> arr (`tag` (+1))
              >>> accumHold 0
 
-sscan_t18r = 
+sscan_t18r =
     [0,0,1,1,1,1,1,1,1,1,
      1,1,1,1,1,1,1,1,1,1,
      1,1,1,1,1,1,1,1,1,1,
