@@ -17,9 +17,7 @@
 module AFRPTestsUtils (utils_tr, utils_trs) where
 
 import FRP.Yampa
-import FRP.Yampa.Internals (Event(NoEvent, Event))
 import FRP.Yampa.Conditional
-import FRP.Yampa.Integration
 import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
 import FRP.Yampa.Utilities
@@ -109,7 +107,7 @@ utils_t4 :: [Event Int]
 utils_t4 = take 16 $ embed count utils_inp1
 
 utils_t4r :: [Event Int]
-utils_t4r = 
+utils_t4r =
     [NoEvent, NoEvent, Event 1, NoEvent,
      Event 2, NoEvent, NoEvent, NoEvent,
      Event 3, Event 4, Event 5, NoEvent,
@@ -120,7 +118,7 @@ utils_t5 :: [Event Int]
 utils_t5 = take 16 $ embed count utils_inp2
 
 utils_t5r :: [Event Int]
-utils_t5r = 
+utils_t5r =
     [Event 1, NoEvent, NoEvent, NoEvent,
      Event 2, NoEvent, NoEvent, NoEvent,
      Event 3, Event 4, Event 5, NoEvent,

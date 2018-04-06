@@ -9,16 +9,36 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
+-- Execution/simulation of signal functions.
+--
+-- SFs can be executed in two ways: by running them, feeding input samples one
+-- by one, obtained from a monadic environment (presumably, |IO|), or by
+-- passing an input stream and calculating an output stream. The former is
+-- called /reactimation/, and the latter is called /embedding/.
+--
+-- Normally, to run an SF, you would use 'reactimate', providing input samples,
+-- and consuming the putput samples in the 'IO' monad. This function takes over
+-- the program, implementing a "main loop". If you want more control over the
+-- evaluation loop (for instance, if you are using Yampa in combination with a
+-- backend that also implements some main loop), you may want to use the
+-- lower-level API for reactimation ('ReactHandle', 'reactInit', 'react').
+--
+-- You can use 'embed' for testing, to evaluate SFs in a terminal, and to embed
+-- an SF inside a larger system. The helper functions 'deltaEncode' and
+-- 'deltaEncodeBy' facilitate producing input /signals/ from plain lists of
+-- input samples.
+--
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Simulation (
--- * Execution/simulation
--- ** Reactimation
+   -- * Reactimation
     reactimate,         -- :: IO a
                         --    -> (Bool -> IO (DTime, Maybe a))
                         --    -> (Bool -> b -> IO Bool)
                         --    -> SF a b
                         --    -> IO ()
+                        --
+    -- ** Low-level reactimation interface
     ReactHandle,
     reactInit,          --    IO a -- init
                         --    -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
@@ -29,8 +49,7 @@ module FRP.Yampa.Simulation (
                         --    -> (DTime,Maybe a)
                         --    -> IO Bool
 
--- ** Embedding
-                        --  (tentative: will be revisited)
+    -- * Embedding
     embed,              -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
     embedSynch,         -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
     deltaEncode,        -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
@@ -136,7 +155,8 @@ data ReactState a b = ReactState {
   }
 
 -- | A reference to reactimate's state, maintained across samples.
-type ReactHandle a b = IORef (ReactState a b)
+newtype ReactHandle a b = ReactHandle
+  { reactHandle :: IORef (ReactState a b) }
 
 -- | Initialize a top-level reaction handle.
 reactInit :: IO a -- init
@@ -148,7 +168,8 @@ reactInit init actuate (SF {sfTF = tf0}) =
      let (sf,b0) = tf0 a0
      -- TODO: really need to fix this interface, since right now we
      -- just ignore termination at time 0:
-     r <- newIORef (ReactState {rsActuate = actuate, rsSF = sf, rsA = a0, rsB = b0 })
+     r' <- newIORef (ReactState {rsActuate = actuate, rsSF = sf, rsA = a0, rsB = b0 })
+     let r = ReactHandle r'
      _ <- actuate r True b0
      return r
 
@@ -157,10 +178,10 @@ react :: ReactHandle a b
       -> (DTime,Maybe a)
       -> IO Bool
 react rh (dt,ma') =
-  do rs@(ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b }) <- readIORef rh
+  do rs@(ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b }) <- readIORef (reactHandle rh)
      let a' = fromMaybe a ma'
          (sf',b') = (sfTF' sf) dt a'
-     writeIORef rh (rs {rsSF = sf',rsA = a',rsB = b'})
+     writeIORef (reactHandle rh) (rs {rsSF = sf',rsA = a',rsB = b'})
      done <- actuate rh True b'
      return done
 

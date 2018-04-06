@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.10.7
+version: 0.11
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -171,7 +171,7 @@ executable yampa-examples-sdl-wiimote
   if flag(examples)
     buildable: True
     build-depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
-  else 
+  else
     buildable: False
 
 source-repository head

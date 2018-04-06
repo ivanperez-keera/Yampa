@@ -24,7 +24,6 @@ module AFRPTestsPSwitch (
 import Data.List (findIndex)
 
 import FRP.Yampa
-import FRP.Yampa.Internals (Event(NoEvent, Event))
 
 import AFRPTestsCommon
 
@@ -191,7 +190,7 @@ pswitch_t4 = take 30 $ embed (loop sf) (deltaEncode 0.1 (repeat ()))
         	       (pswitch_limit 2.99)
 		       pswitch_t4rec
 	     >>> arr dup
-        
+
 pswitch_t4rec :: [SF (a, [Double]) Double]
                  -> Int
                  -> SF (a, [Double]) [Double]
@@ -249,7 +248,7 @@ pswitch_t5 = take 30 $ embed (loop sf) (deltaEncode 0.1 (repeat ()))
 		        pswitch_t5rec)
 	      &&& (arr snd >>> arr sum))
 	     >>> arr (\(xs, y) -> ((xs, y), xs))
-        
+
 pswitch_t5rec :: [SF (a, [Double]) Double]
                  -> Int
                  -> SF (a, [Double]) [Double]

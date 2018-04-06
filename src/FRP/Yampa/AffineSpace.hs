@@ -17,10 +17,6 @@ module FRP.Yampa.AffineSpace where
 
 import FRP.Yampa.VectorSpace
 
-------------------------------------------------------------------------------
--- Affine Space type relation
-------------------------------------------------------------------------------
-
 infix 6 .+^, .-^, .-.
 
 -- Maybe origin should not be a class method, even though an origin
@@ -30,14 +26,26 @@ infix 6 .+^, .-^, .-.
 -- seems closer to the mathematical definition of affine space, provided
 -- the constraint on the coefficient space for VectorSpace is also Fractional.
 
--- Minimal instance: origin, .+^, .^.
+-- | Affine Space type relation.
+--
+-- An affine space is a set (type) @p@, and an associated vector space @v@ over
+-- a field @a@.
 class (Floating a, VectorSpace v a) => AffineSpace p v a | p -> v, v -> a where
-    origin   :: p
-    (.+^)    :: p -> v -> p
-    (.-^)    :: p -> v -> p
-    (.-.)    :: p -> p -> v
-    distance :: p -> p -> a
 
+    -- | Origin of the affine space.
+    origin   :: p
+
+    -- | Addition of affine point and vector.
+    (.+^)    :: p -> v -> p
+
+    -- | Subtraction of affine point and vector.
+    (.-^)    :: p -> v -> p
     p .-^ v = p .+^ (negateVector v)
 
+    -- | Subtraction of two points in the affine space, giving a vector.
+    (.-.)    :: p -> p -> v
+
+    -- | Distance between two points in the affine space, same as the 'norm' of
+    -- the vector they form (see '(.-.)'.
+    distance :: p -> p -> a
     distance p1 p2 = norm (p1 .-. p2)
