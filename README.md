@@ -42,7 +42,7 @@ There are many programs written in Yampa. See the following examples:
 * [Frag](https://hackage.haskell.org/package/frag): a 3D first person shooting game.
 * [Yampa-2048](https://github.com/ksaveljev/yampa-2048): an implementation of
   the game 2048 using Yampa and Gloss.
-* [Mandelbrot with basic io](https://github.com/madjestic/Haskell-OpenGL-Tutorial/tree/master/Mandelbrot-FRP-io-sdl2):
+* [MandelbrotYampa](https://github.com/madjestic/Haskell-OpenGL-Tutorial/tree/master/MandelbrotYampa):
   a "hello world" of sorts, using SDL2, Yampa and OpenGL.
 
 A more comprehensive list can be obtained using the reverse dependency finder
