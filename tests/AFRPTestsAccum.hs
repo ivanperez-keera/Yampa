@@ -25,7 +25,6 @@ module AFRPTestsAccum (
 import Data.Maybe (fromJust)
 
 import FRP.Yampa
-import FRP.Yampa.Internals (Event(NoEvent, Event))
 
 import AFRPTestsCommon
 
@@ -288,7 +287,7 @@ accum_t15 = take 40 $ embed (repeatedly 1.0 1
 
 accum_t15r :: [Int]
 accum_t15r = accum_t14	-- Should agree!
-             
+
 
 accum_t16 :: [Int]
 accum_t16 = take 40 $ embed (repeatedly 1.0 1
@@ -312,7 +311,7 @@ accum_t17 = take 40 $ embed (repeatedly 1.0 1
 
 accum_t17r :: [Int]
 accum_t17r = accum_t16	-- Should agree!
-             
+
 
 
 accum_trs =

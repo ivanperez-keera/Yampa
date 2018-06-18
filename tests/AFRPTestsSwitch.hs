@@ -15,7 +15,6 @@ module AFRPTestsSwitch (switch_tr, switch_trs) where
 
 import FRP.Yampa
 import FRP.Yampa.EventS
-import FRP.Yampa.Internals (Event(NoEvent, Event))
 
 import AFRPTestsCommon
 
@@ -30,7 +29,7 @@ switch_inp1 = deltaEncode 1.0 $
      4.0, 4.0, 4.0,
      5.0,
      6.0, 6.0,
-     7.0, 7.0, 7.0, 
+     7.0, 7.0, 7.0,
      8.0]
      ++ repeat 9.0
 

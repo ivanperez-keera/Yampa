@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.10.6.1
+version: 0.11
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -36,20 +36,41 @@ extra-source-files:
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
+  Description: Enable hlint test suite
   default: False
   manual: True
 
 -- You can disable the haddock coverage test suite with -f-test-doc-coverage
 flag test-doc-coverage
+  Description: Enable haddock coverage test suite
   default: False
   manual: True
 
 -- You can disable the regression test suite with -f-test-regression
 flag test-regression
+  Description: Enable regression test suite
   default: True
   manual: True
 
 flag examples
+  Description: Enable examples
+  default: False
+  manual: True
+
+-- WARNING: The following flag exposes Yampa's core. You should avoid using
+-- this at all. The only reason to expose it is that we are using Yampa for
+-- research, and many extensions require that we expose the constructors. No
+-- released project should depend on this. In general, you should always
+-- install Yampa with this flag disabled.
+flag expose-core
+  Description: You can enable exposing some of Yampa's core constructs
+               using -fexpose-core.
+               .
+               Enabling this is an unsupported configuration, but it may be
+               useful if you are building an extension of Yampa for research
+               and do not wish to fork Yampa completely.
+               .
+               No released project should ever depend on this.
   default: False
   manual: True
 
@@ -95,8 +116,12 @@ library
     FRP.Yampa.Switches
     FRP.Yampa.Time
 
-  other-modules:
-    FRP.Yampa.InternalCore
+  if flag(expose-core)
+    exposed-modules:
+      FRP.Yampa.InternalCore
+  else
+    other-modules:
+      FRP.Yampa.InternalCore
 
 test-suite hlint
   type: exitcode-stdio-1.0
@@ -142,8 +167,10 @@ executable yampa-examples-sdl-bouncingbox
   other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
-  build-Depends: base < 5, random, deepseq, SDL, Yampa
-  if !flag(examples)
+  if flag(examples)
+    buildable: True
+    build-Depends: base < 5, random, deepseq, SDL, Yampa
+  else
     buildable: False
 
 executable yampa-examples-sdl-circlingmouse
@@ -151,8 +178,10 @@ executable yampa-examples-sdl-circlingmouse
   other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
-  build-Depends: base < 5, random, deepseq, SDL, Yampa
-  if !flag(examples)
+  if flag(examples)
+    buildable: True
+    build-Depends: base < 5, random, deepseq, SDL, Yampa
+  else
     buildable: False
 
 executable yampa-examples-sdl-wiimote
@@ -160,8 +189,10 @@ executable yampa-examples-sdl-wiimote
   other-modules: YampaSDL
   hs-source-dirs:  examples/yampa-game/
   ghc-options : -O3 -Wall -fno-warn-name-shadowing -rtsopts
-  build-Depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
-  if !flag(examples)
+  if flag(examples)
+    buildable: True
+    build-depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
+  else
     buildable: False
 
 source-repository head

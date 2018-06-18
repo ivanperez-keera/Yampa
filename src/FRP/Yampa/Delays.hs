@@ -8,20 +8,21 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
+-- SF primitives and combinators to delay signals, introducing new values in
+-- them.
+--
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Delays (
 
-    -- * Delays
-    -- ** Basic delays
+    -- * Basic delays
     pre,                -- :: SF a a
     iPre,               -- :: a -> SF a a
+    fby,                -- :: b -> SF a b -> SF a b,    infixr 0
 
-    -- ** Timed delays
+    -- * Timed delays
     delay,              -- :: Time -> a -> SF a a
 
-    -- ** To be completed
-    fby,        -- :: b -> SF a b -> SF a b,    infixr 0
 ) where
 
 import Control.Arrow
@@ -39,6 +40,9 @@ infixr 0 `fby`
 ------------------------------------------------------------------------------
 
 -- | Uninitialized delay operator.
+--
+-- The output has an infinitesimal delay (1 sample), and the value at time
+-- zero is undefined.
 
 -- !!! Redefined using SFSScan
 -- !!! About 20% slower than old_pre on its own.
@@ -50,9 +54,23 @@ pre = sscanPrim f uninit uninit
 
 
 -- | Initialized delay operator.
+--
+-- Creates an SF that delays the input signal, introducing an infinitesimal
+-- delay (one sample), using the given argument to fill in the initial output
+-- at time zero.
+
 iPre :: a -> SF a a
 iPre = (--> pre)
 
+-- | Lucid-Synchrone-like initialized delay (read "followed by").
+--
+-- Initialized delay combinator, introducing an infinitesimal delay (one
+-- sample) in given 'SF', using the given argument to fill in the initial
+-- output at time zero.
+--
+-- The difference with 'iPre' is that 'fby' takes an 'SF' as argument.
+fby :: b -> SF a b -> SF a b
+b0 `fby` sf = b0 --> sf >>> pre
 
 ------------------------------------------------------------------------------
 -- Timed delays
@@ -107,17 +125,6 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
 -- varDelay :: Time -> a -> SF (a, Time) a
 -- varDelay = undefined
 
-
--- if_then_else :: SF a Bool -> SF a b -> SF a b -> SF a b
--- if_then_else condSF sfThen sfElse = proc (i) -> do
---   cond  <- condSF -< i
---   ok    <- sfThen -< i
---   notOk <- sfElse -< i
---   returnA -< if cond then ok else notOk
-
--- | Lucid-Synchrone-like initialized delay (read "followed by").
-fby :: b -> SF a b -> SF a b
-b0 `fby` sf = b0 --> sf >>> pre
 
 
 -- Vim modeline

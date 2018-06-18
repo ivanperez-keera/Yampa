@@ -75,7 +75,7 @@ b0 --> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (fst (tf10 a0), b0)}
 -- Insert a sample in the output, and from that point on, behave
 -- like the given sf.
 (-:>) :: b -> SF a b -> SF a b
-b0 -:> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (ct, b0)}
+b0 -:> (SF {sfTF = tf10}) = SF {sfTF = \_a0 -> (ct, b0)}
  where ct = SF' $ \_dt a0 -> tf10 a0
 
 -- | Input initialization operator.

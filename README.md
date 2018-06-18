@@ -43,16 +43,21 @@ There are many programs written in Yampa. See the following examples:
 * [Yampa-2048](https://github.com/ksaveljev/yampa-2048): an implementation of
   the game 2048 using Yampa and Gloss.
 * [MandelbrotYampa](https://github.com/madjestic/Haskell-OpenGL-Tutorial/tree/master/MandelbrotYampa):
-  a "hello world" of sorts, using SDL2, Yampa and OpenGL.
+  a "hello world" using SDL2, Yampa and OpenGL.
+* [Haskelloids](https://github.com/keera-studios/Haskelloids): a reproduction of the Atari 1979 classic "Asteroids"
 
 A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
 hackage are listed.
 
+| <img src="https://raw.githubusercontent.com/ivanperez-keera/haskanoid/master/screenshots/android.gif?raw=true" width="200" alt="Haskanoid Video" style="max-width:200px;"> | <img src="https://raw.githubusercontent.com/ivanperez-keera/SpaceInvaders/develop/screenshots/gameplay.gif?raw=true" width="138" alt="Space Invaders" style="max-width: 138px;"> | <img src="http://ksaveljev.github.io/2048.gif" width="110" alt="Space Invaders" style="max-width: 110px;"> |
+|-------------------------------------------|---------------|-------------------------|
+| Haskanoid, SDL cross-platform arkanoid. | SpaceInvaders, GLUT arcade game | Yampa2048, a gloss board game |
+
 ## Use in production
 
 * Keera Studios is using it for several Haskell games for Android and iOS
-  including a game currently available on iTunes and Google Play. See:
+  including a game currently available on [iTunes](https://itunes.apple.com/us/app/magic-cookies/id1244709871) and [Google Play](https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies). See:
   * http://facebook.com/keerastudios
   * https://itunes.apple.com/us/app/magic-cookies/id1244709871
   * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
@@ -62,12 +67,14 @@ hackage are listed.
 Yampa is backend agnostic, you can ultimately connect it to any backend you
 want. Existing backends include:
 * SDL
+* SDL2
 * OpenGL / GLUT
 * WX (see wxHaskell)
+* HTML Canvas
 
 ## Documentation and tutorials
 
-The distribution of Yampa comes with subtantial haddock documentation, which you can
+The distribution of Yampa comes with substantial haddock documentation, which you can
 build using haddock or just [read online](https://hackage.haskell.org/package/Yampa).
 To build a local copy, do:
 
@@ -99,8 +106,8 @@ You can collaborate at least in three ways:
 * Research: we are constantly trying to improve Yampa. We'd be glad to have
   collaborators.  If you are working on this, please, let us know.
 
-  (_Interactivity and FRP is the main topic of my (ongoing) PhD studies, so I'll
-  keep working on this for some time._ -- Ivan Perez)
+  (_Interactivity and FRP is the main topic of my (ongoing) work and research,
+   so I'll keep working on this for some time._ -- Ivan Perez)
 
 ## Authors
 

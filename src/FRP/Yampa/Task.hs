@@ -42,9 +42,10 @@ import FRP.Yampa.Diagnostics
 infixl 0 `timeOut`, `abortWhen`, `repeatUntil`
 
 
-------------------------------------------------------------------------------
--- The Task type
-------------------------------------------------------------------------------
+-- * The Task type
+
+
+-- | A task is a partially SF that may terminate with a result.
 
 -- CPS-based representation allowing a termination to be detected.
 -- (Note the rank 2 polymorphic type!)
@@ -53,30 +54,40 @@ infixl 0 `timeOut`, `abortWhen`, `repeatUntil`
 newtype Task a b c =
     Task (forall d . (c -> SF a (Either b d)) -> SF a (Either b d))
 
-
 unTask :: Task a b c -> ((c -> SF a (Either b d)) -> SF a (Either b d))
 unTask (Task f) = f
 
-
+-- | Creates a 'Task' from an SF that returns, as a second output, an 'Event'
+-- when the SF terminates. See 'switch'.
 mkTask :: SF a (b, Event c) -> Task a b c
 mkTask st = Task (switch (st >>> first (arr Left)))
 
 
--- "Runs" a task (unusually bad name?). The output from the resulting
--- signal transformer is tagged with Left while the underlying task is
--- running. Once the task has terminated, the output goes constant with
--- the value Right x, where x is the value of the terminating event.
+-- | Runs a task.
+--
+-- The output from the resulting signal transformer is tagged with Left while
+-- the underlying task is running. Once the task has terminated, the output
+-- goes constant with the value Right x, where x is the value of the
+-- terminating event.
+
+-- Check name.
 runTask :: Task a b c -> SF a (Either b c)
 runTask tk = (unTask tk) (constant . Right)
 
 
--- Runs a task. The output becomes undefined once the underlying task has
--- terminated. Convenient e.g. for tasks which are known not to terminate.
+-- | Runs a task that never terminates.
+--
+-- The output becomes undefined once the underlying task has terminated.
+--
+-- Convenience function for tasks which are known not to terminate.
 runTask_ :: Task a b c -> SF a b
 runTask_ tk = runTask tk
               >>> arr (either id (usrErr "AFRPTask" "runTask_"
                                          "Task terminated!"))
 
+
+-- | Creates an SF that represents an SF and produces an event
+-- when the task terminates, and otherwise produces just an output.
 
 -- Seems as if the following is convenient after all. Suitable name???
 -- Maybe that implies a representation change for Tasks?
@@ -93,9 +104,7 @@ taskToSF tk = runTask tk
         isEdge (Right _) (Left _)  = Nothing
 
 
-------------------------------------------------------------------------------
--- Functor, Applicative and Monad instance
-------------------------------------------------------------------------------
+-- * Functor, Applicative and Monad instance
 
 instance Functor (Task a b) where
     fmap f tk = Task (\k -> unTask tk (k . f))
@@ -141,49 +150,50 @@ Let's check the monad laws:
 No surprises (obviously, since this is essentially just the CPS monad).
 -}
 
+-- * Basic tasks
 
-------------------------------------------------------------------------------
--- Basic tasks
-------------------------------------------------------------------------------
-
--- Non-terminating task with constant output b.
+-- | Non-terminating task with constant output b.
 constT :: b -> Task a b c
 constT b = mkTask (constant b &&& never)
 
 
--- "Sleeps" for t seconds with constant output b.
+-- | "Sleeps" for t seconds with constant output b.
 sleepT :: Time -> b -> Task a b ()
 sleepT t b = mkTask (constant b &&& after t ())
 
 
--- Takes a "snapshot" of the input and terminates immediately with the input
--- value as the result. No time passes; law:
+-- | Takes a "snapshot" of the input and terminates immediately with the input
+-- value as the result.
 --
---    snapT >> snapT = snapT
+-- No time passes; therefore, the following must hold:
 --
+-- @snapT >> snapT = snapT@
+
 snapT :: Task a b a
 snapT = mkTask (constant (intErr "AFRPTask" "snapT" "Bad switch?") &&& snap)
 
 
-------------------------------------------------------------------------------
--- Basic tasks combinators
-------------------------------------------------------------------------------
+-- * Basic tasks combinators
 
--- Impose a time out on a task.
+-- | Impose a time out on a task.
 timeOut :: Task a b c -> Time -> Task a b (Maybe c)
 tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
     where
         aux ((b, ec), et) = (b, (lMerge (fmap Just ec)
                                  (fmap (const Nothing) et)))
 
--- Run a "guarding" event source (SF a (Event b)) in parallel with a
--- (possibly non-terminating) task. The task will be aborted at the
--- first occurrence of the event source (if it has not terminated itself
--- before that). Useful for separating sequencing and termination concerns.
--- E.g. we can do something "useful", but in parallel watch for a (exceptional)
--- condition which should terminate that activity, whithout having to check
--- for that condition explicitly during each and every phase of the activity.
--- Example: tsk `abortWhen` lbp
+-- | Run a "guarding" event source (SF a (Event b)) in parallel with a
+-- (possibly non-terminating) task.
+--
+-- The task will be aborted at the first occurrence of the event source (if it
+-- has not terminated itself before that).
+--
+-- Useful for separating sequencing and termination concerns.  E.g. we can do
+-- something "useful", but in parallel watch for a (exceptional) condition
+-- which should terminate that activity, without having to check for that
+-- condition explicitly during each and every phase of the activity.
+--
+-- Example: @tsk `abortWhen` lbp@
 abortWhen :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
 tk `abortWhen` est = mkTask ((taskToSF tk &&& est) >>> arr aux)
     where
@@ -191,42 +201,30 @@ tk `abortWhen` est = mkTask ((taskToSF tk &&& est) >>> arr aux)
 
 
 ------------------------------------------------------------------------------
--- Loops
+-- * Loops
 ------------------------------------------------------------------------------
 
 -- These are general monadic combinators. Maybe they don't really belong here.
 
--- Repeat m until result satisfies the predicate p
+-- | Repeat m until result satisfies the predicate p
 repeatUntil :: Monad m => m a -> (a -> Bool) -> m a
 m `repeatUntil` p = m >>= \x -> if not (p x) then repeatUntil m p else return x
 
 
--- C-style for-loop.
--- Example: for 0 (+1) (>=10) ...
+-- | C-style for-loop.
+--
+-- Example:
+--
+-- >>> for 0 (+1) (>=10) ...
 for :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
 for i f p m = when (p i) $ m >> for (f i) f p m
 
 
--- Perform the monadic operation for each element in the list.
+-- | Perform the monadic operation for each element in the list.
 forAll :: Monad m => [a] -> (a -> m b) -> m ()
 forAll = forM_
 
 
--- Repeat m for ever.
+-- | Repeat m for ever.
 forEver :: Monad m => m a -> m b
 forEver m = m >> forEver m
-
-
--- Alternatives/other potentially useful signatures:
--- until :: a -> (a -> M a) -> (a -> Bool) -> M a
--- for: a -> b -> (a -> b -> a) -> (a -> b -> Bool) -> (a -> b -> M b) -> M b
--- while??? It could be:
--- while :: a -> (a -> Bool) -> (a -> M a) -> M a
-
-
-------------------------------------------------------------------------------
--- Monad transformers?
-------------------------------------------------------------------------------
-
--- What about monad transformers if we want to compose this monad with
--- other capabilities???
