@@ -125,7 +125,7 @@ import FRP.Yampa.Diagnostics
 reactimate :: Monad m
            => m a                             -- ^ Initialization action
            -> (Bool -> m (DTime, Maybe a))    -- ^ Input sensing action
-           -> (Bool -> b -> m Bool)           -- ^ Actuaction (output processing) action
+           -> (Bool -> b -> m Bool)           -- ^ Actuation (output processing) action
            -> SF a b                          -- ^ Signal function
            -> m ()
 reactimate init sense actuate (SF {sfTF = tf0}) =
