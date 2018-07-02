@@ -17,7 +17,7 @@
 -- called /reactimation/, and the latter is called /embedding/.
 --
 -- Normally, to run an SF, you would use 'reactimate', providing input samples,
--- and consuming the putput samples in the 'IO' monad. This function takes over
+-- and consuming the output samples in the 'IO' monad. This function takes over
 -- the program, implementing a "main loop". If you want more control over the
 -- evaluation loop (for instance, if you are using Yampa in combination with a
 -- backend that also implements some main loop), you may want to use the
