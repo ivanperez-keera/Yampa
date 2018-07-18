@@ -92,15 +92,16 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 
 For a list of Yampa-related papers, see:
 
-* [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/authorize?N46564) (Authors: Ivan Perez and Henrik Nilsson, ICFP 2017 Oxford, UK)
-* [Functional Reactive Programming, Refactored](http://dl.acm.org/authorize?N34896)( Authors: Ivan Perez, Manuel Bärenz and Henrik Nilsson)
-* [First Year PhD Report](http://www.cs.nott.ac.uk/~psxip1/papers/2014-Perez-1st-year-report.pdf)(Author: Ivan Perez )
-* [Safe Functional Reactive Programming through Dependent Types](http://dl.acm.org/authorize?N08595)(Authors: Neil Sculthorpe and Henrik Nilsson)
-* [Switched-on Yampa: Programming Modular Synthesizers in Haskell](http://dl.acm.org/authorize?N08596)(Athors: George Giorgidze and Henrik Nilsson)
-* [Dynamic Optimization for Functional Reactive Programming using Generalized Algebraic Data Types](http://dl.acm.org/authorize?N08598)(Author: Henrik Nilsson)
-* [The Yampa Arcade](http://dl.acm.org/authorize?N08599)(Authors: Antony Courtney and Henrik Nilsson and John Peterson )
-* [Functional reactive programming, continued](http://dl.acm.org/authorize?N08592)(Authors: Henrik Nilsson, Antony Courtney, and John Peterson)
-* [Arrows, robots, and functional reactive programming](http://www.cs.nott.ac.uk/~psznhn/Publications/afp2002.pdf)(Authors: Paul Hudak, Antony Courtney, Henrik Nilsson, and John Peterson.)
+* [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/authorize?N46564) (Authors: Ivan Perez and Henrik Nilsson, 2017)
+* [Functional Reactive Programming, Refactored](http://dl.acm.org/authorize?N34896)( Authors: Ivan Perez, Manuel Bärenz and Henrik Nilsson, 2016)
+* [First Year PhD Report](http://www.cs.nott.ac.uk/~psxip1/papers/2014-Perez-1st-year-report.pdf)(Author: Ivan Perez, 2014 )
+* [Safe Functional Reactive Programming through Dependent Types](http://dl.acm.org/authorize?N08595)(Authors: Neil Sculthorpe and Henrik Nilsson,2009)
+* [Switched-on Yampa: Declarative programming of modular synthesizers](http://www.cs.nott.ac.uk/~psznhn/Publications/padl2008.pdf)(Authors: George Giorgidze and Henrik Nilsson ,2008)
+* [Demo-outline: Switched-on Yampa: Programming Modular Synthesizers in Haskell.](http://dl.acm.org/authorize?N08596)(Authors: George Giorgidze and Henrik Nilsson, 2007)
+* [Dynamic Optimization for Functional Reactive Programming using Generalized Algebraic Data Types](http://dl.acm.org/authorize?N08598)(Author: Henrik Nilsson, 2005)
+* [The Yampa Arcade](http://dl.acm.org/authorize?N08599)(Authors: Antony Courtney and Henrik Nilsson and John Peterson, 2003 )
+* [Arrows, robots, and functional reactive programming](http://www.cs.nott.ac.uk/~psznhn/Publications/afp2002.pdf)(Authors: Paul Hudak, Antony Courtney, Henrik Nilsson, and John Peterson, 2002,2003)
+* [Functional reactive programming, continued](http://dl.acm.org/authorize?N08592)(Authors: Henrik Nilsson, Antony Courtney, and John Peterson, 2002)
 
 See also PhD technical report, chapter 3. http://www.cs.nott.ac.uk/~ixp/
 which includes a review of FRP and outlines some existing issues.
