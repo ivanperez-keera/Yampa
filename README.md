@@ -94,16 +94,34 @@ For a list of Yampa-related papers, see:
 
 * http://www.cs.nott.ac.uk/~nhn/papers.html
 * [Testing and Debugging Functional Reactive Programming(Authors: Ivan Perez and Henrik Nilsson)](http://dl.acm.org/authorize?N46564)
-  * Authors: Ivan Perez and Henrik Nilsson
-  * Year : 
+  ######* Authors: Ivan Perez and Henrik Nilsson
+  ######* Year : 
 * [Functional Reactive Programming, Refactored( Authors: Ivan Perez, Manuel Bärenz and Henrik Nilsson)](http://dl.acm.org/authorize?N34896)
+  ######* Authors : 
+  ######* Year    :
+
 * [First Year PhD Report(Author: Ivan Perez )](http://www.cs.nott.ac.uk/~psxip1/papers/2014-Perez-1st-year-report.pdf)
+  ######* Authors :                             
+  ######* Year    :
+
 * [Safe Functional Reactive Programming through Dependent Types(Authors: Neil Sculthorpe and Henrik Nilsson)](http://dl.acm.org/authorize?N08595)
+  ######* Authors :                             
+  ######* Year    :
 * [Switched-on Yampa: Programming Modular Synthesizers in Haskell(Athors: George Giorgidze and Henrik Nilsson)](http://dl.acm.org/authorize?N08596)
+  ######* Authors :                             
+  ######* Year    :
 * [Dynamic Optimization for Functional Reactive Programming using Generalized Algebraic Data Types(Author: Henrik Nilsson)](http://dl.acm.org/authorize?N08598)
+  ######* Authors :                             
+  ######* Year    :
 * [The Yampa Arcade(Authors: Antony Courtney and Henrik Nilsson and John Peterson )](http://dl.acm.org/authorize?N08599)
+  ######* Authors :                             
+  ######* Year    :
 * [Functional reactive programming, continued(Authors: Henrik Nilsson, Antony Courtney, and John Peterson)](http://dl.acm.org/authorize?N08592)
+  ######* Authors :                             
+  ######* Year    :
 * [Arrows, robots, and functional reactive programming(Authors: Paul Hudak, Antony Courtney, Henrik Nilsson, and John Peterson.)](http://www.cs.nott.ac.uk/~psznhn/Publications/afp2002.pdf)
+  ######* Authors :                             
+  ######* Year    :
 
 See also PhD technical report, chapter 3. http://www.cs.nott.ac.uk/~ixp/
 which includes a review of FRP and outlines some existing issues.
