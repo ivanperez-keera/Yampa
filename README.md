@@ -93,6 +93,10 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 For a list of Yampa-related papers, see:
 
 * http://www.cs.nott.ac.uk/~nhn/papers.html
+* item 1
+* item 2
+* item 3
+* item 4
 
 See also PhD technical report, chapter 3. http://www.cs.nott.ac.uk/~ixp/
 which includes a review of FRP and outlines some existing issues.
