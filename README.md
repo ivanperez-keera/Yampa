@@ -94,9 +94,14 @@ For a list of Yampa-related papers, see:
 
 * http://www.cs.nott.ac.uk/~nhn/papers.html
 * [Testing and Debugging Functional Reactive Programming(Authors: Ivan Perez and Henrik Nilsson)](http://dl.acm.org/authorize?N46564)
-* item 2
-* item 3
-* item 4
+* [Functional Reactive Programming, Refactored( Authors: Ivan Perez, Manuel Bärenz and Henrik Nilsson)](http://dl.acm.org/authorize?N34896)
+* [First Year PhD Report(Author: Ivan Perez )](http://www.cs.nott.ac.uk/~psxip1/papers/2014-Perez-1st-year-report.pdf)
+* [Safe Functional Reactive Programming through Dependent Types(Authors: Neil Sculthorpe and Henrik Nilsson)](http://dl.acm.org/authorize?N08595)
+* [Switched-on Yampa: Programming Modular Synthesizers in Haskell(Athors: George Giorgidze and Henrik Nilsson)](http://dl.acm.org/authorize?N08596)
+* [Dynamic Optimization for Functional Reactive Programming using Generalized Algebraic Data Types(Author: Henrik Nilsson)](http://dl.acm.org/authorize?N08598)
+* [The Yampa Arcade(Authors: Antony Courtney and Henrik Nilsson and John Peterson )](http://dl.acm.org/authorize?N08599)
+* [Functional reactive programming, continued(Authors: Henrik Nilsson, Antony Courtney, and John Peterson)](http://dl.acm.org/authorize?N08592)
+* [Arrows, robots, and functional reactive programming(Authors: Paul Hudak, Antony Courtney, Henrik Nilsson, and John Peterson.)](http://www.cs.nott.ac.uk/~psznhn/Publications/afp2002.pdf)
 
 See also PhD technical report, chapter 3. http://www.cs.nott.ac.uk/~ixp/
 which includes a review of FRP and outlines some existing issues.
