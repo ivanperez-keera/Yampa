@@ -90,7 +90,6 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 
 ## Papers and technical reports
 
-For a list of Yampa-related papers, see:
 
 * [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/authorize?N46564) (Ivan Perez and Henrik Nilsson, 2017)
 * [Functional Reactive Programming, Refactored](http://dl.acm.org/authorize?N34896) (Ivan Perez, Manuel Bärenz, and Henrik Nilsson, 2016)
