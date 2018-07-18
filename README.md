@@ -94,11 +94,11 @@ For a list of Yampa-related papers, see:
 
 * http://www.cs.nott.ac.uk/~nhn/papers.html
 * [Testing and Debugging Functional Reactive Programming(Authors: Ivan Perez and Henrik Nilsson)](http://dl.acm.org/authorize?N46564)
-  ######* Authors: Ivan Perez and Henrik Nilsson
-  ######* Year : 
+  *###### Authors: Ivan Perez and Henrik Nilsson
+  *###### Year : 
 * [Functional Reactive Programming, Refactored( Authors: Ivan Perez, Manuel Bärenz and Henrik Nilsson)](http://dl.acm.org/authorize?N34896)
-  ######* Authors : 
-  ######* Year    :
+  *###### Authors : 
+  *###### Year    :
 
 * [First Year PhD Report(Author: Ivan Perez )](http://www.cs.nott.ac.uk/~psxip1/papers/2014-Perez-1st-year-report.pdf)
   ######* Authors :                             
