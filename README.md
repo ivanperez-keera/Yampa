@@ -92,10 +92,8 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 
 For a list of Yampa-related papers, see:
 
-* http://www.cs.nott.ac.uk/~nhn/papers.html
-* [Testing and Debugging Functional Reactive Programming(Authors: Ivan Perez and Henrik Nilsson)](http://dl.acm.org/authorize?N46564)
-  ###### Authors: Ivan Perez and Henrik Nilsson
-  ###### Year : 
+* [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/authorize?N46564): Authors: Ivan Perez and Henrik Nilsson, CFP 2017 (Oxford, UK)
+
 * [Functional Reactive Programming, Refactored( Authors: Ivan Perez, Manuel Bärenz and Henrik Nilsson)](http://dl.acm.org/authorize?N34896)
   ###### Authors : 
   ###### Year    :
