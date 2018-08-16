@@ -1,3 +1,9 @@
+2018-08-11 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.11.1).
+        * README.md: Documents papers.
+        * src/: Fixes leak.
+        * Thanks to @tresormuta, @chriz-keera.
+
 2018-04-05 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.11).
         * src/: Adds documentation; makes type synonym a newtype.

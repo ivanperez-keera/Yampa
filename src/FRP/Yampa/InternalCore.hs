@@ -534,22 +534,46 @@ instance Control.Category.Category SF where
 
 -- | Choice of which SF to run based on the value of a signal.
 instance ArrowChoice SF where
-    left sf = SF $ \a ->
-                     -- NOTE: there might be a problem with choice here.
-                     -- Do the delta times accumulate for the unused branch?
-                     -- Recommendation by Olivier Charles: take a look
-                     -- at Settable Signals paper, it discusses which
-                     -- option would be best.
-                     case a of
-                       Left x  -> let (sf', b') = sfTF sf x
-                                  in (futureArrowLeft sf', Left b')
-                       Right x -> let sf' = SF' $ \_ -> sfTF sf
-                                  in (futureArrowLeft sf', Right x)
-       where futureArrowLeft fSF = SF' $ \dt a ->
-                case a of
-                  Left x  -> let (sf', b') = sfTF' fSF dt x
-                             in (futureArrowLeft sf', Left b')
-                  Right x -> (futureArrowLeft fSF, Right x)
+  -- (+++) :: forall b c b' c' . SF b c -> SF d e -> SF (Either b d) (Either c e)
+  sfL +++ sfR = SF $ \a ->
+    case a of
+      Left b  -> let (sf', c) = sfTF sfL b
+                 in (chooseL sf' sfR, Left c)
+      Right d -> let (sf', e) = sfTF sfR d
+                 in (chooseR sfL sf', Right e)
+
+    where
+
+      -- (+++) for an initialized SF and an SF
+      --
+      -- chooseL :: SF' b c -> SF d e -> SF' (Either b d) (Either c e)
+      chooseL sfCL sfR = SF' $ \dt a ->
+        case a of
+          Left b  -> let (sf', c) = sfTF' sfCL dt b
+                     in (chooseL sf' sfR, Left c)
+          Right d -> let (sf', e) = sfTF sfR d
+                     in (choose sfCL sf', Right e)
+
+      -- (+++) for an SF and an initialized SF
+      --
+      -- chooseR :: SF b c -> SF' d e -> SF' (Either b d) (Either c e)
+      chooseR sfL sfCR = SF' $ \dt a ->
+        case a of
+          Left b  -> let (sf', c) = sfTF sfL b
+                     in (choose sf' sfCR, Left c)
+          Right d -> let (sf', e) = sfTF' sfCR dt d
+                     in (chooseR sfL sf', Right e)
+
+      -- (+++) for initialized SFs
+      --
+      -- choose :: SF' b c -> SF' d e -> SF' (Either b d) (Either c e)
+      choose sfCL sfCR = SF' $ \dt a ->
+        case a of
+          Left b  -> let (sf', c) = sfTF' sfCL dt b
+                     in (choose sf' sfCR, Left c)
+          Right d -> let (sf', e) = sfTF' sfCR dt d
+                     in (choose sfCL sf', Right e)
+
 
 
 -- | Signal Functions as Arrows. See "The Yampa Arcade", by Courtney, Nilsson

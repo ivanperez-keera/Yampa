@@ -51,7 +51,7 @@
 --'Functor' or a list ('[]').
 --
 -- - How the input is router /(B\/Z\/ )/: when multiple SFs are being combined,
--- a decision needs to be made about how the input is passed ot the internal
+-- a decision needs to be made about how the input is passed to the internal
 -- SFs.  In some cases, broadcasting is used to pass the same input to all
 -- internal SFs. In others, the input is itself a collection, and each element
 -- is passed to one internal SF (i.e., /zipping/). In others, an auxiliary
