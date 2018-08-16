@@ -95,12 +95,12 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 * [Functional Reactive Programming, Refactored](http://dl.acm.org/authorize?N34896) (Ivan Perez, Manuel Bärenz, and Henrik Nilsson; 2016)
 * [Safe Functional Reactive Programming through Dependent Types](http://dl.acm.org/authorize?N08595) (Neil Sculthorpe and Henrik Nilsson; 2009)
 * [Push-Pull Functional Reactive Programming](http://conal.net/papers/push-pull-frp/push-pull-frp.pdf) (Conal Elliott; 2009)
-* [Switched-on Yampa: Declarative programming of modular synthesizers](http://www.cs.nott.ac.uk/~psznhn/Publications/padl2008.pdf) (George Giorgidze and Henrik Nilsson; 2008)
+* [Switched-on Yampa: Declarative Programming of Modular Synthesizers](http://www.cs.nott.ac.uk/~psznhn/Publications/padl2008.pdf) (George Giorgidze and Henrik Nilsson; 2008)
 * [Demo-outline: Switched-on Yampa: Programming Modular Synthesizers in Haskell](http://dl.acm.org/authorize?N08596) (George Giorgidze and Henrik Nilsson; 2007)
 * [Dynamic Optimization for Functional Reactive Programming using Generalized Algebraic Data Types](http://dl.acm.org/authorize?N08598) (Henrik Nilsson; 2005)
 * [The Yampa Arcade](http://dl.acm.org/authorize?N08599) (Antony Courtney, Henrik Nilsson, and John Peterson, 2003)
-* [Arrows, robots, and functional reactive programming](http://www.cs.nott.ac.uk/~psznhn/Publications/afp2002.pdf) (Paul Hudak, Antony Courtney, Henrik Nilsson, and John Peterson; 2002)
-* [Functional reactive programming, continued](http://dl.acm.org/authorize?N08592) (Henrik Nilsson, Antony Courtney, and John Peterson; 2002)
+* [Arrows, Robots, and Functional Reactive Programming](http://www.cs.nott.ac.uk/~psznhn/Publications/afp2002.pdf) (Paul Hudak, Antony Courtney, Henrik Nilsson, and John Peterson; 2002)
+* [Functional Reactive Programming, Continued](http://dl.acm.org/authorize?N08592) (Henrik Nilsson, Antony Courtney, and John Peterson; 2002)
 * [Genuinely Functional User Interfaces](http://conal.net/papers/genuinely-functional-guis.pdf) (Antony Courtney and Conal Elliott; 2001)
 
 
