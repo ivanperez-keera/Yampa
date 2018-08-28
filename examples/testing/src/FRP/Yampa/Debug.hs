@@ -11,9 +11,9 @@ traceSF :: Show a
 traceSF = arr (\x -> trace x x)
 
 traceSFWith :: (a -> String)
-            => SF a a
+            -> SF a a
 traceSFWith f = arr $ (\x -> trace (f x) x)
 
 traceSFWithIO :: (a -> IO b)
-              => SF a a
+              -> SF a a
 traceSFWithIO f = arr $ (\x -> (unsafePerformIO (f x)) x)
