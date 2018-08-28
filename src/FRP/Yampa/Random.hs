@@ -9,13 +9,18 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
+-- Signals and signal functions with noise and randomness.
+--
+-- The Random number generators are re-exported from "System.Random".
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Random (
+
+    -- * Random number generators
     RandomGen(..),
     Random(..),
 
--- * Noise (random signal) sources and stochastic event sources
+    -- * Noise, random signals, and stochastic event sources
     noise,              -- :: noise :: (RandomGen g, Random b) =>
                         --        g -> SF a b
     noiseR,             -- :: noise :: (RandomGen g, Random b) =>

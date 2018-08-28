@@ -1,8 +1,7 @@
+-- | Apply SFs only under certain conditions.
 module FRP.Yampa.Conditional (
-    -- Guards and automata-oriented combinators
-    provided        -- :: (a -> Bool) -> SF a b -> SF a b -> SF a b
-     -- ** Variable delay
-  , pause           -- :: b -> SF a b -> SF a Bool -> SF a b
+    provided  -- :: (a -> Bool) -> SF a b -> SF a b -> SF a b
+  , pause     -- :: b -> SF a b -> SF a Bool -> SF a b
 
   ) where
 
@@ -12,12 +11,22 @@ import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', Transition)
 import FRP.Yampa.EventS
 import FRP.Yampa.Switches
 
-------------------------------------------------------------------------------
--- Guards and automata-oriented combinators
-------------------------------------------------------------------------------
+-- * Guards and automata-oriented combinators
 
+-- | Runs a signal function only when a given predicate is satisfied, otherwise
+-- runs the other signal function.
+--
+-- This is similar to 'ArrowChoice', except that this resets the SFs after each
+-- transition.
+-- 
+-- For example, the following integrates the incoming input numbers, using one
+-- integral if the numbers are even, and another if the input numbers are odd.
+-- Note how, every time we "switch", the old value of the integral is
+-- discarded.
+-- 
+-- >>> embed (provided (even . round) integral integral) (deltaEncode 1 [1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2 :: Double])
+-- [0.0,1.0,2.0,0.0,2.0,4.0,0.0,1.0,2.0,0.0,2.0,4.0]
 
--- Runs sft only when the predicate p is satisfied, otherwise runs sff.
 provided :: (a -> Bool) -> SF a b -> SF a b -> SF a b
 provided p sft sff =
     switch (constant undefined &&& snap) $ \a0 ->
@@ -26,9 +35,7 @@ provided p sft sff =
       stt = switch (sft &&& (not . p ^>> edge)) (const stf)
       stf = switch (sff &&& (p ^>> edge)) (const stt)
 
-------------------------------------------------------------------------------
--- Variable pause in signal
-------------------------------------------------------------------------------
+-- * Variable pause
 
 -- | Given a value in an accumulator (b), a predicate signal function (sfC),
 --   and a second signal function (sf), pause will produce the accumulator b

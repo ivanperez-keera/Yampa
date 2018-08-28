@@ -15,7 +15,6 @@
 module AFRPTestsEvSrc (evsrc_trs, evsrc_tr) where
 
 import FRP.Yampa
-import FRP.Yampa.Internals (Event(NoEvent, Event))
 
 import AFRPTestsCommon
 
@@ -201,7 +200,7 @@ evsrc_t11r =
 evsrc_t12 :: [Event ()]
 evsrc_t12 = testSF1 (localTime >>> arr (>=0) >>> edge)
 
-evsrc_t12r = 
+evsrc_t12r =
     [NoEvent, NoEvent, NoEvent, NoEvent,	-- 0.0 s
      NoEvent, NoEvent, NoEvent, NoEvent,	-- 1.0 s
      NoEvent, NoEvent, NoEvent, NoEvent,	-- 2.0 s
@@ -234,7 +233,7 @@ evsrc_isEdge True  False = Nothing
 evsrc_t14 :: [Event ()]
 evsrc_t14 = testSF1 (localTime >>> arr (>=0) >>> edgeBy evsrc_isEdge False)
 
-evsrc_t14r = 
+evsrc_t14r =
     [Event (), NoEvent, NoEvent, NoEvent,	-- 0.0 s
      NoEvent,  NoEvent, NoEvent, NoEvent,	-- 1.0 s
      NoEvent,  NoEvent, NoEvent, NoEvent,	-- 2.0 s
@@ -405,7 +404,7 @@ evsrc_t25r =
 
 evsrc_t26 :: [Event Int]
 -- Drop 5 events to get rid of the event at 4.0 s which may or may not happen
--- exactly there. 
+-- exactly there.
 evsrc_t26 = testSF1 (repeatedly 0.8 42 >>> dropEvents 5)
 
 evsrc_t26r :: [Event Int]
@@ -475,26 +474,26 @@ evsrc_t29 = embed (time &&& repeatedly 0.5001 ()
                   input
     where
         dts   = replicate 40 0.1 ++ [2.0] ++ replicate 40 0.1
-	input = ((), [(dt, Just ()) | dt <- dts]) 
+	input = ((), [(dt, Just ()) | dt <- dts])
 
 {- Resulting input to the delay for reference:
-[ NoEvent,   NoEvent,   NoEvent, NoEvent, NoEvent,	-- 0.0 s 
-  NoEvent,   Event 0.6, NoEvent, NoEvent, NoEvent,	-- 0.5 s 
-  NoEvent,   Event 1.1, NoEvent, NoEvent, NoEvent,	-- 1.0 s 
-  NoEvent,   Event 1.6, NoEvent, NoEvent, NoEvent,	-- 1.5 s 
-  NoEvent,   Event 2.1, NoEvent, NoEvent, NoEvent,	-- 2.0 s 
-  NoEvent,   Event 2.6, NoEvent, NoEvent, NoEvent,	-- 2.5 s 
-  NoEvent,   Event 3.1, NoEvent, NoEvent, NoEvent,	-- 3.0 s 
-  NoEvent,   Event 3.6, NoEvent, NoEvent, NoEvent,	-- 3.5 s 
-  NoEvent,						-- 4.0 s 
-  Event 6.0, Event 6.1, NoEvent, NoEvent, NoEvent,	-- 6.0 s 
-  NoEvent,   Event 6.6, NoEvent, NoEvent, NoEvent,	-- 6.5 s          
-  NoEvent,   Event 7.1, NoEvent, NoEvent, NoEvent,	-- 7.0 s 
-  NoEvent,   Event 7.6, NoEvent, NoEvent, NoEvent,	-- 7.5 s 
-  NoEvent,   Event 8.1, NoEvent, NoEvent, NoEvent,	-- 8.0 s 
-  NoEvent,   Event 8.6, NoEvent, NoEvent, NoEvent,	-- 8.5 s 
-  NoEvent,   Event 9.1, NoEvent, NoEvent, NoEvent,	-- 9.0 s 
-  NoEvent,   Event 9.6, NoEvent, NoEvent, NoEvent,	-- 9.5 s 
+[ NoEvent,   NoEvent,   NoEvent, NoEvent, NoEvent,	-- 0.0 s
+  NoEvent,   Event 0.6, NoEvent, NoEvent, NoEvent,	-- 0.5 s
+  NoEvent,   Event 1.1, NoEvent, NoEvent, NoEvent,	-- 1.0 s
+  NoEvent,   Event 1.6, NoEvent, NoEvent, NoEvent,	-- 1.5 s
+  NoEvent,   Event 2.1, NoEvent, NoEvent, NoEvent,	-- 2.0 s
+  NoEvent,   Event 2.6, NoEvent, NoEvent, NoEvent,	-- 2.5 s
+  NoEvent,   Event 3.1, NoEvent, NoEvent, NoEvent,	-- 3.0 s
+  NoEvent,   Event 3.6, NoEvent, NoEvent, NoEvent,	-- 3.5 s
+  NoEvent,						-- 4.0 s
+  Event 6.0, Event 6.1, NoEvent, NoEvent, NoEvent,	-- 6.0 s
+  NoEvent,   Event 6.6, NoEvent, NoEvent, NoEvent,	-- 6.5 s
+  NoEvent,   Event 7.1, NoEvent, NoEvent, NoEvent,	-- 7.0 s
+  NoEvent,   Event 7.6, NoEvent, NoEvent, NoEvent,	-- 7.5 s
+  NoEvent,   Event 8.1, NoEvent, NoEvent, NoEvent,	-- 8.0 s
+  NoEvent,   Event 8.6, NoEvent, NoEvent, NoEvent,	-- 8.5 s
+  NoEvent,   Event 9.1, NoEvent, NoEvent, NoEvent,	-- 9.0 s
+  NoEvent,   Event 9.6, NoEvent, NoEvent, NoEvent,	-- 9.5 s
   NoEvent ]						-- 10.0 s
 -}
 

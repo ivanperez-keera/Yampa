@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
 -----------------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Event
@@ -8,20 +9,21 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- Definition of Yampa Event type.
---
--- Yampa Events represent discrete time-signals, meaning those that do not
+-- Events in Yampa represent discrete time-signals, meaning those that do not
 -- change continuously. Examples of event-carrying signals would be mouse
 -- clicks (in between clicks it is assumed that there is no click), some
 -- keyboard events, button presses on wiimotes or window-manager events.
 --
--- The type @Event@ is isomorphic to @Maybe@ (@Event a = NoEvent | Event a@)
--- but, semantically, a @Maybe@-carrying signal could change continuously,
--- whereas an @Event@-carrying signal should not. No mechanism in Yampa will
--- check this or misbehave if this assumption is violated.
+-- The type 'Event' is isomorphic to 'Maybe' (@Event a = NoEvent | Event a@)
+-- but, semantically, a 'Maybe'-carrying signal could change continuously,
+-- whereas an 'Event'-carrying signal should not: for two events in subsequent
+-- samples, there should be an small enough sampling frequency such that we sample
+-- between those two samples and there are no 'Event's between them.
+-- Nevertheless, no mechanism in Yampa will check this or misbehave if this
+-- assumption is violated.
 --
 -- Events are essential for many other Yampa constructs, like switches (see
--- @FRP.Yampa.Switches.switch@ for details).
+-- 'FRP.Yampa.Switches.switch' for details).
 --
 ----------------------------------------------------------------------------
 --
@@ -77,13 +79,6 @@
 -- Event-signals as partial functions on time, maybe it isn't so confusing:
 -- they just don't have a value between events, so 'NoEvent' does not really
 -- exist conceptually.
---
--- ToDo:
--- - Either: reveal NoEvent and Event
---   or:     introcuce 'event = Event', call what's now 'event' 'fromEvent',
---           and call what's now called 'fromEvent' something else, like
---           'unsafeFromEvent'??? Better, dump it! After all, using current
---           names, 'fromEvent = event undefined'!
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Event where
@@ -95,7 +90,6 @@ module FRP.Yampa.Event where
 
 import Control.Applicative
 import Control.DeepSeq (NFData(..))
-import Data.Functor
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Forceable

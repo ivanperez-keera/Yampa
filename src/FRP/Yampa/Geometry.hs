@@ -8,7 +8,7 @@
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
--- Basic geometrical abstractions.
+-- Basic geometric abstractions.
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Geometry (

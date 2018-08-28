@@ -10,16 +10,17 @@
 --
 -- Derived utility definitions.
 --
+
 -- ToDo:
 --
--- * Possibly add
+-- - Possibly add
 --       impulse :: VectorSpace a k => a -> Event a
 --   But to do that, we need access to Event, which we currently do not have.
 --
--- * The general arrow utilities should be moved to a module
+-- - The general arrow utilities should be moved to a module
 --   FRP.Yampa.Utilities.
 --
--- * I'm not sure structuring the Yampa \"core\" according to what is
+-- - I'm not sure structuring the Yampa \"core\" according to what is
 --   core functionality and what's not is all that useful. There are
 --   many cases where we want to implement combinators that fairly
 --   easily could be implemented in terms of others as primitives simply
@@ -28,7 +29,7 @@
 --   warrant doing this. E.g. 'switch' should be a primitive, even though
 --   it could be derived from 'pSwitch'.
 --
--- * Reconsider 'recur'. If an event source has an immediate occurrence,
+-- - Reconsider 'recur'. If an event source has an immediate occurrence,
 --   we'll get into a loop. For example: recur now. Maybe suppress
 --   initial occurrences? Initial occurrences are rather pointless in this
 --   case anyway.

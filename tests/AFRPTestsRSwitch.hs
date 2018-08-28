@@ -22,7 +22,6 @@ module AFRPTestsRSwitch (
 import Data.Maybe (fromJust)
 
 import FRP.Yampa
-import FRP.Yampa.Internals (Event(NoEvent, Event))
 
 import AFRPTestsCommon
 

@@ -163,6 +163,7 @@ module FRP.Yampa.InternalCore (
 
     -- ** Future Signal Function
     SF'(..),            -- Signal Function.
+    Transition,
     sfTF',
     sfId,
     sfConst,
@@ -170,8 +171,6 @@ module FRP.Yampa.InternalCore (
 
     -- *** Scanning
     sfSScan,
-
-    Transition,
 
     -- ** Function descriptions
     FunDesc(..),
@@ -232,8 +231,12 @@ type DTime = Double     -- [s]
 data SF a b = SF {sfTF :: a -> Transition a b}
 
 
--- Representation of signal function in "running" state.
+-- | Signal function in "running" state.
 --
+--   It can also be seen as a Future Signal Function, meaning,
+--   an SF that, given a time delta or a time in the future, it will
+--   be an SF.
+
 -- Possibly better design for Inv.
 --   Problem: tension between on the one hand making use of the
 --   invariant property, and on the other keeping track of how something
@@ -285,11 +288,12 @@ data SF' a b where
     --  SFPair :: ...
     SF' :: !(DTime -> a -> Transition a b) -> SF' a b
 
--- A transition is a pair of the next state (in the form of a signal
+-- | A transition is a pair of the next state (in the form of a future signal
 -- function) and the output at the present time step.
 
 type Transition a b = (SF' a b, b)
 
+-- | Obtain the function that defines a running SF.
 sfTF' :: SF' a b -> (DTime -> a -> Transition a b)
 sfTF' (SFArr tf _)       = tf
 sfTF' (SFSScan tf _ _ _) = tf
@@ -316,19 +320,20 @@ sfIsInv (SF' _ inv)           = inv
 -- "Smart" constructors. The corresponding "raw" constructors should not
 -- be used directly for construction.
 
+-- | Constructor for a lifted structured function.
 sfArr :: FunDesc a b -> SF' a b
 sfArr FDI         = sfId
 sfArr (FDC b)     = sfConst b
 sfArr (FDE f fne) = sfArrE f fne
 sfArr (FDG f)     = sfArrG f
 
-
+-- | SF constructor for the identity function.
 sfId :: SF' a a
 sfId = sf
     where
         sf = SFArr (\_ a -> (sf, a)) FDI
 
-
+-- | SF constructor for the constant function.
 sfConst :: b -> SF' a b
 sfConst b = sf
     where
@@ -344,11 +349,22 @@ sfArrE f fne = sf
         sf  = SFArr (\_ ea -> (sf, case ea of NoEvent -> fne ; _ -> f ea))
                     (FDE f fne)
 
+-- | SF constructor for a general function.
 sfArrG :: (a -> b) -> SF' a b
 sfArrG f = sf
     where
         sf = SFArr (\_ a -> (sf, f a)) (FDG f)
 
+
+-- | Versatile zero-order hold SF' with folding.
+--
+--   This function returns an SF that, if there is an input, runs it
+--   through the given function and returns part of its output and, if not,
+--   returns the last known output.
+--   
+--   The auxiliary function returns the value of the current output and
+--   the future held output, thus making it possible to have to distinct
+--   outputs for the present and the future.
 
 -- epPrim is used to define hold, accum, and other event-processing
 -- functions.
@@ -367,6 +383,16 @@ epPrim f c bne = SF {sfTF = tf0}
 -- extra cost for the more common and simple case of non-composed event
 -- processors.
 --
+
+-- | Constructor for a zero-order hold SF' with folding.
+--
+--   This function returns a running SF that, if there is an input, runs it
+--   through the given function and returns part of its output and, if not,
+--   returns the last known output.
+--   
+--   The auxiliary function returns the value of the current output and
+--   the future held output, thus making it possible to have to distinct
+--   outputs for the present and the future.
 sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
 sfEP f c bne = sf
     where
@@ -414,23 +440,31 @@ sfMkInv sf = SF {sfTF = ...}
 -- 2005-02-30: OK, for FDE, invarant is that the field of type b =
 -- f NoEvent.
 
+-- | Structured function definition.
+--
+--   This type represents functions with a bit more structure, providing
+--   specific constructors for the identity, constant and event-based
+--   functions, helping optimise arrow combinators for special cases.
 data FunDesc a b where
     FDI :: FunDesc a a                                  -- Identity function
     FDC :: b -> FunDesc a b                             -- Constant function
     FDE :: (Event a -> b) -> b -> FunDesc (Event a) b   -- Event-processing fun
     FDG :: (a -> b) -> FunDesc a b                      -- General function
 
+-- | Turns a function into a structured function.
 fdFun :: FunDesc a b -> (a -> b)
 fdFun FDI       = id
 fdFun (FDC b)   = const b
 fdFun (FDE f _) = f
 fdFun (FDG f)   = f
 
+-- | Composition for structured functions.
 fdComp :: FunDesc a b -> FunDesc b c -> FunDesc a c
 fdComp FDI           fd2     = fd2
 fdComp fd1           FDI     = fd1
 fdComp (FDC b)       fd2     = FDC ((fdFun fd2) b)
 fdComp _             (FDC c) = FDC c
+
 -- Hardly worth the effort?
 -- 2005-03-30: No, not only not worth the effort as the only thing saved
 -- would be an application of f2. Also wrong since current invariant does
@@ -449,7 +483,7 @@ fdComp (FDG f1) (FDE f2 f2ne) = FDG f
                   f1a     -> f2 f1a
 fdComp (FDG f1) fd2 = FDG (fdFun fd2 . f1)
 
-
+-- | Parallel application of structured functions.
 fdPar :: FunDesc a b -> FunDesc c d -> FunDesc (a,c) (b,d)
 fdPar FDI     FDI     = FDI
 fdPar FDI     (FDC d) = FDG (\(~(a, _)) -> (a, d))
@@ -459,7 +493,7 @@ fdPar (FDC b) (FDC d) = FDC (b, d)
 fdPar (FDC b) fd2     = FDG (\(~(_, c)) -> (b, (fdFun fd2) c))
 fdPar fd1     fd2     = FDG (\(~(a, c)) -> ((fdFun fd1) a, (fdFun fd2) c))
 
-
+-- | Parallel application with broadcasting for structured functions.
 fdFanOut :: FunDesc a b -> FunDesc a c -> FunDesc a (b,c)
 fdFanOut FDI     FDI     = FDG (\a -> (a, a))
 fdFanOut FDI     (FDC c) = FDG (\a -> (a, c))
@@ -490,31 +524,60 @@ vfyNoEv _       _  = usrErr "AFRP" "vfyNoEv" "Assertion failed: Functions on eve
 ------------------------------------------------------------------------------
 -- Arrow instance and implementation
 ------------------------------------------------------------------------------
+
 #if __GLASGOW_HASKELL__ >= 610
+-- | Composition and identity for SFs.
 instance Control.Category.Category SF where
      (.) = flip compPrim
      id = SF $ \x -> (sfId,x)
 #endif
 
+-- | Choice of which SF to run based on the value of a signal.
 instance ArrowChoice SF where
-    left sf = SF $ \a ->
-                     -- NOTE: there might be a problem with choice here.
-                     -- Do the delta times accumulate for the unused branch?
-                     -- Recommendation by Olivier Charles: take a look
-                     -- at Settable Signals paper, it discusses which
-                     -- option would be best.
-                     case a of
-                       Left x  -> let (sf', b') = sfTF sf x
-                                  in (futureArrowLeft sf', Left b')
-                       Right x -> let sf' = SF' $ \_ -> sfTF sf
-                                  in (futureArrowLeft sf', Right x)
-       where futureArrowLeft fSF = SF' $ \dt a ->
-                case a of
-                  Left x  -> let (sf', b') = sfTF' fSF dt x
-                             in (futureArrowLeft sf', Left b')
-                  Right x -> (futureArrowLeft fSF, Right x)
+  -- (+++) :: forall b c b' c' . SF b c -> SF d e -> SF (Either b d) (Either c e)
+  sfL +++ sfR = SF $ \a ->
+    case a of
+      Left b  -> let (sf', c) = sfTF sfL b
+                 in (chooseL sf' sfR, Left c)
+      Right d -> let (sf', e) = sfTF sfR d
+                 in (chooseR sfL sf', Right e)
+
+    where
+
+      -- (+++) for an initialized SF and an SF
+      --
+      -- chooseL :: SF' b c -> SF d e -> SF' (Either b d) (Either c e)
+      chooseL sfCL sfR = SF' $ \dt a ->
+        case a of
+          Left b  -> let (sf', c) = sfTF' sfCL dt b
+                     in (chooseL sf' sfR, Left c)
+          Right d -> let (sf', e) = sfTF sfR d
+                     in (choose sfCL sf', Right e)
+
+      -- (+++) for an SF and an initialized SF
+      --
+      -- chooseR :: SF b c -> SF' d e -> SF' (Either b d) (Either c e)
+      chooseR sfL sfCR = SF' $ \dt a ->
+        case a of
+          Left b  -> let (sf', c) = sfTF sfL b
+                     in (choose sf' sfCR, Left c)
+          Right d -> let (sf', e) = sfTF' sfCR dt d
+                     in (chooseR sfL sf', Right e)
+
+      -- (+++) for initialized SFs
+      --
+      -- choose :: SF' b c -> SF' d e -> SF' (Either b d) (Either c e)
+      choose sfCL sfCR = SF' $ \dt a ->
+        case a of
+          Left b  -> let (sf', c) = sfTF' sfCL dt b
+                     in (choose sf' sfCR, Left c)
+          Right d -> let (sf', e) = sfTF' sfCR dt d
+                     in (choose sfCL sf', Right e)
 
 
+
+-- | Signal Functions as Arrows. See "The Yampa Arcade", by Courtney, Nilsson
+--   and Peterson.
 instance Arrow SF where
     arr    = arrPrim
     first  = firstPrim
@@ -1485,9 +1548,9 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 
 -- * ArrowLoop instance and implementation
 
+-- | Creates a feedback loop without delay.
 instance ArrowLoop SF where
     loop = loopPrim
-
 
 loopPrim :: SF (a,c) (b,c) -> SF a b
 loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
@@ -1523,7 +1586,13 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
 -}
 
 -- * Scanning
+
+-- | Constructor for a zero-order hold with folding.
 --
+--   This function returns a running SF that takes an input, runs it through a
+--   function and, if there is an output, returns it, otherwise, returns the
+--   previous value. Additionally, an accumulator or folded value is kept
+--   internally.
 sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
 sfSScan f c b = sf
     where
