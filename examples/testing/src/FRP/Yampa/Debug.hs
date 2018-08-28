@@ -8,12 +8,12 @@ import System.IO.Unsafe
 
 traceSF :: Show a
         => SF a a
-traceSF = arr (\x -> trace x x)
+traceSF = traceSFWith show
 
 traceSFWith :: (a -> String)
             -> SF a a
-traceSFWith f = arr $ (\x -> trace (f x) x)
+traceSFWith f = arr (\x -> trace (f x) x)
 
 traceSFWithIO :: (a -> IO b)
               -> SF a a
-traceSFWithIO f = arr $ (\x -> (unsafePerformIO (f x)) x)
+traceSFWithIO f = arr (\x -> (unsafePerformIO (f x >> return x)))
