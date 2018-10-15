@@ -16,10 +16,10 @@ before_install:
   - travis_retry sudo apt-get install libcwiid-dev libsdl1.2-dev
 
 install:
-  - travis_retry cabal install -fexamples --only-dependencies --enable-tests
+  - travis_retry cabal install -fexamples --only-dependencies --enable-tests . examples/testing/
 
 script:
-  - travis_retry cabal install --run-tests -fexamples -v -j1
+  - travis_retry cabal install --run-tests -fexamples -v -j1 . examples/testing/
 branches:
     only:
           - master
