@@ -14,10 +14,11 @@
 -- Execution/simulation of signal functions.
 --
 -- SFs can be executed in two ways: by running them, feeding input samples one
--- by one, obtained from a monadic environment (presumably, |IO|), or by
+-- by one, obtained from a monadic environment (presumably, @IO@), or by
 -- passing an input stream and calculating an output stream. The former is
 -- called /reactimation/, and the latter is called /embedding/.
 --
+-- * Running:
 -- Normally, to run an SF, you would use 'reactimate', providing input samples,
 -- and consuming the output samples in the 'IO' monad. This function takes over
 -- the program, implementing a "main loop". If you want more control over the
@@ -25,11 +26,14 @@
 -- backend that also implements some main loop), you may want to use the
 -- lower-level API for reactimation ('ReactHandle', 'reactInit', 'react').
 --
+-- * Embedding:
 -- You can use 'embed' for testing, to evaluate SFs in a terminal, and to embed
 -- an SF inside a larger system. The helper functions 'deltaEncode' and
 -- 'deltaEncodeBy' facilitate producing input /signals/ from plain lists of
 -- input samples.
 --
+-- This module also includes debugging aids needed to execute signal functions
+-- step by step, which are used by Yampa's testing facilities.
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Simulation (
@@ -54,26 +58,16 @@ module FRP.Yampa.Simulation (
     -- * Embedding
     embed,              -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
     embedSynch,         -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
-
     deltaEncode,        -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
     deltaEncodeBy,      -- :: (a -> a -> Bool) -> DTime -> [a]
                         --    -> (a, [(DTime, Maybe a)])
-    -- ** Step by step simulation
-    
-    -- *** Alternative 1
 
-    evalStep,
-    evalFuture,
+    -- * Debugging / Step by step simulation
 
-    -- *** Alternative 2
-    SFN,
-    sfn,
-    sfnEval,
-
-    -- *** Alternative 3
     FutureSF,
     evalAtZero,
     evalAt,
+    evalFuture,
 
 
 ) where
@@ -83,7 +77,6 @@ import Data.IORef
 import Data.Maybe (fromMaybe)
 
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', DTime)
-import FRP.Yampa.InternalCore
 
 import FRP.Yampa.Diagnostics
 
@@ -342,56 +335,62 @@ deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
                              | otherwise     = Just a  : debAux a as
 
 
--- ** Step by step simulation
+-- * Debugging / Step by step simulation
 
--- *** Alternative 1
-
-evalStep :: SF a b -> a -> (b, DTime -> SF a b)
-evalStep (SF sf) a = (b, \dt -> SF (sfTF' sf' dt))
-  where (sf', b) = sf a
-
--- | Given a signal function and time delta, it moves the signal function into
---   the future, returning a new uninitialized SF and the initial output.
+-- | A wrapper around an initialized SF (continuation), needed for testing and
+-- debugging purposes.
 --
---   The reason why this is called evalFuture and not simply evalStep is that,
---   while the input sample refers to the present, the time delta refers to the
---   future (or to the time between the first sample and the next sample).
-evalFuture :: SF a b -> a -> DTime -> (b, SF a b)
-evalFuture sf a dt = (b, sf' dt)
-  where (b, sf') = evalStep sf a
-
--- *** Alternative 2
-
-newtype SFN a b = SFN { sfn :: a -> (b, DTime -> SFN a b) }
-
-sfnEval :: SF a b -> SFN a b
-sfnEval (SF { sfTF = tf }) = SFN $ \a -> let (tf', b) = tf a
-                                             sft'     = sfnEvalF tf'
-                                         in (b, sft')
-  where
-    sfnEvalF :: SF' a b -> DTime -> SFN a b
-    sfnEvalF tf dt = SFN $ \a -> let (tf', b) = (sfTF' tf) dt a
-                                 in  (b, sfnEvalF tf')
-
--- *** Alternative 3
-
--- | A wrapper around initialized SF continuations.
 newtype FutureSF a b = FutureSF { unsafeSF :: SF' a b }
 
+
 -- | Evaluate an SF, and return an output and an initialized SF.
+--
+--   /WARN/: Do not use this function for standard simulation. This function is
+--   intended only for debugging/testing. Apart from being potentially slower
+--   and consuming more memory, it also breaks the FRP abstraction by making
+--   samples discrete and step based.
 evalAtZero :: SF a b
            -> a                  -- ^ Input sample
            -> (b, FutureSF a b)  -- ^ Output x Continuation
 evalAtZero (SF { sfTF = tf }) a = (b, FutureSF tf' )
   where (tf', b) = tf a
 
+
 -- | Evaluate an initialized SF, and return an output and a continuation.
+--
+--   /WARN/: Do not use this function for standard simulation. This function is
+--   intended only for debugging/testing. Apart from being potentially slower
+--   and consuming more memory, it also breaks the FRP abstraction by making
+--   samples discrete and step based.
 evalAt :: FutureSF a b
        -> DTime -> a         -- ^ Input sample
        -> (b, FutureSF a b)  -- ^ Output x Continuation
 evalAt (FutureSF { unsafeSF = tf }) dt a = (b, FutureSF tf')
   where (tf', b) = (sfTF' tf) dt a
 
+
+-- | Given a signal function and time delta, it moves the signal function into
+--   the future, returning a new uninitialized SF and the initial output.
+--
+--   While the input sample refers to the present, the time delta refers to the
+--   future (or to the time between the current sample and the next sample).
+--
+--   /WARN/: Do not use this function for standard simulation. This function is
+--   intended only for debugging/testing. Apart from being potentially slower
+--   and consuming more memory, it also breaks the FRP abstraction by making
+--   samples discrete and step based.
+--
+evalFuture :: SF a b -> a -> DTime -> (b, SF a b)
+evalFuture sf a dt = (b, sf' dt)
+  where (b, sf') = evalStep sf a
+
+
+-- | Steps the signal function into the future one step. It returns the current
+-- output, and a signal function that expects, apart from an input, a time
+-- between samples.
+evalStep :: SF a b -> a -> (b, DTime -> SF a b)
+evalStep (SF sf) a = (b, \dt -> SF (sfTF' sf' dt))
+  where (sf', b) = sf a
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

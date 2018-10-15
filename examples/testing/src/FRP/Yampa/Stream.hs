@@ -1,7 +1,8 @@
 {-# LANGUAGE MultiWayIf #-}
 module FRP.Yampa.Stream where
 
-import FRP.Yampa
+import FRP.Yampa             (DTime, SF, FutureSF, evalAtZero, evalAt)
+import FRP.Yampa.Diagnostics (usrErr)
 
 -- * Types
 type SignalSampleStream a = (a, FutureSampleStream a)
@@ -115,3 +116,4 @@ evalFutureSF fsf ((dt, a):as) = (outputStrm, fsf'')
   where (b, fsf')   = evalAt fsf dt a
         (bs, fsf'') = evalFutureSF fsf' as
         outputStrm  = (dt, b) : bs
+

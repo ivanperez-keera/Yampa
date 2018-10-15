@@ -87,14 +87,14 @@ generateStreamWith :: Arbitrary a
 generateStreamWith arb DistConstant range  len     = generateConstantStream arb =<< generateStreamLenDT range len
 generateStreamWith arb DistRandom   (m, n) Nothing = do
   l <- arbitrary
-  x <- arb 0 0 
+  x <- arb 0 0
   ds <- vectorOfWith l (\_ -> generateDelta m n)
   let f n = arb n (ds!!(n-1))
   xs <- vectorOfWith l f
   return $ groupDeltas (x:xs) ds
 
 generateStreamWith arb DistRandom (m, n) (Just (Left l)) = do
-  x <- arb 0 0 
+  x <- arb 0 0
   ds <- vectorOfWith l (\_ -> generateDelta m n)
   let f n = arb n (ds!!(n-1))
   xs <- vectorOfWith l f
@@ -103,7 +103,7 @@ generateStreamWith arb DistRandom (m, n) (Just (Left l)) = do
 generateStreamWith arb DistRandom (m, n) (Just (Right maxds)) = do
   ds <- timeStampsUntilWith (generateDelta m n) maxds
   let l = length ds
-  x  <- arb 0 0 
+  x  <- arb 0 0
   let f n = arb n (ds!!(n-1))
   xs <- vectorOfWith l f
   return $ groupDeltas (x:xs) ds
@@ -160,7 +160,7 @@ generateStreamLenDT range len = do
 --     f2 l = (ds / fromIntegral l, l)
 
 -- ** Helpers for common cases
-    
+
 -- | Generate a stream of values with uniformly distributed time deltas.
 uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)
 uniDistStream = generateStream DistRandom (Nothing, Nothing) Nothing

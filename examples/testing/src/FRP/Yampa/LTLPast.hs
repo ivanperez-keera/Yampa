@@ -33,22 +33,6 @@ notSF = arr not
 impliesSF :: SF (Bool, Bool) Bool
 impliesSF = arr $ \(i,p) -> not i || p
 
--- data UnclearResult = Possibly Bool | Definitely Bool
--- 
--- causally :: SF a Bool -> SF a UnclearResult
--- causally = (>>> arr Definitely)
--- 
--- data TSF a = NonCausal (SF a UnclearResult)
---            | Causal    (SF a Bool)
--- 
--- evalTSF :: TSF a -> SignalSampleStream a -> Bool
--- evalTSF (Causal sf)    ss = firstSample $ fst $ evalSF sf ss
--- evalTSF (NonCausal sf) ss = clarifyResult $ lastSample $ fst $ evalSF sf ss
--- 
--- clarifyResult :: UnclearResult -> Bool
--- clarifyResult (Possibly x)   = x
--- clarifyResult (Definitely x) = x
-
 -- * SF combinators that implement temporal combinators
 
 type SPred a = SF a Bool
