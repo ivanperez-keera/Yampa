@@ -13,7 +13,11 @@
 -- tauApp, or next, might not work correctly. It's important to
 -- see what is going on there... :(
 
-module FRP.Yampa.LTLFuture where
+module FRP.Yampa.LTLFuture
+  ( TPred(..)
+  , evalT
+  )
+  where
 
 import FRP.Yampa
 import FRP.Yampa.Stream
@@ -40,28 +44,30 @@ evalT (And t1 t2)     = \stream -> evalT t1 stream && evalT t2 stream
 evalT (Or  t1 t2)     = \stream -> evalT t1 stream || evalT t2 stream
 evalT (Implies t1 t2) = \stream -> not (evalT t1 stream) || evalT t2 stream
 evalT (Always  t1)    = \stream -> evalT t1 stream && evalT (Next (Always t1)) stream
-evalT (Eventually t1) = \stream -> evalT t1 stream || evalT (Next (Eventually t1)) stream
+evalT (Eventually t1) = \stream -> case stream of
+                                     (a,[])          -> evalT t1 stream
+                                     (a1,(dt,a2):as) -> evalT t1 stream || evalT (tauApp (Eventually t1) a1 dt) (a2, as)
 evalT (Until t1 t2)   = \stream -> (evalT t1 stream && evalT (Next (Until t1 t2)) stream)
                                    || evalT t2 stream
 evalT (Next t1)       = \stream -> case stream of
                                     (a,[]) -> True   -- This is important. It determines how
-                                                     -- eventually, always and next behave at the
+                                                     -- always and next behave at the
                                                      -- end of the stream, which affects that is and isn't
                                                      -- a tautology. It should be reviewed very carefully.
                                     (a1,(dt, a2):as) -> evalT (tauApp t1 a1 dt) (a2, as)
-  where
-    -- | Tau-application (transportation to the future)
-    tauApp :: TPred a -> a -> DTime -> TPred a
-    tauApp pred sample dtime = tPredMap (\sf -> snd (evalFuture sf sample dtime)) pred
 
-    -- | Apply a transformation to the leaves (to the SFs)
-    tPredMap :: (SF a Bool -> SF a Bool) -> TPred a -> TPred a
-    tPredMap f (Prop sf)       = Prop (f sf)
-    tPredMap f (And t1 t2)     = And (tPredMap f t1) (tPredMap f t2)
-    tPredMap f (Or t1 t2)      = Or (tPredMap f t1) (tPredMap f t2)
-    tPredMap f (Not t1)        = Not (tPredMap f t1)
-    tPredMap f (Implies t1 t2) = Implies (tPredMap f t1) (tPredMap f t2)
-    tPredMap f (Always t1)     = Always (tPredMap f t1)
-    tPredMap f (Eventually t1) = Eventually (tPredMap f t1)
-    tPredMap f (Next t1)       = Next (tPredMap f t1)
-    tPredMap f (Until t1 t2)   = Until (tPredMap f t1) (tPredMap f t2)
+-- | Tau-application (transportation to the future)
+tauApp :: TPred a -> a -> DTime -> TPred a
+tauApp pred sample dtime = tPredMap (\sf -> snd (evalFuture sf sample dtime)) pred
+
+-- | Apply a transformation to the leaves (to the SFs)
+tPredMap :: (SF a Bool -> SF a Bool) -> TPred a -> TPred a
+tPredMap f (Prop sf)       = Prop (f sf)
+tPredMap f (And t1 t2)     = And (tPredMap f t1) (tPredMap f t2)
+tPredMap f (Or t1 t2)      = Or (tPredMap f t1) (tPredMap f t2)
+tPredMap f (Not t1)        = Not (tPredMap f t1)
+tPredMap f (Implies t1 t2) = Implies (tPredMap f t1) (tPredMap f t2)
+tPredMap f (Always t1)     = Always (tPredMap f t1)
+tPredMap f (Eventually t1) = Eventually (tPredMap f t1)
+tPredMap f (Next t1)       = Next (tPredMap f t1)
+tPredMap f (Until t1 t2)   = Until (tPredMap f t1) (tPredMap f t2)
