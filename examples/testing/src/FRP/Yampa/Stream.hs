@@ -2,7 +2,6 @@
 module FRP.Yampa.Stream where
 
 import FRP.Yampa             (DTime, SF, FutureSF, evalAtZero, evalAt)
-import FRP.Yampa.Diagnostics (usrErr)
 
 -- * Types
 type SignalSampleStream a = (a, FutureSampleStream a)
@@ -16,6 +15,7 @@ type FutureSampleStream a = [(DTime, a)]
 --   dropped.
 groupDeltas :: [a] -> [DTime] -> SignalSampleStream a
 groupDeltas (x:xs) ds = (x, zip ds xs)
+groupDeltas xs     ds = error $ "groupDeltas: called me with lists with lengths" ++ show (length xs) ++ " and " ++ show (length ds)
 
 -- * Obtain samples
 

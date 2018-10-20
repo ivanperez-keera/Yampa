@@ -14,6 +14,7 @@ module FRP.Yampa.QuickCheck where
 -- - The function uniDistStreamMaxDT had the wrong type and the name on the
 --   paper was: uniDistStream. This has been fixed.
 
+import Control.Applicative ((<$>), pure)
 import Data.Random.Normal
 import FRP.Yampa
 import FRP.Yampa.Stream
@@ -45,7 +46,7 @@ generateDelta :: Maybe DTime -> Maybe DTime -> Gen DTime
 generateDelta (Just x)  (Just y)  = choose (x, y)
 generateDelta (Just x)  (Nothing) = (x+) <$> arbitrary
 generateDelta (Nothing) (Just y)  = choose (2.2251e-308, y)
-generateDelta (Nothing) (Nothing) = arbitrary
+generateDelta (Nothing) (Nothing) = getPositive <$> arbitrary
 
 -- | Generate a random delta following a normal distribution,
 --   and possibly within a given range.
@@ -143,9 +144,9 @@ generateStreamLenDT :: (Maybe DTime, Maybe DTime) -> Maybe (Either Int DTime) ->
 generateStreamLenDT range len = do
   x <- uncurry generateDelta range
   l <- case len of
-         Nothing         -> arbitrary
+         Nothing         -> ((1 +) . getPositive) <$> arbitrary
          Just (Left l)   -> pure l
-         Just (Right ds) -> pure (floor (ds / x))
+         Just (Right ds) -> (max 1) <$> (pure (floor (ds / x)))
   return (x, l)
 
 -- generateStreamLenDT (Just x,  Just y)  (Just (Left l))   = (,) <$> choose (x, y)        <*> pure l
