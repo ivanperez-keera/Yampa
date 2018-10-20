@@ -1,39 +1,61 @@
-{-# LANGUAGE Arrows     #-}
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE Arrows              #-}
+{-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
-module FRP.Yampa.QuickCheck where
-
--- Examples accompanying the ICFP 2017 paper.
+-- | QuickCheck generators for input streams.
 --
--- Changes with respect to the paper:
+-- Random stream generation can be customized usin three parameters:
 --
--- - The signature of ballTrulyFalling' in the paper was SF () Double. It's
---   been changed to the intended meaning: TPred ()
+-- - The distribution for the random time deltas ('Distribution').
+-- - The maximum and minimum bounds for the time deltas ('Range').
+-- - The maximum stream length ('Length').
+--
+-- The main function to generate streams is 'generateStream'. The specific
+-- time deltas can be customized further using 'generateStreamWith'. Some
+-- helper functions are provided to facilitate testing.
 
--- - The function uniDistStreamMaxDT had the wrong type and the name on the
---   paper was: uniDistStream. This has been fixed.
+-- The function uniDistStreamMaxDT had the wrong type and the name on the
+-- paper was: uniDistStream. This has been fixed.
+
+module FRP.Yampa.QuickCheck
+  (
+    -- * Random stream generation
+    generateStream
+  , generateStreamWith
+
+    -- ** Parameters used to generate random input streams
+  , Distribution(..)
+  , Range
+  , Length
+
+    -- ** Helpers for common cases
+  , uniDistStream
+  , uniDistStreamMaxDT
+  , fixedDelayStream
+  , fixedDelayStreamWith
+  )
+  where
 
 import Control.Applicative ((<$>), pure)
 import Data.Random.Normal
 import FRP.Yampa
-import FRP.Yampa.Stream
 import Test.QuickCheck
 import Test.QuickCheck.Gen
 
--- * Random stream generation
+import FRP.Yampa.Stream
 
--- ** Parameters used to generate random input streams
+-- | Distributions used for time delta (DT) generation.
+data Distribution = DistConstant                -- ^ Constant DT for the whole stream.
+                  | DistNormal (DTime, DTime)   -- ^ Variable DT following normal distribution,
+                                                --   with an average and a standard deviation.
+                  | DistRandom                  -- ^ Completely random (positive) DT.
 
-data Distribution = DistConstant
-                  | DistNormal (DTime, DTime)
-                  | DistRandom
-
+-- | Upper and lower bounds of time deltas for random DT generation.
 type Range = (Maybe DTime, Maybe DTime)
 
+-- | Optional maximum length for a stream, given as a time, or a number of
+-- samples.
 type Length = Maybe (Either Int DTime)
 
--- ** Time delta generation
 
 -- | Generate a random delta according to some required specifications.
 generateDeltas :: Distribution -> Range -> Length -> Gen DTime
@@ -74,8 +96,6 @@ timeStampsUntilWith arb ds = timeStampsUntilWith' arb [] ds
       | otherwise = do d <- arb
                        let acc' = acc `seq` (d:acc)
                        acc' `seq` timeStampsUntilWith' arb acc' (ds - d)
-
--- ** Random stream generation
 
 -- | Generate random stream.
 generateStream :: Arbitrary a
@@ -160,7 +180,6 @@ generateStreamLenDT range len = do
 --   where
 --     f2 l = (ds / fromIntegral l, l)
 
--- ** Helpers for common cases
 
 -- | Generate a stream of values with uniformly distributed time deltas.
 uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)
