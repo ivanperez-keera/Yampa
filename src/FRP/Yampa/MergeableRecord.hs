@@ -49,14 +49,17 @@
 -- @
 -----------------------------------------------------------------------------------------
 
-module FRP.Yampa.MergeableRecord (
+module FRP.Yampa.MergeableRecord
+ {-# DEPRECATED "No longer supported." #-}
+ (
     MergeableRecord(..),
     MR,                 -- Abstract
     mrMake,
     (~+~),
     mrMerge,
     mrFinalize
-) where
+ )
+ where
 
 -- | Superclass providing operations on records. Record operations can be
 -- merged (composed). To obtain a record from a sequence of merging operations
