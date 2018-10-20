@@ -17,11 +17,6 @@ extra-source-files:  ChangeLog.md
 
 cabal-version:       >=1.10
 
--- You can disable the quickcheck regression test suite with -f-test-quickcheck
-flag test-quickcheck
-  default: True
-  manual: True
-
 library
   exposed-modules:     FRP.Yampa.Debug
                        FRP.Yampa.LTLFuture
@@ -35,18 +30,14 @@ library
 test-suite yampa-quicheck
   type:        detailed-0.9
   test-module: YampaQC
-  ghc-options : -Wall
+  ghc-options: -Wall
 
   hs-source-dirs:   tests
-
-  if !flag(test-quickcheck)
-    buildable: False
-  else
-    build-depends:
-      base < 5,
-      random,
-      Cabal >= 1.19,
-      QuickCheck,
-      Yampa,
-      yampa-testing,
-      cabal-test-quickcheck
+  build-depends:
+    base < 5,
+    random,
+    Cabal >= 1.19,
+    QuickCheck,
+    Yampa,
+    yampa-testing,
+    cabal-test-quickcheck
