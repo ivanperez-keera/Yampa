@@ -54,5 +54,5 @@ test-suite yampa-quicheck
     Cabal >= 1.19,
     QuickCheck,
     Yampa,
-    yampa-testing,
+    yampa-test,
     cabal-test-quickcheck
