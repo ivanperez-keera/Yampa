@@ -72,6 +72,17 @@ want. Existing backends include:
 * WX (see wxHaskell)
 * HTML Canvas
 
+## Testing
+
+Yampa comes with a sophisticated testing library that allows you to use
+QuickCheck to test your games, and use a time-travel debugger. These features
+are described in the paper [Testing and Debugging Functional Reactive
+Programming](http://dl.acm.org/authorize?N46564).
+
+You can find the additional projects at:
+* [yampa-test](https://github.com/ivanperez-keera/Yampa/tree/develop/extensions/testing)
+* [Haskell Titan](https://github.com/keera-studios/haskell-titan)
+
 ## Documentation and tutorials
 
 The distribution of Yampa comes with substantial haddock documentation, which you can
