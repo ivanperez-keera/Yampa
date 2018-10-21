@@ -1,4 +1,5 @@
 2018-10-21 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.12).
         * README.md: Documents testing.
         * src/: Introduces FutureSF, needed for testing.
         * extensions/test/: Introduces testing library.
