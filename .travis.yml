@@ -8,7 +8,7 @@ ghc:
   - "7.8.4"
   - "7.10.3"
   - "8.0.2"
-  - "8.2.1"
+  - "8.2.2"
   - "8.4.1"
 
 before_install:
@@ -16,10 +16,14 @@ before_install:
   - travis_retry sudo apt-get install libcwiid-dev libsdl1.2-dev
 
 install:
-  - travis_retry cabal install -fexamples --only-dependencies --enable-tests
+  - travis_retry cabal install --enable-tests -fexamples --only-dependencies . extensions/testing/
 
 script:
-  - travis_retry cabal install --run-tests -fexamples -v -j1
+  - travis_retry cabal install --enable-tests -fexamples -j1 . extensions/testing/
+
+after_script:
+  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.1" ]; then cabal install --run-tests -j1 . extensions/testing/; fi
+
 branches:
     only:
           - master

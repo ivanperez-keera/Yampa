@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsCommon.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- 
 ******************************************************************************
 *                                  A F R P                                   *
 *                                                                            *
@@ -160,6 +160,8 @@ testSFSpaceLeak n sf = unsafePerformIO $ do
 ------------------------------------------------------------------------------
 -- Some utilities used for testing laws
 ------------------------------------------------------------------------------
+
+fun_prod f g = \(x,y) -> (f x, g y)
 
 assoc :: ((a,b),c) -> (a,(b,c))
 assoc ((a,b),c) = (a,(b,c))

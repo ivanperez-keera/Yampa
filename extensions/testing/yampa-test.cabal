@@ -1,0 +1,58 @@
+name:                yampa-test
+version:             0.1.0.0
+synopsis:            Testing library for Yampa.
+description:
+  Testing library for Yampa.
+  .
+  This library contains several testing and debugging facilities for Yampa.
+  In particular, it contains:
+  .
+  * Debugging signal functions using "Debug.Trace".
+  * A definition of Temporal Predicates based on LTL.
+  * Monitoring signal functions with ptLTL using Signal Predicates.
+  * A definition of Streams, and a Stream manipulation API.
+  * Signal/stream generators for QuickCheck.
+  .
+  A detailed explanation of these ideas is included in the ICFP 2017 paper
+  <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
+
+homepage:            http://github.com/ivanperez-keera/Yampa
+license:             BSD3
+license-file:        LICENSE
+author:              Ivan Perez
+maintainer:          ivan.perez@keera.co.uk
+-- copyright:
+category:            Testing
+build-type:          Simple
+extra-source-files:  CHANGELOG
+
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     FRP.Yampa.Debug
+                       FRP.Yampa.LTLFuture
+                       FRP.Yampa.LTLPast
+                       FRP.Yampa.Stream
+                       FRP.Yampa.QuickCheck
+  build-depends:       base >=4 && <5,
+                       Yampa >= 0.12,
+                       QuickCheck,
+                       normaldistribution
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+
+test-suite yampa-quicheck
+  type:        detailed-0.9
+  test-module: YampaQC
+  ghc-options: -Wall
+  default-language:    Haskell2010
+
+  hs-source-dirs:   tests
+  build-depends:
+    base < 5,
+    random,
+    Cabal >= 1.19,
+    QuickCheck,
+    Yampa,
+    yampa-test,
+    cabal-test-quickcheck
