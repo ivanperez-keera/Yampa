@@ -24,7 +24,7 @@ maintainer:          ivan.perez@keera.co.uk
 -- copyright:
 category:            Testing
 build-type:          Simple
-extra-source-files:  ChangeLog.md
+extra-source-files:  CHANGELOG
 
 cabal-version:       >=1.10
 
