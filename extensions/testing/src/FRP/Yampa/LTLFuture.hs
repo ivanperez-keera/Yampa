@@ -42,6 +42,7 @@ evalT :: TPred a -> SignalSampleStream a -> Bool
 evalT (Prop sf)       = \stream -> firstSample $ fst $ evalSF sf stream
 evalT (And t1 t2)     = \stream -> evalT t1 stream && evalT t2 stream
 evalT (Or  t1 t2)     = \stream -> evalT t1 stream || evalT t2 stream
+evalT (Not t1)        = \stream -> not (evalT t1 stream)
 evalT (Implies t1 t2) = \stream -> not (evalT t1 stream) || evalT t2 stream
 evalT (Always  t1)    = \stream -> evalT t1 stream && evalT (Next (Always t1)) stream
 evalT (Eventually t1) = \stream -> case stream of
