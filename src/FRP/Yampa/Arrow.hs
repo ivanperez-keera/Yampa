@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE FlexibleInstances #-}
 -----------------------------------------------------------------------------------------
 -- |
@@ -25,7 +26,9 @@ module FRP.Yampa.Arrow (
 ) where
 
 import Control.Arrow
-import Control.Applicative
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative (Applicative(..))
+#endif
 
 -- * Arrow plumbing aids
 
