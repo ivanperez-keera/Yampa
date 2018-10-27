@@ -361,7 +361,7 @@ sfArrG f = sf
 --   This function returns an SF that, if there is an input, runs it
 --   through the given function and returns part of its output and, if not,
 --   returns the last known output.
---   
+--
 --   The auxiliary function returns the value of the current output and
 --   the future held output, thus making it possible to have to distinct
 --   outputs for the present and the future.
@@ -389,7 +389,7 @@ epPrim f c bne = SF {sfTF = tf0}
 --   This function returns a running SF that, if there is an input, runs it
 --   through the given function and returns part of its output and, if not,
 --   returns the last known output.
---   
+--
 --   The auxiliary function returns the value of the current output and
 --   the future held output, thus making it possible to have to distinct
 --   outputs for the present and the future.
@@ -589,6 +589,17 @@ instance Arrow SF where
 #else
     (>>>)  = compPrim
 #endif
+
+-- | Functor instance for applied SFs.
+instance Functor (SF a) where
+  fmap f = (>>> arr f)
+
+-- | Applicative Functor instance (allows classic-frp style signals and
+-- composition using applicative style).
+instance Applicative (SF a) where
+  pure x = arr (const x)
+  f <*>  x  = (f &&& x) >>> arr (uncurry ($))
+
 
 -- * Lifting.
 
