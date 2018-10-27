@@ -427,7 +427,6 @@ module FRP.Yampa (
 
     -- * Auxiliary definitions
     --   Reverse function composition and arrow plumbing aids
-    ( # ),                -- :: (a -> b) -> (b -> c) -> (a -> c),    infixl 9
     dup,                  -- :: a -> (a,a)
 
 ) where
@@ -443,7 +442,7 @@ import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
 import FRP.Yampa.Integration
 import FRP.Yampa.Loop
-import FRP.Yampa.Miscellany (( # ), dup)
+import FRP.Yampa.Miscellany (dup)
 import FRP.Yampa.Random
 import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
