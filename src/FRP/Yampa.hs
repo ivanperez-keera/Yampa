@@ -109,8 +109,6 @@
 --
 -- * "FRP.Yampa.Internals"  -- No longer in use
 --
--- * "FRP.Yampa.MergeableRecord"
---
 -- * "FRP.Yampa.Miscellany"
 --
 -- * "FRP.Yampa.Utilities"

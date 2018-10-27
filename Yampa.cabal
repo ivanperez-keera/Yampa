@@ -98,7 +98,6 @@ library
     FRP.Yampa.VectorSpace
 
     -- Auxiliary definitions
-    FRP.Yampa.MergeableRecord
     FRP.Yampa.Miscellany
     FRP.Yampa.Utilities
     FRP.Yampa.Basic
