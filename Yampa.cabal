@@ -98,7 +98,6 @@ library
 
     -- Auxiliary definitions
     FRP.Yampa.Miscellany
-    FRP.Yampa.Utilities
     FRP.Yampa.Basic
     FRP.Yampa.Conditional
     FRP.Yampa.Delays
