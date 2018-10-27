@@ -103,9 +103,10 @@
 --
 -- * "FRP.Yampa.Vector3"
 --
--- Old legacy code:
+-- Other extensions:
 --
--- * "FRP.Yampa.Miscellany"
+-- * "FRP.Yampa.Arrow" -- Arrow-generic functions
+--
 --
 -- This will be the last version of Yampa to include point2
 -- and point3, vector2 and vector3, and other auxiliary definitions. The
@@ -438,7 +439,7 @@ import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
 import FRP.Yampa.Integration
 import FRP.Yampa.Loop
-import FRP.Yampa.Miscellany (dup)
+import FRP.Yampa.Arrow (dup)
 import FRP.Yampa.Random
 import FRP.Yampa.Scan
 import FRP.Yampa.Simulation

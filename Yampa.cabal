@@ -97,7 +97,7 @@ library
     FRP.Yampa.VectorSpace
 
     -- Auxiliary definitions
-    FRP.Yampa.Miscellany
+    FRP.Yampa.Arrow
     FRP.Yampa.Basic
     FRP.Yampa.Conditional
     FRP.Yampa.Delays
