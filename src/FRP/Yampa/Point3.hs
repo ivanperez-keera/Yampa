@@ -21,10 +21,11 @@ module FRP.Yampa.Point3 (
     point3Z     -- :: RealFloat a => Point3 a -> a
 ) where
 
+import Control.DeepSeq (NFData(..))
+
 import FRP.Yampa.VectorSpace ()
 import FRP.Yampa.AffineSpace
 import FRP.Yampa.Vector3
-import FRP.Yampa.Forceable
 
 -- * 3D point, constructors and selectors
 
@@ -34,6 +35,9 @@ data Point3 a = RealFloat a => Point3 !a !a !a
 deriving instance Eq a => Eq (Point3 a)
 
 deriving instance Show a => Show (Point3 a)
+
+instance NFData a => NFData (Point3 a) where
+  rnf (Point3 x y z) = rnf x `seq` rnf y `seq` rnf z `seq` ()
 
 -- | X coodinate of a 3D point.
 point3X :: RealFloat a => Point3 a -> a
@@ -60,8 +64,3 @@ instance RealFloat a => AffineSpace (Point3 a) (Vector3 a) a where
 
     (Point3 x1 y1 z1) .-. (Point3 x2 y2 z2) =
         vector3 (x1 - x2) (y1 - y2) (z1 - z2)
-
--- * Forceable instance
-
-instance RealFloat a => Forceable (Point3 a) where
-     force = id

@@ -27,8 +27,9 @@ module FRP.Yampa.Vector2 (
     vector2Rotate       -- :: RealFloat a => a -> Vector2 a -> Vector2 a
 ) where
 
+import Control.DeepSeq (NFData(..))
+
 import FRP.Yampa.VectorSpace
-import FRP.Yampa.Forceable
 
 -- * 2D vector, constructors and selectors
 
@@ -44,6 +45,9 @@ data Vector2 a = RealFloat a => Vector2 !a !a
 deriving instance Eq a => Eq (Vector2 a)
 
 deriving instance Show a => Show (Vector2 a)
+
+instance NFData a => NFData (Vector2 a) where
+  rnf (Vector2 x y) = rnf x `seq` rnf y `seq` ()
 
 -- | Creates a 2D vector from the cartesian coordinates.
 vector2 :: RealFloat a => a -> a -> Vector2 a
@@ -100,9 +104,3 @@ instance RealFloat a => VectorSpace (Vector2 a) a where
 -- | Rotates a vector with a given angle.
 vector2Rotate :: RealFloat a => a -> Vector2 a -> Vector2 a
 vector2Rotate theta' v = vector2Polar (vector2Rho v) (vector2Theta v + theta')
-
-
--- * Forceable instance
-
-instance RealFloat a => Forceable (Vector2 a) where
-     force = id
