@@ -82,7 +82,6 @@ library
     -- Main FRP modules
     FRP.Yampa
     FRP.Yampa.Event
-    FRP.Yampa.Internals
     FRP.Yampa.Task
 
     -- FRP Core (minimal complete definition)
