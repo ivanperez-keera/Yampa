@@ -80,8 +80,7 @@ getSources = filter isHaskellFile <$> go "src"
                      && not (any (`isSuffixOf` fp) excludedFiles)
 
     excludedFiles = [ "Vector2.hs", "Vector3.hs"
-                    , "Point2.hs", "Point3.hs"
-                    , "MergeableRecord.hs" ]
+                    , "Point2.hs", "Point3.hs" ]
 
 getFilesAndDirectories :: FilePath -> IO ([FilePath], [FilePath])
 getFilesAndDirectories dir = do

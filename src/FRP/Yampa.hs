@@ -107,9 +107,7 @@
 --
 -- * "FRP.Yampa.Miscellany"
 --
--- * "FRP.Yampa.Utilities"
---
--- This will be the last version of Yampa to include mergeable records, point2
+-- This will be the last version of Yampa to include point2
 -- and point3, vector2 and vector3, and other auxiliary definitions. The
 -- internals have now changed. Also, please let us know if you see any problems
 -- with the new project structure.
