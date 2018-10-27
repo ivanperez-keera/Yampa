@@ -105,8 +105,6 @@
 --
 -- Old legacy code:
 --
--- * "FRP.Yampa.Diagnostics"
---
 -- * "FRP.Yampa.Miscellany"
 --
 -- * "FRP.Yampa.Utilities"
