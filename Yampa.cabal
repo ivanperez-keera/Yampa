@@ -102,7 +102,6 @@ library
     FRP.Yampa.Basic
     FRP.Yampa.Conditional
     FRP.Yampa.Delays
-    FRP.Yampa.Diagnostics
     FRP.Yampa.EventS
     FRP.Yampa.Hybrid
     FRP.Yampa.Integration
@@ -112,6 +111,9 @@ library
     FRP.Yampa.Simulation
     FRP.Yampa.Switches
     FRP.Yampa.Time
+
+  other-modules:
+    FRP.Yampa.Diagnostics
 
   if flag(expose-core)
     exposed-modules:
