@@ -29,11 +29,11 @@ module FRP.Yampa.Vector3 (
     vector3Rotate       -- :: RealFloat a => a -> a -> Vector3 a -> Vector3 a
 ) where
 
+import Control.DeepSeq (NFData(..))
+
 import FRP.Yampa.VectorSpace
-import FRP.Yampa.Forceable
 
 -- * 3D vector, constructors and selectors
-
 
 -- | 3D Vector.
 
@@ -47,6 +47,9 @@ data Vector3 a = RealFloat a => Vector3 !a !a !a
 deriving instance Eq a => Eq (Vector3 a)
 
 deriving instance Show a => Show (Vector3 a)
+
+instance NFData a => NFData (Vector3 a) where
+  rnf (Vector3 x y z) = rnf x `seq` rnf y `seq` rnf z `seq` ()
 
 -- | Creates a 3D vector from the cartesian coordinates.
 vector3 :: RealFloat a => a -> a -> a -> Vector3 a
@@ -120,8 +123,3 @@ vector3Rotate theta' phi' v =
     vector3Spherical (vector3Rho v)
                      (vector3Theta v + theta')
                      (vector3Phi v + phi')
-
--- * Forceable instance
-
-instance RealFloat a => Forceable (Vector3 a) where
-     force = id

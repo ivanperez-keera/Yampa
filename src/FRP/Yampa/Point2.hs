@@ -20,10 +20,11 @@ module FRP.Yampa.Point2 (
     point2Y     -- :: RealFloat a => Point2 a -> a
 ) where
 
+import Control.DeepSeq (NFData(..))
+
 import FRP.Yampa.VectorSpace ()
 import FRP.Yampa.AffineSpace
 import FRP.Yampa.Vector2
-import FRP.Yampa.Forceable
 
 -- * 2D point, constructors and selectors
 
@@ -33,6 +34,9 @@ data Point2 a = RealFloat a => Point2 !a !a
 deriving instance Eq a => Eq (Point2 a)
 
 deriving instance Show a => Show (Point2 a)
+
+instance NFData a => NFData (Point2 a) where
+  rnf (Point2 x y) = rnf x `seq` rnf y `seq` ()
 
 -- | X coordinate of a 2D point.
 point2X :: RealFloat a => Point2 a -> a
@@ -52,8 +56,3 @@ instance RealFloat a => AffineSpace (Point2 a) (Vector2 a) a where
     (Point2 x y) .-^ v = Point2 (x - vector2X v) (y - vector2Y v)
 
     (Point2 x1 y1) .-. (Point2 x2 y2) = vector2 (x1 - x2) (y1 - y2)
-
--- * Forceable instance
-
-instance RealFloat a => Forceable (Point2 a) where
-     force = id
