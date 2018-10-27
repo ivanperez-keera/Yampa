@@ -57,11 +57,11 @@ import Control.Arrow
 
 import FRP.Yampa.InternalCore (SF(..), sfConst, Time, SF'(..))
 
+import FRP.Yampa.Arrow
 import FRP.Yampa.Basic
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
 import FRP.Yampa.Hybrid
-import FRP.Yampa.Miscellany
 import FRP.Yampa.Scan
 import FRP.Yampa.Switches
 

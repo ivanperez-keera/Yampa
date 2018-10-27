@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 -----------------------------------------------------------------------------------------
 -- |
--- Module      :  FRP.Yampa.Miscellany
+-- Module      :  FRP.Yampa.Arrow
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)
 --
@@ -13,7 +13,7 @@
 --
 -----------------------------------------------------------------------------------------
 
-module FRP.Yampa.Miscellany (
+module FRP.Yampa.Arrow (
     -- * Arrow plumbing aids
     dup,        -- :: a -> (a,a)
 
