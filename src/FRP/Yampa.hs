@@ -107,8 +107,6 @@
 --
 -- * "FRP.Yampa.Diagnostics"
 --
--- * "FRP.Yampa.Internals"  -- No longer in use
---
 -- * "FRP.Yampa.Miscellany"
 --
 -- * "FRP.Yampa.Utilities"
