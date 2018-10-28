@@ -27,8 +27,9 @@ after_script:
 branches:
     only:
           - master
-          - develop
-          - /^release-.*$/
+          - /^develop.*$/
+          - /^hotfix.*$/
+          - /^release.*$/
 
 deploy:
   provider: hackage
