@@ -83,31 +83,12 @@
 --
 -- * "FRP.Yampa.InternalCore" -- Module not exposed.
 --
--- Geometry:
---
--- * "FRP.Yampa.Geometry"
---
--- * "FRP.Yampa.AffineSpace"
---
--- * "FRP.Yampa.VectorSpace"
---
--- * "FRP.Yampa.Point2"
---
--- * "FRP.Yampa.Point3"
---
--- * "FRP.Yampa.Vector2"
---
--- * "FRP.Yampa.Vector3"
---
 -- Other extensions:
 --
 -- * "FRP.Yampa.Arrow" -- Arrow-generic functions
 --
 --
--- This will be the last version of Yampa to include point2
--- and point3, vector2 and vector3, and other auxiliary definitions. The
--- internals have now changed. Also, please let us know if you see any problems
--- with the new project structure.
+-- Please let us know if you see any problems with the new project structure.
 
 -- ToDo:
 --
@@ -196,7 +177,7 @@
 module FRP.Yampa (
     -- Re-exported module, classes, and types
     module Control.Arrow,
-    module FRP.Yampa.VectorSpace,
+    module Data.VectorSpace,
     RandomGen(..),
     Random(..),
 
@@ -441,7 +422,8 @@ import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
 import FRP.Yampa.Switches
 import FRP.Yampa.Time
-import FRP.Yampa.VectorSpace
+import Data.VectorSpace
+-- import FRP.Yampa.VectorSpace
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

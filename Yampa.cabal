@@ -77,24 +77,14 @@ flag expose-core
 library
   hs-source-dirs:  src
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
-  build-Depends: base < 5, random, deepseq
+  build-Depends: base < 6, random, deepseq, simple-affine-space
   exposed-modules:
     -- Main FRP modules
     FRP.Yampa
     FRP.Yampa.Event
     FRP.Yampa.Task
 
-    -- Auxiliary (commonly used) types
-    FRP.Yampa.AffineSpace
-    FRP.Yampa.Geometry
-    FRP.Yampa.Point2
-    FRP.Yampa.Point3
-    FRP.Yampa.Vector2
-    FRP.Yampa.Vector3
-    FRP.Yampa.VectorSpace
-
     -- Auxiliary definitions
-    FRP.Yampa.Arrow
     FRP.Yampa.Basic
     FRP.Yampa.Conditional
     FRP.Yampa.Delays
@@ -108,7 +98,11 @@ library
     FRP.Yampa.Switches
     FRP.Yampa.Time
 
+    -- FRP-agnostic auxiliary definitions
+    FRP.Yampa.Arrow
+
   other-modules:
+    -- Auxiliary (commonly used) types
     FRP.Yampa.Diagnostics
 
   if flag(expose-core)

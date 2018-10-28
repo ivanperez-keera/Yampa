@@ -16,13 +16,14 @@ before_install:
   - travis_retry sudo apt-get install libcwiid-dev libsdl1.2-dev
 
 install:
-  - travis_retry cabal install --enable-tests -fexamples --only-dependencies . extensions/testing/
+  - travis_retry git clone https://github.com/ivanperez-keera/simple-affine-space
+  - travis_retry cabal install --enable-tests -fexamples --only-dependencies . extensions/testing/ simple-affine-space/
 
 script:
-  - travis_retry cabal install --enable-tests -fexamples -j1 . extensions/testing/
+  - travis_retry cabal install --enable-tests -fexamples -j1 . extensions/testing/ simple-affine-space/
 
 after_script:
-  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.4" ]; then cabal install --run-tests -j1 . extensions/testing/; fi
+  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.4" ]; then cabal install --run-tests -j1 . extensions/testing/ simple-affine-space/; fi
 
 branches:
     only:

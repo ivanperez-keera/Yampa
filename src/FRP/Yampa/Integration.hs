@@ -35,10 +35,11 @@ module FRP.Yampa.Integration (
 ) where
 
 import Control.Arrow
+import Data.VectorSpace
+
 import FRP.Yampa.Event
 import FRP.Yampa.Hybrid
 import FRP.Yampa.InternalCore (SF(..), SF'(..), DTime)
-import FRP.Yampa.VectorSpace
 
 ------------------------------------------------------------------------------
 -- Integration and differentiation
