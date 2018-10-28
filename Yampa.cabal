@@ -84,9 +84,6 @@ library
     FRP.Yampa.Event
     FRP.Yampa.Task
 
-    -- FRP Core (minimal complete definition)
-    FRP.Yampa.Core
-
     -- Auxiliary (commonly used) types
     FRP.Yampa.AffineSpace
     FRP.Yampa.Geometry

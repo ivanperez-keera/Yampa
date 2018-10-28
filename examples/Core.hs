@@ -15,7 +15,7 @@
 -- - This does not include parallel switching combinators (see
 -- 'FRP.Yampa.Switches').
 --
-module FRP.Yampa.Core
+module Core
     (
     -- * Signal function
       SF
