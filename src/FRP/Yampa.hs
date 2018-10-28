@@ -175,11 +175,6 @@
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa (
-    -- Re-exported module, classes, and types
-    module Control.Arrow,
-    module Data.VectorSpace,
-    RandomGen(..),
-    Random(..),
 
     -- * Basic definitions
     Time,       -- [s] Both for time w.r.t. some reference and intervals.
@@ -369,6 +364,9 @@ module FRP.Yampa (
                           --             (b,b) -> g -> SF a b
     occasionally,         -- :: RandomGen g => g -> Time -> b -> SF a (Event b)
 
+    RandomGen(..),
+    Random(..),
+
     -- * Execution/simulation
     -- ** Reactimation
     reactimate,           -- :: IO a
@@ -402,6 +400,10 @@ module FRP.Yampa (
     -- * Auxiliary definitions
     --   Reverse function composition and arrow plumbing aids
     dup,                  -- :: a -> (a,a)
+
+    -- Re-exported module, classes, and types
+    module Control.Arrow,
+    module Data.VectorSpace,
 
 ) where
 
