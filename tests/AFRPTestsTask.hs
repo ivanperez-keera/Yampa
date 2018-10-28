@@ -16,6 +16,7 @@
 
 module AFRPTestsTask (task_tr, task_trs) where
 
+import Control.Monad (when, forever)
 import FRP.Yampa
 import FRP.Yampa.Task
 
@@ -83,10 +84,10 @@ task_t3 = testSF1 (runTask (do
 		 )
     where
         sawtooth =
-	    forEver ((mkTask (constant 2.0 >>> integral &&& never))
+	    forever ((mkTask (constant 2.0 >>> integral &&& never))
 	             `timeOut` 1.5)
 
-task_t3r :: [Either Double ()]	    
+task_t3r :: [Either Double ()]
 task_t3r =
     [Left 0.0,     Left 0.5,     Left 1.0,     Left 1.5,	-- 0.0 s
      Left 2.0,     Left 2.5,     Left 0.0,     Left 0.5,	-- 1.0 s
@@ -216,3 +217,16 @@ task_trs =
     ]
 
 task_tr = and task_trs
+
+-- | Repeat m until result satisfies the predicate p
+repeatUntil :: Monad m => m a -> (a -> Bool) -> m a
+m `repeatUntil` p = m >>= \x -> if not (p x) then repeatUntil m p else return x
+
+-- | C-style for-loop.
+--
+-- Example:
+--
+-- >>> for 0 (+1) (>=10) ...
+for :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
+for i f p m = when (p i) $ m >> for (f i) f p m
+
