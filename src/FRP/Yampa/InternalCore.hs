@@ -183,7 +183,12 @@ module FRP.Yampa.InternalCore (
 
 ) where
 
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative (Applicative(..))
+#endif
+
 import Control.Arrow
+
 #if __GLASGOW_HASKELL__ >= 610
 import qualified Control.Category (Category(..))
 #endif
