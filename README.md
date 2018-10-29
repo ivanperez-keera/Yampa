@@ -73,6 +73,7 @@ want. Existing backends include:
 * HTML Canvas via JS Dom (for an example, see [haskanoid's GHCJS branch](https://github.com/ivanperez-keera/haskanoid/blob/ghcjs/src/Display.hs))
 * HTML5 Canvas via blank-canvas (see [yampa-canvas](https://github.com/ku-fpg/yampa-canvas))
 * Gloss (see [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss))
+* Diagrams (see [diagrams example](examples/Diagrams.hs))
 
 ## Testing
 
