@@ -71,6 +71,7 @@ want. Existing backends include:
 * OpenGL / GLUT
 * WX (see wxHaskell)
 * HTML Canvas
+* Gloss (see [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss))
 
 ## Testing
 
