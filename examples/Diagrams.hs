@@ -4,6 +4,9 @@
 
 -- | Example of connecting the diagrams drawing library with Yampa.
 --
+-- Based on:
+-- https://archives.haskell.org/projects.haskell.org/diagrams/gallery/VectorField.html
+--
 -- Install diagrams with Cairo support, together with Yampa:
 --
 -- cabal sandbox init
