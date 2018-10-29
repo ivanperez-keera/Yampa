@@ -86,17 +86,16 @@ and Haskell in Leipzig 2017.
 %*endignore
 
 Yampa is under active development, with many Haskellers participating and
-sending their contributions. Recent releases have featured a cleaner API and
-new Signal Function combinators. The most recent version, released this year,
-includes full documentation. Our github repository includes development
+sending their contributions. Recent releases have featured a testing extension
+based on Temporal Logic with QuickCheck, a cleaner API
+new Signal Function combinators and
+full documentation. Our github repository includes development
 branches with features that have been used to extend Yampa for custom games.
 Some of these features have been presented in the paper ``Back to the Future:
 time travel in FRP'', presented at the Haskell Symposium 2017, and will be
-included in future versions. Yampa will now be extended with testing and
-debugging features, which allow us to express temporal assertions about FRP
-systems using Temporal Logic, and to use QuickCheck to test those properties,
-as described in the paper ``Testing and Debugging Functional Reactive
-Programming'', presented at ICFP 2017. 
+included in future versions. Yampa will now be extended with benchmarking
+using an approach based on AutoBench, as described in the Haskell
+Symposium 2018 paper of the same name.
 
 Extensions to Arrowized Functional Reactive Programming are an active research
 topic. Last year we published, together with Manuel B\"arenz, a monadic
