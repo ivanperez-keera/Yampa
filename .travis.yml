@@ -12,6 +12,10 @@ ghc:
   - "8.4.4"
   - "8.6.1"
 
+matrix:
+    allow_failures:
+          - ghc: "8.6.1"
+
 before_install:
   - travis_retry sudo apt-get update
   - travis_retry sudo apt-get install libcwiid-dev libsdl1.2-dev
