@@ -70,7 +70,7 @@ want. Existing backends include:
 * SDL2
 * OpenGL / GLUT
 * WX (see wxHaskell)
-* HTML Canvas via JS Dom (see [haskanoid's GHCJS branch](https://github.com/ivanperez-keera/haskanoid/blob/ghcjs/src/Display.hs))
+* HTML Canvas via JS Dom (for an example, see [haskanoid's GHCJS branch](https://github.com/ivanperez-keera/haskanoid/blob/ghcjs/src/Display.hs))
 * HTML5 Canvas via blank-canvas (see [yampa-canvas](https://github.com/ku-fpg/yampa-canvas))
 * Gloss (see [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss))
 
