@@ -117,6 +117,7 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 
 
 * See also:
+  * [Collection of Yampa diagrams](doc/diagrams/Diagrams.md)
   * [Henrik Nilsson's publications](http://www.cs.nott.ac.uk/~psznhn/papers.html)
   * [Ivan Perez's publications ](http://www.cs.nott.ac.uk/~psxip1/)
   * [First Year PhD Report](http://www.cs.nott.ac.uk/~psxip1/papers/2014-Perez-1st-year-report.pdf) (Ivan Perez, 2014), chapter 3 includes a review of FRP and outlines some existing issues.
