@@ -5,9 +5,9 @@ license: BSD3
 license-file: LICENSE
 author: Henrik Nilsson, Antony Courtney
 maintainer: Ivan Perez (ivan.perez@keera.co.uk)
-homepage: http://www.haskell.org/haskellwiki/Yampa
+homepage: https://github.com/ivanperez-keera/Yampa/
 category: Reactivity, FRP
-synopsis: Library for programming hybrid systems.
+synopsis: Elegant Functional Reactive Programming Language for Hybrid Systems
 
 description:  Domain-specific language embedded in Haskell for programming
               hybrid (mixed discrete-time and continuous-time) systems. Yampa is based on
