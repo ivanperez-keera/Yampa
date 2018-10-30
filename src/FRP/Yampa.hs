@@ -11,12 +11,20 @@
 -- Portability :  non-portable (GHC extensions)
 --
 --
--- Domain-specific language embedded in Haskell for programming hybrid (mixed
--- discrete-time and continuous-time) systems. Yampa is based on the concepts
--- of Functional Reactive Programming (FRP) and is structured using arrow
--- combinators.
+-- Domain-specific language embedded in Haskell for programming deterministic
+-- hybrid (mixed discrete-time and continuous-time) systems. Yampa is based on
+-- the concepts of Functional Reactive Programming (FRP) and is structured
+-- using arrow combinators.
 --
--- You can find examples, screenshots, tutorials and documentation here:
+-- Yampa has been used to write professional Haskell cross-platform games for
+-- iOS, Android, desktop and web. There is a library for testing Yampa
+-- applications that allows you to use Temporal Logic and QuickCheck to test
+-- your games. You can also use a time-travel debugger to connect to your
+-- application running live and debug it step by step.
+--
+-- __Documentation__
+--
+-- You can find many examples, tutorials and documentation here:
 --
 -- <https://github.com/ivanperez-keera/Yampa>
 --
@@ -24,71 +32,113 @@
 --
 -- <https://wiki.haskell.org/Yampa>
 --
+-- __Yampa at a glance__
 --
--- Structuring a hybrid system in Yampa is done based on two main concepts:
+-- A Yampa network is structured as a Signal Function: a pure transformation
+-- from a time-varying input to that produces a time-varying output. The Yampa
+-- language provides signal function primitives, as well as SF combinators.
+-- Primitives and combinators guarantee that SFs are well-formed and efficient.
 --
--- * Signal Functions: 'SF'. Yampa is based on the concept of Signal Functions,
--- which are functions from a typed input signal to a typed output signal.
--- Conceptually, signals are functions from Time to Value, where time are the
--- real numbers and, computationally, a very dense approximation (Double) is
--- used.
+-- For example, a game could take the changing mouse position (continuous-time
+-- signal) and mouse clicks (discrete-time signal), combine them as part of
+-- some game logic, and produce an animation with sound (continuously changing
+-- picture).
 --
--- * Events: 'Event'. Values that may or may not occur (and would probably
--- occur rarely). It is often used for incoming network messages, mouse
--- clicks, etc. Events are used as values carried by signals.
+-- /Signal and SF separation/
 --
--- A complete Yampa system is defined as one Signal Function from some
--- type @a@ to a type @b@. The execution of this signal transformer
--- with specific input can be accomplished by means of two functions:
--- 'reactimate' (which needs an initialization action,
--- an input sensing action and an actuation/consumer action and executes
--- until explicitly stopped), and 'react' (which executes only one cycle).
+-- To create a Yampa system, you need to think about three things:
 --
+-- * How to obtain the input signals coming into your system. This typically
+-- requires polling some input device or consuming a queue of input events.
 --
--- Main Yampa modules:
+-- * How to consume the output signals produced by your system. This typically
+-- requires taking output samples or chunks and rendering them or playing them.
 --
--- * "FRP.Yampa"            -- This exports all FRP-related functions
+-- * How to transform the input signal into the output signal. This requires
+-- thinking about the transformation applied as time progresses towards the
+-- future, possinly switching from one transformation to another as the program
+-- evolves.
 --
--- * "FRP.Yampa.Task"
+-- The first two aspects lie outside Yampa, and they determine the backends
+-- that your system uses. Yampa is backend-agnostic, and you can connect it to
+-- SDL, SDL2, OpenGL, Gloss, Diagrams, HTML5 Canvas. In addition, you can use
+-- it with any input device you want, and it has been used with Nintendo
+-- wiimotes, Microsoft Kinects and LeapMotions.
 --
--- Different FRP aspects:
+-- The last aspect is what defines Yampa as a language. You define a pure
+-- Signal Function (@SF@) using primitives and combinators. You can find a
+-- series of primitive SFs in "FRP.Yampa.Basic". For example, the function
+-- 'constant' allows you to ignore the input signal and produce a constant
+-- output, the function 'arr' allows you to apply a pure function to every
+-- input value at every time, ignoring previous history. Signal Functions can
+-- transform signals taking their history into account. For example, the
+-- function 'integral' integrates the input signal.
 --
--- * "FRP.Yampa.Basic"
+-- /Execution/
 --
--- * "FRP.Yampa.Conditional"
+-- The execution of this signal transformer with specific input can be
+-- accomplished by means of two functions: 'reactimate' (which needs an
+-- initialization action, an input sensing action and an actuation/consumer
+-- action and executes until explicitly stopped), and 'react' (which executes
+-- only one cycle). You can also use the function 'embed' to try your signal
+-- functions with lists of input samples in GHCi.
 --
--- * "FRP.Yampa.Delays"
+-- For a simple example of an SDL application that creates a moving picture
+-- around the mouse position, see:
 --
--- * "FRP.Yampa.Event"
+-- https://github.com/ivanperez-keera/Yampa/blob/develop/examples/yampa-game/MainCircleMouse.hs
 --
--- * "FRP.Yampa.EventS"       -- Event consuming/producing SFs. To be renamed.
+-- /Hybrid systems/
 --
--- * "FRP.Yampa.Hybrid"       -- Hybrid (discrete/continuous) SFs
+-- Signals can change in continuous or in discrete time (known as 'Event's).
+-- Events represent values that may or may not occur (and would probably occur
+-- rarely). It is often used for incoming network messages, mouse clicks, etc.
+-- Events are used as values carried by signals.  The module "FRP.Yampa.Event"
+-- allows you to manipulate events, the module "FRP.Yampa.EventS" deals with
+-- event signal functions, and the "FRP.Yampa.Hybrid" allows you to go from a
+-- continuous-time domain to a discrete domain, and vice-versa.
 --
--- * "FRP.Yampa.Integration"
+-- __Library Overview__
 --
--- * "FRP.Yampa.Loop"
+-- * Main Yampa module
 --
--- * "FRP.Yampa.Random"
+--     * "FRP.Yampa"            -- Exports all FRP-related functions
 --
--- * "FRP.Yampa.Scan"
+-- * Different FRP aspects
 --
--- * "FRP.Yampa.Switches"
+--     * "FRP.Yampa.Basic"        -- Primitive SFs
 --
--- * "FRP.Yampa.Time"
+--     * "FRP.Yampa.Conditional"  -- Apply one SF or another depending on a condition
 --
--- * "FRP.Yampa.Simulation" -- Reactimation/evaluation
+--     * "FRP.Yampa.Delays"       -- Delay a signal
 --
--- Internals:
+--     * "FRP.Yampa.Event"        -- Event combinators
 --
--- * "FRP.Yampa.InternalCore" -- Module not exposed.
+--     * "FRP.Yampa.EventS"       -- Event Signal Functions
 --
--- Other extensions:
+--     * "FRP.Yampa.Hybrid"       -- Continuous-time to Discrete-time combinators
 --
--- * "FRP.Yampa.Arrow" -- Arrow-generic functions
+--     * "FRP.Yampa.Integration"  -- Integration and derivation and sums
 --
+--     * "FRP.Yampa.Loop"         -- Feedback loops
 --
--- Please let us know if you see any problems with the new project structure.
+--     * "FRP.Yampa.Random"       -- Random signals
+--
+--     * "FRP.Yampa.Scan"         -- Scanning or folding a signal
+--
+--     * "FRP.Yampa.Switches"     -- Dynamically changing an SF based on the value of a signal
+--
+--     * "FRP.Yampa.Task"         -- SFs that terminate and are followed by other SFs.
+--
+--     * "FRP.Yampa.Time"         -- Signals that represent time
+--
+-- * Execution
+--
+--     * "FRP.Yampa.Simulation" -- Reactimation/evaluation
+--
+-- * Auxiliary modules
+--
+--     * "FRP.Yampa.Arrow" -- Arrow-generic functions
 
 -- ToDo:
 --
@@ -407,7 +457,6 @@ module FRP.Yampa (
 
 ) where
 
-import Control.Arrow
 
 import FRP.Yampa.InternalCore
 import FRP.Yampa.Basic
@@ -424,8 +473,9 @@ import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
 import FRP.Yampa.Switches
 import FRP.Yampa.Time
+
+import Control.Arrow
 import Data.VectorSpace
--- import FRP.Yampa.VectorSpace
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:
