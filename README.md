@@ -125,6 +125,30 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
   * [Ivan Perez's publications ](http://www.cs.nott.ac.uk/~psxip1/)
   * [First Year PhD Report](http://www.cs.nott.ac.uk/~psxip1/papers/2014-Perez-1st-year-report.pdf) (Ivan Perez, 2014), chapter 3 includes a review of FRP and outlines some existing issues.
 
+## Related projects
+
+* [yampa-sdl2](https://github.com/Simre1/yampa-sdl2): Yampa and SDL2 made easy.
+* [Haskell-OpenGL-Tutorial](https://github.com/madjestic/Haskell-OpenGL-Tutorial/tree/master/MandelbrotYampa) same as [here](https://github.com/ubuntunux/LambdaEngine3D/tree/master/MandelbrotYampa): Visually attractive mandelbrot implementation.
+* [graphui](https://github.com/sinelaw/graphui): Attempt to implement Graphui.
+* [hamball](https://github.com/harley/hamball): 3D, LAN FPS game of hamster balls flying around and shooting lasers written in Haskell.
+* [yampa-glfw](https://github.com/deepfire/yampa-glfw): GLFW backend.
+* [Spaceinvaders](https://github.com/ivanperez-keera/SpaceInvaders): Re-write of the classic space invaders.
+* [Haskanoid](https://github.com/ivanperez-keera/haskanoid): Arkanoid clone in SDL with wiimote and kinect support that works on windows, linux, Mac, Android, and Web.
+* [Magic Cookies](http://haskell.games): iOS/Android haskell puzzle game.
+* [Pang-a-lambda](https://github.com/keera-studios/games-pang-a-lambda): 2D arcade game inspired by the classic super-pang.
+* [yampa-canvas](https://github.com/ku-fpg/yampa-canvas): Backend to blank-canvas / HTML5 Canvas.
+* [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss): Gloss backend.
+* [diagrams example](examples/Diagrams.hs): Demonstration of Yampa with Diagrams.
+* [Keera Hails](https://github.com/keera-studios/keera-hails/tree/master/keera-hails-reactive-yampa): Backend for reactive framework with GTK, WX, Qt, Android, iOS and HTML support.
+* [YampaSynth](http://hackage.haskell.org/package/YampaSynth): Software synthesizer.
+* [Frag](https://wiki.haskell.org/Frag): 3D first person shooter.
+* [cuboid](http://hackage.haskell.org/package/cuboid): 3D puzzle game with GLUT.
+* [Haskelloids](http://hackage.haskell.org/package/Haskelloids): Reproduction of the Atari 1979 classic "Asteroids".
+* [YFrob](hackage.haskell.org/package/YFrob): Yampa-based library for programming robots.
+* [YampaShooter](https://github.com/werk/YampaShooter): Top-down team based networked tank game.
+* [Functional Reactive Virtual Reality](https://imve.informatik.uni-hamburg.de/projects/FRVR): a fork of Yampa with extensions for VR.
+
+
 ## Help and collaboration
 
 You can collaborate at least in three ways:
