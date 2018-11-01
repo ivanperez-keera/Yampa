@@ -74,6 +74,7 @@ want. Existing backends include:
 * HTML5 Canvas via blank-canvas (see [yampa-canvas](https://github.com/ku-fpg/yampa-canvas))
 * Gloss (see [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss))
 * Diagrams (see [diagrams example](examples/Diagrams.hs))
+* [Keera Hails](https://github.com/keera-studios/keera-hails/tree/master/keera-hails-reactive-yampa) (reactive programming framework with GTK, WX, Qt, Android, iOS and HTML support).
 
 ## Testing
 
