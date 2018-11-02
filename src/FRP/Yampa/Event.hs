@@ -5,7 +5,7 @@
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  nilsson@cs.yale.edu
+-- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  portable
 --
@@ -92,7 +92,6 @@ import Control.Applicative
 import Control.DeepSeq (NFData(..))
 
 import FRP.Yampa.Diagnostics
-import FRP.Yampa.Forceable
 
 
 infixl 8 `tag`, `attach`, `gate`
@@ -188,13 +187,6 @@ instance Alternative Event where
     -- 'NoEvent').
     NoEvent <|> r = r
     l       <|> _ = l
-
-
--- | Forceable instance
-instance Forceable a => Forceable (Event a) where
-    -- | Force an event by evaluating its argument.
-    force ea@NoEvent   = ea
-    force ea@(Event a) = force a `seq` ea
 
 -- | NFData instance
 instance NFData a => NFData (Event a) where

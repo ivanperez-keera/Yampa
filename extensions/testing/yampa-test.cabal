@@ -1,11 +1,10 @@
 name:                yampa-test
-version:             0.1.0.0
+version:             0.1.1
 synopsis:            Testing library for Yampa.
 description:
-  Testing library for Yampa.
+  Testing and dbugging library for Yampa.
   .
-  This library contains several testing and debugging facilities for Yampa.
-  In particular, it contains:
+  It contains:
   .
   * Debugging signal functions using "Debug.Trace".
   * A definition of Temporal Predicates based on LTL.

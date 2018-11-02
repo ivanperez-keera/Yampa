@@ -5,7 +5,7 @@
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  nilsson@cs.yale.edu
+-- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
 --
@@ -24,13 +24,8 @@ module FRP.Yampa.Task (
     snapT,       -- :: Task a b a
     timeOut,     -- :: Task a b c -> Time -> Task a b (Maybe c)
     abortWhen,   -- :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
-    repeatUntil, -- :: Monad m => m a -> (a -> Bool) -> m a
-    for,         -- :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
-    forAll,      -- :: Monad m => [a] -> (a -> m b) -> m ()
-    forEver      -- :: Monad m => m a -> m b
 ) where
 
-import Control.Monad (when, forM_)
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative (Applicative(..))
 #endif
@@ -39,7 +34,7 @@ import FRP.Yampa
 import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Diagnostics
 
-infixl 0 `timeOut`, `abortWhen`, `repeatUntil`
+infixl 0 `timeOut`, `abortWhen`
 
 
 -- * The Task type
@@ -198,33 +193,3 @@ abortWhen :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
 tk `abortWhen` est = mkTask ((taskToSF tk &&& est) >>> arr aux)
     where
         aux ((b, ec), ed) = (b, (lMerge (fmap Left ec) (fmap Right ed)))
-
-
-------------------------------------------------------------------------------
--- * Loops
-------------------------------------------------------------------------------
-
--- These are general monadic combinators. Maybe they don't really belong here.
-
--- | Repeat m until result satisfies the predicate p
-repeatUntil :: Monad m => m a -> (a -> Bool) -> m a
-m `repeatUntil` p = m >>= \x -> if not (p x) then repeatUntil m p else return x
-
-
--- | C-style for-loop.
---
--- Example:
---
--- >>> for 0 (+1) (>=10) ...
-for :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
-for i f p m = when (p i) $ m >> for (f i) f p m
-
-
--- | Perform the monadic operation for each element in the list.
-forAll :: Monad m => [a] -> (a -> m b) -> m ()
-forAll = forM_
-
-
--- | Repeat m for ever.
-forEver :: Monad m => m a -> m b
-forEver m = m >> forEver m

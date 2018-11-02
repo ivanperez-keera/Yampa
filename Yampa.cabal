@@ -1,13 +1,13 @@
 name: Yampa
-version: 0.12
+version: 0.13
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
 author: Henrik Nilsson, Antony Courtney
 maintainer: Ivan Perez (ivan.perez@keera.co.uk)
-homepage: http://www.haskell.org/haskellwiki/Yampa
+homepage: https://github.com/ivanperez-keera/Yampa/
 category: Reactivity, FRP
-synopsis: Library for programming hybrid systems.
+synopsis: Elegant Functional Reactive Programming Language for Hybrid Systems
 
 description:  Domain-specific language embedded in Haskell for programming
               hybrid (mixed discrete-time and continuous-time) systems. Yampa is based on
@@ -31,6 +31,7 @@ extra-source-files:
   examples/Elevator/TestElevatorMain.hs,
   examples/TailgatingDetector/TailgatingDetector.hs,
   examples/TailgatingDetector/TestTGMain.hs,
+  examples/Diagrams.hs,
 
   CHANGELOG
 
@@ -60,35 +61,17 @@ flag examples
 library
   hs-source-dirs:  src
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
-  build-Depends: base < 5, random, deepseq
+  build-Depends: base < 6, random, deepseq, simple-affine-space
   exposed-modules:
     -- Main FRP modules
     FRP.Yampa
     FRP.Yampa.Event
-    FRP.Yampa.Internals
     FRP.Yampa.Task
 
-    -- FRP Core (minimal complete definition)
-    FRP.Yampa.Core
-
-    -- Auxiliary (commonly used) types
-    FRP.Yampa.AffineSpace
-    FRP.Yampa.Geometry
-    FRP.Yampa.Point2
-    FRP.Yampa.Point3
-    FRP.Yampa.Vector2
-    FRP.Yampa.Vector3
-    FRP.Yampa.VectorSpace
-
     -- Auxiliary definitions
-    FRP.Yampa.Forceable
-    FRP.Yampa.MergeableRecord
-    FRP.Yampa.Miscellany
-    FRP.Yampa.Utilities
     FRP.Yampa.Basic
     FRP.Yampa.Conditional
     FRP.Yampa.Delays
-    FRP.Yampa.Diagnostics
     FRP.Yampa.EventS
     FRP.Yampa.Hybrid
     FRP.Yampa.Integration
@@ -99,7 +82,12 @@ library
     FRP.Yampa.Switches
     FRP.Yampa.Time
 
+    -- FRP-agnostic auxiliary definitions
+    FRP.Yampa.Arrow
+
   other-modules:
+    -- Auxiliary (commonly used) types
+    FRP.Yampa.Diagnostics
     FRP.Yampa.InternalCore
 
 test-suite hlint

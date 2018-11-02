@@ -9,7 +9,12 @@ ghc:
   - "7.10.3"
   - "8.0.2"
   - "8.2.2"
-  - "8.4.1"
+  - "8.4.4"
+  - "8.6.1"
+
+matrix:
+    allow_failures:
+          - ghc: "8.6.1"
 
 before_install:
   - travis_retry sudo apt-get update
@@ -22,13 +27,14 @@ script:
   - travis_retry cabal install --enable-tests -fexamples -j1 . extensions/testing/
 
 after_script:
-  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.1" ]; then cabal install --run-tests -j1 . extensions/testing/; fi
+  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.4" ]; then cabal install --run-tests -j1 . extensions/testing/; fi
 
 branches:
     only:
           - master
-          - develop
-          - /^release-.*$/
+          - /^develop.*$/
+          - /^hotfix.*$/
+          - /^release.*$/
 
 deploy:
   provider: hackage
@@ -37,4 +43,4 @@ deploy:
     secure: oRt7gkgOkSVwrgDVpl6uqUr9FHmAWdBR3sJje2qWqioWbOCX40fNxiWG+30XdE4pYwMb354y997nzNGydVMTpWbcVp8VdMJyw91xCSjWgGMwTzshR/U6OhVQOLaTmVR/Vpu4/MBX9UUcnhW+MAmgmE91O6myb9Lhj022gEvjShy/XA4101k+vNJui4k1nXyvOoS9SUGsLeUcBnTtOKowsCfuKiGXEuIIU9aHd5peHkwEsEN/bdm2ZPWgcQw6dzKBmZ/p6dxDUIV2wMgDUgajh9XbLIr4XbaSw1nLIUYmeusHAquXrSisYjOyP6ohtSl+4pxsoz4lqa2nosOb4n9/U2n0RZlY5xTaq4xkmXqQGwYvgJzJu9PDsF7x5NaLBLXmGfi86n6QLbGdUo2AMvABr0UQvbHJjmVwnRSD82GyelNiEDfCAQaL084iixSs+csA95rW8hEBe5yV6KutAJcl9L0j9DOI8XdjFaJY1y9d7q5wCsOijuXQqaB+Y2Ybo1jiz4zji0bve40yBjL/H4Gfv1XZav4IIKKb7QTGaxzNb2ktCsiNtK0ofLU3HkTQ8tXShbPq+SxqFPCfrf9Aqjcipz8E2GBOBo235VTbIMyI/JCIuue3ukWkZvvqXngF7Ha/VJpT62mGgds2Q7c9JF1PRFBiokaltvgoC7Zn1kOmhk8=
   on:
     branch: master
-    condition: ${TRAVIS_HASKELL_VERSION}=8.4.1
+    condition: ${TRAVIS_HASKELL_VERSION}=8.4.4

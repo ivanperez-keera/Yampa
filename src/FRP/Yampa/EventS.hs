@@ -45,6 +45,7 @@ module FRP.Yampa.EventS (
     snap,               -- :: SF a (Event a)
     snapAfter,          -- :: Time -> SF a (Event a)
     sample,             -- :: Time -> SF a (Event a)
+    sampleWindow,       -- :: Int -> Time -> SF a (Event [a])
 
     -- * Repetition and switching
     recur,              -- :: SF a (Event b) -> SF a (Event b)
@@ -56,10 +57,11 @@ import Control.Arrow
 
 import FRP.Yampa.InternalCore (SF(..), sfConst, Time, SF'(..))
 
+import FRP.Yampa.Arrow
 import FRP.Yampa.Basic
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
-import FRP.Yampa.Miscellany
+import FRP.Yampa.Hybrid
 import FRP.Yampa.Scan
 import FRP.Yampa.Switches
 
@@ -104,7 +106,7 @@ infixr 5 `andThen`
 -- -- !!! cases like SFCpAXA.
 -- sfMkInv :: SF a b -> SF a b
 -- sfMkInv sf = SF {sfTF = ...}
--- 
+--
 --     sfMkInvAux :: SF' a b -> SF' a b
 --     sfMkInvAux sf@(SFArr _ _) = sf
 --     -- sfMkInvAux sf@(SFAcc _ _ _ _) = sf
@@ -270,12 +272,12 @@ delayEvent q | q < 0     = usrErr "AFRP" "delayEvent" "Negative delay."
 --     where
 --         tf0 NoEvent   = (noPendingEvent, NoEvent)
 --         tf0 (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
--- 
+--
 --         noPendingEvent = SF' tf -- True
 --             where
 --                 tf _ NoEvent   = (noPendingEvent, NoEvent)
 --                 tf _ (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
--- 
+--
 --         -- t_next is the present time w.r.t. the next scheduled event.
 --         -- t_last is the present time w.r.t. the last scheduled event.
 --         -- In the event queues, events are associated with their time
@@ -288,13 +290,13 @@ delayEvent q | q < 0     = usrErr "AFRP" "delayEvent" "Negative delay."
 --                         t_next' = t_next  + dt
 --                         t_last' = t_last  + dt
 --                         q'      = t_last' + q
--- 
+--
 --                 tf1 t_last' rqxs' t_next'
 --                     | t_next' >= 0 =
 --                         emitEventsScheduleNext t_last' rqxs' qxs t_next' [x]
 --                     | otherwise =
 --                         (pendingEvents t_last' rqxs' qxs t_next' x, NoEvent)
--- 
+--
 --         -- t_next is the present time w.r.t. the *scheduled* time of the
 --         -- event that is about to be emitted (i.e. >= 0).
 --         -- The time associated with any event at the head of the event
@@ -518,6 +520,23 @@ snapAfter t_ev = switch (never
 -- | Sample a signal at regular intervals.
 sample :: Time -> SF a (Event a)
 sample p_ev = identity &&& repeatedly p_ev () >>^ \(a, e) -> e `tag` a
+
+-- | Window sampling
+--
+-- First argument is the window length wl, second is the sampling interval t.
+-- The output list should contain (min (truncate (T/t) wl)) samples, where
+-- T is the time the signal function has been running. This requires some
+-- care in case of sparse sampling. In case of sparse sampling, the
+-- current input value is assumed to have been present at all points where
+-- sampling was missed.
+sampleWindow :: Int -> Time -> SF a (Event [a])
+sampleWindow wl q =
+    identity &&& afterEachCat (repeat (q, ()))
+    >>> arr (\(a, e) -> fmap (map (const a)) e)
+    >>> accumBy updateWindow []
+    where
+        updateWindow w as = drop (max (length w' - wl) 0) w'
+            where w' = w ++ as
 
 -- * Repetition and switching
 

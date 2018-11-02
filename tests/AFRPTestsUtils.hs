@@ -20,7 +20,6 @@ import FRP.Yampa
 import FRP.Yampa.Conditional
 import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
-import FRP.Yampa.Utilities
 import FRP.Yampa.Switches
 
 import AFRPTestsCommon
