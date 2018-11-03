@@ -1,3 +1,12 @@
+2018-11-02 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.13).
+        * README.md: Documents relatec projects.
+        * src/: Cleans API, removes deprecated constructs, moves
+          vector and points into separate library, hides Core,
+          eliminates Forceable and MergeableRecord, adds documentation.
+        * examples/: Adds Diagrams example.
+        * .travis.yml: Compile with GHC8.6 (allowing failures).
+
 2018-10-21 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.12).
         * README.md: Documents testing.
