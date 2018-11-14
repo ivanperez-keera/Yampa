@@ -1,6 +1,8 @@
-resolver: ghc-8.0.2
+resolver: lts-12.16
+
 extra-deps:
   - random-1.1
+  - simple-affine-space-0.1
 
 nix:
     packages: [binutils]
