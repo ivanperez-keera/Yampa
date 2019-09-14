@@ -40,6 +40,7 @@ There are many programs written in Yampa. See the following examples:
   (compiled with [GHCJS](https://github.com/ghcjs/ghcjs)).
 * [Space invaders](https://hackage.haskell.org/package/SpaceInvaders).
 * [Frag](https://hackage.haskell.org/package/frag): a 3D first person shooting game.
+* [Peoplemon](https://linearity.itch.io/peoplemon): a role playing game.
 * [Yampa-2048](https://github.com/ksaveljev/yampa-2048): an implementation of
   the game 2048 using Yampa and Gloss.
 * [MandelbrotYampa](https://github.com/madjestic/Haskell-OpenGL-Tutorial/tree/master/MandelbrotYampa):
