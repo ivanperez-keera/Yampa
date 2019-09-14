@@ -40,6 +40,7 @@ There are many programs written in Yampa. See the following examples:
   (compiled with [GHCJS](https://github.com/ghcjs/ghcjs)).
 * [Space invaders](https://hackage.haskell.org/package/SpaceInvaders).
 * [Frag](https://hackage.haskell.org/package/frag): a 3D first person shooting game.
+* [Peoplemon](https://linearity.itch.io/peoplemon): a role playing game.
 * [Yampa-2048](https://github.com/ksaveljev/yampa-2048): an implementation of
   the game 2048 using Yampa and Gloss.
 * [MandelbrotYampa](https://github.com/madjestic/Haskell-OpenGL-Tutorial/tree/master/MandelbrotYampa):
@@ -50,9 +51,9 @@ A more comprehensive list can be obtained using the reverse dependency finder
 (http://packdeps.haskellers.com/reverse/Yampa), but only programs uploaded to
 hackage are listed.
 
-| <img src="https://raw.githubusercontent.com/ivanperez-keera/haskanoid/master/screenshots/android.gif?raw=true" width="200" alt="Haskanoid Video" style="max-width:200px;"> | <img src="https://raw.githubusercontent.com/ivanperez-keera/SpaceInvaders/develop/screenshots/gameplay.gif?raw=true" width="138" alt="Space Invaders" style="max-width: 138px;"> | <img src="http://ksaveljev.github.io/2048.gif" width="110" alt="Space Invaders" style="max-width: 110px;"> |
+| <img src="https://raw.githubusercontent.com/ivanperez-keera/haskanoid/master/screenshots/android.gif?raw=true" width="200" alt="Haskanoid Video" style="max-width:200px;"> | <img src="https://media.giphy.com/media/SsBOvldu1FnSyNZW1z/giphy.gif" width="138" alt="Peoplemon by Alex Stuart" style="max-width: 138px;"> | <img src="http://ksaveljev.github.io/2048.gif" width="110" alt="Space Invaders" style="max-width: 110px;"> |
 |-------------------------------------------|---------------|-------------------------|
-| Haskanoid, SDL cross-platform arkanoid. | SpaceInvaders, GLUT arcade game | Yampa2048, a gloss board game |
+| Haskanoid, SDL cross-platform arkanoid. | Peoplemon, a role playing game | Yampa2048, a gloss board game |
 
 ## Use in production
 
