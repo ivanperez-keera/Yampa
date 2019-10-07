@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
 -----------------------------------------------------------------------------------------
 -- |
@@ -90,6 +91,7 @@ module FRP.Yampa.Event where
 
 import Control.Applicative
 import Control.DeepSeq (NFData(..))
+import qualified Control.Monad.Fail as Fail
 
 import FRP.Yampa.Diagnostics
 
@@ -175,9 +177,15 @@ instance Monad Event where
 
     -- | See 'pure'.
     return          = pure
+
+#if !(MIN_VERSION_base(4,13,0))
+    -- | Fail with 'NoEvent'.
+    fail            = Fail.fail
+#endif
+
+instance Fail.MonadFail Event where
     -- | Fail with 'NoEvent'.
     fail _          = NoEvent
-
 
 -- | Alternative instance
 instance Alternative Event where
