@@ -18,7 +18,6 @@
 module Elevator where
 
 import FRP.Yampa
-import FRP.Yampa.Utilities -- ((^<<), dHold)
 
 ------------------------------------------------------------------------------
 -- Auxiliary definitions
@@ -56,22 +55,22 @@ elevator = proc (lbp,rbp) -> do
                         goUp    `tag` upRate
                         `lMerge`
                         goDown  `tag` (-downRate)
-        
-        y <- (lower +) ^<< integral -< v    
-        
+
+        y <- (lower +) ^<< integral -< v
+
         let atBottom = y <= lower
             atTop    = y >= upper
             stopped  = v == 0		-- Somewhat dubious ...
-        
+
             waitingBottom = atBottom && stopped
             waitingTop    = atTop    && stopped
-        
+
         arriveBottom <- edge -< atBottom
         arriveTop    <- edge -< atTop
-        
+
         let setUp   = lbp `tag` True
             setDown = rbp `tag` True
-        
+
         -- This does not work. The reset events would be generated as soon
         -- as the corresponding go event was generated, but the latter
         -- depend instantaneusly on the reset signals.
@@ -92,10 +91,10 @@ elevator = proc (lbp,rbp) -> do
         -- But that does not seem to be the right solution to me.
         upPending   <- hold False -< setUp   `lMerge` resetUp
         downPending <- hold False -< setDown `lMerge` resetDown
-        
+
         let pending = upPending || downPending
             eitherButton = lbp `lMerge` rbp
-        
+
             goDown  = arriveTop `gate` pending
                       `lMerge`
                       eitherButton `gate` waitingTop
@@ -103,5 +102,5 @@ elevator = proc (lbp,rbp) -> do
                       `lMerge`
                       eitherButton `gate` waitingBottom
             stop    = (arriveTop `lMerge` arriveBottom) `gate` not pending
-        
+
     returnA -< y

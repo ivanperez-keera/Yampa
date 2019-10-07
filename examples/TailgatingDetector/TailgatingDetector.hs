@@ -45,7 +45,6 @@ import Data.List (sortBy, (\\))
 import FRP.Yampa
 import FRP.Yampa.Conditional
 import FRP.Yampa.EventS
-import FRP.Yampa.Utilities
 
 
 ------------------------------------------------------------------------------
@@ -304,7 +303,7 @@ mtgd = proc ics -> do
 		sameOrder [] _  = False
 		sameOrder _  [] = False
 		sameOrder ((i,_):ics) ((i',_):ics')
-		    | i == i'   = sameOrder ics ics' 
+		    | i == i'   = sameOrder ics ics'
 		    | otherwise = False
 
 	updateTGDs is (MTGDCol iitgs) = MTGDCol $

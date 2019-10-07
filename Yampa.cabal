@@ -187,6 +187,28 @@ executable yampa-examples-sdl-wiimote
   else
     buildable: False
 
+executable yampa-examples-elevator
+  main-is: TestElevatorMain.hs
+  other-modules: Elevator
+  hs-source-dirs:  examples/Elevator
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  if flag(examples)
+    buildable: True
+    build-depends: base < 5, Yampa
+  else
+    buildable: False
+
+executable yampa-examples-tailgatingdetector
+  main-is: TestTGMain.hs
+  other-modules: TailgatingDetector
+  hs-source-dirs:  examples/TailgatingDetector
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  if flag(examples)
+    buildable: True
+    build-depends: base < 5, Yampa
+  else
+    buildable: False
+
 source-repository head
   type:     git
   location: git://github.com/ivanperez-keera/Yampa.git
