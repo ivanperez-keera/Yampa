@@ -14,14 +14,15 @@
 -- a QuickCheck predicate, which may not be possible or compatible
 -- with out goals.
 --
-module YampaQC where
+module Main where
 
 ------------------------------------------------------------------------------
 import Data.Fixed
 
-import Distribution.TestSuite.QuickCheck
 import Test.QuickCheck
 import Test.QuickCheck.Function
+import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
 import FRP.Yampa.EventS (snap)
@@ -30,8 +31,11 @@ import FRP.Yampa.QuickCheck
 import FRP.Yampa.LTLFuture
 
 ------------------------------------------------------------------------------
-tests :: IO [Test]
-tests = return
+main :: IO ()
+main = defaultMain tests
+
+tests :: TestTree
+tests = testGroup "Yampa QC properties"
     [ testProperty "SF based on (**2) equal to SF on (^2))" prop_arr_law1
     , testProperty "Identity"                               prop_arr_id
     , testProperty "Arrow Naturality"                       prop_arr_naturality
