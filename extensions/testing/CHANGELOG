@@ -1,3 +1,7 @@
+2019-10-15 Ivan Perez <ivan.perez@keera.co.uk>
+        * yampa-test.cabal: Version bump (0.2), use tasty for testing.
+        * Thanks to @RyanGlScott.
+
 2018-10-27 Ivan Perez <ivan.perez@keera.co.uk>
         * yampa-test.cabal: Version bump (0.1.1).
         * src/: Fixes bug (#108).
