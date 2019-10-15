@@ -17,8 +17,6 @@ import Data.List (sortBy, intersperse)
 import Data.Maybe (catMaybes)
 
 import FRP.Yampa
-import FRP.Yampa.Utilities
-import FRP.Yampa.Internals	-- Just for testing purposes.
 
 import Elevator
 
@@ -53,7 +51,7 @@ findEvents tios@((_, (_, y)) : _) = feAux Stopped y tios
     where
         feAux _    _    []                             = []
         feAux sPre yPre ((t, ((lbp, rbp), y)) : tios') =
-            if not (null message) then 
+            if not (null message) then
                 (t, y, message) : feAux s y tios'
             else
 		feAux s y tios'

@@ -1,6 +1,6 @@
 % Yampa-IY.tex
 \begin{hcarentry}[updated]{Yampa}
-\report{Ivan Perez}%11/17
+\report{Ivan Perez}%11/18
 \label{yampa}
 \makeheader
 
@@ -48,7 +48,8 @@ iOS and Android available on iTunes
 (\href{https://goo.gl/6gB6sb}{https://goo.gl/6gB6sb})
 % https://itunes.apple.com/us/app/magic-cookies/id1244709871
 and Google Play
-(\href{https://goo.gl/0A8z6i}{https://goo.gl/0A8z6i}).
+(\href{https://goo.gl/0A8z6i}{https://goo.gl/0A8z6i}), and the upcoming
+games Pang-a-lambda and NPuzzles, also by Keera Studios.
 
 %**<img width=700 src="./android.gif">
 %*ignore
@@ -73,7 +74,7 @@ Full-Fledged Musical Applications}, presented at PADL 2017. The code and an
 extended version of the paper are publicly available
 (\href{https://gitlab.com/chupin/arpeggigon}{https://gitlab.com/chupin/arpeggigon}).
 Arpeggigon has also been demonstrated at FARM 2017, the Haskell eXchange 2017,
-and Haskell in Leipzig 2017. 
+and Haskell in Leipzig 2017.
 
 %**<img width=700 src="./arpeggigon.png">
 %*ignore
@@ -85,34 +86,27 @@ and Haskell in Leipzig 2017.
 %*endignore
 
 Yampa is under active development, with many Haskellers participating and
-sending their contributions. Recent releases have featured a cleaner API and
-new Signal Function combinators. The most recent version, released this year,
-includes full documentation. Our github repository includes development
-branches with features that have been used to extend Yampa for custom games.
-Some of these features have been presented in the paper ``Back to the Future:
-time travel in FRP'', presented at the Haskell Symposium 2017, and will be
-included in future versions. Yampa will now be extended with testing and
-debugging features, which allow us to express temporal assertions about FRP
-systems using Temporal Logic, and to use QuickCheck to test those properties,
-as described in the paper ``Testing and Debugging Functional Reactive
-Programming'', presented at ICFP 2017. 
+sending their contributions. Recent releases have featured a much smaller and
+cleaner API, a testing extension based on Temporal Logic with QuickCheck, new
+Signal Function combinators, and full documentation. We have also included more
+examples of work with different backends, including SDL, SDL2, OpenGL,
+Diagrams, Gloss, HTML DOM, HTML5 Canvas and WX. Our github repository includes
+development branches with features that have been used for custom games, some
+presented in the Haskell Symposium 2017 paper ``Back to the Future: time travel
+in FRP''. Yampa will now be extended with systematic benchmarking using an
+approach inspired by Martin Handley's AutoBench.
 
-Extensions to Arrowized Functional Reactive Programming are an active research
-topic. Last year we published, together with Manuel B\"arenz, a monadic
-arrowized reactive framework called Dunai
-(\href{https://git.io/vXsw1}{https://git.io/vXsw1}), and a minimal FRP
-implementation called BearRiver. BearRiver provides all the core features of
-Yampa, as well as additional extensions. We have demonstrated the usefulness
-of our approach and the compatibility with existing Yampa games by using
-BearRiver to compile and execute the Haskanoid and Magic Cookies! for Android
-without changing the code of such games. These games are also available for
-iOS and other platforms.
-
-The Functional Programming Laboratory at the University of
-Nottingham~\cref{nottingham} is working on other extensions to make Yampa more
-general and modular, increase performance, enable new use cases and address
-existing limitations. To collaborate with our research, please contact Ivan
-Perez (\href{mailto:ixp@cs.nott.ac.uk}{ixp@cs.nott.ac.uk}) and Henrik Nilsson
+We are working on extensions to make Yampa more general and modular, increase
+performance, enable new use cases and address existing limitations.  In 2016 we
+published, together with Manuel B\"arenz, a monadic arrowized reactive
+framework called Dunai (\href{https://git.io/vXsw1}{https://git.io/vXsw1}), and
+a minimal FRP implementation called BearRiver. BearRiver provides all the core
+features of Yampa, as well as additional extensions. We have demonstrated the
+usefulness of our approach and the compatibility with existing Yampa games by
+using BearRiver to compile and execute the Haskanoid and Magic Cookies! for
+Android without changing the code of such games.  To collaborate with our
+research, please contact Ivan Perez
+(\href{mailto:ivan.perez@acm.org}{ivan.perez@acm.org}) or Henrik Nilsson
 (\href{mailto:nhn@cs.nott.ac.uk}{nhn@cs.nott.ac.uk}).
 
 There are several other channels that anyone can use to reach other Yampa users

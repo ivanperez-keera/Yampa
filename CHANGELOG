@@ -1,6 +1,16 @@
+2019-10-15 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.13.1), introduce examples
+          as executables, depend on fail if needed.
+        * README.md: Add Peoplemon.
+        * examples/: Fix errors due to module reorg.
+        * extensions/: Chnage testing to use tasty.
+        * .travis.yml: Compile with GHC8.8.
+        * src/: Support MonadFail proposal and GHC 8.8.
+        * Thanks to @sigrlami, @RyanGlScott and @CraigTreptow.
+
 2018-11-02 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.13).
-        * README.md: Documents relatec projects.
+        * README.md: Documents related projects.
         * src/: Cleans API, removes deprecated constructs, moves
           vector and points into separate library, hides Core,
           eliminates Forceable and MergeableRecord, adds documentation.

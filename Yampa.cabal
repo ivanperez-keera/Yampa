@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.13
+version: 0.13.1
 cabal-version: >= 1.8
 license: BSD3
 license-file: LICENSE
@@ -62,6 +62,8 @@ library
   hs-source-dirs:  src
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   build-Depends: base < 6, random, deepseq, simple-affine-space
+  if !impl(ghc>=8.0)
+    build-Depends: fail == 4.9.*
   exposed-modules:
     -- Main FRP modules
     FRP.Yampa
@@ -159,6 +161,28 @@ executable yampa-examples-sdl-wiimote
   if flag(examples)
     buildable: True
     build-depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
+  else
+    buildable: False
+
+executable yampa-examples-elevator
+  main-is: TestElevatorMain.hs
+  other-modules: Elevator
+  hs-source-dirs:  examples/Elevator
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  if flag(examples)
+    buildable: True
+    build-depends: base < 5, Yampa
+  else
+    buildable: False
+
+executable yampa-examples-tailgatingdetector
+  main-is: TestTGMain.hs
+  other-modules: TailgatingDetector
+  hs-source-dirs:  examples/TailgatingDetector
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  if flag(examples)
+    buildable: True
+    build-depends: base < 5, Yampa
   else
     buildable: False
 
