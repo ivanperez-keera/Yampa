@@ -21,6 +21,66 @@ $ cabal install Yampa
 
 ## Examples
 
+Getting Yampa to run is trivial. FRP is about values that change over time. In
+Yampa, a system is defined by a signal function (SF), which determines how the
+varying input and the varying output relate. For example:
+
+```haskell
+{-# LANGUAGE Arrows #-}
+import FRP.Yampa
+
+signalFunction :: SF Double Double
+signalFunction = proc x -> do
+  y <- integral -< x
+  t <- time     -< ()
+  returnA -< y / t
+```
+
+This signal function says that the output signal is the integral `y` of the
+input signal `x`, divided by the time `t`. The above syntax uses a Haskell
+extension called Arrows. If you are unhappy using arrow syntax, you can also
+write that code using applicative style and/or arrow combinators:
+
+```haskell
+signalFunction1 :: SF Double Double
+signalFunction1 = (/) <$> integral <*> time
+
+signalFunction2 :: SF Double Double
+signalFunction2 = (integral &&& time) >>^ (/)
+```
+
+All three are equivalent, and it's a matter of which one you like best. To run
+this example, we need to provide the inputs, the times, and consume the output:
+```haskell
+firstSample :: IO Double   -- sample at time zero
+firstSample =
+  return 1.0  -- time == 0, input == 1.0
+
+nextSamples :: Bool -> IO (Double, Maybe Double)
+nextSamples _ =
+  return (0.1, Just 1.0) -- time delta == 0.1s, input == 1.0
+
+output :: Bool -> Double -> IO Bool
+output _ x = do
+  print x     -- print the output
+  return True -- just continue forever
+```
+
+This is a trivial example, since the integral of the constant function 1.0 over
+time, divided by the time, is always 1.0! Nevertheless, we are now ready to
+run!
+
+```
+ghci> reactimate firstSample nextSamples output signalFunction
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+...
+```
+
 There is a directory with examples, which includes two basic SDL examples and
 one with using a Nintendo Wii Remote. You can install them with:
 
@@ -30,9 +90,7 @@ $ cabal update
 $ cabal install Yampa -fexamples
 ```
 
-### Other examples
-
-There are many programs written in Yampa. See the following examples:
+There are many programs written in Yampa:
 
 * [Haskanoid](https://github.com/ivanperez-keera/haskanoid): a game that uses
   SDL multimedia, wiimote and kinect. It's cross platform and works in desktop,
