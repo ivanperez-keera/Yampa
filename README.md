@@ -63,7 +63,7 @@ nextSamples _ =
 output :: Bool -> Double -> IO Bool
 output _ x = do
   print x     -- print the output
-  return True -- just continue forever
+  return False -- just continue forever
 ```
 
 This is a trivial example, since the integral of the constant function 1.0 over
