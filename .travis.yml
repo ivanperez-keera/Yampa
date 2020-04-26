@@ -21,10 +21,9 @@ install:
   - travis_retry cabal install --enable-tests -fexamples --only-dependencies . extensions/testing/
 
 script:
-  - travis_retry cabal install --enable-tests -fexamples -j1 . extensions/testing/
+  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.4" ]; then cabal install -ftest-doc-coverage --run-tests -j1 . extensions/testing/; else cabal install --enable-tests -fexamples -j1 . extensions/testing/; fi
 
 after_script:
-  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.4" ]; then cabal install -ftest-doc-coverage --run-tests -j1 . extensions/testing/; fi
 
 branches:
     only:
