@@ -1,3 +1,9 @@
+2020-04-25 Ivan Perez <ivan.perez@haskell.sexy>: Pending
+        * .travis.yml: Enable testing haddoc documentation (#72).
+        * tests/: Avoid modules whose documentation haddock does not generated
+          even if present (#72).
+        * src/: Minor adaptations to imports to make tests work (#72).
+
 2019-10-15 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.13.1), introduce examples
           as executables, depend on fail if needed.
