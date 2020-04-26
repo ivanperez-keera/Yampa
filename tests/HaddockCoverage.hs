@@ -79,8 +79,7 @@ getSources = filter isHaskellFile <$> go "src"
     isHaskellFile fp = (isSuffixOf ".hs" fp || isSuffixOf ".lhs" fp)
                      && not (any (`isSuffixOf` fp) excludedFiles)
 
-    excludedFiles = [ "Vector2.hs", "Vector3.hs"
-                    , "Point2.hs", "Point3.hs" ]
+    excludedFiles = [ "Yampa.hs", "Random.hs" ]
 
 getFilesAndDirectories :: FilePath -> IO ([FilePath], [FilePath])
 getFilesAndDirectories dir = do

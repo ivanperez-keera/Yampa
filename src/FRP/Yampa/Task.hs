@@ -30,9 +30,12 @@ module FRP.Yampa.Task (
 import Control.Applicative (Applicative(..))
 #endif
 
-import FRP.Yampa
-import FRP.Yampa.EventS (snap)
-import FRP.Yampa.Diagnostics
+import FRP.Yampa.Basic        (constant)
+import FRP.Yampa.Diagnostics  (intErr, usrErr)
+import FRP.Yampa.Event        (Event, lMerge)
+import FRP.Yampa.EventS       (after, edgeBy, never, snap)
+import FRP.Yampa.InternalCore (SF, Time, arr, first, (&&&), (>>>))
+import FRP.Yampa.Switches     (switch)
 
 infixl 0 `timeOut`, `abortWhen`
 
