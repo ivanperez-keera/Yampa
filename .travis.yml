@@ -12,6 +12,7 @@ ghc:
   - "8.4.4"
   - "8.6.5"
   - "8.8.1"
+  - "8.10.1"
 
 before_install:
   - travis_retry sudo apt-get update
