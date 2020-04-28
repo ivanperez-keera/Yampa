@@ -206,6 +206,8 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 * [YFrob](hackage.haskell.org/package/YFrob): Yampa-based library for programming robots.
 * [YampaShooter](https://github.com/werk/YampaShooter): Top-down team based networked tank game.
 * [Functional Reactive Virtual Reality](https://imve.informatik.uni-hamburg.de/projects/FRVR): a fork of Yampa with extensions for VR.
+* [Dunai](https://github.com/ivanperez-keera/dunai): An FRP implementation inspired by Yampa that extends SFs with a monad.
+* [Bearriver](https://github.com/ivanperez-keera/dunai/tree/develop/examples/bearriver): API-compatible Yampa replacement built on top of dunai using Monadic Stream Functions.
 
 
 ## Help and collaboration
