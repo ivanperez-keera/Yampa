@@ -19,9 +19,12 @@
 -- The combinator 'iterFrom' gives enough flexibility to program your own
 -- leak-free integration and derivation SFs.
 --
--- Yampa does not enforce the use of a particular vector space implementation,
--- meaning you could use integral for example with other vector types like
--- V2, V1, etc from linear, see <https://gist.github.com/walseb/1e0a0ca98aaa9469ab5da04e24f482c2 example>
+-- Many primitives and combinators in this module require instances of
+-- simple-affine-spaces's 'VectorSpace'. Yampa does not enforce the use of a
+-- particular vector space implementation, meaning you could use 'integral' for
+-- example with other vector types like V2, V1, etc. from the library linear.
+-- For an example, see
+-- <https://gist.github.com/walseb/1e0a0ca98aaa9469ab5da04e24f482c2 this gist>.
 -----------------------------------------------------------------------------------------
 
 module FRP.Yampa.Integration (

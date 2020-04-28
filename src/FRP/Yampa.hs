@@ -74,10 +74,6 @@
 -- transform signals taking their history into account. For example, the
 -- function 'integral' integrates the input signal.
 --
--- Yampa does not enforce the use of a particular vector space implementation,
--- meaning you could use integral for example with other vector types like
--- V2, V1, etc from linear, see <https://gist.github.com/walseb/1e0a0ca98aaa9469ab5da04e24f482c2 example>
---
 -- /Execution/
 --
 -- The execution of this signal transformer with specific input can be
@@ -101,6 +97,15 @@
 -- allows you to manipulate events, the module "FRP.Yampa.EventS" deals with
 -- event signal functions, and the "FRP.Yampa.Hybrid" allows you to go from a
 -- continuous-time domain to a discrete domain, and vice-versa.
+--
+-- /Vector Spaces/
+--
+-- Yampa uses vector spaces in time-aware primitives like 'integral'. However,
+-- Yampa does not enforce the use of a particular vector space implementation,
+-- meaning you could use 'integral' for example with other vector types like
+-- V2, V1, etc. from the library linear. For an example, see
+-- <https://gist.github.com/walseb/1e0a0ca98aaa9469ab5da04e24f482c2 this gist>.
+--
 --
 -- __Library Overview__
 --
