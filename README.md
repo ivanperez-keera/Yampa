@@ -14,7 +14,7 @@ combinators.
 Yampa is available on hackage: http://hackage.haskell.org/package/Yampa.
 
 ```
-$ cabal sandbox init         # Optional, but recommended
+$ cabal sandbox init         # Optional. Useful to isolate projects.
 $ cabal update
 $ cabal install Yampa
 ```
