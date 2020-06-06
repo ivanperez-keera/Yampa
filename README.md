@@ -208,7 +208,7 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 * [Functional Reactive Virtual Reality](https://imve.informatik.uni-hamburg.de/projects/FRVR): a fork of Yampa with extensions for VR.
 * [Dunai](https://github.com/ivanperez-keera/dunai): An FRP implementation inspired by Yampa that extends SFs with a monad.
 * [Bearriver](https://github.com/ivanperez-keera/dunai/tree/develop/examples/bearriver): API-compatible Yampa replacement built on top of dunai using Monadic Stream Functions.
-
+* [The Bearriver Arcade](https://github.com/walseb/The_Bearriver_Arcade): A couple of arcade games made using bearriver.
 
 ## Help and collaboration
 
