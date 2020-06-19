@@ -205,6 +205,7 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 * [Haskelloids](http://hackage.haskell.org/package/Haskelloids): Reproduction of the Atari 1979 classic "Asteroids".
 * [YFrob](hackage.haskell.org/package/YFrob): Yampa-based library for programming robots.
 * [YampaShooter](https://github.com/werk/YampaShooter): Top-down team based networked tank game.
+* [LaneWars](https://github.com/Mattiemus/LaneWars): Top-down MOBA game with online multiplayer.
 * [Functional Reactive Virtual Reality](https://imve.informatik.uni-hamburg.de/projects/FRVR): a fork of Yampa with extensions for VR.
 * [Dunai](https://github.com/ivanperez-keera/dunai): An FRP implementation inspired by Yampa that extends SFs with a monad.
 * [Bearriver](https://github.com/ivanperez-keera/dunai/tree/develop/examples/bearriver): API-compatible Yampa replacement built on top of dunai using Monadic Stream Functions.
