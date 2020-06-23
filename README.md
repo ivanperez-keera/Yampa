@@ -194,7 +194,7 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 * [Spaceinvaders](https://github.com/ivanperez-keera/SpaceInvaders): Re-write of the classic space invaders.
 * [Haskanoid](https://github.com/ivanperez-keera/haskanoid): Arkanoid clone in SDL with wiimote and kinect support that works on windows, linux, Mac, Android, and Web.
 * [Magic Cookies](http://haskell.games): iOS/Android haskell puzzle game.
-* [Pang-a-lambda](https://github.com/keera-studios/games-pang-a-lambda): 2D arcade game inspired by the classic super-pang.
+* [Pang-a-lambda](https://hackage.haskell.org/package/pang-a-lambda): 2D arcade game inspired by the classic super-pang.
 * [yampa-canvas](https://github.com/ku-fpg/yampa-canvas): Backend to blank-canvas / HTML5 Canvas.
 * [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss): Gloss backend.
 * [diagrams example](examples/Diagrams.hs): Demonstration of Yampa with Diagrams.
