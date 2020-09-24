@@ -1,4 +1,4 @@
-# Taken rom https://raw.githubusercontent.com/github/gitignore/master/Haskell.gitignore
+# Taken from the gitignore project (https://raw.githubusercontent.com/github/gitignore/master/Haskell.gitignore)
 dist
 dist-*
 cabal-dev
