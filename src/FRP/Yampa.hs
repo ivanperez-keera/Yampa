@@ -56,7 +56,7 @@
 --
 -- * How to transform the input signal into the output signal. This requires
 -- thinking about the transformation applied as time progresses towards the
--- future, possinly switching from one transformation to another as the program
+-- future, possibly switching from one transformation to another as the program
 -- evolves.
 --
 -- The first two aspects lie outside Yampa, and they determine the backends
