@@ -1,6 +1,6 @@
 name: Yampa
 version: 0.13.2
-cabal-version: >= 1.8
+cabal-version: >= 1.10
 license: BSD3
 license-file: LICENSE
 author: Henrik Nilsson, Antony Courtney
@@ -92,6 +92,9 @@ library
     FRP.Yampa.Diagnostics
     FRP.Yampa.InternalCore
 
+  default-language:
+    Haskell2010
+
 test-suite hlint
   type: exitcode-stdio-1.0
   main-is: hlint.hs
@@ -102,6 +105,9 @@ test-suite hlint
     build-depends:
       base,
       hlint >= 1.7
+
+  default-language:
+    Haskell2010
 
 -- Verify that the code is thoroughly documented
 test-suite haddock-coverage
@@ -120,6 +126,9 @@ test-suite haddock-coverage
       process,
       regex-posix
 
+  default-language:
+    Haskell2010
+
 test-suite regression
   type: exitcode-stdio-1.0
   main-is: testAFRPMain.hs
@@ -130,6 +139,9 @@ test-suite regression
     build-depends:
       base,
       Yampa
+
+  default-language:
+    Haskell2010
 
 executable yampa-examples-sdl-bouncingbox
   main-is: MainBouncingBox.hs
@@ -142,6 +154,9 @@ executable yampa-examples-sdl-bouncingbox
   else
     buildable: False
 
+  default-language:
+    Haskell2010
+
 executable yampa-examples-sdl-circlingmouse
   main-is: MainCircleMouse.hs
   other-modules: YampaSDL
@@ -152,6 +167,9 @@ executable yampa-examples-sdl-circlingmouse
     build-Depends: base < 5, random, deepseq, SDL, Yampa
   else
     buildable: False
+
+  default-language:
+    Haskell2010
 
 executable yampa-examples-sdl-wiimote
   main-is: MainWiimote.hs
@@ -164,6 +182,9 @@ executable yampa-examples-sdl-wiimote
   else
     buildable: False
 
+  default-language:
+    Haskell2010
+
 executable yampa-examples-elevator
   main-is: TestElevatorMain.hs
   other-modules: Elevator
@@ -175,6 +196,9 @@ executable yampa-examples-elevator
   else
     buildable: False
 
+  default-language:
+    Haskell2010
+
 executable yampa-examples-tailgatingdetector
   main-is: TestTGMain.hs
   other-modules: TailgatingDetector
@@ -185,6 +209,9 @@ executable yampa-examples-tailgatingdetector
     build-depends: base < 5, Yampa
   else
     buildable: False
+
+  default-language:
+    Haskell2010
 
 source-repository head
   type:     git
