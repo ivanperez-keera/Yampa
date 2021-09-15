@@ -1,8 +1,8 @@
 name:                yampa-test
-version:             0.2
+version:             0.13.2
 synopsis:            Testing library for Yampa.
 description:
-  Testing and dbugging library for Yampa.
+  Testing and debugging library for Yampa.
   .
   It contains:
   .
@@ -34,7 +34,7 @@ library
                        FRP.Yampa.Stream
                        FRP.Yampa.QuickCheck
   build-depends:       base >=4 && <5,
-                       Yampa >= 0.12,
+                       Yampa >= 0.13.2 && < 0.14,
                        QuickCheck,
                        normaldistribution
   hs-source-dirs:      src
