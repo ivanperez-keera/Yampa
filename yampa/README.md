@@ -14,7 +14,6 @@ combinators.
 Yampa is available on hackage: http://hackage.haskell.org/package/Yampa.
 
 ```
-$ cabal sandbox init         # Optional. Useful to isolate projects.
 $ cabal update
 $ cabal install Yampa
 ```
@@ -85,7 +84,6 @@ There is a directory with examples, which includes two basic SDL examples and
 one with using a Nintendo Wii Remote. You can install them with:
 
 ```
-$ cabal sandbox init         # Optional, but recommended
 $ cabal update
 $ cabal install Yampa -fexamples
 ```
@@ -155,9 +153,7 @@ To build a local copy, do:
 ```
 $ cabal unpack Yampa ## Or git clone this-repo
 $ cd Yampa-*
-$ cabal init
-$ cabal install --only-dependencies
-$ cabal configure && cabal haddock --internal
+$ cabal configure && cabal haddock --haddock-internal
 ```
 
 Documentation is also available online: https://wiki.haskell.org/Yampa
