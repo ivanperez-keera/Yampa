@@ -1,4 +1,4 @@
 packages:
-  ./.
-  extensions/testing/
+  yampa/
+  yampa-test/
 

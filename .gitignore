@@ -24,7 +24,7 @@ cabal.project.local~
 .ghc.environment.*
 
 # Others
-tests/testAFRPMain
+yampa/tests/testAFRPMain
 .virthualenv
 SourceGraph
 .tags
