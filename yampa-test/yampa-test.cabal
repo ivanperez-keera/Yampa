@@ -2,7 +2,7 @@ name:                yampa-test
 version:             0.13.2
 synopsis:            Testing library for Yampa.
 description:
-  Testing and dbugging library for Yampa.
+  Testing and debugging library for Yampa.
   .
   It contains:
   .
