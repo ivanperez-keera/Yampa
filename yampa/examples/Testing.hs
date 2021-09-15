@@ -30,7 +30,7 @@ import Test.QuickCheck
 --   returnA -< (p0 + p)
 
 ballFellLower :: Double -> TPred ()
-ballFellLower p0 = Prop (fallingBall p0 >>> arr (\p1 -> p1 <= p0))
+ballFellLower p0 = SP (fallingBall p0 >>> arr (\p1 -> p1 <= p0))
 
 -- > evalT (ballFellLower 100) stream01
 -- True
@@ -45,13 +45,13 @@ ballFallingLower p0 = Always (ballFellLower p0)
 -- fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
 
 ballTrulyFalling :: Double -> TPred ()
-ballTrulyFalling p0 = Always (Prop (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po)))
+ballTrulyFalling p0 = Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po)))
 
 -- > evalT (ballTrulyFalling 100) stream01
 -- False
 
 ballTrulyFalling' :: Double -> TPred ()
-ballTrulyFalling' p0 = Next (Always (Prop (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po))))
+ballTrulyFalling' p0 = Next (Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po))))
 
 -- > evalT (ballTrulyFalling ′ 100) stream01
 -- True
@@ -70,7 +70,7 @@ bouncingBall p0 v0 = switch (fallingBall'' p0 v0 >>> (identity &&& hit))
 -- hit = arr (\(p0, v0) -> if ((p0 <= 0) && (v0 < 0)) then Event (p0, v0) else NoEvent)
 
 ballLower :: Double -> TPred ()
-ballLower p0 = Always (Prop (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
+ballLower p0 = Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
 
 -- > evalT (ballBouncingLower 100) stream05
 -- False
@@ -78,7 +78,7 @@ ballLower p0 = Always (Prop (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
 ballBouncingLower = ballLower
 
 ballOverFloor :: Double -> TPred ()
-ballOverFloor p0 = Always (Prop (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 >= 0)))
+ballOverFloor p0 = Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 >= 0)))
 
 -- > evalT (ballOverFloor 100) stream05
 -- False
@@ -87,7 +87,7 @@ fallingBall :: Double -> SF () Double
 fallingBall p0 = constant (-9.8) >>> integral0 >>> integral0 >>> arr (+p0)
 
 -- ballFellLower :: Double -> TPred ()
--- ballFellLower p0 = Prop (fallingBall p0, (\_ p1 -> p1 <= p0))
+-- ballFellLower p0 = SP (fallingBall p0, (\_ p1 -> p1 <= p0))
 
 testFellBall = evalT (ballFellLower 100) stream0_1
 
@@ -99,12 +99,12 @@ fallingBallPair :: Double -> SF () (Double, Double)
 fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
 
 -- ballTrulyFalling :: Double -> TPred ()
--- ballTrulyFalling p0 = Always $ Prop (fallingBallPair p0, \() (pn,po) -> pn < po)
+-- ballTrulyFalling p0 = Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
 
 testBallTrulyFalling = evalT (ballTrulyFalling 100) stream0_1
 
 -- ballTrulyFalling' :: Double -> TPred ()
--- ballTrulyFalling' p0 = Next $ Always $ Prop (fallingBallPair p0, \() (pn,po) -> pn < po)
+-- ballTrulyFalling' p0 = Next $ Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
 
 testBallTrulyFalling' = evalT (ballTrulyFalling' 100) stream0_1
 
@@ -122,14 +122,14 @@ hit = arr (\(p0, v0) -> if (p0 <= 0 && v0 < 0) then Event (p0, v0) else NoEvent)
 --   (\(p0', v0') -> bouncingBall p0' (-v0'))
 
 -- ballBouncingLower :: Double -> TPred ()
--- ballBouncingLower p0 = Always $ Prop (bouncingBall p0 0, (\_ (p1,_) -> p1 <= p0))
+-- ballBouncingLower p0 = Always $ SP (bouncingBall p0 0, (\_ (p1,_) -> p1 <= p0))
 
 testBallBouncing = evalT (ballBouncingLower 100) stream0_5
 
 showBallBouncing = embed (bouncingBall 100 0 >>> arr fst ) ((), map (second Just) [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ())])
 
 -- ballOverFloor :: Double -> TPred ()
--- ballOverFloor p0 = Always $ Prop (bouncingBall p0 0, (\_ (p1, v1) -> p1 >= 0))
+-- ballOverFloor p0 = Always $ SP (bouncingBall p0 0, (\_ (p1, v1) -> p1 >= 0))
 
 testBallOverFloor = evalT (ballOverFloor 100) stream0_5'
 
@@ -176,7 +176,7 @@ greaterThan :: SF (Int, Int) Bool
 greaterThan = arr $ \(x,y) -> x > y
 
 alwaysGreater :: TPred (Int, Int)
-alwaysGreater = Always $ Prop greaterThan
+alwaysGreater = Always $ SP greaterThan
 
 -- > evalT alwaysGreater ((5,1), [(0.001, (6, 1)), (0.001, (9, 2))])
 -- True

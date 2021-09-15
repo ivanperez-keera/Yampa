@@ -28,7 +28,7 @@
 --
 -- <https://github.com/ivanperez-keera/Yampa>
 --
--- <https://github.com/ivanperez-keera/Yampa/tree/master/examples>
+-- <https://github.com/ivanperez-keera/Yampa/tree/develop/yampa/examples>
 --
 -- <https://wiki.haskell.org/Yampa>
 --
@@ -56,7 +56,7 @@
 --
 -- * How to transform the input signal into the output signal. This requires
 -- thinking about the transformation applied as time progresses towards the
--- future, possinly switching from one transformation to another as the program
+-- future, possibly switching from one transformation to another as the program
 -- evolves.
 --
 -- The first two aspects lie outside Yampa, and they determine the backends
@@ -86,7 +86,7 @@
 -- For a simple example of an SDL application that creates a moving picture
 -- around the mouse position, see:
 --
--- https://github.com/ivanperez-keera/Yampa/blob/develop/examples/yampa-game/MainCircleMouse.hs
+-- https://github.com/ivanperez-keera/Yampa/blob/develop/yampa/examples/yampa-game/MainCircleMouse.hs
 --
 -- /Hybrid systems/
 --
@@ -97,6 +97,15 @@
 -- allows you to manipulate events, the module "FRP.Yampa.EventS" deals with
 -- event signal functions, and the "FRP.Yampa.Hybrid" allows you to go from a
 -- continuous-time domain to a discrete domain, and vice-versa.
+--
+-- /Vector Spaces/
+--
+-- Yampa uses vector spaces in time-aware primitives like 'integral'. However,
+-- Yampa does not enforce the use of a particular vector space implementation,
+-- meaning you could use 'integral' for example with other vector types like
+-- V2, V1, etc. from the library linear. For an example, see
+-- <https://gist.github.com/walseb/1e0a0ca98aaa9469ab5da04e24f482c2 this gist>.
+--
 --
 -- __Library Overview__
 --

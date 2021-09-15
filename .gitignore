@@ -1,11 +1,30 @@
+# Taken from the gitignore project (https://raw.githubusercontent.com/github/gitignore/master/Haskell.gitignore)
+dist
+dist-*
 cabal-dev
-.cabal-sandbox
-cabal.sandbox.config
+*.o
+*.hi
+*.hie
 *.chi
 *.chs.h
-dist
-*.hi
-*.o
-tests/testAFRPMain
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+*.prof
+*.aux
+*.hp
+*.eventlog
+.stack-work/
+cabal.project.local
+cabal.project.local~
+.HTF/
+.ghc.environment.*
+
+# Others
+yampa/tests/testAFRPMain
 .virthualenv
 SourceGraph
+.tags

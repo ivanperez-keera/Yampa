@@ -1,3 +1,16 @@
+2021-09-15 Ivan Perez <ivan.perez@haskell.sexy>
+        * Yampa.cabal: Version bump (0.13.2), change cabal-version, add
+          default language (#180).
+        * src/: Update links (#179).
+        * README.md: Update installation instructions (#177), links (#178),
+          pointers to other projects (#162, #160, #153)
+        * .travis.yml: Enable testing haddock documentation (#72).
+        * tests/: Avoid modules whose documentation haddock does not generated
+          even if present (#72).
+        * src/: Minor adaptations to imports to make tests work (#72),
+                minor haddock documentation fixes (#175),
+                complete missing haddock documentation (#72).
+
 2019-10-15 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.13.1), introduce examples
           as executables, depend on fail if needed.

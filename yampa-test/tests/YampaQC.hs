@@ -108,7 +108,7 @@ prop_arr_id =
 -- Yampa's internal test cases
 
 -- prop :: SF a b -> (a -> b ->
-prop (a,b) = Prop ((identity &&& a) >>^ uncurry b)
+prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
 
 -- Yampa's Arrow Checks
 
@@ -434,7 +434,7 @@ prop_arrow_second_2 =
        pred = (\x y -> (x, x + 1) == y)
 
 prop_arrow_id_0 =
-   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> pred)
+   forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> pred)
  where sf1 = arr id >>> integral
        sf2 = integral
        pred = arr $ uncurry (==)
@@ -443,7 +443,7 @@ prop_arrow_id_0 =
        myStream = uniDistStream
 
 prop_arrow_id_2 =
-   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> pred)
+   forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> pred)
  where sf1 = integral >>> arr id
        sf2 = integral
        pred = arr $ uncurry (==)
@@ -452,7 +452,7 @@ prop_arrow_id_2 =
        myStream = uniDistStream
 
 prop_arrow_assoc =
-   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> pred)
+   forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> pred)
  where sf1 = (integral >>> arr (*0.5)) >>> integral
        sf2 = integral >>> (arr (*0.5) >>> integral)
        pred = arr $ uncurry (==)
@@ -461,7 +461,7 @@ prop_arrow_assoc =
        myStream = uniDistStream
 
 prop_arrow_arr_comp =
-   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> pred)
+   forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> pred)
  where sf1 = (arr ((*2.5) . (+3.0)))
        sf2 = (arr (+3.0) >>> arr (*2.5))
        pred = arr (uncurry (==))
@@ -470,7 +470,7 @@ prop_arrow_arr_comp =
        myStream = uniDistStream
 
 prop_arrow_first_3 =
-   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> arr pred)
+   forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> arr pred)
  where sf1 = (arr dup >>> first (arr (*2.5)))
        sf2 = (arr dup >>> arr (fun_prod (*2.5) id))
        pred = uncurry (==)
@@ -479,7 +479,7 @@ prop_arrow_first_3 =
        myStream = uniDistStream
 
 prop_arrow_first_distrib =
-   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> arr pred)
+   forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> arr pred)
  where sf1 = (arr dup >>> (first (integral >>> arr (+3.0))))
        sf2 = (arr dup >>> (first integral >>> first (arr (+3.0))))
        pred = uncurry (==)
@@ -488,7 +488,7 @@ prop_arrow_first_distrib =
        myStream = uniDistStream
 
 prop_arrow_first_id_comm =
-   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> arr pred)
+   forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> arr pred)
  where sf1 = (arr dup >>> (first integral>>>arr (fun_prod id (+3.0))))
        sf2 = (arr dup >>> (arr (fun_prod id (+3.0))>>>first integral))
        pred = uncurry (==)
@@ -497,7 +497,7 @@ prop_arrow_first_id_comm =
        myStream = uniDistStream
 
 prop_arrow_first_nested =
-   forAll myStream $ evalT $ Always $ Prop ((sf1 &&& sf2) >>> arr pred)
+   forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> arr pred)
  where sf1 = (arr (\x -> ((x,x),())) >>> (first (first integral) >>> arr assoc))
        sf2 = (arr (\x -> ((x,x),())) >>> (arr assoc >>> first integral))
 
@@ -508,7 +508,7 @@ prop_arrow_first_nested =
 
 prop_switch_t1 =
   forAll myStream $ evalT $
-    Always $ Prop ((switch_t1rec 42.0 &&& switch_tr) >>> arr same)
+    Always $ SP ((switch_t1rec 42.0 &&& switch_tr) >>> arr same)
 
   where myStream :: Gen (SignalSampleStream Double)
         myStream = fixedDelayStreamWith f 1.0
@@ -576,7 +576,7 @@ delayedF = arr id &&& cond
 
 -- | Compares two SFs, resulting in true if they are always equal
 prop_always_equal sf1 sf2 =
-    Always $ Prop ((sf1 &&& sf2) >>> arr sameResult)
+    Always $ SP ((sf1 &&& sf2) >>> arr sameResult)
   where sameResult = uncurry (==)
 
 prop_arr_no_change f xs =
@@ -584,7 +584,7 @@ prop_arr_no_change f xs =
 
 -- | Compares two SFs, returning true if they are close enough
 prop_always_similar margin sf1 sf2 =
-  Always (Prop ((sf1 &&& sf2) >>> arr similar))
+  Always (SP ((sf1 &&& sf2) >>> arr similar))
   where similar (x,y) = abs (x-y) <= margin
 
 sfMeasureIncrement :: Num b => b -> SF a b -> SF a b

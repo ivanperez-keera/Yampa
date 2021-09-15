@@ -25,7 +25,7 @@ import FRP.Yampa.Stream
 -- | Type representing future-time linear temporal logic predicates with until
 -- and next.
 data TPred a where
-  Prop       :: SF a Bool -> TPred a
+  SP       :: SF a Bool -> TPred a
   And        :: TPred a -> TPred a -> TPred a
   Or         :: TPred a -> TPred a -> TPred a
   Not        :: TPred a -> TPred a
@@ -39,7 +39,7 @@ data TPred a where
 --
 -- Returns 'True' if the temporal proposition is currently true.
 evalT :: TPred a -> SignalSampleStream a -> Bool
-evalT (Prop sf)       = \stream -> firstSample $ fst $ evalSF sf stream
+evalT (SP sf)       = \stream -> firstSample $ fst $ evalSF sf stream
 evalT (And t1 t2)     = \stream -> evalT t1 stream && evalT t2 stream
 evalT (Or  t1 t2)     = \stream -> evalT t1 stream || evalT t2 stream
 evalT (Not t1)        = \stream -> not (evalT t1 stream)
@@ -63,7 +63,7 @@ tauApp pred sample dtime = tPredMap (\sf -> snd (evalFuture sf sample dtime)) pr
 
 -- | Apply a transformation to the leaves (to the SFs)
 tPredMap :: (SF a Bool -> SF a Bool) -> TPred a -> TPred a
-tPredMap f (Prop sf)       = Prop (f sf)
+tPredMap f (SP sf)       = SP (f sf)
 tPredMap f (And t1 t2)     = And (tPredMap f t1) (tPredMap f t2)
 tPredMap f (Or t1 t2)      = Or (tPredMap f t1) (tPredMap f t2)
 tPredMap f (Not t1)        = Not (tPredMap f t1)

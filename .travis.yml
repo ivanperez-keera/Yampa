@@ -11,20 +11,20 @@ ghc:
   - "8.2.2"
   - "8.4.4"
   - "8.6.5"
-  - "8.8.1"
+  - "8.8.3"
+  - "8.10.1"
 
 before_install:
   - travis_retry sudo apt-get update
   - travis_retry sudo apt-get install libcwiid-dev libsdl1.2-dev
 
 install:
-  - travis_retry cabal install --enable-tests -fexamples --only-dependencies . extensions/testing/
+  - travis_retry cabal install --enable-tests -fexamples --only-dependencies yampa/ yampa-test/
 
 script:
-  - travis_retry cabal install --enable-tests -fexamples -j1 . extensions/testing/
+  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.4" ]; then cabal install -ftest-doc-coverage --run-tests -j1  yampa/ yampa-test/; else cabal install --enable-tests -fexamples -j1 yampa/ yampa-test/; fi
 
 after_script:
-  - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.4" ]; then cabal install --run-tests -j1 . extensions/testing/; fi
 
 branches:
     only:
