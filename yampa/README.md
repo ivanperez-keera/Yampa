@@ -130,7 +130,7 @@ want. Existing backends include:
 * HTML Canvas via JS Dom (for an example, see [haskanoid's GHCJS branch](https://github.com/ivanperez-keera/haskanoid/blob/ghcjs/src/Display.hs))
 * HTML5 Canvas via blank-canvas (see [yampa-canvas](https://github.com/ku-fpg/yampa-canvas))
 * Gloss (see [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss))
-* Diagrams (see [diagrams example](examples/Diagrams.hs))
+* Diagrams (see [diagrams example](https://github.com/ivanperez-keera/Yampa/blob/develop/yampa/examples/Diagrams.hs))
 * [Keera Hails](https://github.com/keera-studios/keera-hails/tree/master/keera-hails-reactive-yampa) (reactive programming framework with GTK, WX, Qt, Android, iOS and HTML support).
 
 ## Testing
@@ -141,7 +141,7 @@ are described in the paper [Testing and Debugging Functional Reactive
 Programming](http://dl.acm.org/authorize?N46564).
 
 You can find the additional projects at:
-* [yampa-test](https://github.com/ivanperez-keera/Yampa/tree/develop/extensions/testing)
+* [yampa-test](https://github.com/ivanperez-keera/Yampa/tree/develop/yampa-test)
 * [Haskell Titan](https://github.com/keera-studios/haskell-titan)
 
 ## Documentation and tutorials
@@ -175,7 +175,7 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 
 
 * See also:
-  * [Collection of Yampa diagrams](doc/diagrams/Diagrams.md)
+  * [Collection of Yampa diagrams](https://github.com/ivanperez-keera/Yampa/tree/develop/doc/diagrams/Diagrams.md)
   * [Henrik Nilsson's publications](http://www.cs.nott.ac.uk/~psznhn/papers.html)
   * [Ivan Perez's publications ](http://www.cs.nott.ac.uk/~psxip1/)
   * [First Year PhD Report](http://www.cs.nott.ac.uk/~psxip1/papers/2014-Perez-1st-year-report.pdf) (Ivan Perez, 2014), chapter 3 includes a review of FRP and outlines some existing issues.
@@ -193,7 +193,7 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 * [Pang-a-lambda](https://hackage.haskell.org/package/pang-a-lambda): 2D arcade game inspired by the classic super-pang.
 * [yampa-canvas](https://github.com/ku-fpg/yampa-canvas): Backend to blank-canvas / HTML5 Canvas.
 * [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss): Gloss backend.
-* [diagrams example](examples/Diagrams.hs): Demonstration of Yampa with Diagrams.
+* [diagrams example](https://github.com/ivanperez-keera/Yampa/tree/develop/yampa/examples/Diagrams.hs): Demonstration of Yampa with Diagrams.
 * [Keera Hails](https://github.com/keera-studios/keera-hails/tree/master/keera-hails-reactive-yampa): Backend for reactive framework with GTK, WX, Qt, Android, iOS and HTML support.
 * [YampaSynth](http://hackage.haskell.org/package/YampaSynth): Software synthesizer.
 * [Frag](https://wiki.haskell.org/Frag): 3D first person shooter.
@@ -204,7 +204,7 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 * [LaneWars](https://github.com/Mattiemus/LaneWars): Top-down MOBA game with online multiplayer.
 * [Functional Reactive Virtual Reality](https://imve.informatik.uni-hamburg.de/projects/FRVR): a fork of Yampa with extensions for VR.
 * [Dunai](https://github.com/ivanperez-keera/dunai): An FRP implementation inspired by Yampa that extends SFs with a monad.
-* [Bearriver](https://github.com/ivanperez-keera/dunai/tree/develop/examples/bearriver): API-compatible Yampa replacement built on top of dunai using Monadic Stream Functions.
+* [Bearriver](https://github.com/ivanperez-keera/dunai/tree/develop/dunai-frp-bearriver): API-compatible Yampa replacement built on top of dunai using Monadic Stream Functions.
 * [The Bearriver Arcade](https://github.com/walseb/The_Bearriver_Arcade): A couple of arcade games made using bearriver.
 
 ## Help and collaboration
