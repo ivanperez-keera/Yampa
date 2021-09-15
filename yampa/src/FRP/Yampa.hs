@@ -28,7 +28,7 @@
 --
 -- <https://github.com/ivanperez-keera/Yampa>
 --
--- <https://github.com/ivanperez-keera/Yampa/tree/master/examples>
+-- <https://github.com/ivanperez-keera/Yampa/tree/develop/yampa/examples>
 --
 -- <https://wiki.haskell.org/Yampa>
 --
@@ -86,7 +86,7 @@
 -- For a simple example of an SDL application that creates a moving picture
 -- around the mouse position, see:
 --
--- https://github.com/ivanperez-keera/Yampa/blob/develop/examples/yampa-game/MainCircleMouse.hs
+-- https://github.com/ivanperez-keera/Yampa/blob/develop/yampa/examples/yampa-game/MainCircleMouse.hs
 --
 -- /Hybrid systems/
 --
