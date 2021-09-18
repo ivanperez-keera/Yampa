@@ -1,6 +1,6 @@
 # Yampa
 
-[![Build Status](https://travis-ci.org/ivanperez-keera/Yampa.svg?branch=master)](https://travis-ci.org/ivanperez-keera/Yampa)
+[![Build Status](https://api.travis-ci.com/ivanperez-keera/Yampa.svg?branch=master)](https://app.travis-ci.com/github/ivanperez-keera/Yampa)
 [![Version on Hackage](https://img.shields.io/hackage/v/Yampa.svg)](https://hackage.haskell.org/package/Yampa)
 [![Flattr this](http://api.flattr.com/button/flattr-badge-large.png "Flattr This!")](https://flattr.com/submit/auto?user_id=ivanperez-keera&url=https://github.com/ivanperez-keera/Yampa&title=Yampa&language=&tags=github&category=software)
 
