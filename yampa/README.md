@@ -146,19 +146,12 @@ You can find the additional projects at:
 
 ## Documentation and tutorials
 
-The distribution of Yampa comes with substantial haddock documentation, which you can
-build using haddock or just [read online](https://hackage.haskell.org/package/Yampa).
-To build a local copy, do:
+The API of Yampa is thoroughly documented
+[on hackage](https://hackage.haskell.org/package/Yampa).
+Documentation is also available in the
+[Haskell wiki page for Yampa](https://wiki.haskell.org/Yampa).
 
-```
-$ cabal unpack Yampa ## Or git clone this-repo
-$ cd Yampa-*
-$ cabal configure && cabal haddock --haddock-internal
-```
-
-Documentation is also available online: https://wiki.haskell.org/Yampa
-
-## Papers and technical reports
+### Papers and technical reports
 
 * [Extensible and Robust Functional Reactive Programming](http://www.cs.nott.ac.uk/~psxip1/papers/2017-Perez-thesis-latest.pdf) (Ivan Perez; 2017)
 * [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/authorize?N46564) (Ivan Perez and Henrik Nilsson; 2017)
