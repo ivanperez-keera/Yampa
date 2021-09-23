@@ -15,7 +15,7 @@ Yampa is available on hackage: http://hackage.haskell.org/package/Yampa.
 
 ```
 $ cabal update
-$ cabal install Yampa
+$ cabal install --lib Yampa
 ```
 
 ## Examples
