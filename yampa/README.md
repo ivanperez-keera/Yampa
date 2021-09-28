@@ -209,9 +209,6 @@ You can collaborate at least in three ways:
 * Research: we are constantly trying to improve Yampa. We'd be glad to have
   collaborators.  If you are working on this, please, let us know.
 
-  (_Interactivity and FRP is the main topic of my (ongoing) work and research,
-   so I'll keep working on this for some time._ -- Ivan Perez)
-
 ## Authors
 
 * Henrik Nilsson
