@@ -113,11 +113,62 @@ hackage are listed.
 
 ## Use in production
 
-* Keera Studios is using it for several Haskell games for Android and iOS
-  including a game currently available on [iTunes](https://itunes.apple.com/us/app/magic-cookies/id1244709871) and [Google Play](https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies). See:
-  * http://facebook.com/keerastudios
-  * https://itunes.apple.com/us/app/magic-cookies/id1244709871
-  * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
+[Keera Studios](https://keera.co.uk) uses Yampa to create Haskell games available on [Google Play for Android](https://play.google.com/store/apps/developer?id=Keera+Studios&hl=en_US&gl=US) and [iTunes for iOS](https://apps.apple.com/us/developer/keera-studios-ltd/id1244709870):
+
+<table>
+  <tr>
+    <td>
+    <p align="center">
+      Magic Cookies!
+      <br /><br />
+      <a href="http://magiccookies.haskell.games">
+        <img src="https://raw.githubusercontent.com/keera-studios/magic-cookies/master/screencap.gif" height="175" alt="Magic Cookies! Video" style="max-height:175px;"></a>
+      <img width="441" height="1">
+      <br />
+      <sup>Copyright © 2015 - 2020 Keera Studios Ltd. All Rights Reserved.</sup>
+      <br />
+      <a href="https://itunes.apple.com/us/app/magic-cookies/id1244709871">
+        <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/apple.svg" width="32" height="32"></a>
+      &nbsp;&nbsp;
+      <a href="https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies">
+        <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/google_play.svg" width="32" height="32"></a>
+    </p>
+    </td>
+    <td>
+    <p align="center">
+      Enpuzzled
+      <br />
+      <br />
+      <a href="http://enpuzzled.haskell.games">
+        <img src="https://raw.githubusercontent.com/keera-studios/enpuzzled/master/enpuzzled.gif" height="175" alt="Enpuzzled Video" style="max-height: 175px;"></a>
+      <img width="441" height="1">
+      <br />
+      <sup>Copyright © - 2017 - Keera Studios Ltd - All Rights Reserved.</sup>
+      <br />
+      <a href="https://apps.apple.com/us/app/enpuzzled/id1460083994">
+        <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/apple.svg" width="32" height="32"></a>
+      &nbsp;&nbsp;
+      <a href="https://play.google.com/store/apps/details?id=uk.co.keera.games.enpuzzled&hl=en_US&gl=US">
+        <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/google_play.svg" width="32" height="32"></a>
+    </p>
+    </td>
+    </tr>
+    <tr>
+    <td colspan="2">
+      <sub>
+        <sup>
+          Keera, Keera Studios, Magic Cookies, the Magic Cookies logo, the
+          Magic Cookies splash screen, Enpuzzled, the Enpuzzled splash screen,
+          and the Enpuzzled logo are trademarks of Keera Studios Ltd. Google
+          Play and the Google Play logo are trademarks of Google LLC. Apple,
+          the Apple logo, iPhone, and iPad are trademarks of Apple Inc.,
+          registered in the U.S. and other countries and regions. App Store is
+          a service mark of Apple Inc.
+        </sup>
+      </sub>
+    </td>
+  </tr>
+</table>
 
 ## Backends
 
@@ -182,7 +233,8 @@ Documentation is also available in the
 * [yampa-glfw](https://github.com/deepfire/yampa-glfw): GLFW backend.
 * [Spaceinvaders](https://github.com/ivanperez-keera/SpaceInvaders): Re-write of the classic space invaders.
 * [Haskanoid](https://github.com/ivanperez-keera/haskanoid): Arkanoid clone in SDL with wiimote and kinect support that works on windows, linux, Mac, Android, and Web.
-* [Magic Cookies](http://haskell.games): iOS/Android haskell puzzle game.
+* [Magic Cookies!](http://magiccookies.haskell.games): iOS/Android haskell puzzle game.
+* [Enpuzzled](http://enpuzzled.haskell.games): iOS/Android haskell puzzle game.
 * [Pang-a-lambda](https://hackage.haskell.org/package/pang-a-lambda): 2D arcade game inspired by the classic super-pang.
 * [yampa-canvas](https://github.com/ku-fpg/yampa-canvas): Backend to blank-canvas / HTML5 Canvas.
 * [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss): Gloss backend.
