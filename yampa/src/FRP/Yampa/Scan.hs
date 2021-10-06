@@ -1,4 +1,6 @@
-{-# LANGUAGE GADTs, Rank2Types, CPP #-}
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE Rank2Types #-}
 -- Module      :  FRP.Yampa.Scan
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)

@@ -1,4 +1,6 @@
-{-# LANGUAGE GADTs, Rank2Types, CPP      #-}
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE Rank2Types #-}
 -- | Event Signal Functions and SF combinators.
 --
 -- Events represent values that only exist instantaneously, at discrete points

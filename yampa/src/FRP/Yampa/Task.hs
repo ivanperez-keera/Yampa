@@ -1,4 +1,5 @@
-{-# LANGUAGE CPP, Rank2Types #-}
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE Rank2Types #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Task
