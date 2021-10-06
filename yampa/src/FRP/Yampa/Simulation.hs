@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs, Rank2Types, CPP #-}
 {-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE MultiWayIf #-}
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Simulation
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -34,7 +34,7 @@
 --
 -- This module also includes debugging aids needed to execute signal functions
 -- step by step, which are used by Yampa's testing facilities.
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module FRP.Yampa.Simulation (
    -- * Reactimation
@@ -43,13 +43,15 @@ module FRP.Yampa.Simulation (
                         --    -> (Bool -> b -> IO Bool)
                         --    -> SF a b
                         --    -> IO ()
-                        --
+
     -- ** Low-level reactimation interface
     ReactHandle,
-    reactInit,          --    IO a -- init
-                        --    -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
-                        --    -> SF a b
-                        --    -> IO (ReactHandle a b)
+    reactInit,          -- :: IO a -- init
+                        -- -> (ReactHandle a b -> Bool -> b -> IO Bool)
+                        --     -- actuate
+                        -- -> SF a b
+                        -- -> IO (ReactHandle a b)
+
                         -- process a single input sample:
     react,              --    ReactHandle a b
                         --    -> (DTime,Maybe a)
@@ -113,34 +115,35 @@ import FRP.Yampa.Diagnostics
 --                      the reactimation loop and return to its caller.
 -- sf ......... Signal function to reactimate.
 
--- | Convenience function to run a signal function indefinitely, using
--- a IO actions to obtain new input and process the output.
+-- | Convenience function to run a signal function indefinitely, using a IO
+-- actions to obtain new input and process the output.
 --
 -- This function first runs the initialization action, which provides the
 -- initial input for the signal transformer at time 0.
 --
 -- Afterwards, an input sensing action is used to obtain new input (if any) and
--- the time since the last iteration. The argument to the input sensing function
--- indicates if it can block. If no new input is received, it is assumed to be
--- the same as in the last iteration.
+-- the time since the last iteration. The argument to the input sensing
+-- function indicates if it can block. If no new input is received, it is
+-- assumed to be the same as in the last iteration.
 --
--- After applying the signal function to the input, the actuation IO action
--- is executed. The first argument indicates if the output has changed, the second
+-- After applying the signal function to the input, the actuation IO action is
+-- executed. The first argument indicates if the output has changed, the second
 -- gives the actual output). Actuation functions may choose to ignore the first
--- argument altogether. This action should return True if the reactimation
--- must stop, and False if it should continue.
+-- argument altogether. This action should return True if the reactimation must
+-- stop, and False if it should continue.
 --
 -- Note that this becomes the program's /main loop/, which makes using this
--- function incompatible with GLUT, Gtk and other graphics libraries. It may also
--- impose a sizeable constraint in larger projects in which different subparts run
--- at different time steps. If you need to control the main
--- loop yourself for these or other reasons, use 'reactInit' and 'react'.
+-- function incompatible with GLUT, Gtk and other graphics libraries. It may
+-- also impose a sizeable constraint in larger projects in which different
+-- subparts run at different time steps. If you need to control the main loop
+-- yourself for these or other reasons, use 'reactInit' and 'react'.
 
 reactimate :: Monad m
-           => m a                             -- ^ Initialization action
-           -> (Bool -> m (DTime, Maybe a))    -- ^ Input sensing action
-           -> (Bool -> b -> m Bool)           -- ^ Actuation (output processing) action
-           -> SF a b                          -- ^ Signal function
+           => m a                          -- ^ Initialization action
+           -> (Bool -> m (DTime, Maybe a)) -- ^ Input sensing action
+           -> (Bool -> b -> m Bool)        -- ^ Actuation (output processing)
+                                           --   action
+           -> SF a b                       -- ^ Signal function
            -> m ()
 reactimate init sense actuate (SF {sfTF = tf0}) =
     do
@@ -182,7 +185,10 @@ reactInit init actuate (SF {sfTF = tf0}) =
      let (sf,b0) = tf0 a0
      -- TODO: really need to fix this interface, since right now we
      -- just ignore termination at time 0:
-     r' <- newIORef (ReactState {rsActuate = actuate, rsSF = sf, rsA = a0, rsB = b0 })
+     r' <- newIORef (ReactState { rsActuate = actuate, rsSF = sf
+                                , rsA = a0, rsB = b0
+                                }
+                    )
      let r = ReactHandle r'
      _ <- actuate r True b0
      return r
@@ -192,7 +198,9 @@ react :: ReactHandle a b
       -> (DTime,Maybe a)
       -> IO Bool
 react rh (dt,ma') =
-  do rs@(ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b }) <- readIORef (reactHandle rh)
+  do rs <- readIORef (reactHandle rh)
+     let ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b } = rs
+
      let a' = fromMaybe a ma'
          (sf',b') = (sfTF' sf) dt a'
      writeIORef (reactHandle rh) (rs {rsSF = sf',rsA = a',rsB = b'})
@@ -248,8 +256,8 @@ embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
 
 
 -- | Synchronous embedding. The embedded signal function is run on the supplied
--- input and time stream at a given (but variable) ratio >= 0 to the outer
--- time flow. When the ratio is 0, the embedded signal function is paused.
+-- input and time stream at a given (but variable) ratio >= 0 to the outer time
+-- flow. When the ratio is 0, the embedded signal function is paused.
 
 -- What about running an embedded signal function at a fixed (guaranteed)
 -- sampling frequency? E.g. super sampling if the outer sampling is slower,

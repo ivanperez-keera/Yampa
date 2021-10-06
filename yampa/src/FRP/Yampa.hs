@@ -1,6 +1,6 @@
 {-# LANGUAGE GADTs, Rank2Types, CPP #-}
 
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -111,43 +111,47 @@
 --
 -- * Main Yampa module
 --
---     * "FRP.Yampa"            -- Exports all FRP-related functions
+--     * "FRP.Yampa"              -- Exports all FRP-related functions.
 --
 -- * Different FRP aspects
 --
---     * "FRP.Yampa.Basic"        -- Primitive SFs
+--     * "FRP.Yampa.Basic"        -- Primitive SFs.
 --
---     * "FRP.Yampa.Conditional"  -- Apply one SF or another depending on a condition
+--     * "FRP.Yampa.Conditional"  -- Apply one SF or another depending on
+--                                   a condition.
 --
---     * "FRP.Yampa.Delays"       -- Delay a signal
+--     * "FRP.Yampa.Delays"       -- Delay a signal.
 --
---     * "FRP.Yampa.Event"        -- Event combinators
+--     * "FRP.Yampa.Event"        -- Event combinators.
 --
---     * "FRP.Yampa.EventS"       -- Event Signal Functions
+--     * "FRP.Yampa.EventS"       -- Event Signal Functions.
 --
---     * "FRP.Yampa.Hybrid"       -- Continuous-time to Discrete-time combinators
+--     * "FRP.Yampa.Hybrid"       -- Continuous-time to Discrete-time
+--                                   combinators.
 --
---     * "FRP.Yampa.Integration"  -- Integration and derivation and sums
+--     * "FRP.Yampa.Integration"  -- Integration and derivation and sums.
 --
---     * "FRP.Yampa.Loop"         -- Feedback loops
+--     * "FRP.Yampa.Loop"         -- Feedback loops.
 --
---     * "FRP.Yampa.Random"       -- Random signals
+--     * "FRP.Yampa.Random"       -- Random signals.
 --
---     * "FRP.Yampa.Scan"         -- Scanning or folding a signal
+--     * "FRP.Yampa.Scan"         -- Scanning or folding a signal.
 --
---     * "FRP.Yampa.Switches"     -- Dynamically changing an SF based on the value of a signal
+--     * "FRP.Yampa.Switches"     -- Dynamically changing an SF based on the
+--                                   value of a signal.
 --
---     * "FRP.Yampa.Task"         -- SFs that terminate and are followed by other SFs.
+--     * "FRP.Yampa.Task"         -- SFs that terminate and are followed by
+--                                   other SFs.
 --
---     * "FRP.Yampa.Time"         -- Signals that represent time
+--     * "FRP.Yampa.Time"         -- Signals that represent time.
 --
 -- * Execution
 --
---     * "FRP.Yampa.Simulation" -- Reactimation/evaluation
+--     * "FRP.Yampa.Simulation" -- Reactimation/evaluation.
 --
 -- * Auxiliary modules
 --
---     * "FRP.Yampa.Arrow" -- Arrow-generic functions
+--     * "FRP.Yampa.Arrow" -- Arrow-generic functions.
 
 -- ToDo:
 --
@@ -231,7 +235,7 @@
 --   looking for opt. opportunities, whereas a plain "SF'" would
 --   indicate that things NEVER are going to change, and thus we can just
 --   as well give up?
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module FRP.Yampa (
 
@@ -434,10 +438,12 @@ module FRP.Yampa (
                           --    -> SF a b
                           --    -> IO ()
     ReactHandle,
-    reactInit,            --    IO a -- init
-                          --    -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
-                          --    -> SF a b
-                          --    -> IO (ReactHandle a b)
+    reactInit,            -- :: IO a -- init
+                          -- -> (ReactHandle a b -> Bool -> b -> IO Bool)
+                          --      -- actuate
+                          -- -> SF a b
+                          -- -> IO (ReactHandle a b)
+
                           -- process a single input sample:
     react,                --    ReactHandle a b
                           --    -> (DTime,Maybe a)
