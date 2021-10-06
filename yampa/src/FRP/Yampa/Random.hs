@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs, Rank2Types, CPP #-}
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Random
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -12,7 +12,7 @@
 -- Signals and signal functions with noise and randomness.
 --
 -- The Random number generators are re-exported from "System.Random".
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module FRP.Yampa.Random (
 
@@ -103,7 +103,8 @@ occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
     occAux [] = undefined
     occAux (r:rs) = SF' tf -- True
         where
-        tf dt _ = let p = 1 - exp (-(dt/t_avg)) -- Probability for at least one event.
+        tf dt _ = let p = 1 - exp (-(dt/t_avg)) -- Probability for at least one
+                                                -- event.
                   in (occAux rs, if r < p then Event x else NoEvent)
 
 

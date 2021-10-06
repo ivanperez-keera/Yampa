@@ -1,14 +1,13 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
------------------------------------------------------------------------------------------
--- |
--- Module      :  FRP.Yampa.Event
--- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
--- License     :  BSD-style (see the LICENSE file in the distribution)
+--------------------------------------------------------------------------------
+-- | Module      : FRP.Yampa.Event
+--   Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
+--   License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  portable
+--   Maintainer  : ivan.perez@keera.co.uk
+--   Stability   : provisional
+--   Portability : portable
 --
 -- Events in Yampa represent discrete time-signals, meaning those that do not
 -- change continuously. Examples of event-carrying signals would be mouse
@@ -18,8 +17,8 @@
 -- The type 'Event' is isomorphic to 'Maybe' (@Event a = NoEvent | Event a@)
 -- but, semantically, a 'Maybe'-carrying signal could change continuously,
 -- whereas an 'Event'-carrying signal should not: for two events in subsequent
--- samples, there should be an small enough sampling frequency such that we sample
--- between those two samples and there are no 'Event's between them.
+-- samples, there should be an small enough sampling frequency such that we
+-- sample between those two samples and there are no 'Event's between them.
 -- Nevertheless, no mechanism in Yampa will check this or misbehave if this
 -- assumption is violated.
 --
@@ -30,29 +29,27 @@
 --
 -- Note on naming conventions used in this module.
 --
--- Names here might have to be rethought. It's really a bit messy.
--- In general, the aim has been short and convenient names (like 'tag',
--- 'attach', 'lMerge') and thus we have tried to stay away from suffixing/
--- prefixing conventions. E.g. 'Event' as a common suffix would be very
--- verbose.
+-- Names here might have to be rethought. It's really a bit messy.  In general,
+-- the aim has been short and convenient names (like 'tag', 'attach', 'lMerge')
+-- and thus we have tried to stay away from suffixing/ prefixing conventions.
+-- E.g. 'Event' as a common suffix would be very verbose.
 --
 -- However, part of the names come from a desire to stay close to similar
--- functions for the Maybe type. e.g. 'event', 'fromEvent', 'isEvent'.
--- In many cases, this use of 'Event' could be understood to refer to the
--- constructor 'Event', not to the type name 'Event'. Thus this use of
--- event should not be seen as a suffixing-with-type-name convention. But
--- that is obviously not easy to see, and, more over, interpreting 'Event'
--- as the name of the type might make equally good or better sense. E.g.
--- 'fromEvent' can also be seen as a function taking an event signal,
--- which is a partial function on time, to a normal signal. The latter is
--- then undefined when the source event function is undefined.
+-- functions for the Maybe type. e.g. 'event', 'fromEvent', 'isEvent'.  In many
+-- cases, this use of 'Event' could be understood to refer to the constructor
+-- 'Event', not to the type name 'Event'. Thus this use of event should not be
+-- seen as a suffixing-with-type-name convention. But that is obviously not
+-- easy to see, and, more over, interpreting 'Event' as the name of the type
+-- might make equally good or better sense. E.g.  'fromEvent' can also be seen
+-- as a function taking an event signal, which is a partial function on time,
+-- to a normal signal. The latter is then undefined when the source event
+-- function is undefined.
 --
 -- In other cases, it has been necessary to somehow stay out of the way of
--- names used by the prelude or other commonly imported modules/modules
--- which could be expected to be used heavily in Yampa code. In those cases
--- a suffix 'E' have been added. Examples are 'filterE' (exists in Prelude)
--- and 'joinE' (exists in Monad). Maybe the suffix isn't necessary in the
--- last case.
+-- names used by the prelude or other commonly imported modules/modules which
+-- could be expected to be used heavily in Yampa code. In those cases a suffix
+-- 'E' have been added. Examples are 'filterE' (exists in Prelude) and 'joinE'
+-- (exists in Monad). Maybe the suffix isn't necessary in the last case.
 --
 -- Some functions (actually only one currently, 'mapFilterE') have got an 'E'
 -- suffix just because they're closely related (by name or semantics) to one
@@ -60,27 +57,27 @@
 -- complement 'joinE'. But events carrying pairs could obviously have other
 -- sources than a 'joinE', so currently it is called 'split'.
 --
--- 2003-05-19: Actually, have now changed to 'splitE' to avoid a clash
--- with the method 'split' in the class RandomGen.
+-- 2003-05-19: Actually, have now changed to 'splitE' to avoid a clash with the
+-- method 'split' in the class RandomGen.
 --
 -- 2003-05-19: What about 'gate'? Stands out compared to e.g. 'filterE'.
 --
 -- Currently the 'E' suffix is considered an exception. Maybe we should use
--- completely different names to avoid the 'E' suffix. If the functions
--- are not used that often, 'Event' might be approriate. Alternatively the
--- suffix 'E' should be adopted globaly (except if the name already contains
--- 'event' in some form?).
+-- completely different names to avoid the 'E' suffix. If the functions are not
+-- used that often, 'Event' might be approriate. Alternatively the suffix 'E'
+-- should be adopted globaly (except if the name already contains 'event' in
+-- some form?).
 --
 -- Arguably, having both a type 'Event' and a constructor 'Event' is confusing
 -- since there are more than one constructor. But the name 'Event' for the
--- constructor is quite apt. It's really the type name that is wrong. But
--- no one has found a better name, and changing it would be a really major
--- undertaking. Yes, the constructor 'Event' is not exported, but we still
--- need to talk conceptually about them. On the other hand, if we consider
+-- constructor is quite apt. It's really the type name that is wrong. But no
+-- one has found a better name, and changing it would be a really major
+-- undertaking. Yes, the constructor 'Event' is not exported, but we still need
+-- to talk conceptually about them. On the other hand, if we consider
 -- Event-signals as partial functions on time, maybe it isn't so confusing:
 -- they just don't have a value between events, so 'NoEvent' does not really
 -- exist conceptually.
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module FRP.Yampa.Event where
 
