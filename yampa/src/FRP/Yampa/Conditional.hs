@@ -1,4 +1,13 @@
--- | Apply SFs only under certain conditions.
+-- |
+-- Module      :  FRP.Yampa
+-- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+--
+-- Maintainer  :  ivan.perez@keera.co.uk
+-- Stability   :  provisional
+-- Portability :  non-portable (GHC extensions)
+--
+-- Apply SFs only under certain conditions.
 module FRP.Yampa.Conditional (
     provided  -- :: (a -> Bool) -> SF a b -> SF a b -> SF a b
   , pause     -- :: b -> SF a b -> SF a Bool -> SF a b
@@ -18,12 +27,12 @@ import FRP.Yampa.Switches
 --
 -- This is similar to 'ArrowChoice', except that this resets the SFs after each
 -- transition.
--- 
+--
 -- For example, the following integrates the incoming input numbers, using one
 -- integral if the numbers are even, and another if the input numbers are odd.
 -- Note how, every time we "switch", the old value of the integral is
 -- discarded.
--- 
+--
 -- >>> embed (provided (even . round) integral integral) (deltaEncode 1 [1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2 :: Double])
 -- [0.0,1.0,2.0,0.0,2.0,4.0,0.0,1.0,2.0,0.0,2.0,4.0]
 
