@@ -1,6 +1,8 @@
-{-# LANGUAGE GADTs, Rank2Types, CPP #-}
+{-# LANGUAGE CPP           #-}
+{-# LANGUAGE GADTs         #-}
+{-# LANGUAGE MultiWayIf    #-}
 {-# LANGUAGE PatternGuards #-}
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE Rank2Types    #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Simulation
