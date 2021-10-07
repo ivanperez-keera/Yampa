@@ -1,7 +1,16 @@
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE GADTs      #-}
 {-# LANGUAGE Rank2Types #-}
--- | Event Signal Functions and SF combinators.
+-- |
+-- Module      :  FRP.Yampa.EventS
+-- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+--
+-- Maintainer  :  ivan.perez@keera.co.uk
+-- Stability   :  provisional
+-- Portability :  non-portable (GHC extensions)
+--
+-- Event Signal Functions and SF combinators.
 --
 -- Events represent values that only exist instantaneously, at discrete points
 -- in time. Examples include mouse clicks, zero-crosses of monotonic continuous
@@ -10,14 +19,6 @@
 -- For signals that carry events, there should be a limit in the number of
 -- events we can observe in a time period, no matter how much we increase the
 -- sampling frequency.
-
--- Module      :  FRP.Yampa.EventS
--- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
--- License     :  BSD-style (see the LICENSE file in the distribution)
---
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
 
 
 module FRP.Yampa.EventS (

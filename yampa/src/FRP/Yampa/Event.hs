@@ -1,13 +1,14 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
 --------------------------------------------------------------------------------
--- | Module      : FRP.Yampa.Event
---   Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
---   License     : BSD-style (see the LICENSE file in the distribution)
+-- |
+-- Module      : FRP.Yampa.Event
+-- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
---   Maintainer  : ivan.perez@keera.co.uk
---   Stability   : provisional
---   Portability : portable
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : portable
 --
 -- Events in Yampa represent discrete time-signals, meaning those that do not
 -- change continuously. Examples of event-carrying signals would be mouse

@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE GADTs      #-}
 {-# LANGUAGE Rank2Types #-}
+-- |
 -- Module      :  FRP.Yampa.Scan
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)
@@ -8,8 +9,8 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
-
--- | Simple, stateful signal processing.
+--
+-- Simple, stateful signal processing.
 --
 -- Scanning implements elementary, step-based accumulating over signal
 -- functions by means of an auxiliary function applied to each input and to an

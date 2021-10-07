@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE GADTs      #-}
 {-# LANGUAGE Rank2Types #-}
-
+-- |
 -- Module      :  FRP.Yampa.Basic
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
 -- License     :  BSD-style (see the LICENSE file in the distribution)
@@ -9,8 +9,8 @@
 -- Maintainer  :  ivan.perez@keera.co.uk
 -- Stability   :  provisional
 -- Portability :  non-portable (GHC extensions)
-
--- | Defines basic signal functions, and elementary ways of altering them.
+--
+-- Defines basic signal functions, and elementary ways of altering them.
 --
 -- This module defines very basic ways of creating and modifying signal
 -- functions. In particular, it defines ways of creating constant output
