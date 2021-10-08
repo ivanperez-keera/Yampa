@@ -1,3 +1,10 @@
+2021-10-07 Ivan Perez <ivan.perez@haskell.sexy>
+        * Yampa.cabal: Version bump (0.13.3) (#193), add modules missing from
+          other modules (#181).
+        * src/: Code cleaning and style fixes (#190, #191, #192).
+        * README.md: Restructure documentation (#184), fix installation
+          instructions (#186), add new games (#188), remove note (#189).
+
 2021-09-15 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Version bump (0.13.2), change cabal-version, add
           default language (#180).
