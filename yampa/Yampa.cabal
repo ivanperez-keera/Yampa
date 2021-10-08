@@ -58,6 +58,23 @@ flag examples
   default: False
   manual: True
 
+-- WARNING: The following flag exposes Yampa's core. You should avoid using
+-- this at all. The only reason to expose it is that we are using Yampa for
+-- research, and many extensions require that we expose the constructors. No
+-- released project should depend on this. In general, you should always
+-- install Yampa with this flag disabled.
+flag expose-core
+  Description: You can enable exposing some of Yampa's core constructs
+               using -fexpose-core.
+               .
+               Enabling this is an unsupported configuration, but it may be
+               useful if you are building an extension of Yampa for research
+               and do not wish to fork Yampa completely.
+               .
+               No released project should ever depend on this.
+  default: False
+  manual: True
+
 library
   hs-source-dirs:  src
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
@@ -90,7 +107,13 @@ library
   other-modules:
     -- Auxiliary (commonly used) types
     FRP.Yampa.Diagnostics
-    FRP.Yampa.InternalCore
+
+  if flag(expose-core)
+    exposed-modules:
+      FRP.Yampa.InternalCore
+  else
+    other-modules:
+      FRP.Yampa.InternalCore
 
   default-language:
     Haskell2010
