@@ -1,4 +1,4 @@
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Time
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -21,7 +21,7 @@
 -- produce the value one (@1@). If you really, really, really need to know the
 -- time delta, and need to abandon the hybrid\/FRP abstraction, see
 -- 'FRP.Yampa.Integration.iterFrom'.
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module FRP.Yampa.Time (
     localTime,          -- :: SF a Time

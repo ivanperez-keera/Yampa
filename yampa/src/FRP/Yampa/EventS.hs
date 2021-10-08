@@ -1,5 +1,16 @@
-{-# LANGUAGE GADTs, Rank2Types, CPP      #-}
--- | Event Signal Functions and SF combinators.
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE Rank2Types #-}
+-- |
+-- Module      :  FRP.Yampa.EventS
+-- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+--
+-- Maintainer  :  ivan.perez@keera.co.uk
+-- Stability   :  provisional
+-- Portability :  non-portable (GHC extensions)
+--
+-- Event Signal Functions and SF combinators.
 --
 -- Events represent values that only exist instantaneously, at discrete points
 -- in time. Examples include mouse clicks, zero-crosses of monotonic continuous
@@ -8,14 +19,6 @@
 -- For signals that carry events, there should be a limit in the number of
 -- events we can observe in a time period, no matter how much we increase the
 -- sampling frequency.
-
--- Module      :  FRP.Yampa.EventS
--- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
--- License     :  BSD-style (see the LICENSE file in the distribution)
---
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
 
 
 module FRP.Yampa.EventS (
@@ -269,49 +272,49 @@ delayEvent q | q < 0     = usrErr "AFRP" "delayEvent" "Negative delay."
 -- delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
 --                 | q == 0    = arr (fmap (:[]))
 --                 | otherwise = SF {sfTF = tf0}
---     where
---         tf0 NoEvent   = (noPendingEvent, NoEvent)
---         tf0 (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
+--   where
+--       tf0 NoEvent   = (noPendingEvent, NoEvent)
+--       tf0 (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
 --
---         noPendingEvent = SF' tf -- True
---             where
---                 tf _ NoEvent   = (noPendingEvent, NoEvent)
---                 tf _ (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
+--       noPendingEvent = SF' tf -- True
+--           where
+--               tf _ NoEvent   = (noPendingEvent, NoEvent)
+--               tf _ (Event x) = (pendingEvents (-q) [] [] (-q) x, NoEvent)
 --
---         -- t_next is the present time w.r.t. the next scheduled event.
---         -- t_last is the present time w.r.t. the last scheduled event.
---         -- In the event queues, events are associated with their time
---         -- w.r.t. to preceding event (positive).
---         pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
---             where
---                 tf dt NoEvent    = tf1 (t_last + dt) rqxs (t_next + dt)
---                 tf dt (Event x') = tf1 (-q) ((q', x') : rqxs) t_next'
---                     where
---                         t_next' = t_next  + dt
---                         t_last' = t_last  + dt
---                         q'      = t_last' + q
+--       -- t_next is the present time w.r.t. the next scheduled event.
+--       -- t_last is the present time w.r.t. the last scheduled event.
+--       -- In the event queues, events are associated with their time
+--       -- w.r.t. to preceding event (positive).
+--       pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
+--           where
+--               tf dt NoEvent    = tf1 (t_last + dt) rqxs (t_next + dt)
+--               tf dt (Event x') = tf1 (-q) ((q', x') : rqxs) t_next'
+--                   where
+--                       t_next' = t_next  + dt
+--                       t_last' = t_last  + dt
+--                       q'      = t_last' + q
 --
---                 tf1 t_last' rqxs' t_next'
---                     | t_next' >= 0 =
---                         emitEventsScheduleNext t_last' rqxs' qxs t_next' [x]
---                     | otherwise =
---                         (pendingEvents t_last' rqxs' qxs t_next' x, NoEvent)
+--               tf1 t_last' rqxs' t_next'
+--                   | t_next' >= 0 =
+--                       emitEventsScheduleNext t_last' rqxs' qxs t_next' [x]
+--                   | otherwise =
+--                       (pendingEvents t_last' rqxs' qxs t_next' x, NoEvent)
 --
---         -- t_next is the present time w.r.t. the *scheduled* time of the
---         -- event that is about to be emitted (i.e. >= 0).
---         -- The time associated with any event at the head of the event
---         -- queue is also given w.r.t. the event that is about to be emitted.
---         -- Thus, t_next - q' is the present time w.r.t. the event at the head
---         -- of the event queue.
---         emitEventsScheduleNext t_last [] [] t_next rxs =
---             (noPendingEvent, Event (reverse rxs))
---         emitEventsScheduleNext t_last rqxs [] t_next rxs =
---             emitEventsScheduleNext t_last [] (reverse rqxs) t_next rxs
---         emitEventsScheduleNext t_last rqxs ((q', x') : qxs') t_next rxs
---             | q' > t_next = (pendingEvents t_last rqxs qxs' (t_next - q') x',
---                              Event (reverse rxs))
---             | otherwise   = emitEventsScheduleNext t_last rqxs qxs' (t_next-q')
---                                                    (x' : rxs)
+--       -- t_next is the present time w.r.t. the *scheduled* time of the
+--       -- event that is about to be emitted (i.e. >= 0).
+--       -- The time associated with any event at the head of the event
+--       -- queue is also given w.r.t. the event that is about to be emitted.
+--       -- Thus, t_next - q' is the present time w.r.t. the event at the head
+--       -- of the event queue.
+--       emitEventsScheduleNext t_last [] [] t_next rxs =
+--           (noPendingEvent, Event (reverse rxs))
+--       emitEventsScheduleNext t_last rqxs [] t_next rxs =
+--           emitEventsScheduleNext t_last [] (reverse rqxs) t_next rxs
+--       emitEventsScheduleNext t_last rqxs ((q', x') : qxs') t_next rxs
+--           | q' > t_next = (pendingEvents t_last rqxs qxs' (t_next - q') x',
+--                            Event (reverse rxs))
+--           | otherwise   = emitEventsScheduleNext t_last rqxs qxs' (t_next-q')
+--                                                  (x' : rxs)
 
 -- | Delay an event by a given delta and catenate events that occur so closely
 -- so as to be /inseparable/.
@@ -508,8 +511,8 @@ snap = switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
 
 
 -- | Event source with a single occurrence at or as soon after (local) time
--- @t_ev@ as possible. The value of the event is obtained by sampling the input a
--- that time.
+-- @t_ev@ as possible. The value of the event is obtained by sampling the input
+-- a that time.
 snapAfter :: Time -> SF a (Event a)
 snapAfter t_ev = switch (never
              &&& (identity

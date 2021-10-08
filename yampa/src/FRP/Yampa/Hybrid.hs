@@ -1,4 +1,4 @@
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Hybrid
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -9,7 +9,7 @@
 -- Portability :  non-portable (GHC extensions)
 --
 -- Discrete to continuous-time signal functions.
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module FRP.Yampa.Hybrid (
 
@@ -107,8 +107,8 @@ dHold a_init = epPrim f a_init a_init
 trackAndHold :: a -> SF (Maybe a) a
 trackAndHold a_init = arr (maybe NoEvent Event) >>> hold a_init
 
--- | Tracks input signal when available, holding the last value when the input is 'Nothing',
--- with a delay.
+-- | Tracks input signal when available, holding the last value when the input
+-- is 'Nothing', with a delay.
 --
 -- This behaves similarly to 'hold', but there is a conceptual difference, as
 -- it takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
@@ -133,7 +133,8 @@ dTrackAndHold a_init = trackAndHold a_init >>> iPre a_init
 accum :: a -> SF (Event (a -> a)) (Event a)
 accum a_init = epPrim f a_init NoEvent
     where
-        f a g = (a', Event a', NoEvent) -- Accumulator, output if Event, output if no event
+        f a g = (a', Event a', NoEvent) -- Accumulator, output if Event,
+                                        -- output if no event
             where
                 a' = g a
 

@@ -1,5 +1,5 @@
 name: Yampa
-version: 0.13.2
+version: 0.13.3
 cabal-version: >= 1.10
 license: BSD3
 license-file: LICENSE
@@ -132,6 +132,36 @@ test-suite haddock-coverage
 test-suite regression
   type: exitcode-stdio-1.0
   main-is: testAFRPMain.hs
+  other-modules:
+    AFRPTests
+    AFRPTestsAccum
+    AFRPTestsArr
+    AFRPTestsBasicSF
+    AFRPTestsCOC
+    AFRPTestsCommon
+    AFRPTestsComp
+    AFRPTestsDelay
+    AFRPTestsDer
+    AFRPTestsEmbed
+    AFRPTestsEvSrc
+    AFRPTestsFirstSecond
+    AFRPTestsKSwitch
+    AFRPTestsLaws
+    AFRPTestsLoop
+    AFRPTestsLoopIntegral
+    AFRPTestsLoopLaws
+    AFRPTestsLoopPre
+    AFRPTestsPSwitch
+    AFRPTestsPre
+    AFRPTestsRPSwitch
+    AFRPTestsRSwitch
+    AFRPTestsReact
+    AFRPTestsSscan
+    AFRPTestsSwitch
+    AFRPTestsTask
+    AFRPTestsUtils
+    AFRPTestsWFG
+
   hs-source-dirs: tests
   if !flag(test-regression)
     buildable: False

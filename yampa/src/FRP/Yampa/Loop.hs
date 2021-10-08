@@ -1,5 +1,7 @@
-{-# LANGUAGE GADTs, Rank2Types, CPP #-}
------------------------------------------------------------------------------------------
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE Rank2Types #-}
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Loop
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -11,7 +13,7 @@
 -- Portability :  non-portable -GHC extensions-
 --
 -- Well-initialised loops
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module FRP.Yampa.Loop (
     -- * Loops with guaranteed well-defined feedback

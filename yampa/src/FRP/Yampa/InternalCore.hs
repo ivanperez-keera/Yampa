@@ -1,5 +1,7 @@
-{-# LANGUAGE GADTs, Rank2Types, CPP #-}
------------------------------------------------------------------------------------------
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE Rank2Types #-}
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -138,7 +140,7 @@
 --   looking for opt. opportunities, whereas a plain "SF'" would
 --   indicate that things NEVER are going to change, and thus we can just
 --   as well give up?
------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 module FRP.Yampa.InternalCore (
     module Control.Arrow,
@@ -522,8 +524,11 @@ fdFanOut fd1 fd2 =
 -- wherever that assumption is exploited.
 vfyNoEv :: Event a -> b -> b
 vfyNoEv NoEvent b = b
-vfyNoEv _       _  = usrErr "AFRP" "vfyNoEv" "Assertion failed: Functions on events must not map NoEvent to Event."
-
+vfyNoEv _       _  =
+  usrErr
+    "AFRP"
+    "vfyNoEv"
+    "Assertion failed: Functions on events must not map NoEvent to Event."
 
 
 ------------------------------------------------------------------------------
@@ -539,7 +544,8 @@ instance Control.Category.Category SF where
 
 -- | Choice of which SF to run based on the value of a signal.
 instance ArrowChoice SF where
-  -- (+++) :: forall b c b' c' . SF b c -> SF d e -> SF (Either b d) (Either c e)
+  -- (+++) :: forall b c b' c'
+  --       .  SF b c -> SF d e -> SF (Either b d) (Either c e)
   sfL +++ sfR = SF $ \a ->
     case a of
       Left b  -> let (sf', c) = sfTF sfL b
@@ -751,7 +757,9 @@ cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
                 (s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
                 (s1', Event b, NoEvent) ->
                     let (s2', c, cne') = f2 s2 b in ((s1', s2', cne'), c, cne')
-                _ -> usrErr "AFRP" "cpXX" "Assertion failed: Functions on events must not map NoEvent to Event."
+                _ -> usrErr "AFRP" "cpXX" $
+                       "Assertion failed: Functions on events must not map "
+                       ++ "NoEvent to Event."
 -- !!! 2005-06-28: Why isn't SFCpAXA (FDC ...) checked for?
 -- !!! No invariant rules that out, and it would allow to drop the
 -- !!! event processor ... Does that happen elsewhere?
@@ -1121,7 +1129,9 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
                     case f1 s a of
                         (s', NoEvent, NoEvent) -> (s', f2ne,  f2ne)
                         (s', eb,      NoEvent) -> (s', f2 eb, f2ne)
-                        _ -> usrErr "AFRP" "cpXEAux" "Assertion failed: Functions on events must not map NoEvent to Event."
+                        _ -> usrErr "AFRP" "cpXEAux" $
+                               "Assertion failed: Functions on events must not "
+                               ++ "map NoEvent to Event."
         cpXEAux fd2 _ _ (SFCpAXA _ fd11 sf12 fd13) =
             cpAXA fd11 sf12 (fdComp fd13 fd2)
         cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2

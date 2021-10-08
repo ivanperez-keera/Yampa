@@ -1,6 +1,6 @@
 # Yampa
 
-[![Build Status](https://travis-ci.org/ivanperez-keera/Yampa.svg?branch=master)](https://travis-ci.org/ivanperez-keera/Yampa)
+[![Build Status](https://api.travis-ci.com/ivanperez-keera/Yampa.svg?branch=master)](https://app.travis-ci.com/github/ivanperez-keera/Yampa)
 [![Version on Hackage](https://img.shields.io/hackage/v/Yampa.svg)](https://hackage.haskell.org/package/Yampa)
 [![Flattr this](http://api.flattr.com/button/flattr-badge-large.png "Flattr This!")](https://flattr.com/submit/auto?user_id=ivanperez-keera&url=https://github.com/ivanperez-keera/Yampa&title=Yampa&language=&tags=github&category=software)
 
@@ -15,7 +15,7 @@ Yampa is available on hackage: http://hackage.haskell.org/package/Yampa.
 
 ```
 $ cabal update
-$ cabal install Yampa
+$ cabal install --lib Yampa
 ```
 
 ## Examples
@@ -113,11 +113,62 @@ hackage are listed.
 
 ## Use in production
 
-* Keera Studios is using it for several Haskell games for Android and iOS
-  including a game currently available on [iTunes](https://itunes.apple.com/us/app/magic-cookies/id1244709871) and [Google Play](https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies). See:
-  * http://facebook.com/keerastudios
-  * https://itunes.apple.com/us/app/magic-cookies/id1244709871
-  * https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies
+[Keera Studios](https://keera.co.uk) uses Yampa to create Haskell games available on [Google Play for Android](https://play.google.com/store/apps/developer?id=Keera+Studios&hl=en_US&gl=US) and [iTunes for iOS](https://apps.apple.com/us/developer/keera-studios-ltd/id1244709870):
+
+<table>
+  <tr>
+    <td>
+    <p align="center">
+      Magic Cookies!
+      <br /><br />
+      <a href="http://magiccookies.haskell.games">
+        <img src="https://raw.githubusercontent.com/keera-studios/magic-cookies/master/screencap.gif" height="175" alt="Magic Cookies! Video" style="max-height:175px;"></a>
+      <img width="441" height="1">
+      <br />
+      <sup>Copyright © 2015 - 2020 Keera Studios Ltd. All Rights Reserved.</sup>
+      <br />
+      <a href="https://itunes.apple.com/us/app/magic-cookies/id1244709871">
+        <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/apple.svg" width="32" height="32"></a>
+      &nbsp;&nbsp;
+      <a href="https://play.google.com/store/apps/details?id=uk.co.keera.games.magiccookies">
+        <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/google_play.svg" width="32" height="32"></a>
+    </p>
+    </td>
+    <td>
+    <p align="center">
+      Enpuzzled
+      <br />
+      <br />
+      <a href="http://enpuzzled.haskell.games">
+        <img src="https://raw.githubusercontent.com/keera-studios/enpuzzled/master/enpuzzled.gif" height="175" alt="Enpuzzled Video" style="max-height: 175px;"></a>
+      <img width="441" height="1">
+      <br />
+      <sup>Copyright © - 2017 - Keera Studios Ltd - All Rights Reserved.</sup>
+      <br />
+      <a href="https://apps.apple.com/us/app/enpuzzled/id1460083994">
+        <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/apple.svg" width="32" height="32"></a>
+      &nbsp;&nbsp;
+      <a href="https://play.google.com/store/apps/details?id=uk.co.keera.games.enpuzzled&hl=en_US&gl=US">
+        <img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/google_play.svg" width="32" height="32"></a>
+    </p>
+    </td>
+    </tr>
+    <tr>
+    <td colspan="2">
+      <sub>
+        <sup>
+          Keera, Keera Studios, Magic Cookies, the Magic Cookies logo, the
+          Magic Cookies splash screen, Enpuzzled, the Enpuzzled splash screen,
+          and the Enpuzzled logo are trademarks of Keera Studios Ltd. Google
+          Play and the Google Play logo are trademarks of Google LLC. Apple,
+          the Apple logo, iPhone, and iPad are trademarks of Apple Inc.,
+          registered in the U.S. and other countries and regions. App Store is
+          a service mark of Apple Inc.
+        </sup>
+      </sub>
+    </td>
+  </tr>
+</table>
 
 ## Backends
 
@@ -146,19 +197,12 @@ You can find the additional projects at:
 
 ## Documentation and tutorials
 
-The distribution of Yampa comes with substantial haddock documentation, which you can
-build using haddock or just [read online](https://hackage.haskell.org/package/Yampa).
-To build a local copy, do:
+The API of Yampa is thoroughly documented
+[on hackage](https://hackage.haskell.org/package/Yampa).
+Documentation is also available in the
+[Haskell wiki page for Yampa](https://wiki.haskell.org/Yampa).
 
-```
-$ cabal unpack Yampa ## Or git clone this-repo
-$ cd Yampa-*
-$ cabal configure && cabal haddock --haddock-internal
-```
-
-Documentation is also available online: https://wiki.haskell.org/Yampa
-
-## Papers and technical reports
+### Papers and technical reports
 
 * [Extensible and Robust Functional Reactive Programming](http://www.cs.nott.ac.uk/~psxip1/papers/2017-Perez-thesis-latest.pdf) (Ivan Perez; 2017)
 * [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/authorize?N46564) (Ivan Perez and Henrik Nilsson; 2017)
@@ -189,7 +233,8 @@ Documentation is also available online: https://wiki.haskell.org/Yampa
 * [yampa-glfw](https://github.com/deepfire/yampa-glfw): GLFW backend.
 * [Spaceinvaders](https://github.com/ivanperez-keera/SpaceInvaders): Re-write of the classic space invaders.
 * [Haskanoid](https://github.com/ivanperez-keera/haskanoid): Arkanoid clone in SDL with wiimote and kinect support that works on windows, linux, Mac, Android, and Web.
-* [Magic Cookies](http://haskell.games): iOS/Android haskell puzzle game.
+* [Magic Cookies!](http://magiccookies.haskell.games): iOS/Android haskell puzzle game.
+* [Enpuzzled](http://enpuzzled.haskell.games): iOS/Android haskell puzzle game.
 * [Pang-a-lambda](https://hackage.haskell.org/package/pang-a-lambda): 2D arcade game inspired by the classic super-pang.
 * [yampa-canvas](https://github.com/ku-fpg/yampa-canvas): Backend to blank-canvas / HTML5 Canvas.
 * [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss): Gloss backend.
@@ -215,9 +260,6 @@ You can collaborate at least in three ways:
 * Write documentation (send a link and/or a pull request).
 * Research: we are constantly trying to improve Yampa. We'd be glad to have
   collaborators.  If you are working on this, please, let us know.
-
-  (_Interactivity and FRP is the main topic of my (ongoing) work and research,
-   so I'll keep working on this for some time._ -- Ivan Perez)
 
 ## Authors
 
