@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsKSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsKSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsKSwitch				     *
+*       Module:         TestsKSwitch				                         *
 *       Purpose:        Test cases for kSwitch and dkSwitch		     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsKSwitch (kswitch_tr, kswitch_trs) where
+module TestsKSwitch (kswitch_tr, kswitch_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for kSwitch and dkSwitch

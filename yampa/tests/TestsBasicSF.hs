@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsBasicSF.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsBasicSF.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsBasicSF				     *
+*       Module:         TestsBasicSF				                         *
 *       Purpose:        Test cases for basic signal functions		     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsBasicSF (basicsf_trs, basicsf_tr) where
+module TestsBasicSF (basicsf_trs, basicsf_tr) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for basic signal functions and initialization

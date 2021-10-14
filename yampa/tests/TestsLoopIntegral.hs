@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsLoopIntegral.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsLoopIntegral.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
 *                                  A F R P                                   *
 *                                                                            *
-*       Module:         AFRPTestsLoopIntegral				     *
+*       Module:         TestsLoopIntegral				                     *
 *       Purpose:        Test cases for loopIntegral			     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsLoopIntegral (loopIntegral_tr, loopIntegral_trs) where
+module TestsLoopIntegral (loopIntegral_tr, loopIntegral_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for loopIntegral

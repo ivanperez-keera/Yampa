@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsLoopLaws.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsLoopLaws.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsLoopLaws                                    *
+*       Module:         TestsLoopLaws                                        *
 *       Purpose:        Test cases based on the arrow laws for loop	     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,13 +12,13 @@
 ******************************************************************************
 -}
 
-module AFRPTestsLoopLaws (looplaws_trs, looplaws_tr) where
+module TestsLoopLaws (looplaws_trs, looplaws_tr) where
 
 import Data.Tuple(swap)
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases based on the arrow laws for loop

@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsCOC.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsCOC.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsCOC					     *
+*       Module:         TestsCOC					                         *
 *       Purpose:        Test cases for collection-oriented combinators	     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsCOC (coc_tr, coc_trs) where
+module TestsCOC (coc_tr, coc_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for collection-oriented combinators

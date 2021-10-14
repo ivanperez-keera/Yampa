@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsDelay.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsDelay.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsDelay					     *
+*       Module:         TestsDelay					                         *
 *       Purpose:        Test cases for delays				     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsDelay (delay_tr, delay_trs) where
+module TestsDelay (delay_tr, delay_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for delays
@@ -37,11 +37,11 @@ delay_t2r =
     [17.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,2.0,2.0,2.0,2.0,2.0,
      3.0,3.0,3.0,3.0,3.0,4.0,4.0,4.0,4.0]
 
-delay_t3 = testSF1 (time 
+delay_t3 = testSF1 (time
                     >>> arr (\t -> sin (0.5 * t * pi + pi))
-                    >>> loop (arr (\(x1,x2) -> let x' = max x1 x2 in (x',x')) 
+                    >>> loop (arr (\(x1,x2) -> let x' = max x1 x2 in (x',x'))
                               >>> second (delay 0.0001 0.0)))
-delay_t3r = 
+delay_t3r =
     take 25
          (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
           in tail (scanl max 0 xs))

@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsWFG.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsWFG.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsWFG					     *
+*       Module:         TestsWFG					         *
 *       Purpose:        Test cases for wave-form generation		     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsWFG (wfg_tr, wfg_trs) where
+module TestsWFG (wfg_tr, wfg_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for wave-form generation

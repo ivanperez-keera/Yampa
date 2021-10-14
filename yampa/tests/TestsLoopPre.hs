@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsLoopPre.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsLoopPre.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsLoopPre				     *
+*       Module:         TestsLoopPre				                         *
 *       Purpose:        Test cases for loopPre				     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsLoopPre (loopPre_tr, loopPre_trs) where
+module TestsLoopPre (loopPre_tr, loopPre_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for loopPre
