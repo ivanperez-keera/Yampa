@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsLoop.hs,v 1.6 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsLoop.hs,v 1.6 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsLoop					     *
+*       Module:         TestsLoop					                         *
 *       Purpose:        Test cases for loop				     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,12 +12,12 @@
 ******************************************************************************
 -}
 
-module AFRPTestsLoop (loop_trs, loop_tr, loop_st0, loop_st0r, 
+module TestsLoop (loop_trs, loop_tr, loop_st0, loop_st0r,
 		      loop_st1, loop_st1r) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for loop
@@ -28,7 +28,7 @@ loop_acc = arr (\(x, y)->(x+y, x+y))
 
 loop_t0 :: [Double]
 loop_t0 = testSF1 (loop (constant (42.0, 43.0)))
-loop_t0r = 
+loop_t0r =
     [42.0, 42.0, 42.0, 42.0, 42.0, 42.0, 42.0, 42.0, 42.0, 42.0,
      42.0, 42.0, 42.0, 42.0, 42.0, 42.0, 42.0, 42.0, 42.0, 42.0,
      42.0, 42.0, 42.0, 42.0, 42.0]
@@ -63,7 +63,7 @@ loop_t3r =
 loop_t4 :: [Double]
 loop_t4 = testSF1 (loop (second (iPre 0) >>> loop_acc))
 loop_t4r =
-    [0.0,   1.0,   3.0,   6.0,   10.0, 
+    [0.0,   1.0,   3.0,   6.0,   10.0,
      15.0,  21.0,  28.0,  36.0,  45.0,
      55.0,  66.0,  78.0,  91.0,  105.0,
      120.0, 136.0, 153.0, 171.0, 190.0,
@@ -72,7 +72,7 @@ loop_t4r =
 loop_t5 :: [Double]
 loop_t5 = testSF2 (loop (second (iPre 0) >>> loop_acc))
 loop_t5r =
-    [0.0,  0.0,  0.0,  0.0,  0.0, 
+    [0.0,  0.0,  0.0,  0.0,  0.0,
      1.0,  2.0,  3.0,  4.0,  5.0,
      7.0,  9.0,  11.0, 13.0, 15.0,
      18.0, 21.0, 24.0, 27.0, 30.0,

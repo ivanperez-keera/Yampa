@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
 {- $Id$
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsSscan					     *
+*       Module:         TestsSscan					                         *
 *       Purpose:        Test cases for pre sscan	     		     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -13,11 +13,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsSscan (sscan_tr, sscan_trs) where
+module TestsSscan (sscan_tr, sscan_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases sscan

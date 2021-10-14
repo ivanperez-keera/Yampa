@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsDelay.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsDelay.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsPre					     *
+*       Module:         TestsPre					                         *
 *       Purpose:        Test cases for pre and (derived) combinators	     *
 *			that (semantically) involves a pre.		     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
@@ -14,11 +14,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsPre (pre_tr, pre_trs) where
+module TestsPre (pre_tr, pre_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for pre and related combinators
@@ -34,12 +34,12 @@ pre_t1r =
     [17.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,2.0,2.0,2.0,2.0,2.0,
      3.0,3.0,3.0,3.0,3.0,4.0,4.0,4.0,4.0]
 
-pre_t2 = testSF1 (time 
+pre_t2 = testSF1 (time
                   >>> arr (\t -> sin (0.5 * t * pi + pi))
-                  >>> loop (arr (\(x1,x2) -> let x' = max x1 x2 in (x',x')) 
+                  >>> loop (arr (\(x1,x2) -> let x' = max x1 x2 in (x',x'))
                             >>> second (iPre 0.0)))
 
-pre_t2r = 
+pre_t2r =
     take 25
          (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
           in tail (scanl max 0 xs))
@@ -82,16 +82,16 @@ pre_t4 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
                       arr (\(e,c) -> (e `tag` (c + 1)) `gate` (c < 10))
                       >>> dHold 0
                       >>> arr dup)
-pre_t4r = [0,1,1,1,	-- 0s 
-           1,2,2,2,	-- 1s 
-           2,3,3,3,	-- 2s 
-           3,4,4,4,	-- 3s 
-           4,5,5,5,	-- 4s 
-           5,6,6,6,	-- 5s 
-           6,7,7,7,	-- 6s 
-           7,8,8,8,	-- 7s 
-           8,9,9,9,	-- 8s 
-           9,10,10,10,	-- 9s 
+pre_t4r = [0,1,1,1,	-- 0s
+           1,2,2,2,	-- 1s
+           2,3,3,3,	-- 2s
+           3,4,4,4,	-- 3s
+           4,5,5,5,	-- 4s
+           5,6,6,6,	-- 5s
+           6,7,7,7,	-- 6s
+           7,8,8,8,	-- 7s
+           8,9,9,9,	-- 8s
+           9,10,10,10,	-- 9s
            10,10,10,10,	-- 10s
            10,10,10,10,	-- 11s
            10,10]	-- 12s
@@ -130,16 +130,16 @@ pre_t6 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
                       arr (\(e,c) -> (e `tag` (+1)) `gate` (c < 10))
                       >>> dAccumHold 0
                       >>> arr dup)
-pre_t6r = [0,1,1,1,	-- 0s 
-           1,2,2,2,	-- 1s 
-           2,3,3,3,	-- 2s 
-           3,4,4,4,	-- 3s 
-           4,5,5,5,	-- 4s 
-           5,6,6,6,	-- 5s 
-           6,7,7,7,	-- 6s 
-           7,8,8,8,	-- 7s 
-           8,9,9,9,	-- 8s 
-           9,10,10,10,	-- 9s 
+pre_t6r = [0,1,1,1,	-- 0s
+           1,2,2,2,	-- 1s
+           2,3,3,3,	-- 2s
+           3,4,4,4,	-- 3s
+           4,5,5,5,	-- 4s
+           5,6,6,6,	-- 5s
+           6,7,7,7,	-- 6s
+           7,8,8,8,	-- 7s
+           8,9,9,9,	-- 8s
+           9,10,10,10,	-- 9s
            10,10,10,10,	-- 10s
            10,10,10,10,	-- 11s
            10,10]	-- 12s
@@ -178,16 +178,16 @@ pre_t8 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
                       arr (\(e,c) -> e `gate` (c < 10))
                       >>> dAccumHoldBy (\c _ -> c + 1) 0
                       >>> arr dup)
-pre_t8r = [0,1,1,1,	-- 0s 
-           1,2,2,2,	-- 1s 
-           2,3,3,3,	-- 2s 
-           3,4,4,4,	-- 3s 
-           4,5,5,5,	-- 4s 
-           5,6,6,6,	-- 5s 
-           6,7,7,7,	-- 6s 
-           7,8,8,8,	-- 7s 
-           8,9,9,9,	-- 8s 
-           9,10,10,10,	-- 9s 
+pre_t8r = [0,1,1,1,	-- 0s
+           1,2,2,2,	-- 1s
+           2,3,3,3,	-- 2s
+           3,4,4,4,	-- 3s
+           4,5,5,5,	-- 4s
+           5,6,6,6,	-- 5s
+           6,7,7,7,	-- 6s
+           7,8,8,8,	-- 7s
+           8,9,9,9,	-- 8s
+           9,10,10,10,	-- 9s
            10,10,10,10,	-- 10s
            10,10,10,10,	-- 11s
            10,10]	-- 12s

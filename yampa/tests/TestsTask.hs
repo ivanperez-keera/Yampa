@@ -1,10 +1,10 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsTask.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsTask.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsTask					     *
-*       Purpose:        Test cases for tasks (AFRPTask)			     *
+*       Module:         TestsTask					         *
+*       Purpose:        Test cases for tasks (Task)			     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
@@ -12,18 +12,18 @@
 ******************************************************************************
 -}
 
--- Very rudimentary testing of AFRPTask.
+-- Very rudimentary testing of Task.
 
-module AFRPTestsTask (task_tr, task_trs) where
+module TestsTask (task_tr, task_trs) where
 
 import Control.Monad (when, forever)
 import FRP.Yampa
 import FRP.Yampa.Task
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
--- Test cases for tasks (AFRPTask)
+-- Test cases for tasks (Task)
 ------------------------------------------------------------------------------
 
 task_t0 = testSF1 (runTask (do

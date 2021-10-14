@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsFirstSecond.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsFirstSecond.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsArr                                         *
+*       Module:         TestsArr                                             *
 *       Purpose:        Test cases for first and second			     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,13 +12,13 @@
 ******************************************************************************
 -}
 
-module AFRPTestsFirstSecond (first_trs, first_tr, second_trs, second_tr) where
+module TestsFirstSecond (first_trs, first_tr, second_trs, second_tr) where
 
 import Data.Tuple (swap)
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for first

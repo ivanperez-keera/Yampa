@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsReact.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsReact.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsReact					     *
+*       Module:         TestsReact					                         *
 *       Purpose:        Test cases for reactimation			     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,14 +12,14 @@
 ******************************************************************************
 -}
 
-module AFRPTestsReact (react_tr, react_trs) where
+module TestsReact (react_tr, react_trs) where
 
 import System.IO.Unsafe (unsafePerformIO)
 import Data.IORef (newIORef, writeIORef, readIORef)
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for reactimation
@@ -54,7 +54,7 @@ react_t0 = unsafePerformIO $ do
     reactimate init sense actuate (arr dup >>> second integral)
     outputs <- readIORef outputsr
     return (take 25 (reverse outputs))
-    
+
 
 react_t0r :: [(Double, Double)]
 react_t0r = [

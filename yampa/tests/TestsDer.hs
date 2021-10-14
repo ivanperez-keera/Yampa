@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsDer.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsDer.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsDer					     *
+*       Module:         TestsDer					                         *
 *       Purpose:        Test cases for derivative			     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsDer (der_tr, der_trs) where
+module TestsDer (der_tr, der_trs) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for derivative
@@ -41,7 +41,7 @@ der_t0r =
 -}
 
 der_t0r :: [Double]
-der_t0r = take der_N $ 
+der_t0r = take der_N $
           [2 * pi * cos (2 * pi * t) | t <- [0.0, der_step ..]]
 
 -- We're happy if we are in the right ball park.

@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsArr.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsArr.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsArr                                         *
+*       Module:         TestsArr                                             *
 *       Purpose:        Test cases for arr				     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,7 +12,7 @@
 ******************************************************************************
 -}
 
-module AFRPTestsArr (
+module TestsArr (
     arr_trs,
     arr_tr,
     arr_st0,
@@ -23,7 +23,7 @@ module AFRPTestsArr (
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for arr
