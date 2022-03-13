@@ -226,8 +226,8 @@ test-suite regression
     buildable: False
   else
     build-depends:
-      base,
-      Yampa
+        base
+      , Yampa
 
 executable yampa-examples-sdl-bouncingbox
   main-is: MainBouncingBox.hs
