@@ -1,5 +1,6 @@
 2022-03-13 Ivan Perez <ivan.perez@haskell.sexy>
         * yampa-test.cabal: Syntax rules (#196).
+        * tests/YampaQC.hs: Remove incorrect tests (#198).
 
 2021-10-07 Ivan Perez <ivan.perez@keera.co.uk>
         * yampa-test.cabal: Version bump (0.13.3).
