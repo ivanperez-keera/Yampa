@@ -63,6 +63,10 @@ extra-source-files:
 
   CHANGELOG
 
+source-repository head
+  type:     git
+  location: git://github.com/ivanperez-keera/Yampa.git
+
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
   Description: Enable hlint test suite
@@ -293,7 +297,3 @@ executable yampa-examples-tailgatingdetector
 
   default-language:
     Haskell2010
-
-source-repository head
-  type:     git
-  location: git://github.com/ivanperez-keera/Yampa.git
