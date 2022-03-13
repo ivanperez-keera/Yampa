@@ -238,7 +238,12 @@ executable yampa-examples-sdl-bouncingbox
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
     buildable: True
-    build-Depends: base < 5, random, deepseq, SDL, Yampa
+    build-Depends:
+        base < 5
+      , deepseq
+      , random
+      , SDL
+      , Yampa
   else
     buildable: False
 
