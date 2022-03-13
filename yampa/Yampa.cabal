@@ -109,15 +109,12 @@ flag expose-core
 
 library
   exposed-modules:
-    -- Main FRP modules
     FRP.Yampa
-    FRP.Yampa.Event
-    FRP.Yampa.Task
-
-    -- Auxiliary definitions
+    FRP.Yampa.Arrow
     FRP.Yampa.Basic
     FRP.Yampa.Conditional
     FRP.Yampa.Delays
+    FRP.Yampa.Event
     FRP.Yampa.EventS
     FRP.Yampa.Hybrid
     FRP.Yampa.Integration
@@ -126,10 +123,8 @@ library
     FRP.Yampa.Scan
     FRP.Yampa.Simulation
     FRP.Yampa.Switches
+    FRP.Yampa.Task
     FRP.Yampa.Time
-
-    -- FRP-agnostic auxiliary definitions
-    FRP.Yampa.Arrow
 
   other-modules:
     -- Auxiliary (commonly used) types
