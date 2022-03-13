@@ -293,7 +293,9 @@ executable yampa-examples-elevator
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
     buildable: True
-    build-depends: base < 5, Yampa
+    build-depends:
+        base < 5
+      , Yampa
   else
     buildable: False
 
@@ -306,6 +308,8 @@ executable yampa-examples-tailgatingdetector
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
     buildable: True
-    build-depends: base < 5, Yampa
+    build-depends:
+        base < 5
+      , Yampa
   else
     buildable: False
