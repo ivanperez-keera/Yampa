@@ -27,19 +27,19 @@
 -- CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 -- ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 -- POSSIBILITY OF SUCH DAMAGE.
-cabal-version:       >= 1.10
-build-type:          Simple
+cabal-version: >= 1.10
+build-type:    Simple
 
-name:                yampa-test
-version:             0.13.3
-author:              Ivan Perez
-maintainer:          ivan.perez@keera.co.uk
-homepage:            http://github.com/ivanperez-keera/Yampa
-license:             BSD3
-license-file:        LICENSE
--- copyright:
-category:            Testing
-synopsis:            Testing library for Yampa.
+name:          yampa-test
+version:       0.13.3
+author:        Ivan Perez
+maintainer:    ivan.perez@keera.co.uk
+homepage:      http://github.com/ivanperez-keera/Yampa
+license:       BSD3
+license-file:  LICENSE
+-- copyright
+category:      Testing
+synopsis:      Testing library for Yampa.
 description:
   Testing and debugging library for Yampa.
   .
