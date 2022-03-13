@@ -44,24 +44,43 @@ description:
   arrow combinators.
 
 extra-source-files:
-  tests/Tests.hs,         tests/TestsCommon.hs,        tests/TestsArr.hs,
-  tests/TestsComp.hs,     tests/TestsFirstSecond.hs,   tests/TestsLaws.hs,
-  tests/TestsLoop.hs,     tests/TestsLoopLaws.hs,      tests/TestsBasicSF.hs,
-  tests/TestsSscan.hs,    tests/TestsEvSrc.hs,         tests/TestsCOC.hs,
-  tests/TestsSwitch.hs,   tests/TestsKSwitch.hs,       tests/TestsRSwitch.hs,
-  tests/TestsPSwitch.hs,  tests/TestsRPSwitch.hs,      tests/TestsWFG.hs,
-  tests/TestsAccum.hs,    tests/TestsPre.hs,           tests/TestsDelay.hs,
-  tests/TestsDer.hs,      tests/TestsLoopPre.hs,       tests/TestsLoopIntegral.hs,
-  tests/TestsReact.hs,    tests/TestsEmbed.hs,         tests/TestsUtils.hs,
-  tests/TestsTask.hs,     tests/testYampaMain.hs,
+  CHANGELOG,
 
+  examples/Diagrams.hs,
   examples/Elevator/Elevator.hs,
   examples/Elevator/TestElevatorMain.hs,
   examples/TailgatingDetector/TailgatingDetector.hs,
   examples/TailgatingDetector/TestTGMain.hs,
-  examples/Diagrams.hs,
 
-  CHANGELOG
+  tests/TestsAccum.hs,
+  tests/TestsArr.hs,
+  tests/TestsBasicSF.hs,
+  tests/TestsCOC.hs,
+  tests/TestsCommon.hs,
+  tests/TestsComp.hs,
+  tests/TestsDelay.hs,
+  tests/TestsDer.hs,
+  tests/TestsEmbed.hs,
+  tests/TestsEvSrc.hs,
+  tests/TestsFirstSecond.hs,
+  tests/Tests.hs,
+  tests/TestsKSwitch.hs,
+  tests/TestsLaws.hs,
+  tests/TestsLoop.hs,
+  tests/TestsLoopIntegral.hs,
+  tests/TestsLoopLaws.hs,
+  tests/TestsLoopPre.hs,
+  tests/TestsPre.hs,
+  tests/TestsPSwitch.hs,
+  tests/TestsReact.hs,
+  tests/TestsRPSwitch.hs,
+  tests/TestsRSwitch.hs,
+  tests/TestsSscan.hs,
+  tests/TestsSwitch.hs,
+  tests/TestsTask.hs,
+  tests/TestsUtils.hs,
+  tests/TestsWFG.hs,
+  tests/testYampaMain.hs
 
 source-repository head
   type:     git
