@@ -108,11 +108,6 @@ flag expose-core
   manual: True
 
 library
-  hs-source-dirs:  src
-  ghc-options : -O3 -Wall -fno-warn-name-shadowing
-  build-Depends: base < 6, random, deepseq, simple-affine-space
-  if !impl(ghc>=8.0)
-    build-Depends: fail == 4.9.*
   exposed-modules:
     -- Main FRP modules
     FRP.Yampa
@@ -140,15 +135,24 @@ library
     -- Auxiliary (commonly used) types
     FRP.Yampa.Diagnostics
 
+  build-Depends: base < 6, random, deepseq, simple-affine-space
+
+  default-language:
+    Haskell2010
+
+  hs-source-dirs:  src
+
+  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+
+  if !impl(ghc>=8.0)
+    build-Depends: fail == 4.9.*
+
   if flag(expose-core)
     exposed-modules:
       FRP.Yampa.InternalCore
   else
     other-modules:
       FRP.Yampa.InternalCore
-
-  default-language:
-    Haskell2010
 
 test-suite hlint
   type: exitcode-stdio-1.0
