@@ -64,11 +64,12 @@ source-repository head
 
 
 library
-  exposed-modules:     FRP.Yampa.Debug
-                       FRP.Yampa.LTLFuture
-                       FRP.Yampa.LTLPast
-                       FRP.Yampa.Stream
-                       FRP.Yampa.QuickCheck
+  exposed-modules:
+    FRP.Yampa.Debug
+    FRP.Yampa.LTLFuture
+    FRP.Yampa.LTLPast
+    FRP.Yampa.QuickCheck
+    FRP.Yampa.Stream
   build-depends:       base >=4 && <5,
                        Yampa >= 0.13.3 && < 0.14,
                        QuickCheck,
