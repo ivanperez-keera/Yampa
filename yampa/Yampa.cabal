@@ -156,6 +156,8 @@ library
 test-suite hlint
   type: exitcode-stdio-1.0
   main-is: hlint.hs
+  default-language:
+    Haskell2010
   hs-source-dirs: tests
   if !flag(test-hlint)
     buildable: False
@@ -163,9 +165,6 @@ test-suite hlint
     build-depends:
       base,
       hlint >= 1.7
-
-  default-language:
-    Haskell2010
 
 -- Verify that the code is thoroughly documented
 test-suite haddock-coverage
