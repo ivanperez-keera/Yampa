@@ -32,6 +32,13 @@ build-type:          Simple
 
 name:                yampa-test
 version:             0.13.3
+author:              Ivan Perez
+maintainer:          ivan.perez@keera.co.uk
+homepage:            http://github.com/ivanperez-keera/Yampa
+license:             BSD3
+license-file:        LICENSE
+-- copyright:
+category:            Testing
 synopsis:            Testing library for Yampa.
 description:
   Testing and debugging library for Yampa.
@@ -47,13 +54,6 @@ description:
   A detailed explanation of these ideas is included in the ICFP 2017 paper
   <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
 
-homepage:            http://github.com/ivanperez-keera/Yampa
-license:             BSD3
-license-file:        LICENSE
-author:              Ivan Perez
-maintainer:          ivan.perez@keera.co.uk
--- copyright:
-category:            Testing
 extra-source-files:  CHANGELOG
 
 
