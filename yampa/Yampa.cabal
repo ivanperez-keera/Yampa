@@ -271,6 +271,8 @@ executable yampa-examples-sdl-wiimote
 executable yampa-examples-elevator
   main-is: TestElevatorMain.hs
   other-modules: Elevator
+  default-language:
+    Haskell2010
   hs-source-dirs:  examples/Elevator
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
@@ -278,9 +280,6 @@ executable yampa-examples-elevator
     build-depends: base < 5, Yampa
   else
     buildable: False
-
-  default-language:
-    Haskell2010
 
 executable yampa-examples-tailgatingdetector
   main-is: TestTGMain.hs
