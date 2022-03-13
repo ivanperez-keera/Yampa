@@ -218,6 +218,9 @@ test-suite regression
     TestsUtils
     TestsWFG
 
+  default-language:
+    Haskell2010
+
   hs-source-dirs: tests
   if !flag(test-regression)
     buildable: False
@@ -225,9 +228,6 @@ test-suite regression
     build-depends:
       base,
       Yampa
-
-  default-language:
-    Haskell2010
 
 executable yampa-examples-sdl-bouncingbox
   main-is: MainBouncingBox.hs
