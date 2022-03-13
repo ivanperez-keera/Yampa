@@ -69,24 +69,24 @@ source-repository head
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
-  Description: Enable hlint test suite
+  description: Enable hlint test suite
   default: False
   manual: True
 
 -- You can disable the haddock coverage test suite with -f-test-doc-coverage
 flag test-doc-coverage
-  Description: Enable haddock coverage test suite
+  description: Enable haddock coverage test suite
   default: False
   manual: True
 
 -- You can disable the regression test suite with -f-test-regression
 flag test-regression
-  Description: Enable regression test suite
+  description: Enable regression test suite
   default: True
   manual: True
 
 flag examples
-  Description: Enable examples
+  description: Enable examples
   default: False
   manual: True
 
@@ -96,7 +96,7 @@ flag examples
 -- released project should depend on this. In general, you should always
 -- install Yampa with this flag disabled.
 flag expose-core
-  Description: You can enable exposing some of Yampa's core constructs
+  description: You can enable exposing some of Yampa's core constructs
                using -fexpose-core.
                .
                Enabling this is an unsupported configuration, but it may be
@@ -130,7 +130,7 @@ library
     -- Auxiliary (commonly used) types
     FRP.Yampa.Diagnostics
 
-  build-Depends:
+  build-depends:
       base < 6
     , deepseq
     , random
@@ -144,7 +144,7 @@ library
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
 
   if !impl(ghc>=8.0)
-    build-Depends: fail == 4.9.*
+    build-depends: fail == 4.9.*
 
   if flag(expose-core)
     exposed-modules:
@@ -238,7 +238,7 @@ executable yampa-examples-sdl-bouncingbox
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
     buildable: True
-    build-Depends:
+    build-depends:
         base < 5
       , deepseq
       , random
@@ -256,7 +256,7 @@ executable yampa-examples-sdl-circlingmouse
   ghc-options : -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
     buildable: True
-    build-Depends:
+    build-depends:
         base < 5
       , deepseq
       , random
