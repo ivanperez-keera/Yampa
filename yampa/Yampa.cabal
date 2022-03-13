@@ -26,23 +26,23 @@
 -- WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 -- OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 -- ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+cabal-version: >= 1.10
+build-type: Simple
 name: Yampa
 version: 0.13.3
-cabal-version: >= 1.10
-license: BSD3
-license-file: LICENSE
 author: Henrik Nilsson, Antony Courtney
 maintainer: Ivan Perez (ivan.perez@keera.co.uk)
 homepage: https://github.com/ivanperez-keera/Yampa/
+license: BSD3
+license-file: LICENSE
 category: Reactivity, FRP
 synopsis: Elegant Functional Reactive Programming Language for Hybrid Systems
+description:
+  Domain-specific language embedded in Haskell for programming
+  hybrid (mixed discrete-time and continuous-time) systems. Yampa is based on
+  the concepts of Functional Reactive Programming (FRP) and is structured using
+  arrow combinators.
 
-description:  Domain-specific language embedded in Haskell for programming
-              hybrid (mixed discrete-time and continuous-time) systems. Yampa is based on
-              the concepts of Functional Reactive Programming (FRP) and is structured using
-              arrow combinators.
-
-build-type: Simple
 extra-source-files:
   tests/Tests.hs,         tests/TestsCommon.hs,        tests/TestsArr.hs,
   tests/TestsComp.hs,     tests/TestsFirstSecond.hs,   tests/TestsLaws.hs,
