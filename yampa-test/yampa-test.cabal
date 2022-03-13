@@ -56,6 +56,13 @@ extra-source-files:  CHANGELOG
 
 cabal-version:       >=1.10
 
+
+source-repository head
+  type:     git
+  location: git://github.com/ivanperez-keera/Yampa.git
+  subdir:   yampa-test
+
+
 library
   exposed-modules:     FRP.Yampa.Debug
                        FRP.Yampa.LTLFuture
