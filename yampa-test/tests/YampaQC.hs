@@ -36,8 +36,7 @@ main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Yampa QC properties"
-    [ testProperty "SF based on (**2) equal to SF on (^2))" prop_arr_law1
-    , testProperty "Identity"                               prop_arr_id
+    [ testProperty "Identity"                               prop_arr_id
     , testProperty "Arrow Naturality"                       prop_arr_naturality
     , testProperty "Naturality"                             prop_arr_naturality
     , testProperty "Basic > Identity (1)"                   prop_basic_identity_1
@@ -95,10 +94,6 @@ tests = testGroup "Yampa QC properties"
 -- * Yampa laws
 
 -- ** Arrow laws
-prop_arr_law1 =
-   forAll myStream (evalT $ prop_always_equal (arr (**2)) (arr (^2)))
- where myStream :: Gen (SignalSampleStream Float)
-       myStream = uniDistStream
 
 prop_arr_id =
    forAll myStream (evalT $ prop_always_equal (arr id) identity)
