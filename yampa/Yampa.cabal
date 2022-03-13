@@ -159,12 +159,15 @@ library
   default-language:
     Haskell2010
 
-  hs-source-dirs:  src
+  hs-source-dirs:
+    src
 
-  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  ghc-options :
+    -O3 -Wall -fno-warn-name-shadowing
 
   if !impl(ghc>=8.0)
-    build-depends: fail == 4.9.*
+    build-depends:
+      fail == 4.9.*
 
   if flag(expose-core)
     exposed-modules:
@@ -174,13 +177,17 @@ library
       FRP.Yampa.InternalCore
 
 test-suite hlint
-  type: exitcode-stdio-1.0
-  main-is: hlint.hs
+  type:
+    exitcode-stdio-1.0
+  main-is:
+    hlint.hs
   default-language:
     Haskell2010
-  hs-source-dirs: tests
+  hs-source-dirs:
+    tests
   if !flag(test-hlint)
-    buildable: False
+    buildable:
+      False
   else
     build-depends:
         base
@@ -188,15 +195,20 @@ test-suite hlint
 
 -- Verify that the code is thoroughly documented
 test-suite haddock-coverage
-  type: exitcode-stdio-1.0
-  main-is: HaddockCoverage.hs
+  type:
+    exitcode-stdio-1.0
+  main-is:
+    HaddockCoverage.hs
   default-language:
     Haskell2010
-  hs-source-dirs: tests
-  ghc-options: -Wall
+  hs-source-dirs:
+    tests
+  ghc-options:
+    -Wall
 
   if !flag(test-doc-coverage)
-    buildable: False
+    buildable:
+      False
   else
     build-depends:
         base >= 4 && < 5
@@ -206,8 +218,10 @@ test-suite haddock-coverage
       , regex-posix
 
 test-suite regression
-  type: exitcode-stdio-1.0
-  main-is: testYampaMain.hs
+  type:
+    exitcode-stdio-1.0
+  main-is:
+    testYampaMain.hs
   other-modules:
     Tests
     TestsAccum
@@ -241,23 +255,30 @@ test-suite regression
   default-language:
     Haskell2010
 
-  hs-source-dirs: tests
+  hs-source-dirs:
+    tests
   if !flag(test-regression)
-    buildable: False
+    buildable:
+      False
   else
     build-depends:
         base
       , Yampa
 
 executable yampa-examples-sdl-bouncingbox
-  main-is: MainBouncingBox.hs
-  other-modules: YampaSDL
+  main-is:
+    MainBouncingBox.hs
+  other-modules:
+    YampaSDL
   default-language:
     Haskell2010
-  hs-source-dirs:  examples/yampa-game/
-  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  hs-source-dirs:
+    examples/yampa-game/
+  ghc-options :
+    -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
-    buildable: True
+    buildable:
+      True
     build-depends:
         base < 5
       , deepseq
@@ -265,17 +286,23 @@ executable yampa-examples-sdl-bouncingbox
       , SDL
       , Yampa
   else
-    buildable: False
+    buildable:
+      False
 
 executable yampa-examples-sdl-circlingmouse
-  main-is: MainCircleMouse.hs
-  other-modules: YampaSDL
+  main-is:
+    MainCircleMouse.hs
+  other-modules:
+    YampaSDL
   default-language:
     Haskell2010
-  hs-source-dirs:  examples/yampa-game/
-  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  hs-source-dirs:
+    examples/yampa-game/
+  ghc-options :
+    -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
-    buildable: True
+    buildable:
+      True
     build-depends:
         base < 5
       , deepseq
@@ -283,17 +310,23 @@ executable yampa-examples-sdl-circlingmouse
       , SDL
       , Yampa
   else
-    buildable: False
+    buildable:
+      False
 
 executable yampa-examples-sdl-wiimote
-  main-is: MainWiimote.hs
-  other-modules: YampaSDL
+  main-is:
+    MainWiimote.hs
+  other-modules:
+    YampaSDL
   default-language:
     Haskell2010
-  hs-source-dirs:  examples/yampa-game/
-  ghc-options : -O3 -Wall -fno-warn-name-shadowing -rtsopts
+  hs-source-dirs:
+    examples/yampa-game/
+  ghc-options :
+    -O3 -Wall -fno-warn-name-shadowing -rtsopts
   if flag(examples)
-    buildable: True
+    buildable:
+      True
     build-depends:
         base < 5
       , deepseq
@@ -302,34 +335,47 @@ executable yampa-examples-sdl-wiimote
       , SDL
       , Yampa
   else
-    buildable: False
+    buildable:
+      False
 
 executable yampa-examples-elevator
-  main-is: TestElevatorMain.hs
-  other-modules: Elevator
+  main-is:
+    TestElevatorMain.hs
+  other-modules:
+    Elevator
   default-language:
     Haskell2010
-  hs-source-dirs:  examples/Elevator
-  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  hs-source-dirs:
+    examples/Elevator
+  ghc-options :
+    -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
-    buildable: True
+    buildable:
+      True
     build-depends:
         base < 5
       , Yampa
   else
-    buildable: False
+    buildable:
+      False
 
 executable yampa-examples-tailgatingdetector
-  main-is: TestTGMain.hs
-  other-modules: TailgatingDetector
+  main-is:
+    TestTGMain.hs
+  other-modules:
+    TailgatingDetector
   default-language:
     Haskell2010
-  hs-source-dirs:  examples/TailgatingDetector
-  ghc-options : -O3 -Wall -fno-warn-name-shadowing
+  hs-source-dirs:
+    examples/TailgatingDetector
+  ghc-options :
+    -O3 -Wall -fno-warn-name-shadowing
   if flag(examples)
-    buildable: True
+    buildable:
+      True
     build-depends:
         base < 5
       , Yampa
   else
-    buildable: False
+    buildable:
+      False
