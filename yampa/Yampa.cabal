@@ -27,17 +27,18 @@
 -- OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 -- ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 cabal-version: >= 1.10
-build-type: Simple
+build-type:    Simple
 
-name: Yampa
-version: 0.13.3
-author: Henrik Nilsson, Antony Courtney
-maintainer: Ivan Perez (ivan.perez@keera.co.uk)
-homepage: https://github.com/ivanperez-keera/Yampa/
-license: BSD3
-license-file: LICENSE
-category: Reactivity, FRP
-synopsis: Elegant Functional Reactive Programming Language for Hybrid Systems
+name:          Yampa
+version:       0.13.3
+author:        Henrik Nilsson, Antony Courtney
+maintainer:    Ivan Perez (ivan.perez@keera.co.uk)
+homepage:      https://github.com/ivanperez-keera/Yampa/
+license:       BSD3
+license-file:  LICENSE
+category:      Reactivity, FRP
+synopsis:
+  Elegant Functional Reactive Programming Language for Hybrid Systems
 description:
   Domain-specific language embedded in Haskell for programming hybrid (mixed
   discrete-time and continuous-time) systems. Yampa is based on the concepts of
@@ -92,25 +93,25 @@ source-repository head
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
   description: Enable hlint test suite
-  default: False
-  manual: True
+  default:     False
+  manual:      True
 
 -- You can disable the haddock coverage test suite with -f-test-doc-coverage
 flag test-doc-coverage
   description: Enable haddock coverage test suite
-  default: False
-  manual: True
+  default:     False
+  manual:      True
 
 -- You can disable the regression test suite with -f-test-regression
 flag test-regression
   description: Enable regression test suite
-  default: True
-  manual: True
+  default:     True
+  manual:      True
 
 flag examples
   description: Enable examples
-  default: False
-  manual: True
+  default:     False
+  manual:      True
 
 -- WARNING: The following flag exposes Yampa's core. You should avoid using
 -- this at all. The only reason to expose it is that we are using Yampa for
@@ -128,7 +129,7 @@ flag expose-core
     .
     No released project should ever depend on this.
   default: False
-  manual: True
+  manual:  True
 
 
 library
