@@ -28,6 +28,7 @@
 -- ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 cabal-version: >= 1.10
 build-type: Simple
+
 name: Yampa
 version: 0.13.3
 author: Henrik Nilsson, Antony Courtney
@@ -82,9 +83,11 @@ extra-source-files:
   tests/TestsWFG.hs,
   tests/testYampaMain.hs
 
+
 source-repository head
   type:     git
   location: git://github.com/ivanperez-keera/Yampa.git
+
 
 -- You can disable the hlint test suite with -f-test-hlint
 flag test-hlint
@@ -126,6 +129,7 @@ flag expose-core
     No released project should ever depend on this.
   default: False
   manual: True
+
 
 library
   exposed-modules:
@@ -176,15 +180,20 @@ library
     other-modules:
       FRP.Yampa.InternalCore
 
+
 test-suite hlint
   type:
     exitcode-stdio-1.0
+
   main-is:
     hlint.hs
+
   default-language:
     Haskell2010
+
   hs-source-dirs:
     tests
+
   if !flag(test-hlint)
     buildable:
       False
@@ -197,12 +206,16 @@ test-suite hlint
 test-suite haddock-coverage
   type:
     exitcode-stdio-1.0
+
   main-is:
     HaddockCoverage.hs
+
   default-language:
     Haskell2010
+
   hs-source-dirs:
     tests
+
   ghc-options:
     -Wall
 
@@ -217,11 +230,14 @@ test-suite haddock-coverage
       , process
       , regex-posix
 
+
 test-suite regression
   type:
     exitcode-stdio-1.0
+
   main-is:
     testYampaMain.hs
+
   other-modules:
     Tests
     TestsAccum
@@ -257,6 +273,7 @@ test-suite regression
 
   hs-source-dirs:
     tests
+
   if !flag(test-regression)
     buildable:
       False
@@ -265,17 +282,23 @@ test-suite regression
         base
       , Yampa
 
+
 executable yampa-examples-sdl-bouncingbox
   main-is:
     MainBouncingBox.hs
+
   other-modules:
     YampaSDL
+
   default-language:
     Haskell2010
+
   hs-source-dirs:
     examples/yampa-game/
+
   ghc-options :
     -O3 -Wall -fno-warn-name-shadowing
+
   if flag(examples)
     buildable:
       True
@@ -288,18 +311,24 @@ executable yampa-examples-sdl-bouncingbox
   else
     buildable:
       False
+
 
 executable yampa-examples-sdl-circlingmouse
   main-is:
     MainCircleMouse.hs
+
   other-modules:
     YampaSDL
+
   default-language:
     Haskell2010
+
   hs-source-dirs:
     examples/yampa-game/
+
   ghc-options :
     -O3 -Wall -fno-warn-name-shadowing
+
   if flag(examples)
     buildable:
       True
@@ -313,17 +342,23 @@ executable yampa-examples-sdl-circlingmouse
     buildable:
       False
 
+
 executable yampa-examples-sdl-wiimote
   main-is:
     MainWiimote.hs
+
   other-modules:
     YampaSDL
+
   default-language:
     Haskell2010
+
   hs-source-dirs:
     examples/yampa-game/
+
   ghc-options :
     -O3 -Wall -fno-warn-name-shadowing -rtsopts
+
   if flag(examples)
     buildable:
       True
@@ -338,17 +373,23 @@ executable yampa-examples-sdl-wiimote
     buildable:
       False
 
+
 executable yampa-examples-elevator
   main-is:
     TestElevatorMain.hs
+
   other-modules:
     Elevator
+
   default-language:
     Haskell2010
+
   hs-source-dirs:
     examples/Elevator
+
   ghc-options :
     -O3 -Wall -fno-warn-name-shadowing
+
   if flag(examples)
     buildable:
       True
@@ -359,17 +400,23 @@ executable yampa-examples-elevator
     buildable:
       False
 
+
 executable yampa-examples-tailgatingdetector
   main-is:
     TestTGMain.hs
+
   other-modules:
     TailgatingDetector
+
   default-language:
     Haskell2010
+
   hs-source-dirs:
     examples/TailgatingDetector
+
   ghc-options :
     -O3 -Wall -fno-warn-name-shadowing
+
   if flag(examples)
     buildable:
       True
