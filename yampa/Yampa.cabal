@@ -274,7 +274,13 @@ executable yampa-examples-sdl-wiimote
   ghc-options : -O3 -Wall -fno-warn-name-shadowing -rtsopts
   if flag(examples)
     buildable: True
-    build-depends: base < 5, random, deepseq, SDL, hcwiid, Yampa
+    build-depends:
+        base < 5
+      , deepseq
+      , hcwiid
+      , random
+      , SDL
+      , Yampa
   else
     buildable: False
 
