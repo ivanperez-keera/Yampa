@@ -38,10 +38,10 @@ license-file: LICENSE
 category: Reactivity, FRP
 synopsis: Elegant Functional Reactive Programming Language for Hybrid Systems
 description:
-  Domain-specific language embedded in Haskell for programming
-  hybrid (mixed discrete-time and continuous-time) systems. Yampa is based on
-  the concepts of Functional Reactive Programming (FRP) and is structured using
-  arrow combinators.
+  Domain-specific language embedded in Haskell for programming hybrid (mixed
+  discrete-time and continuous-time) systems. Yampa is based on the concepts of
+  Functional Reactive Programming (FRP) and is structured using arrow
+  combinators.
 
 extra-source-files:
   CHANGELOG,
