@@ -48,42 +48,7 @@ description:
 extra-source-files:
   CHANGELOG,
 
-  examples/Diagrams.hs,
-  examples/Elevator/Elevator.hs,
-  examples/Elevator/TestElevatorMain.hs,
-  examples/TailgatingDetector/TailgatingDetector.hs,
-  examples/TailgatingDetector/TestTGMain.hs,
-
-  tests/TestsAccum.hs,
-  tests/TestsArr.hs,
-  tests/TestsBasicSF.hs,
-  tests/TestsCOC.hs,
-  tests/TestsCommon.hs,
-  tests/TestsComp.hs,
-  tests/TestsDelay.hs,
-  tests/TestsDer.hs,
-  tests/TestsEmbed.hs,
-  tests/TestsEvSrc.hs,
-  tests/TestsFirstSecond.hs,
-  tests/Tests.hs,
-  tests/TestsKSwitch.hs,
-  tests/TestsLaws.hs,
-  tests/TestsLoop.hs,
-  tests/TestsLoopIntegral.hs,
-  tests/TestsLoopLaws.hs,
-  tests/TestsLoopPre.hs,
-  tests/TestsPre.hs,
-  tests/TestsPSwitch.hs,
-  tests/TestsReact.hs,
-  tests/TestsRPSwitch.hs,
-  tests/TestsRSwitch.hs,
-  tests/TestsSscan.hs,
-  tests/TestsSwitch.hs,
-  tests/TestsTask.hs,
-  tests/TestsUtils.hs,
-  tests/TestsWFG.hs,
-  tests/testYampaMain.hs
-
+  examples/Diagrams.hs
 
 source-repository head
   type:     git
