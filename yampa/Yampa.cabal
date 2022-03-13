@@ -170,7 +170,7 @@ library
   ghc-options:
     -O3 -Wall -fno-warn-name-shadowing
 
-  if !impl(ghc>=8.0)
+  if !impl(ghc >= 8.0)
     build-depends:
       fail == 4.9.*
 
