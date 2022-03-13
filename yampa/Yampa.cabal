@@ -130,7 +130,11 @@ library
     -- Auxiliary (commonly used) types
     FRP.Yampa.Diagnostics
 
-  build-Depends: base < 6, random, deepseq, simple-affine-space
+  build-Depends:
+      base < 6
+    , deepseq
+    , random
+    , simple-affine-space
 
   default-language:
     Haskell2010
