@@ -163,8 +163,8 @@ test-suite hlint
     buildable: False
   else
     build-depends:
-      base,
-      hlint >= 1.7
+        base
+      , hlint >= 1.7
 
 -- Verify that the code is thoroughly documented
 test-suite haddock-coverage
