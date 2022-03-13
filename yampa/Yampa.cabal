@@ -207,11 +207,11 @@ test-suite regression
     TestsLoopIntegral
     TestsLoopLaws
     TestsLoopPre
-    TestsPSwitch
     TestsPre
+    TestsPSwitch
+    TestsReact
     TestsRPSwitch
     TestsRSwitch
-    TestsReact
     TestsSscan
     TestsSwitch
     TestsTask
