@@ -70,7 +70,7 @@ module FRP.Yampa.Simulation (
 
 import Control.Monad (unless)
 import Data.IORef
-import Data.Maybe (fromMaybe)
+import Data.Maybe    (fromMaybe)
 
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
