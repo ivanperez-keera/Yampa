@@ -1,5 +1,4 @@
-{-# LANGUAGE CPP               #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE CPP #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Arrow

@@ -1,6 +1,3 @@
-{-# LANGUAGE CPP        #-}
-{-# LANGUAGE GADTs      #-}
-{-# LANGUAGE Rank2Types #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Loop
