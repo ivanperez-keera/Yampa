@@ -20,10 +20,11 @@ module FRP.Yampa.Arrow (
     arr5,       -- :: Arrow a => (b->c->d->e->f->g) -> a (b,c,d,e,f) g
 ) where
 
-import Control.Arrow
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative (Applicative(..))
 #endif
+
+import Control.Arrow
 
 -- * Arrow plumbing aids
 

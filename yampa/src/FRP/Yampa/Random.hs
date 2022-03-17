@@ -25,11 +25,11 @@ module FRP.Yampa.Random (
 
 ) where
 
-import System.Random (RandomGen(..), Random(..))
+import System.Random (Random (..), RandomGen (..))
 
-import FRP.Yampa.InternalCore (SF(..), SF'(..), Time)
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
+import FRP.Yampa.InternalCore (SF (..), SF' (..), Time)
 
 ------------------------------------------------------------------------------
 -- Noise (i.e. random signal generators) and stochastic processes

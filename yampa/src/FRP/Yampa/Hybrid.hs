@@ -30,10 +30,9 @@ module FRP.Yampa.Hybrid (
 
 import Control.Arrow
 
-import FRP.Yampa.InternalCore (SF, epPrim)
-
 import FRP.Yampa.Delays
 import FRP.Yampa.Event
+import FRP.Yampa.InternalCore (SF, epPrim)
 
 ------------------------------------------------------------------------------
 -- Wave-form generation

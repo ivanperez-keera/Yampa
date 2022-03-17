@@ -79,9 +79,9 @@
 -- exist conceptually.
 module FRP.Yampa.Event where
 
-import Control.Applicative
-import Control.DeepSeq (NFData(..))
-import qualified Control.Monad.Fail as Fail
+import           Control.Applicative
+import           Control.DeepSeq     (NFData (..))
+import qualified Control.Monad.Fail  as Fail
 
 import FRP.Yampa.Diagnostics
 

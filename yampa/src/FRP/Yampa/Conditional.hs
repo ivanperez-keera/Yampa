@@ -15,9 +15,10 @@ module FRP.Yampa.Conditional (
   ) where
 
 import Control.Arrow
+
 import FRP.Yampa.Basic
-import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', Transition)
 import FRP.Yampa.EventS
+import FRP.Yampa.InternalCore (SF (..), SF' (..), Transition, sfTF')
 import FRP.Yampa.Switches
 
 -- * Guards and automata-oriented combinators

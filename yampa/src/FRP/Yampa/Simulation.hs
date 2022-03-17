@@ -72,9 +72,9 @@ import Control.Monad (unless)
 import Data.IORef
 import Data.Maybe (fromMaybe)
 
-import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', DTime)
-
 import FRP.Yampa.Diagnostics
+import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
+
 
 ------------------------------------------------------------------------------
 -- Reactimation

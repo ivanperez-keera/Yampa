@@ -27,9 +27,9 @@ module FRP.Yampa.Time (
 
 import Control.Arrow
 
-import FRP.Yampa.InternalCore (SF, Time)
 import FRP.Yampa.Basic (constant)
 import FRP.Yampa.Integration (integral)
+import FRP.Yampa.InternalCore (SF, Time)
 
 -- | Outputs the time passed since the signal function instance was started.
 localTime :: SF a Time

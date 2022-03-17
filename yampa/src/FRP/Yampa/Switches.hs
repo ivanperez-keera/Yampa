@@ -119,12 +119,11 @@ module FRP.Yampa.Switches (
 
 import Control.Arrow
 
+import FRP.Yampa.Basic
 import FRP.Yampa.Diagnostics
+import FRP.Yampa.Event
 import FRP.Yampa.InternalCore (DTime, FunDesc (..), SF (..), SF' (..), fdFun,
                                sfArrG, sfConst, sfTF')
-
-import FRP.Yampa.Basic
-import FRP.Yampa.Event
 
 ------------------------------------------------------------------------------
 -- Basic switches
