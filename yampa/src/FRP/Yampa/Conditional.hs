@@ -15,9 +15,10 @@ module FRP.Yampa.Conditional (
   ) where
 
 import Control.Arrow
+
 import FRP.Yampa.Basic
-import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', Transition)
 import FRP.Yampa.EventS
+import FRP.Yampa.InternalCore (SF (..), SF' (..), Transition, sfTF')
 import FRP.Yampa.Switches
 
 -- * Guards and automata-oriented combinators
@@ -79,5 +80,3 @@ pause b_init (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
                    (tfP'', True) -> (pause' b_init' tf10' tfP'', b_init')
                    (tfP'', False) -> let (tf10'', b0') = (sfTF' tf10') dt a
                                      in (pause' b0' tf10'' tfP'', b0')
-
-

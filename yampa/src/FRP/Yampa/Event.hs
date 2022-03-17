@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
---------------------------------------------------------------------------------
 -- |
 -- Module      : FRP.Yampa.Event
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -78,21 +77,13 @@
 -- Event-signals as partial functions on time, maybe it isn't so confusing:
 -- they just don't have a value between events, so 'NoEvent' does not really
 -- exist conceptually.
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Event where
 
--- Event is an instance of Functor, Eq, and Ord. Some method instances:
--- fmap :: (a -> b) -> Event a -> Event b
--- (==)     :: Event a -> Event a -> Bool
--- (<=) :: Event a -> Event a -> Bool
-
-import Control.Applicative
-import Control.DeepSeq (NFData(..))
-import qualified Control.Monad.Fail as Fail
+import           Control.Applicative
+import           Control.DeepSeq     (NFData (..))
+import qualified Control.Monad.Fail  as Fail
 
 import FRP.Yampa.Diagnostics
-
 
 infixl 8 `tag`, `attach`, `gate`
 infixl 7 `joinE`

@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Delays
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -10,9 +9,6 @@
 --
 -- SF primitives and combinators to delay signals, introducing new values in
 -- them.
---
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Delays (
 
     -- * Basic delays
@@ -27,10 +23,9 @@ module FRP.Yampa.Delays (
 
 import Control.Arrow
 
-import FRP.Yampa.Diagnostics
-import FRP.Yampa.InternalCore (SF(..), SF'(..), Time)
-
 import FRP.Yampa.Basic
+import FRP.Yampa.Diagnostics
+import FRP.Yampa.InternalCore (SF (..), SF' (..), Time)
 import FRP.Yampa.Scan
 
 infixr 0 `fby`

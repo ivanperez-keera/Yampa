@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Random
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -11,8 +10,6 @@
 -- Signals and signal functions with noise and randomness.
 --
 -- The Random number generators are re-exported from "System.Random".
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Random (
 
     -- * Random number generators
@@ -28,11 +25,11 @@ module FRP.Yampa.Random (
 
 ) where
 
-import System.Random (RandomGen(..), Random(..))
+import System.Random (Random (..), RandomGen (..))
 
-import FRP.Yampa.InternalCore (SF(..), SF'(..), Time)
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
+import FRP.Yampa.InternalCore (SF (..), SF' (..), Time)
 
 ------------------------------------------------------------------------------
 -- Noise (i.e. random signal generators) and stochastic processes
@@ -66,14 +63,14 @@ streamToSF (b:bs) = SF {sfTF = tf0}
             where
                 tf _ _ = (stsfAux bs, b)
 
-{- New def, untested:
-
-streamToSF = sscan2 f
-    where
-        f []     _ = intErr "AFRP" "streamToSF" "Empty list!"
-        f (b:bs) _ = (bs, b)
-
--}
+-- New def, untested:
+--
+-- streamToSF = sscan2 f
+--     where
+--         f []     _ = intErr "AFRP" "streamToSF" "Empty list!"
+--         f (b:bs) _ = (bs, b)
+--
+--
 
 
 -- | Stochastic event source with events occurring on average once every t_avg

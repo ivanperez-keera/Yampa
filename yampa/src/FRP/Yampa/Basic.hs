@@ -31,7 +31,6 @@ module FRP.Yampa.Basic (
 
   ) where
 
-
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfConst, sfId)
 
 infixr 0 -->, -:>, >--, -=>, >=-

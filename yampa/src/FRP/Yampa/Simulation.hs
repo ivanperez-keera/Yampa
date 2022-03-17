@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Simulation
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -31,8 +30,6 @@
 --
 -- This module also includes debugging aids needed to execute signal functions
 -- step by step, which are used by Yampa's testing facilities.
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Simulation (
    -- * Reactimation
     reactimate,         -- :: IO a
@@ -73,11 +70,11 @@ module FRP.Yampa.Simulation (
 
 import Control.Monad (unless)
 import Data.IORef
-import Data.Maybe (fromMaybe)
-
-import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', DTime)
+import Data.Maybe    (fromMaybe)
 
 import FRP.Yampa.Diagnostics
+import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
+
 
 ------------------------------------------------------------------------------
 -- Reactimation
