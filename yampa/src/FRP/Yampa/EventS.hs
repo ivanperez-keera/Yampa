@@ -170,32 +170,31 @@ repeatedly q x | q > 0 = afterEach qxs
 -- Note that periods of length 0 will always be skipped except for the first.
 -- Right now, periods of length 0 is allowed on the grounds that no attempt
 -- is made to forbid simultaneous events elsewhere.
-{-
-afterEach :: [(Time,b)] -> SF a (Event b)
-afterEach [] = never
-afterEach ((q,x):qxs)
-    | q < 0     = usrErr "AFRP" "afterEach" "Negative period."
-    | otherwise = SF {sfTF = tf0}
-    where
-        tf0 _ = if q <= 0 then
-                    (scheduleNextEvent 0.0 qxs, Event x)
-                else
-                    (awaitNextEvent (-q) x qxs, NoEvent)
-
-        scheduleNextEvent t [] = sfNever
-        scheduleNextEvent t ((q,x):qxs)
-            | q < 0     = usrErr "AFRP" "afterEach" "Negative period."
-            | t' >= 0   = scheduleNextEvent t' qxs
-            | otherwise = awaitNextEvent t' x qxs
-            where
-                t' = t - q
-        awaitNextEvent t x qxs = SF' {sfTF' = tf}
-            where
-                tf dt _ | t' >= 0   = (scheduleNextEvent t' qxs, Event x)
-                        | otherwise = (awaitNextEvent t' x qxs, NoEvent)
-                    where
-                        t' = t + dt
--}
+--
+-- afterEach :: [(Time,b)] -> SF a (Event b)
+-- afterEach [] = never
+-- afterEach ((q,x):qxs)
+--     | q < 0     = usrErr "AFRP" "afterEach" "Negative period."
+--     | otherwise = SF {sfTF = tf0}
+--     where
+--         tf0 _ = if q <= 0 then
+--                     (scheduleNextEvent 0.0 qxs, Event x)
+--                 else
+--                     (awaitNextEvent (-q) x qxs, NoEvent)
+--
+--         scheduleNextEvent t [] = sfNever
+--         scheduleNextEvent t ((q,x):qxs)
+--             | q < 0     = usrErr "AFRP" "afterEach" "Negative period."
+--             | t' >= 0   = scheduleNextEvent t' qxs
+--             | otherwise = awaitNextEvent t' x qxs
+--             where
+--                 t' = t - q
+--         awaitNextEvent t x qxs = SF' {sfTF' = tf}
+--             where
+--                 tf dt _ | t' >= 0   = (scheduleNextEvent t' qxs, Event x)
+--                         | otherwise = (awaitNextEvent t' x qxs, NoEvent)
+--                     where
+--                         t' = t + dt
 
 -- | Event source with consecutive occurrences at the given intervals.
 -- Should more than one event be scheduled to occur in any sampling interval,
@@ -473,15 +472,13 @@ takeEvents n | n <= 0 = never
 takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
 
 
-{-
 -- More complicated using "switch" that "dSwitch".
-takeEvents :: Int -> SF (Event a) (Event a)
-takeEvents 0       = never
-takeEvents (n + 1) = switch (never &&& identity) (takeEvents' n)
-    where
-        takeEvents' 0       a = now a
-        takeEvents' (n + 1) a = switch (now a &&& notYet) (takeEvents' n)
--}
+-- takeEvents :: Int -> SF (Event a) (Event a)
+-- takeEvents 0       = never
+-- takeEvents (n + 1) = switch (never &&& identity) (takeEvents' n)
+--     where
+--         takeEvents' 0       a = now a
+--         takeEvents' (n + 1) a = switch (now a &&& notYet) (takeEvents' n)
 
 
 -- | Suppress first n events.
@@ -556,12 +553,10 @@ recur sfe = switch (never &&& sfe) $ \b -> Event b --> (recur (NoEvent-->sfe))
 andThen :: SF a (Event b) -> SF a (Event b) -> SF a (Event b)
 sfe1 `andThen` sfe2 = dSwitch (sfe1 >>^ dup) (const sfe2)
 
-{-
-recur :: SF a (Event b) -> SF a (Event b)
-recur sfe = switch (never &&& sfe) recurAux
-    where
-    recurAux b = switch (now b &&& sfe) recurAux
--}
+-- recur :: SF a (Event b) -> SF a (Event b)
+-- recur sfe = switch (never &&& sfe) recurAux
+--     where
+--     recurAux b = switch (now b &&& sfe) recurAux
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

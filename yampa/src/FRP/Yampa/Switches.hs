@@ -141,44 +141,42 @@ import FRP.Yampa.InternalCore (DTime, FunDesc (..), SF (..), SF' (..), fdFun,
 -- !!! Find a simpler case to experiment further. For now, elim.
 -- !!! the free variable.
 
-{-
--- Basic switch.
-switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
-switch (SF {sfTF = tf10} :: SF a (b, Event c))
-       (k :: c -> SF a b) = SF {sfTF = tf0}
-    where
-        tf0 a0 =
-            case tf10 a0 of
-                (sf1, (b0, NoEvent))  -> (switchAux sf1, b0)
-                (_,   (_,  Event c0)) -> sfTF (k c0) a0
-
-        -- It would be nice to optimize further here. E.g. if it would be
-        -- possible to observe the event source only.
-        switchAux :: SF' a (b, Event c) -> SF' a b
-        switchAux (SFId _)                 = switchAuxA1 id     -- New
-        switchAux (SFConst _ (b, NoEvent)) = sfConst b
-        switchAux (SFArr _ f1)             = switchAuxA1 f1
-        switchAux sf1                      = SF' tf
-            where
-                tf dt a =
-                    case (sfTF' sf1) dt a of
-                        (sf1', (b, NoEvent)) -> (switchAux sf1', b)
-                        (_,    (_, Event c)) -> sfTF (k c) a
-
-        -- Could be optimized a little bit further by having a case for
-        -- identity, switchAuxI1
-
-        -- Note: While switch behaves as a stateless arrow at this point, that
-        -- could change after a switch. Hence, SF' overall.
-        switchAuxA1 :: (a -> (b, Event c)) -> SF' a b
-        switchAuxA1 f1 = sf
-            where
-                sf     = SF' tf
-                tf _ a =
-                    case f1 a of
-                        (b, NoEvent) -> (sf, b)
-                        (_, Event c) -> sfTF (k c) a
--}
+-- -- Basic switch.
+-- switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
+-- switch (SF {sfTF = tf10} :: SF a (b, Event c))
+--        (k :: c -> SF a b) = SF {sfTF = tf0}
+--     where
+--         tf0 a0 =
+--             case tf10 a0 of
+--                 (sf1, (b0, NoEvent))  -> (switchAux sf1, b0)
+--                 (_,   (_,  Event c0)) -> sfTF (k c0) a0
+--
+--         -- It would be nice to optimize further here. E.g. if it would be
+--         -- possible to observe the event source only.
+--         switchAux :: SF' a (b, Event c) -> SF' a b
+--         switchAux (SFId _)                 = switchAuxA1 id     -- New
+--         switchAux (SFConst _ (b, NoEvent)) = sfConst b
+--         switchAux (SFArr _ f1)             = switchAuxA1 f1
+--         switchAux sf1                      = SF' tf
+--             where
+--                 tf dt a =
+--                     case (sfTF' sf1) dt a of
+--                         (sf1', (b, NoEvent)) -> (switchAux sf1', b)
+--                         (_,    (_, Event c)) -> sfTF (k c) a
+--
+--         -- Could be optimized a little bit further by having a case for
+--         -- identity, switchAuxI1
+--
+--         -- Note: While switch behaves as a stateless arrow at this point,
+--         -- that could change after a switch. Hence, SF' overall.
+--         switchAuxA1 :: (a -> (b, Event c)) -> SF' a b
+--         switchAuxA1 f1 = sf
+--             where
+--                 sf     = SF' tf
+--                 tf _ a =
+--                     case f1 a of
+--                         (b, NoEvent) -> (sf, b)
+--                         (_, Event c) -> sfTF (k c) a
 
 -- | Basic switch.
 --
@@ -210,29 +208,29 @@ switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
         switchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
         switchAux (SFArr _ fd1)                k = switchAuxA1 (fdFun fd1) k
         switchAux sf1                          k = SF' tf
-{-
-            if sfIsInv sf1 then
-                switchInv sf1 k
-            else
-                SF' tf False
--}
+--
+--          if sfIsInv sf1 then
+--              switchInv sf1 k
+--          else
+--              SF' tf False
+--
             where
                 tf dt a =
                     case (sfTF' sf1) dt a of
                         (sf1', (b, NoEvent)) -> (switchAux sf1' k, b)
                         (_,    (_, Event c)) -> sfTF (k c) a
 
-{-
-        -- Note: subordinate signal function being invariant does NOT
-        -- imply that the overall signal function is.
-        switchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-        switchInv sf1 k = SF' tf False
-            where
-                tf dt a =
-                    case (sfTF' sf1) dt a of
-                        (sf1', (b, NoEvent)) -> (switchInv sf1' k, b)
-                        (_,    (_, Event c)) -> sfTF (k c) a
--}
+--
+--      -- Note: subordinate signal function being invariant does NOT
+--      -- imply that the overall signal function is.
+--      switchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
+--      switchInv sf1 k = SF' tf False
+--          where
+--              tf dt a =
+--                  case (sfTF' sf1) dt a of
+--                      (sf1', (b, NoEvent)) -> (switchInv sf1' k, b)
+--                      (_,    (_, Event c)) -> sfTF (k c) a
+--
 
         -- !!! Could be optimized a little bit further by having a case for
         -- !!! identity, switchAuxI1. But I'd expect identity is so unlikely
@@ -293,12 +291,12 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
         dSwitchAux (SFArr _ (FDC (b, NoEvent))) _ = sfConst b
         dSwitchAux (SFArr _ fd1)                k = dSwitchAuxA1 (fdFun fd1) k
         dSwitchAux sf1                          k = SF' tf
-{-
-            if sfIsInv sf1 then
-                dSwitchInv sf1 k
-            else
-                SF' tf False
--}
+--
+--          if sfIsInv sf1 then
+--              dSwitchInv sf1 k
+--          else
+--              SF' tf False
+--
             where
                 tf dt a =
                     let (sf1', (b, ec)) = (sfTF' sf1) dt a
@@ -308,20 +306,20 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 
                         b)
 
-{-
-        -- Note: that the subordinate signal function is invariant does NOT
-        -- imply that the overall signal function is.
-        dSwitchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
-        dSwitchInv sf1 k = SF' tf False
-            where
-                tf dt a =
-                    let (sf1', (b, ec)) = (sfTF' sf1) dt a
-                    in (case ec of
-                            NoEvent -> dSwitchInv sf1' k
-                            Event c -> fst (sfTF (k c) a),
+--
+--      -- Note: that the subordinate signal function is invariant does NOT
+--      -- imply that the overall signal function is.
+--      dSwitchInv :: SF' a (b, Event c) -> (c -> SF a b) -> SF' a b
+--      dSwitchInv sf1 k = SF' tf False
+--          where
+--              tf dt a =
+--                  let (sf1', (b, ec)) = (sfTF' sf1) dt a
+--                  in (case ec of
+--                          NoEvent -> dSwitchInv sf1' k
+--                          Event c -> fst (sfTF (k c) a),
 
-                        b)
--}
+--                      b)
+--
 
         -- !!! Could be optimized a little bit further by having a case for
         -- !!! identity, switchAuxI1
@@ -359,13 +357,13 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 rSwitch :: SF a b -> SF (a, Event (SF a b)) b
 rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
 
-{-
--- Old version. New is more efficient. Which one is clearer?
-rSwitch :: SF a b -> SF (a, Event (SF a b)) b
-rSwitch sf = switch (first sf) rSwitch'
-    where
-        rSwitch' sf = switch (sf *** notYet) rSwitch'
--}
+--
+-- -- Old version. New is more efficient. Which one is clearer?
+-- rSwitch :: SF a b -> SF (a, Event (SF a b)) b
+-- rSwitch sf = switch (first sf) rSwitch'
+--     where
+--         rSwitch' sf = switch (sf *** notYet) rSwitch'
+--
 
 
 -- | Recurring switch with delayed observation.
@@ -380,13 +378,11 @@ rSwitch sf = switch (first sf) rSwitch'
 drSwitch :: SF a b -> SF (a, Event (SF a b)) b
 drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
 
-{-
--- Old version. New is more efficient. Which one is clearer?
-drSwitch :: SF a b -> SF (a, Event (SF a b)) b
-drSwitch sf = dSwitch (first sf) drSwitch'
-    where
-        drSwitch' sf = dSwitch (sf *** notYet) drSwitch'
--}
+-- -- Old version. New is more efficient. Which one is clearer?
+-- drSwitch :: SF a b -> SF (a, Event (SF a b)) b
+-- drSwitch sf = dSwitch (first sf) drSwitch'
+--     where
+--         drSwitch' sf = dSwitch (sf *** notYet) drSwitch'
 
 
 -- | Call-with-current-continuation switch.
@@ -430,17 +426,15 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
                             (sfe', NoEvent) -> (kSwitchAux sf1' sfe', b)
                             (_,    Event c) -> sfTF (k (freeze sf1 dt) c) a
 
-{-
--- !!! Untested optimization!
-        kSwitchAuxI1 (SFConst _ NoEvent) = sfId
-        kSwitchAuxI1 (SFArr _ fe)        = kSwitchAuxI1AE fe
-        kSwitchAuxI1 sfe                 = SF' tf
-            where
-                tf dt a =
-                    case (sfTF' sfe) dt (a, a) of
-                        (sfe', NoEvent) -> (kSwitchAuxI1 sfe', a)
-                        (_,    Event c) -> sfTF (k identity c) a
--}
+-- -- !!! Untested optimization!
+--         kSwitchAuxI1 (SFConst _ NoEvent) = sfId
+--         kSwitchAuxI1 (SFArr _ fe)        = kSwitchAuxI1AE fe
+--         kSwitchAuxI1 sfe                 = SF' tf
+--             where
+--                 tf dt a =
+--                     case (sfTF' sfe) dt (a, a) of
+--                         (sfe', NoEvent) -> (kSwitchAuxI1 sfe', a)
+--                         (_,    Event c) -> sfTF (k identity c) a
 
 -- !!! Untested optimization!
         kSwitchAuxC1 b (SFArr _ (FDC NoEvent)) = sfConst b
@@ -483,15 +477,13 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
                             NoEvent -> (kSwitchAuxAE sf1' fe, b)
                             Event c -> sfTF (k (freeze sf1 dt) c) a
 
-{-
--- !!! Untested optimization!
-        kSwitchAuxI1AE fe = SF' tf -- False
-            where
-                tf dt a =
-                    case fe (a, a) of
-                        NoEvent -> (kSwitchAuxI1AE fe, a)
-                        Event c -> sfTF (k identity c) a
--}
+-- -- !!! Untested optimization!
+--         kSwitchAuxI1AE fe = SF' tf -- False
+--             where
+--                 tf dt a =
+--                     case fe (a, a) of
+--                         NoEvent -> (kSwitchAuxI1AE fe, a)
+--                         Event c -> sfTF (k identity c) a
 
 -- !!! Untested optimization!
         kSwitchAuxC1AE b fe = SF' tf -- False
@@ -826,12 +818,10 @@ rpSwitch rf sfs =
     pSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
     noEventSnd >=- rpSwitch rf (f sfs')
 
-{-
-rpSwitch rf sfs = pSwitch (rf . fst) sfs (arr (snd . fst)) k
-    where
-        k sfs f = rpSwitch' (f sfs)
-        rpSwitch' sfs = pSwitch (rf . fst) sfs (NoEvent --> arr (snd . fst)) k
--}
+-- rpSwitch rf sfs = pSwitch (rf . fst) sfs (arr (snd . fst)) k
+--   where
+--       k sfs f = rpSwitch' (f sfs)
+--       rpSwitch' sfs = pSwitch (rf . fst) sfs (NoEvent --> arr (snd . fst)) k
 
 -- | Recurring parallel switch with delayed observation parameterized on the
 -- routing function.
@@ -858,12 +848,10 @@ drpSwitch rf sfs =
     dpSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
     noEventSnd >=- drpSwitch rf (f sfs')
 
-{-
-drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
-    where
-        k sfs f = drpSwitch' (f sfs)
-        drpSwitch' sfs = dpSwitch (rf . fst) sfs (NoEvent-->arr (snd . fst)) k
--}
+-- drpSwitch rf sfs = dpSwitch (rf . fst) sfs (arr (snd . fst)) k
+--  where
+--      k sfs f = drpSwitch' (f sfs)
+--      drpSwitch' sfs = dpSwitch (rf . fst) sfs (NoEvent-->arr (snd . fst)) k
 
 ------------------------------------------------------------------------------
 -- * Parallel composition/switchers with "zip" routing

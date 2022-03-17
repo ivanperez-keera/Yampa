@@ -80,12 +80,11 @@ hold a_init = epPrim f () a_init
 -- [1,1,1,2,2,3]
 dHold :: a -> SF (Event a) a
 dHold a0 = hold a0 >>> iPre a0
-{-
+--
 -- THIS IS WRONG! SEE ABOVE.
-dHold a_init = epPrim f a_init a_init
-    where
-        f a' a = (a, a', a)
--}
+-- dHold a_init = epPrim f a_init a_init
+--     where
+--         f a' a = (a, a', a)
 
 -- | Tracks input signal when available, holding the last value when the input
 -- is 'Nothing'.
@@ -149,18 +148,16 @@ accumHold a_init = epPrim f a_init a_init
 -- is always the given accumulator).
 dAccumHold :: a -> SF (Event (a -> a)) a
 dAccumHold a_init = accumHold a_init >>> iPre a_init
-{-
+--
 -- WRONG!
 -- epPrim DOES and MUST patternmatch
 -- on the input at every time step.
 -- Test case to check for this added!
-dAccumHold a_init = epPrim f a_init a_init
-    where
-        f a g = (a', a, a')
-            where
-                a' = g a
--}
-
+-- dAccumHold a_init = epPrim f a_init a_init
+--     where
+--         f a g = (a', a, a')
+--             where
+--                 a' = g a
 
 -- | Accumulator parameterized by the accumulation function.
 accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
@@ -187,62 +184,55 @@ accumHoldBy g b_init = epPrim f b_init b_init
 --   given accumulator).
 dAccumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
 dAccumHoldBy f a_init = accumHoldBy f a_init >>> iPre a_init
-{-
+--
 -- WRONG!
 -- epPrim DOES and MUST patternmatch
 -- on the input at every time step.
 -- Test case to check for this added!
-dAccumHoldBy g b_init = epPrim f b_init b_init
-    where
-        f b a = (b', b, b')
-            where
-                b' = g b a
--}
+--dAccumHoldBy g b_init = epPrim f b_init b_init
+--    where
+--        f b a = (b', b, b')
+--            where
+--                b' = g b a
 
 
-{- Untested:
-
-accumBy f b = switch (never &&& identity) $ \a ->
-              let b' = f b a in NoEvent >-- Event b' --> accumBy f b'
-
-But no real improvement in clarity anyway.
-
--}
+-- Untested:
+--
+-- accumBy f b = switch (never &&& identity) $ \a ->
+--               let b' = f b a in NoEvent >-- Event b' --> accumBy f b'
+--
+-- But no real improvement in clarity anyway.
 
 -- accumBy f b = accumFilter (\b -> a -> let b' = f b a in (b', Event b')) b
 
-{-
--- Identity: accumBy f = accumFilter (\b a -> let b' = f b a in (b',Just b'))
-accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-accumBy f b_init = SF {sfTF = tf0}
-    where
-        tf0 NoEvent    = (abAux b_init, NoEvent)
-        tf0 (Event a0) = let b' = f b_init a0
-                         in (abAux b', Event b')
+-- -- Identity: accumBy f = accumFilter (\b a -> let b' = f b a in (b',Just b'))
+-- accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
+-- accumBy f b_init = SF {sfTF = tf0}
+--     where
+--         tf0 NoEvent    = (abAux b_init, NoEvent)
+--         tf0 (Event a0) = let b' = f b_init a0
+--                          in (abAux b', Event b')
+--
+--         abAux b = SF' {sfTF' = tf}
+--             where
+--                 tf _ NoEvent   = (abAux b, NoEvent)
+--                 tf _ (Event a) = let b' = f b a
+--                                  in (abAux b', Event b')
 
-        abAux b = SF' {sfTF' = tf}
-            where
-                tf _ NoEvent   = (abAux b, NoEvent)
-                tf _ (Event a) = let b' = f b a
-                                 in (abAux b', Event b')
--}
-
-{-
-accumFilter :: (c -> a -> (c, Maybe b)) -> c -> SF (Event a) (Event b)
-accumFilter f c_init = SF {sfTF = tf0}
-    where
-        tf0 NoEvent    = (afAux c_init, NoEvent)
-        tf0 (Event a0) = case f c_init a0 of
-                             (c', Nothing) -> (afAux c', NoEvent)
-                             (c', Just b0) -> (afAux c', Event b0)
-
-        afAux c = SF' {sfTF' = tf}
-            where
-                tf _ NoEvent   = (afAux c, NoEvent)
-                tf _ (Event a) = case f c a of
-                                     (c', Nothing) -> (afAux c', NoEvent)
-                                     (c', Just b)  -> (afAux c', Event b)
--}
+-- accumFilter :: (c -> a -> (c, Maybe b)) -> c -> SF (Event a) (Event b)
+-- accumFilter f c_init = SF {sfTF = tf0}
+--     where
+--         tf0 NoEvent    = (afAux c_init, NoEvent)
+--         tf0 (Event a0) = case f c_init a0 of
+--                              (c', Nothing) -> (afAux c', NoEvent)
+--                              (c', Just b0) -> (afAux c', Event b0)
+--
+--         afAux c = SF' {sfTF' = tf}
+--             where
+--                 tf _ NoEvent   = (afAux c, NoEvent)
+--                 tf _ (Event a) = case f c a of
+--                                      (c', Nothing) -> (afAux c', NoEvent)
+--                                      (c', Just b)  -> (afAux c', Event b)
 
 -- | Accumulator parameterized by the accumulator function with filtering,
 --   possibly discarding some of the input events based on whether the second

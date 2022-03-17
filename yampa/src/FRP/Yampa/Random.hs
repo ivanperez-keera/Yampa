@@ -63,14 +63,14 @@ streamToSF (b:bs) = SF {sfTF = tf0}
             where
                 tf _ _ = (stsfAux bs, b)
 
-{- New def, untested:
-
-streamToSF = sscan2 f
-    where
-        f []     _ = intErr "AFRP" "streamToSF" "Empty list!"
-        f (b:bs) _ = (bs, b)
-
--}
+-- New def, untested:
+--
+-- streamToSF = sscan2 f
+--     where
+--         f []     _ = intErr "AFRP" "streamToSF" "Empty list!"
+--         f (b:bs) _ = (bs, b)
+--
+--
 
 
 -- | Stochastic event source with events occurring on average once every t_avg
