@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Random
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -11,8 +10,6 @@
 -- Signals and signal functions with noise and randomness.
 --
 -- The Random number generators are re-exported from "System.Random".
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Random (
 
     -- * Random number generators

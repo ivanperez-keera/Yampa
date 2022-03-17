@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Arrow
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -10,9 +9,6 @@
 -- Portability :  portable
 --
 -- Arrow helper functions.
---
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Arrow (
     -- * Arrow plumbing aids
     dup,        -- :: a -> (a,a)

@@ -13,7 +13,6 @@
 -- functions by means of an auxiliary function applied to each input and to an
 -- accumulator. For comparison with other FRP libraries and with stream
 -- processing abstractions, think of fold.
-
 module FRP.Yampa.Scan (
     sscan,              -- :: (b -> a -> b) -> b -> SF a b
     sscanPrim,          -- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b

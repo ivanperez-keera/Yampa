@@ -16,8 +16,6 @@
 -- For signals that carry events, there should be a limit in the number of
 -- events we can observe in a time period, no matter how much we increase the
 -- sampling frequency.
-
-
 module FRP.Yampa.EventS (
 
     -- * Basic event sources

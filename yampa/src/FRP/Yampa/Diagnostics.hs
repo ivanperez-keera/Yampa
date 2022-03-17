@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Diagnostics
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -9,8 +8,6 @@
 -- Portability :  portable
 --
 -- Standarized error-reporting for Yampa
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Diagnostics where
 
 -- | Reports an error due to a violation of Yampa's preconditions/requirements.

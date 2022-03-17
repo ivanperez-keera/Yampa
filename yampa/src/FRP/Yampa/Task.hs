@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Task
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -11,9 +10,6 @@
 -- Portability :  non-portable (GHC extensions)
 --
 -- Task abstraction on top of signal transformers.
---
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Task (
     Task,
     mkTask,      -- :: SF a (b, Event c) -> Task a b c

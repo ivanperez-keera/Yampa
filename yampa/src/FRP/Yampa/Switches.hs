@@ -1,5 +1,4 @@
 {-# LANGUAGE Rank2Types #-}
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Switches
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -63,7 +62,6 @@
 -- and also helps determine the expected behaviour of a combinator by looking
 -- at its name. For example, 'drpSwitchB' is the decoupled (/d/), recurrent
 -- (/r/), parallel (/p/) switch with broadcasting (/B/).
-
 module FRP.Yampa.Switches (
     -- * Basic switching
     switch,  dSwitch,   -- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b

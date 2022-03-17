@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Delays
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -10,9 +9,6 @@
 --
 -- SF primitives and combinators to delay signals, introducing new values in
 -- them.
---
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Delays (
 
     -- * Basic delays

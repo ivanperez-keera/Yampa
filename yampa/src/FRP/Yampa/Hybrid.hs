@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Hybrid
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -9,8 +8,6 @@
 -- Portability :  non-portable (GHC extensions)
 --
 -- Discrete to continuous-time signal functions.
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Hybrid (
 
     -- * Wave-form generation
