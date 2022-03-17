@@ -1,5 +1,6 @@
-2022-03-13 Ivan Perez <ivan.perez@haskell.sexy>
+2022-03-17 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Syntax rules (#196).
+        * src/: Remove unused extensions (#199).
 
 2021-10-07 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Version bump (0.13.3) (#193), add modules missing from

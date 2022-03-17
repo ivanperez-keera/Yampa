@@ -1,6 +1,5 @@
-{-# LANGUAGE CPP        #-}
-{-# LANGUAGE GADTs      #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE CPP   #-}
+{-# LANGUAGE GADTs #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa
