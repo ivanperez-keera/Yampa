@@ -64,6 +64,13 @@ source-repository head
   subdir:   yampa-test
 
 
+-- You can disable the regression test suite with -f-test-regression
+flag test-regression
+  description: Enable regression test suite
+  default:     True
+  manual:      True
+
+
 library
   exposed-modules:
     FRP.Yampa.Debug
@@ -110,3 +117,55 @@ test-suite yampa-quicheck
 
   ghc-options:
     -Wall
+
+
+test-suite regression
+  type:
+    exitcode-stdio-1.0
+
+  main-is:
+    testYampaMain.hs
+
+  other-modules:
+    Tests
+    TestsAccum
+    TestsArr
+    TestsBasicSF
+    TestsCOC
+    TestsCommon
+    TestsComp
+    TestsDelay
+    TestsDer
+    TestsEmbed
+    TestsEvSrc
+    TestsFirstSecond
+    TestsKSwitch
+    TestsLaws
+    TestsLoop
+    TestsLoopIntegral
+    TestsLoopLaws
+    TestsLoopPre
+    TestsPre
+    TestsPSwitch
+    TestsReact
+    TestsRPSwitch
+    TestsRSwitch
+    TestsSscan
+    TestsSwitch
+    TestsTask
+    TestsUtils
+    TestsWFG
+
+  default-language:
+    Haskell2010
+
+  hs-source-dirs:
+    tests
+
+  if !flag(test-regression)
+    buildable:
+      False
+  else
+    build-depends:
+        base
+      , Yampa
