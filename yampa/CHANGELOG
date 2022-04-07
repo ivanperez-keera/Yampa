@@ -1,6 +1,7 @@
 2022-04-06 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Syntax rules (#196), remove regression tests (#201).
-        * src/: Remove unused extensions (#199), syntax rules (#200).
+        * src/: Remove unused extensions (#199), syntax rules (#200), remove
+          commented code and notes (#202).
         * tests/: Remove regression tests (#201).
 
 2021-10-07 Ivan Perez <ivan.perez@haskell.sexy>
