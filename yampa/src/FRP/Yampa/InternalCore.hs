@@ -50,94 +50,6 @@
 --
 -- Finally, see [<#g:26>] for sources of randomness (useful in games).
 
--- CHANGELOG:
---
--- - Adds (most) documentation.
---
--- - New version using GADTs.
---
--- ToDo:
---
--- - Specialize def. of repeatedly. Could have an impact on invaders.
---
--- - New defs for accs using SFAcc
---
--- - Make sure opt worked: e.g.
---
--- - >     repeatedly >>> count >>> arr (fmap sqr)
---
--- - Introduce SFAccHld.
---
--- - See if possible to unify AccHld wity Acc??? They are so close.
---
--- - Introduce SScan. BUT KEEP IN MIND: Most if not all opts would
--- - have been possible without GADTs???
---
--- - Look into pairs. At least pairing of SScan ought to be interesting.
---
--- - Would be nice if we could get rid of first & second with impunity
--- - thanks to Id optimizations. That's a clear win, with or without
--- - an explicit pair combinator.
---
--- - delayEventCat is a bit complicated ...
---
---
--- Random ideas:
---
--- - What if one used rules to optimize
---   - (arr :: SF a ()) to (constant ())
---   - (arr :: SF a a) to identity
---   But inspection of invader source code seem to indicate that
---   these are not very common cases at all.
---
--- - It would be nice if it was possible to come up with opt. rules
---   that are invariant of how signal function expressions are
---   parenthesized. Right now, we have e.g.
---       arr f >>> (constant c >>> sf)
---   being optimized to
---       cpAuxA1 f (cpAuxC1 c sf)
---   whereas it clearly should be possible to optimize to just
---       cpAuxC1 c sf
---   What if we didn't use SF' but
---      SFComp :: <tfun> -> SF' a b -> SF' b c -> SF' a c
---   ???
---
--- - The transition function would still be optimized in (pretty much)
---   the current way, but it would still be possible to look "inside"
---   composed signal functions for lost optimization opts.
---   Seems to me this could be done without too much extra effort/no dupl.
---   work.
---   E.g. new cpAux, the general case:
---
--- @
---      cpAux sf1 sf2 = SFComp tf sf1 sf2
---          where
---              tf dt a = (cpAux sf1' sf2', c)
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---                      (sf2', c) = (sfTF' sf2) dt b
--- @
---
--- - The ONLY change was changing the constructor from SF' to SFComp and
---   adding sf1 and sf2 to the constructor app.!
---
--- - An optimized case:
---     cpAuxC1 b sf1 sf2               = SFComp tf sf1 sf2
---   So cpAuxC1 gets an extra arg, and we change the constructor.
---   But how to exploit without writing 1000s of rules???
---   Maybe define predicates on SFComp to see if the first or second
---   sf are "interesting", and if so, make "reassociate" and make a
---   recursive call? E.g. we're in the arr case, and the first sf is another
---   arr, so we'd like to combine the two.
---
--- - It would also be intersting, then, to know when to STOP playing this
---   game, due to the overhead involved.
---
--- - Why don't we have a "SWITCH" constructor that indicates that the
---   structure will change, and thus that it is worthwile to keep
---   looking for opt. opportunities, whereas a plain "SF'" would
---   indicate that things NEVER are going to change, and thus we can just
---   as well give up?
 module FRP.Yampa.InternalCore (
     module Control.Arrow,
     -- SF is an instance of Arrow and ArrowLoop. Method instances:
@@ -198,19 +110,6 @@ import FRP.Yampa.Event
 -- Basic type definitions with associated utilities
 ------------------------------------------------------------------------------
 
--- The time type is really a bit boguous, since, as time passes, the minimal
--- interval between two consecutive floating-point-represented time points
--- increases. A better approach might be to pick a reasonable resolution
--- and represent time and time intervals by Integer (giving the number of
--- "ticks").
---
--- That might also improve the timing of time-based event sources.
--- One might actually pick the overall resolution in reactimate,
--- to be passed down, possibly in the form of a global parameter
--- record, to all signal functions on initialization. (I think only
--- switch would need to remember the record, since it is the only place
--- where signal functions get started. So it wouldn't cost all that much.
-
 
 -- | Time is used both for time intervals (duration), and time w.r.t. some
 -- agreed reference point in time.
@@ -224,9 +123,6 @@ type Time = Double      -- [s]
 -- same representation.
 type DTime = Double     -- [s]
 
--- Representation of signal function in initial state.
--- (Naming: "TF" stands for Transition Function.)
-
 -- | Signal function that transforms a signal carrying values of some type 'a'
 -- into a signal carrying values of some type 'b'. You can think of it as
 -- (Signal a -> Signal b). A signal is, conceptually, a
@@ -239,41 +135,6 @@ data SF a b = SF {sfTF :: a -> Transition a b}
 --   It can also be seen as a Future Signal Function, meaning,
 --   an SF that, given a time delta or a time in the future, it will
 --   be an SF.
-
--- Possibly better design for Inv.
---   Problem: tension between on the one hand making use of the
---   invariant property, and on the other keeping track of how something
---   has been constructed (SFCpAXA, in particular).
---   Idea: Add a boolean field to SFCpAXA and SF' that classifies
---   a signal function as being invarying.
---   A function sfIsInv computes to True for SFArr, SFAcc (and SFSScan,
---   possibly more), extracts the field in other cases.
---
---  Motivation for using a function (Event a -> b) in SFArrE
---  rather than (a -> Event b) or (a -> b) or even (Event a -> Event b).
---    The result type should be just "b" as opposed to "Event b" for
---    increased flexibility (e.g. matching "routing functions").
---    When the result type actually IS (Event b), and this fact is
---    exploitable, we'll be in a context where is it clear that
---    this is a fact, so we don't lose anything.
---    Since the idea is that the function is only going to be applied
---    when the there is an event, one could imagine the input type
---    just "a". But that's not the type of function we're given,
---    so it would have to be "massaged" a bit (precomposing with Event)
---    to fit. This will gain nothing, and potentially we will lose if
---    we actually need to recover the original function.
---    In fact, we sometimes really need to recover the original function
---    (e.g. currently in switch), and to do it correctly (also handling
---    NoEvent), we'd have to work quite hard introducing further
---    inefficiencies.
---  Summary: Make use of what we are given and only wrap things up later
---  when it is clear whatthe need is going to be, thus avoiding costly
---  "unwrapping".
-
--- GADTs needed in particular for SFEP, but also e.g. SFSScan
--- exploits them since there are more type vars than in the type con.
--- But one could use existentials for those.
-
 data SF' a b where
     SFArr   :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
     -- The b is intentionally unstrict as the initial output sometimes
@@ -288,7 +149,6 @@ data SF' a b where
     SFCpAXA :: !(DTime -> a -> Transition a d)
                -> !(FunDesc a b) -> !(SF' b c) -> !(FunDesc c d)
                -> SF' a d
-    --  SFPair :: ...
     SF' :: !(DTime -> a -> Transition a b) -> SF' a b
 
 -- | A transition is a pair of the next state (in the form of a future signal
@@ -304,23 +164,6 @@ sfTF' (SFEP tf _ _ _)    = tf
 sfTF' (SFCpAXA tf _ _ _) = tf
 sfTF' (SF' tf)           = tf
 
-
--- !!! 2005-06-30
--- Unclear why, but the isInv mechanism seems to do more
--- harm than good.
--- Disable completely and see what happens.
---
--- sfIsInv :: SF' a b -> Bool
--- -- sfIsInv _ = False
--- sfIsInv (SFArr _ _)           = True
--- -- sfIsInv (SFAcc _ _ _ _)       = True
--- sfIsInv (SFEP _ _ _ _)        = True
--- -- sfIsInv (SFSScan ...) = True
--- sfIsInv (SFCpAXA _ inv _ _ _) = inv
--- sfIsInv (SF' _ inv)           = inv
-
--- "Smart" constructors. The corresponding "raw" constructors should not
--- be used directly for construction.
 
 -- | Constructor for a lifted structured function.
 sfArr :: FunDesc a b -> SF' a b
@@ -340,9 +183,6 @@ sfConst :: b -> SF' a b
 sfConst b = sf
     where
         sf = SFArr (\_ _ -> (sf, b)) (FDC b)
-
--- sfNever :: SF' a (Event b)
--- sfNever = sfConst NoEvent
 
 -- Assumption: fne = f NoEvent
 sfArrE :: (Event a -> b) -> b -> SF' (Event a) b
@@ -367,9 +207,6 @@ sfArrG f = sf
 --   The auxiliary function returns the value of the current output and
 --   the future held output, thus making it possible to have to distinct
 --   outputs for the present and the future.
-
--- epPrim is used to define hold, accum, and other event-processing
--- functions.
 epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
 epPrim f c bne = SF {sfTF = tf0}
     where
@@ -378,13 +215,6 @@ epPrim f c bne = SF {sfTF = tf0}
                             (c', b, bne') = f c a
                         in
                             (sfEP f c' bne', b)
-
--- The event-processing function *could* accept the present NoEvent
--- output as an extra state argument. That would facilitate composition
--- of event-processing functions somewhat, but would presumably incur an
--- extra cost for the more common and simple case of non-composed event
--- processors.
---
 
 -- | Constructor for a zero-order hold SF' with folding.
 --
@@ -407,37 +237,6 @@ sfEP f c bne = sf
                   f
                   c
                   bne
-
-
--- -- !!! Maybe something like this?
--- -- !!! But one problem is that the invarying marking would be lost
--- -- !!! if the signal function is taken apart and re-constructed from
--- -- !!! the function description and subordinate signal function in
--- -- !!! cases like SFCpAXA.
--- sfMkInv :: SF a b -> SF a b
--- sfMkInv sf = SF {sfTF = ...}
---
---     sfMkInvAux :: SF' a b -> SF' a b
---     sfMkInvAux sf@(SFArr _ _) = sf
---     -- sfMkInvAux sf@(SFAcc _ _ _ _) = sf
---     sfMkInvAux sf@(SFEP _ _ _ _) = sf
---     sfMkInvAux sf@(SFCpAXA tf inv fd1 sf2 fd3)
---         | inv       = sf
---         | otherwise = SFCpAXA tf' True fd1 sf2 fd3
---         where
---             tf' = \dt a -> let (sf', b) = tf dt a in (sfMkInvAux sf', b)
---     sfMkInvAux sf@(SF' tf inv)
---         | inv       = sf
---         | otherwise = SF' tf' True
---             tf' =
-
--- Motivation for event-processing function type
--- (alternative would be function of type a->b plus ensuring that it
--- only ever gets invoked on events):
--- * Now we need to be consistent with other kinds of arrows.
--- * We still want to be able to get hold of the original function.
--- 2005-02-30: OK, for FDE, invarant is that the field of type b =
--- f NoEvent.
 
 -- | Structured function definition.
 --
@@ -463,16 +262,7 @@ fdComp FDI           fd2     = fd2
 fdComp fd1           FDI     = fd1
 fdComp (FDC b)       fd2     = FDC ((fdFun fd2) b)
 fdComp _             (FDC c) = FDC c
-
--- Hardly worth the effort?
--- 2005-03-30: No, not only not worth the effort as the only thing saved
--- would be an application of f2. Also wrong since current invariant does
--- not imply that f1ne = NoEvent. Moreover, we cannot really adopt that
--- invariant as it is not totally impossible for a user to create a function
--- that breaks it.
--- fdComp (FDE f1 f1ne) (FDE f2 f2ne) =
---    FDE (f2 . f1) (vfyNoEvent (f1 NoEvent) f2ne)
-fdComp (FDE f1 f1ne) fd2 = FDE (f2 . f1) (f2 f1ne)
+fdComp (FDE f1 f1ne) fd2     = FDE (f2 . f1) (f2 f1ne)
     where
         f2 = fdFun fd2
 fdComp (FDG f1) (FDE f2 f2ne) = FDG f
@@ -510,7 +300,7 @@ fdFanOut fd1 fd2 =
     FDG (\a -> ((fdFun fd1) a, (fdFun fd2) a))
 
 
--- Verifies that the first argument is NoEvent. Returns the value of the
+-- | Verifies that the first argument is NoEvent. Returns the value of the
 -- second argument that is the case. Raises an error otherwise.
 -- Used to check that functions on events do not map NoEvent to Event
 -- wherever that assumption is exploited.
@@ -619,24 +409,15 @@ arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
 
 
 -- * Composition.
+
+-- | SF Composition
+--
 -- The definition exploits the following identities:
 --     sf         >>> identity   = sf                           -- New
 --     identity   >>> sf         = sf                           -- New
 --     sf         >>> constant c = constant c
 --     constant c >>> arr f      = constant (f c)
 --     arr f      >>> arr g      = arr (g . f)
---
--- !!! Notes/Questions:
--- !!! How do we know that the optimizations terminate?
--- !!! Probably by some kind of size argument on the SF tree.
--- !!! E.g. (Hopefully) all compPrim optimizations are such that
--- !!! the number of compose nodes decrease.
--- !!! Should verify this!
---
--- !!! There is a tension between using SFInv to signal to superior
--- !!! signal functions that the subordinate signal function will not
--- !!! change form, and using SFCpAXA to allow fusion in the context
--- !!! of some suitable superior signal function.
 compPrim :: SF a b -> SF b c -> SF a c
 compPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
@@ -658,28 +439,6 @@ compPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 cpXX :: SF' a b -> SF' b c -> SF' a c
 cpXX (SFArr _ fd1)       sf2               = cpAX fd1 sf2
 cpXX sf1                 (SFArr _ fd2)     = cpXA sf1 fd2
---
--- -- !!! 2005-07-07: Too strict.
--- -- !!! But the question is if it is worth to define pre in terms of sscan ...
--- -- !!! It is slower than the simplest possible pre, and the kind of coding
--- -- !!! required to ensure that the laziness props of the second SF are
--- -- !!! preserved might just slow things down further ...
--- cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
---     sfSScan f (s1, b, s2, c) c
---     where
---         f (s1, b, s2, c) a =
---             case f1 s1 a of
---                 Nothing ->
---                     case f2 s2 b of
---                         Nothing        -> Nothing
---                         Just (s2', c') -> Just ((s1, b, s2', c'), c')
---                 Just (s1', b') ->
---                     case f2 s2 b' of
---                         Nothing        -> Just ((s1', b', s2, c), c)
---                         Just (s2', c') -> Just ((s1', b', s2', c'), c')
---
--- !!! 2005-07-07: Indeed, this is a bit slower than the code above (14%).
--- !!! But both are better than not composing (35% faster and 26% faster)!
 cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
     sfSScan f (s1, b, s2, c) c
     where
@@ -712,8 +471,7 @@ cpXX (SFSScan _ f1 s1 eb) (SFEP _ f2 s2 cne) =
                             let (s2', c, cne') = f2 s2 b
                             in
                                 Just ((s1', eb', s2', cne'), c)
--- !!! 2005-07-09: This seems to yield only a VERY marginal speedup
--- !!! without seq. With seq, substantial speedup!
+
 cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
     sfSScan f (s1, bne, s2, c) c
     where
@@ -729,21 +487,21 @@ cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
                     Nothing | u         -> Nothing
                             | otherwise -> Just (seq s1' (s1', bne', s2, c), c)
                     Just (s2', c') -> Just (seq s1' (s1', bne', s2', c'), c')
--- The function "f" is invoked whenever an event is to be processed. It then
--- computes the output, the new state, and the new NoEvent output.
--- However, when sequencing event processors, the ones in the latter
--- part of the chain may not get invoked since previous ones may
--- decide not to "fire". But a "new" NoEvent output still has to be
--- produced, i.e. the old one retained. Since it cannot be computed by
--- invoking the last event-processing function in the chain, it has to
--- be remembered. Since the composite event-processing function remains
--- constant/unchanged, the NoEvent output has to be part of the state.
--- An alternarive would be to make the event-processing function take an
--- extra argument. But that is likely to make the simple case more
--- expensive. See note at sfEP.
 cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
     sfEP f (s1, s2, cne) (vfyNoEv bne cne)
     where
+        -- The function "f" is invoked whenever an event is to be processed. It
+        -- then computes the output, the new state, and the new NoEvent output.
+        -- However, when sequencing event processors, the ones in the latter
+        -- part of the chain may not get invoked since previous ones may decide
+        -- not to "fire". But a "new" NoEvent output still has to be produced,
+        -- i.e. the old one retained. Since it cannot be computed by invoking
+        -- the last event-processing function in the chain, it has to be
+        -- remembered. Since the composite event-processing function remains
+        -- constant/unchanged, the NoEvent output has to be part of the state.
+        -- An alternarive would be to make the event-processing function take
+        -- an extra argument. But that is likely to make the simple case more
+        -- expensive. See note at sfEP.
         f (s1, s2, cne) a =
             case f1 s1 a of
                 (s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
@@ -752,92 +510,23 @@ cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
                 _ -> usrErr "AFRP" "cpXX" $
                        "Assertion failed: Functions on events must not map "
                        ++ "NoEvent to Event."
--- !!! 2005-06-28: Why isn't SFCpAXA (FDC ...) checked for?
--- !!! No invariant rules that out, and it would allow to drop the
--- !!! event processor ... Does that happen elsewhere?
 cpXX sf1@(SFEP{}) (SFCpAXA _ (FDE f21 f21ne) sf22 fd23) =
     cpXX (cpXE sf1 f21 f21ne) (cpXA sf22 fd23)
--- f21 will (hopefully) be invoked less frequently if merged with the
--- event processor.
 cpXX sf1@(SFEP{}) (SFCpAXA _ (FDG f21) sf22 fd23) =
     cpXX (cpXG sf1 f21) (cpXA sf22 fd23)
--- Only functions whose domain is known to be Event can be merged
--- from the left with event processors.
 cpXX (SFCpAXA _ fd11 sf12 (FDE f13 f13ne)) sf2@(SFEP{}) =
     cpXX (cpAX fd11 sf12) (cpEX f13 f13ne sf2)
--- !!! Other cases to look out for:
--- !!! any sf >>> SFCpAXA = SFCpAXA if first arr is const.
--- !!! But the following will presumably not work due to type restrictions.
--- !!! Need to reconstruct sf2 I think.
--- cpXX sf1 sf2@(SFCpAXA _ _ (FDC b) sf22 fd23) = sf2
 cpXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
     -- Termination: The first argument to cpXX is no larger than
     -- the current first argument, and the second is smaller.
     cpAXA fd11 (cpXX (cpXA sf12 (fdComp fd13 fd21)) sf22) fd23
--- !!! 2005-06-27: The if below accounts for a significant slowdown.
--- !!! One would really like a cheme where opts only take place
--- !!! after a structural change ...
--- cpXX sf1 sf2 = cpXXInv sf1 sf2
--- cpXX sf1 sf2 = cpXXAux sf1 sf2
 cpXX sf1 sf2 = SF' tf --  False
-    -- if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
     where
         tf dt a = (cpXX sf1' sf2', c)
             where
                 (sf1', b) = (sfTF' sf1) dt a
                 (sf2', c) = (sfTF' sf2) dt b
 
-
--- cpXXAux sf1@(SF' _ _) sf2@(SF' _ _) = SF' tf False
---     where
---         tf dt a = (cpXXAux sf1' sf2', c)
---             where
---                 (sf1', b) = (sfTF' sf1) dt a
---                 (sf2', c) = (sfTF' sf2) dt b
--- cpXXAux sf1 sf2 = SF' tf False
---     where
---         tf dt a = (cpXXAux sf1' sf2', c)
---             where
---                 (sf1', b) = (sfTF' sf1) dt a
---                 (sf2', c) = (sfTF' sf2) dt b
-
--- cpXXAux sf1 sf2 | unsimplifiable sf1 sf2 = SF' tf False
---                 | otherwise = cpXX sf1 sf2
---     where
---         tf dt a = (cpXXAux sf1' sf2', c)
---             where
---                 (sf1', b) = (sfTF' sf1) dt a
---                 (sf2', c) = (sfTF' sf2) dt b
---
---         unsimplifiable sf1@(SF' _ _) sf2@(SF' _ _) = True
---         unsimplifiable sf1           sf2           = True
-
--- -- wrong ...
--- cpXXAux sf1@(SF' _ False)           sf2                         = SF' tf False
--- cpXXAux sf1@(SFCpAXA _ False _ _ _) sf2                         = SF' tf False
--- cpXXAux sf1                         sf2@(SF' _ False)           = SF' tf False
--- cpXXAux sf1                         sf2@(SFCpAXA _ False _ _ _) = SF' tf False
--- cpXXAux sf1 sf2 =
---     if sfIsInv sf1 && sfIsInv sf2 then cpXXInv sf1 sf2 else SF' tf False
---     where
---         tf dt a = (cpXXAux sf1' sf2', c)
---             where
---                 (sf1', b) = (sfTF' sf1) dt a
---                 (sf2', c) = (sfTF' sf2) dt b
-
--- cpXXInv sf1 sf2 = SF' tf True
---     where
---         tf dt a = sf1 `seq` sf2 `seq` (cpXXInv sf1' sf2', c)
---             where
---                 (sf1', b) = (sfTF' sf1) dt a
---                 (sf2', c) = (sfTF' sf2) dt b
-
--- !!! No. We need local defs. Keep fd1 and fd2. Extract f1 and f2
--- !!! once and fo all. Get rid of FDI and FDC at the top level.
--- !!! First local def. analyse sf2. SFArr, SFAcc etc. tf in
--- !!! recursive case just make use of f1 and f3.
--- !!! if sf2 is SFInv, that's delegated to a second local
--- !!! recursive def. that does not analyse sf2.
 
 cpAXA :: FunDesc a b -> SF' b c -> FunDesc c d -> SF' a d
 -- Termination: cpAX/cpXA, via cpCX, cpEX etc. only call cpAXA if sf2
@@ -863,21 +552,10 @@ cpAXA fd1     sf2 fd3     =
             cpAXA (fdComp fd1 fd21) sf22 (fdComp fd23 fd3)
         cpAXAAux fd1 f1 fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
 
---             if sfIsInv sf2 then
---                 cpAXAInv fd1 f1 fd3 f3 sf2
---             else
---                 SFCpAXA tf False fd1 sf2 fd3
-
             where
                 tf dt a = (cpAXAAux fd1 f1 fd3 f3 sf2', f3 c)
                     where
                         (sf2', c) = (sfTF' sf2) dt (f1 a)
-
---        cpAXAInv fd1 f1 fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
---            where
---                tf dt a = sf2 `seq` (cpAXAInv fd1 f1 fd3 f3 sf2', f3 c)
---                    where
---                        (sf2', c) = (sfTF' sf2) dt (f1 a)
 
 cpAX :: FunDesc a b -> SF' b c -> SF' a c
 cpAX FDI           sf2 = sf2
@@ -891,36 +569,19 @@ cpXA _   (FDC c)       = sfConst c
 cpXA sf1 (FDE f2 f2ne) = cpXE sf1 f2 f2ne
 cpXA sf1 (FDG f2)      = cpXG sf1 f2
 
--- Don't forget that the remaining signal function, if it is
--- SF', later could turn into something else, like SFId.
+-- The remaining signal function, if it is SF', later could turn into something
+-- else, like SFId.
 cpCX :: b -> SF' b c -> SF' a c
 cpCX b (SFArr _ fd2) = sfConst ((fdFun fd2) b)
--- 2005-07-01:  If we were serious about the semantics of sscan being required
--- to be independent of the sampling interval, I guess one could argue for a
--- fixed-point computation here ... Or maybe not.
--- cpCX b (SFSScan _ _ _ _) = sfConst <fixed point comp>
 cpCX b (SFSScan _ f s c) = sfSScan (\s _ -> f s b) s c
 cpCX b (SFEP _ _ _ cne) = sfConst (vfyNoEv b cne)
 cpCX b (SFCpAXA _ fd21 sf22 fd23) =
     cpCXA ((fdFun fd21) b) sf22 fd23
 cpCX b sf2 = SFCpAXA tf (FDC b) sf2 FDI
---
---     if sfIsInv sf2 then
---         cpCXInv b sf2
---     else
---         SFCpAXA tf False (FDC b) sf2 FDI
---
     where
         tf dt _ = (cpCX b sf2', c)
             where
                 (sf2', c) = (sfTF' sf2) dt b
-
-
--- cpCXInv b sf2 = SFCpAXA tf True (FDC b) sf2 FDI
---     where
---         tf dt _ = sf2 `seq` (cpCXInv b sf2', c)
---             where
---                 (sf2', c) = (sfTF' sf2) dt b
 
 
 cpCXA :: b -> SF' b c -> FunDesc c d -> SF' a d
@@ -928,8 +589,6 @@ cpCXA b sf2 FDI     = cpCX b sf2
 cpCXA _ _   (FDC c) = sfConst c
 cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
     where
-        -- fd1 = FDC b
-        -- f3  = fdFun fd3
 
         -- Really: SF' b c -> SF' a d
         cpCXAAux :: FunDesc a b -> b -> FunDesc c d -> (c -> d)
@@ -944,25 +603,10 @@ cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
         cpCXAAux _ b fd3 _  (SFCpAXA _ fd21 sf22 fd23) =
             cpCXA ((fdFun fd21) b) sf22 (fdComp fd23 fd3)
         cpCXAAux fd1 b fd3 f3 sf2 = SFCpAXA tf fd1 sf2 fd3
---
---            if sfIsInv sf2 then
---                cpCXAInv fd1 b fd3 f3 sf2
---            else
---                SFCpAXA tf False fd1 sf2 fd3
---
             where
                 tf dt _ = (cpCXAAux fd1 b fd3 f3 sf2', f3 c)
                     where
                         (sf2', c) = (sfTF' sf2) dt b
-
---      -- For some reason, seq on sf2' in tf is faster than making
---      -- cpCXAInv strict in sf2 by seq-ing on the top level (which would
---      -- be similar to pattern matching on sf2).
---      cpCXAInv fd1 b fd3 f3 sf2 = SFCpAXA tf True fd1 sf2 fd3
---          where
---              tf dt _ = sf2 `seq` (cpCXAInv fd1 b fd3 f3 sf2', f3 c)
---                  where
---                      (sf2', c) = (sfTF' sf2) dt b
 
 
 cpGX :: (a -> b) -> SF' b c -> SF' a c
@@ -979,24 +623,10 @@ cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
         cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
             cpAXA (fdComp fd1 fd21) sf22 fd23
         cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
---
---           if sfIsInv sf2 then
---               cpGXInv fd1 f1 sf2
---           else
---               SFCpAXA tf False fd1 sf2 FDI
---
             where
                 tf dt a = (cpGXAux fd1 f1 sf2', c)
                     where
                         (sf2', c) = (sfTF' sf2) dt (f1 a)
-
---
---      cpGXInv fd1 f1 sf2 = SFCpAXA tf True fd1 sf2 FDI
---          where
---              tf dt a = sf2 `seq` (cpGXInv fd1 f1 sf2', c)
---                  where
---                      (sf2', c) = (sfTF' sf2) dt (f1 a)
---
 
 
 cpXG :: SF' a b -> (b -> c) -> SF' a c
@@ -1016,24 +646,11 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
         cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
             cpAXA fd11 sf12 (fdComp fd22 fd2)
         cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
---
---          if sfIsInv sf1 then
---              cpXGInv fd2 f2 sf1
---          else
---              SFCpAXA tf False FDI sf1 fd2
---
             where
                 tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
                     where
                         (sf1', b) = (sfTF' sf1) dt a
 
---
---      cpXGInv fd2 f2 sf1 = SFCpAXA tf True FDI sf1 fd2
---          where
---              tf dt a = (cpXGInv fd2 f2 sf1', f2 b)
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---
 
 cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
 cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
@@ -1063,12 +680,6 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
         -- are sparse, we might win, and if not, we don't loose to
         -- much.
         cpEXAux fd1 f1 f1ne sf2 = SFCpAXA tf fd1 sf2 FDI
---
---          if sfIsInv sf2 then
---              cpEXInv fd1 f1 f1ne sf2
---          else
---              SFCpAXA tf False fd1 sf2 FDI
---
             where
                 tf dt ea = (cpEXAux fd1 f1 f1ne sf2', c)
                     where
@@ -1077,16 +688,6 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
                                 NoEvent -> (sfTF' sf2) dt f1ne
                                 _       -> (sfTF' sf2) dt (f1 ea)
 
---
---      cpEXInv fd1 f1 f1ne sf2 = SFCpAXA tf True fd1 sf2 FDI
---          where
---              tf dt ea = sf2 `seq` (cpEXInv fd1 f1 f1ne sf2', c)
---                  where
---                      (sf2', c) =
---                          case ea of
---                              NoEvent -> (sfTF' sf2) dt f1ne
---                              _       -> (sfTF' sf2) dt (f1 ea)
---
 
 cpXE :: SF' a (Event b) -> (Event b -> c) -> c -> SF' a c
 cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
@@ -1113,29 +714,17 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
         cpXEAux fd2 _ _ (SFCpAXA _ fd11 sf12 fd13) =
             cpAXA fd11 sf12 (fdComp fd13 fd2)
         cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2
---
---          if sfIsInv sf1 then
---              cpXEInv fd2 f2 f2ne sf1
---          else
---              SFCpAXA tf False FDI sf1 fd2
---
             where
                 tf dt a = (cpXEAux fd2 f2 f2ne sf1',
                            case eb of NoEvent -> f2ne; _ -> f2 eb)
                     where
                         (sf1', eb) = (sfTF' sf1) dt a
 
---
---      cpXEInv fd2 f2 f2ne sf1 = SFCpAXA tf True FDI sf1 fd2
---          where
---              tf dt a = sf1 `seq` (cpXEInv fd2 f2 f2ne sf1',
---                         case eb of NoEvent -> f2ne; _ -> f2 eb)
---                  where
---                      (sf1', eb) = (sfTF' sf1) dt a
---
-
 
 -- * Widening.
+
+-- | Widening
+--
 -- The definition exploits the following identities:
 --     first identity     = identity                            -- New
 --     first (constant b) = arr (\(_, c) -> (b, c))
@@ -1148,25 +737,15 @@ firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
                 (sf1, b0) = tf10 a0
 
 
--- Also used in parSplitPrim
 fpAux :: SF' a b -> SF' (a,c) (b,c)
 fpAux (SFArr _ FDI)       = sfId                        -- New
 fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
 fpAux (SFArr _ fd1)       = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
 fpAux sf1 = SF' tf
-    -- if sfIsInv sf1 then fpInv sf1 else SF' tf False
     where
         tf dt ~(a, c) = (fpAux sf1', (b, c))
             where
                 (sf1', b) = (sfTF' sf1) dt a
-
-
--- fpInv :: SF' a b -> SF' (a,c) (b,c)
--- fpInv sf1 = SF' tf True
---     where
---         tf dt ~(a, c) = sf1 `seq` (fpInv sf1', (b, c))
---             where
---                 (sf1', b) = (sfTF' sf1) dt a
 
 
 -- Mirror image of first.
@@ -1178,28 +757,20 @@ secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
                 (sf1, b0) = tf10 a0
 
 
--- Also used in parSplitPrim
 spAux :: SF' a b -> SF' (c,a) (c,b)
 spAux (SFArr _ FDI)       = sfId                        -- New
 spAux (SFArr _ (FDC b))   = sfArrG (\(~(c, _)) -> (c, b))
 spAux (SFArr _ fd1)       = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
 spAux sf1 = SF' tf
-    -- if sfIsInv sf1 then spInv sf1 else SF' tf False
     where
         tf dt ~(c, a) = (spAux sf1', (c, b))
             where
                 (sf1', b) = (sfTF' sf1) dt a
 
 
--- spInv :: SF' a b -> SF' (c,a) (c,b)
--- spInv sf1 = SF' tf True
---     where
---         tf dt ~(c, a) = sf1 `seq` (spInv sf1', (c, b))
---             where
---                 (sf1', b) = (sfTF' sf1) dt a
-
 
 -- * Parallel composition.
+
 -- The definition exploits the following identities (that hold for SF):
 --     identity   *** identity   = identity             -- New
 --     sf         *** identity   = first sf             -- New
@@ -1229,134 +800,45 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
         psXX sf1                 (SFArr _ FDI)       = fpAux sf1        -- New
         psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
         psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
--- !!! Unclear if this really is a gain.
--- !!! potentially unnecessary tupling and untupling.
--- !!! To be investigated.
--- !!! 2005-07-01: At least for MEP 6, the corresponding opt for
--- !!! &&& was harmfull. On that basis, disable it here too.
---        psXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
---            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
         psXX sf1 sf2 = SF' tf
---
---          if sfIsInv sf1 && sfIsInv sf2 then
---              psXXInv sf1 sf2
---          else
---              SF' tf False
---
             where
                 tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
                     where
                         (sf1', b) = (sfTF' sf1) dt a
                         (sf2', d) = (sfTF' sf2) dt c
 
---
---      psXXInv :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
---      psXXInv sf1 sf2 = SF' tf True
---          where
---              tf dt ~(a, c) = sf1 `seq` sf2 `seq` (psXXInv sf1' sf2',
---                                                     (b, d))
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---                      (sf2', d) = (sfTF' sf2) dt c
---
-
         psCX :: b -> SF' c d -> SF' (a,c) (b,d)
         psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
         psCX b sf2                 = SF' tf
---
---          if sfIsInv sf2 then
---              psCXInv b sf2
---          else
---              SF' tf False
---
             where
                 tf dt ~(_, c) = (psCX b sf2', (b, d))
                     where
                         (sf2', d) = (sfTF' sf2) dt c
 
---
---      psCXInv :: b -> SF' c d -> SF' (a,c) (b,d)
---      psCXInv b sf2 = SF' tf True
---          where
---              tf dt ~(_, c) = sf2 `seq` (psCXInv b sf2', (b, d))
---                  where
---                      (sf2', d) = (sfTF' sf2) dt c
---
-
         psXC :: SF' a b -> d -> SF' (a,c) (b,d)
         psXC (SFArr _ fd1)       d = sfArr (fdPar fd1 (FDC d))
         psXC sf1                 d = SF' tf
---
---          if sfIsInv sf1 then
---              psXCInv sf1 d
---          else
---              SF' tf False
---
             where
                 tf dt ~(a, _) = (psXC sf1' d, (b, d))
                     where
                         (sf1', b) = (sfTF' sf1) dt a
 
---
---      psXCInv :: SF' a b -> d -> SF' (a,c) (b,d)
---      psXCInv sf1 d = SF' tf True
---          where
---              tf dt ~(a, _) = sf1 `seq` (psXCInv sf1' d, (b, d))
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---
-
         psAX :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
         psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
         psAX f1 sf2                 = SF' tf
---
---          if sfIsInv sf2 then
---              psAXInv f1 sf2
---          else
---              SF' tf False
---
             where
                 tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
                     where
                         (sf2', d) = (sfTF' sf2) dt c
 
---
---      psAXInv :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
---      psAXInv f1 sf2 = SF' tf True
---          where
---              tf dt ~(a, c) = sf2 `seq` (psAXInv f1 sf2', (f1 a, d))
---                  where
---                      (sf2', d) = (sfTF' sf2) dt c
---
-
         psXA :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
         psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
         psXA sf1                 f2 = SF' tf
---
---          if sfIsInv sf1 then
---              psXAInv sf1 f2
---          else
---              SF' tf False
---
             where
                 tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
                     where
                         (sf1', b) = (sfTF' sf1) dt a
 
---
---      psXAInv :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
---      psXAInv sf1 f2 = SF' tf True
---          where
---              tf dt ~(a, c) = sf1 `seq` (psXAInv sf1' f2, (b, f2 c))
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---
-
-
--- !!! Hmmm. Why don't we optimize the FDE cases here???
--- !!! Seems pretty obvious that we should!
--- !!! It should also be possible to optimize an event processor in
--- !!! parallel with another event processor or an Arr FDE.
 
 parFanOutPrim :: SF a b -> SF a c -> SF a (b, c)
 parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
@@ -1380,170 +862,61 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
         pfoXX sf1                 (SFArr _ FDI)       = pfoXI sf1
         pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
         pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
--- !!! Unclear if this really would be a gain
--- !!! 2005-07-01: NOT a win for MEP 6.
---        pfoXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
---            cpAXA (fdPar fd11 fd21) (psXX sf12 sf22) (fdPar fd13 fd23)
         pfoXX sf1 sf2 = SF' tf
---
---          if sfIsInv sf1 && sfIsInv sf2 then
---              pfoXXInv sf1 sf2
---          else
---              SF' tf False
---
             where
                 tf dt a = (pfoXX sf1' sf2', (b, c))
                     where
                         (sf1', b) = (sfTF' sf1) dt a
                         (sf2', c) = (sfTF' sf2) dt a
 
---
---      pfoXXInv :: SF' a b -> SF' a c -> SF' a (b ,c)
---      pfoXXInv sf1 sf2 = SF' tf True
---          where
---              tf dt a = sf1 `seq` sf2 `seq` (pfoXXInv sf1' sf2', (b, c))
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---                      (sf2', c) = (sfTF' sf2) dt a
---
-
         pfoIX :: SF' a c -> SF' a (a ,c)
         pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
         pfoIX sf2 = SF' tf
---
---          if sfIsInv sf2 then
---              pfoIXInv sf2
---          else
---              SF' tf False
---
             where
                 tf dt a = (pfoIX sf2', (a, c))
                     where
                         (sf2', c) = (sfTF' sf2) dt a
 
---
---      pfoIXInv :: SF' a c -> SF' a (a ,c)
---      pfoIXInv sf2 = SF' tf True
---          where
---              tf dt a = sf2 `seq` (pfoIXInv sf2', (a, c))
---                  where
---                      (sf2', c) = (sfTF' sf2) dt a
---
-
         pfoXI :: SF' a b -> SF' a (b ,a)
         pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
         pfoXI sf1 = SF' tf
---
---          if sfIsInv sf1 then
---              pfoXIInv sf1
---          else
---              SF' tf False
---
             where
                 tf dt a = (pfoXI sf1', (b, a))
                     where
                         (sf1', b) = (sfTF' sf1) dt a
 
---
---      pfoXIInv :: SF' a b -> SF' a (b ,a)
---      pfoXIInv sf1 = SF' tf True
---          where
---              tf dt a = sf1 `seq` (pfoXIInv sf1', (b, a))
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---
-
         pfoCX :: b -> SF' a c -> SF' a (b ,c)
         pfoCX b (SFArr _ fd2) = sfArr (fdFanOut (FDC b) fd2)
         pfoCX b sf2 = SF' tf
---
---          if sfIsInv sf2 then
---              pfoCXInv b sf2
---          else
---              SF' tf False
---
             where
                 tf dt a = (pfoCX b sf2', (b, c))
                     where
                         (sf2', c) = (sfTF' sf2) dt a
 
---
---      pfoCXInv :: b -> SF' a c -> SF' a (b ,c)
---      pfoCXInv b sf2 = SF' tf True
---          where
---              tf dt a = sf2 `seq` (pfoCXInv b sf2', (b, c))
---                  where
---                      (sf2', c) = (sfTF' sf2) dt a
---
-
         pfoXC :: SF' a b -> c -> SF' a (b ,c)
         pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
         pfoXC sf1 c = SF' tf
---
---          if sfIsInv sf1 then
---              pfoXCInv sf1 c
---          else
---              SF' tf False
---
             where
                 tf dt a = (pfoXC sf1' c, (b, c))
                     where
                         (sf1', b) = (sfTF' sf1) dt a
 
---
---      pfoXCInv :: SF' a b -> c -> SF' a (b ,c)
---      pfoXCInv sf1 c = SF' tf True
---          where
---              tf dt a = sf1 `seq` (pfoXCInv sf1' c, (b, c))
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---
-
         pfoAX :: (a -> b) -> SF' a c -> SF' a (b ,c)
         pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
         pfoAX f1 sf2 = SF' tf
---
---          if sfIsInv sf2 then
---              pfoAXInv f1 sf2
---          else
---              SF' tf False
---
             where
                 tf dt a = (pfoAX f1 sf2', (f1 a, c))
                     where
                         (sf2', c) = (sfTF' sf2) dt a
 
---
---      pfoAXInv :: (a -> b) -> SF' a c -> SF' a (b ,c)
---      pfoAXInv f1 sf2 = SF' tf True
---          where
---              tf dt a = sf2 `seq` (pfoAXInv f1 sf2', (f1 a, c))
---                  where
---                      (sf2', c) = (sfTF' sf2) dt a
---
 
         pfoXA :: SF' a b -> (a -> c) -> SF' a (b ,c)
         pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
         pfoXA sf1 f2 = SF' tf
---
---          if sfIsInv sf1 then
---              pfoXAInv sf1 f2
---          else
---              SF' tf False
---
             where
                 tf dt a = (pfoXA sf1' f2, (b, f2 a))
                     where
                         (sf1', b) = (sfTF' sf1) dt a
-
---
---      pfoXAInv :: SF' a b -> (a -> c) -> SF' a (b ,c)
---      pfoXAInv sf1 f2 = SF' tf True
---          where
---              tf dt a = sf1 `seq` (pfoXAInv sf1' f2, (b, f2 a))
---                  where
---                      (sf1', b) = (sfTF' sf1) dt a
---
 
 
 -- * ArrowLoop instance and implementation
@@ -1565,25 +938,11 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
         loopAux (SFArr _ fd1) =
             sfArrG (\a -> let (b,c) = (fdFun fd1) (a,c) in b)
         loopAux sf1 = SF' tf
---
---          if sfIsInv sf1 then
---              loopInv sf1
---          else
---              SF' tf False
---
             where
                 tf dt a = (loopAux sf1', b)
                     where
                         (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
 
---
---      loopInv :: SF' (a,c) (b,c) -> SF' a b
---      loopInv sf1 = SF' tf True
---          where
---              tf dt a = sf1 `seq` (loopInv sf1', b)
---                  where
---                      (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
---
 
 -- * Scanning
 

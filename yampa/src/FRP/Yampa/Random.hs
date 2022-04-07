@@ -46,11 +46,6 @@ noiseR :: (RandomGen g, Random b) => (b,b) -> g -> SF a b
 noiseR range g0 = streamToSF (randomRs range g0)
 
 
--- Internal. Not very useful for other purposes since we do not have any
--- control over the intervals between each "sample". Or? A version with
--- time-stamped samples would be similar to embedSynch (applied to identity).
--- The list argument must be a stream (infinite list) at present.
-
 streamToSF :: [b] -> SF a b
 streamToSF []     = intErr "AFRP" "streamToSF" "Empty list!"
 streamToSF (b:bs) = SF {sfTF = tf0}
@@ -63,24 +58,12 @@ streamToSF (b:bs) = SF {sfTF = tf0}
             where
                 tf _ _ = (stsfAux bs, b)
 
--- New def, untested:
---
--- streamToSF = sscan2 f
---     where
---         f []     _ = intErr "AFRP" "streamToSF" "Empty list!"
---         f (b:bs) _ = (bs, b)
---
---
-
-
 -- | Stochastic event source with events occurring on average once every t_avg
 -- seconds. However, no more than one event results from any one sampling
 -- interval in the case of relatively sparse sampling, thus avoiding an
 -- "event backlog" should sampling become more frequent at some later
 -- point in time.
 
--- !!! Maybe it would better to give a frequency? But like this to make
--- !!! consitent with "repeatedly".
 occasionally :: RandomGen g => g -> Time -> b -> SF a (Event b)
 occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
                        | otherwise = usrErr "AFRP" "occasionally"
