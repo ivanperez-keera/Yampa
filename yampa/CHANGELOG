@@ -1,6 +1,7 @@
-2022-03-17 Ivan Perez <ivan.perez@haskell.sexy>
-        * Yampa.cabal: Syntax rules (#196).
+2022-04-06 Ivan Perez <ivan.perez@haskell.sexy>
+        * Yampa.cabal: Syntax rules (#196), remove regression tests (#201).
         * src/: Remove unused extensions (#199), syntax rules (#200).
+        * tests/: Remove regression tests (#201).
 
 2021-10-07 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Version bump (0.13.3) (#193), add modules missing from

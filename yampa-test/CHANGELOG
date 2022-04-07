@@ -1,6 +1,7 @@
-2022-03-13 Ivan Perez <ivan.perez@haskell.sexy>
-        * yampa-test.cabal: Syntax rules (#196).
+2022-04-06 Ivan Perez <ivan.perez@haskell.sexy>
+        * yampa-test.cabal: Syntax rules (#196), add regression tests (#201).
         * tests/YampaQC.hs: Remove incorrect tests (#198).
+        * tests/: Add regression tests (#201).
 
 2021-10-07 Ivan Perez <ivan.perez@keera.co.uk>
         * yampa-test.cabal: Version bump (0.13.3).
