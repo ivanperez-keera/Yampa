@@ -38,9 +38,6 @@ infixr 0 `fby`
 --
 -- The output has an infinitesimal delay (1 sample), and the value at time
 -- zero is undefined.
-
--- !!! Redefined using SFSScan
--- !!! About 20% slower than old_pre on its own.
 pre :: SF a a
 pre = sscanPrim f uninit uninit
     where
@@ -73,24 +70,6 @@ b0 `fby` sf = b0 --> sf >>> pre
 
 -- | Delay a signal by a fixed time 't', using the second parameter
 -- to fill in the initial 't' seconds.
-
--- Invariants:
--- t_diff measure the time since the latest output sample ideally
--- should have been output. Whenever that equals or exceeds the
--- time delta for the next buffered sample, it is time to output a
--- new sample (although not necessarily the one first in the queue:
--- it might be necessary to "catch up" by discarding samples.
--- 0 <= t_diff < bdt, where bdt is the buffered time delta for the
--- sample on the front of the buffer queue.
---
--- Sum of time deltas in the queue >= q.
-
--- !!! PROBLEM!
--- Since input samples sometimes need to be duplicated, it is not a
--- good idea use a delay on things like events since we then could
--- end up with duplication of event occurrences.
--- (Thus, we actually NEED delayEvent.)
-
 delay :: Time -> a -> SF a a
 delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
                | q == 0    = identity
@@ -98,6 +77,16 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
     where
         tf0 a0 = (delayAux [] [(q, a0)] 0 a_init, a_init)
 
+        -- Invariants:
+        -- t_diff measure the time since the latest output sample ideally
+        -- should have been output. Whenever that equals or exceeds the
+        -- time delta for the next buffered sample, it is time to output a
+        -- new sample (although not necessarily the one first in the queue:
+        -- it might be necessary to "catch up" by discarding samples.
+        -- 0 <= t_diff < bdt, where bdt is the buffered time delta for the
+        -- sample on the front of the buffer queue.
+        --
+        -- Sum of time deltas in the queue >= q.
         delayAux _ [] _ _ = undefined
         delayAux rbuf buf@((bdt, ba) : buf') t_diff a_prev = SF' tf -- True
             where
@@ -113,14 +102,6 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
                         nextSmpl rbuf buf@((bdt, ba) : buf') t_diff a
                             | t_diff < bdt = (delayAux rbuf buf t_diff a, a)
                             | otherwise    = nextSmpl rbuf buf' (t_diff-bdt) ba
-
-
--- !!! Hmm. Not so easy to do efficiently, it seems ...
-
--- varDelay :: Time -> a -> SF (a, Time) a
--- varDelay = undefined
-
-
 
 -- Vim modeline
 -- vim:set tabstop=8 expandtab:

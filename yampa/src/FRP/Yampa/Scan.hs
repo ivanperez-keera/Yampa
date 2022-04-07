@@ -24,10 +24,6 @@ import FRP.Yampa.InternalCore (SF(..), sfSScan)
 
 -- | Applies a function point-wise, using the last output as next input. This
 -- creates a well-formed loop based on a pure, auxiliary function.
-
--- New sscan primitive. It should be possible to define lots of functions
--- in terms of this one. Eventually a new constructor will be introduced if
--- this works out.
 sscan :: (b -> a -> b) -> b -> SF a b
 sscan f b_init = sscanPrim f' b_init b_init
     where

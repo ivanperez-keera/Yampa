@@ -42,11 +42,11 @@ infixl 0 `timeOut`, `abortWhen`
 
 -- | A task is a partially SF that may terminate with a result.
 
--- CPS-based representation allowing a termination to be detected.
--- (Note the rank 2 polymorphic type!)
--- The representation can be changed if necessary, but the Monad laws
--- follow trivially in this case.
 newtype Task a b c =
+    -- CPS-based representation allowing termination to be detected.
+    -- (Note the rank 2 polymorphic type!)
+    -- The representation can be changed if necessary, but the Monad laws
+    -- follow trivially in this case.
     Task (forall d . (c -> SF a (Either b d)) -> SF a (Either b d))
 
 unTask :: Task a b c -> ((c -> SF a (Either b d)) -> SF a (Either b d))
@@ -83,10 +83,6 @@ runTask_ tk = runTask tk
 
 -- | Creates an SF that represents an SF and produces an event
 -- when the task terminates, and otherwise produces just an output.
-
--- Seems as if the following is convenient after all. Suitable name???
--- Maybe that implies a representation change for Tasks?
--- Law: mkTask (taskToSF task) = task (but not (quite) vice versa.)
 taskToSF :: Task a b c -> SF a (b, Event c)
 taskToSF tk = runTask tk
               >>> (arr (either id (usrErr "AFRPTask" "runTask_"
