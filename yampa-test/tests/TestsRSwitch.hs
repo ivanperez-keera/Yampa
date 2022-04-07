@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsRSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsRSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsRSwitch				     *
+*       Module:         TestsRSwitch				                         *
 *       Purpose:        Test cases for rSwitch and drSwitch		     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,7 +12,7 @@
 ******************************************************************************
 -}
 
-module AFRPTestsRSwitch (
+module TestsRSwitch (
     rswitch_tr,
     rswitch_trs,
     rswitch_st0,
@@ -23,7 +23,7 @@ import Data.Maybe (fromJust)
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for rSwitch and drSwitch

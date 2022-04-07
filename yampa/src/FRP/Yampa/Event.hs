@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-warnings-deprecations #-}
---------------------------------------------------------------------------------
 -- |
 -- Module      : FRP.Yampa.Event
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -25,74 +24,13 @@
 --
 -- Events are essential for many other Yampa constructs, like switches (see
 -- 'FRP.Yampa.Switches.switch' for details).
---
-----------------------------------------------------------------------------
---
--- Note on naming conventions used in this module.
---
--- Names here might have to be rethought. It's really a bit messy.  In general,
--- the aim has been short and convenient names (like 'tag', 'attach', 'lMerge')
--- and thus we have tried to stay away from suffixing/ prefixing conventions.
--- E.g. 'Event' as a common suffix would be very verbose.
---
--- However, part of the names come from a desire to stay close to similar
--- functions for the Maybe type. e.g. 'event', 'fromEvent', 'isEvent'.  In many
--- cases, this use of 'Event' could be understood to refer to the constructor
--- 'Event', not to the type name 'Event'. Thus this use of event should not be
--- seen as a suffixing-with-type-name convention. But that is obviously not
--- easy to see, and, more over, interpreting 'Event' as the name of the type
--- might make equally good or better sense. E.g.  'fromEvent' can also be seen
--- as a function taking an event signal, which is a partial function on time,
--- to a normal signal. The latter is then undefined when the source event
--- function is undefined.
---
--- In other cases, it has been necessary to somehow stay out of the way of
--- names used by the prelude or other commonly imported modules/modules which
--- could be expected to be used heavily in Yampa code. In those cases a suffix
--- 'E' have been added. Examples are 'filterE' (exists in Prelude) and 'joinE'
--- (exists in Monad). Maybe the suffix isn't necessary in the last case.
---
--- Some functions (actually only one currently, 'mapFilterE') have got an 'E'
--- suffix just because they're closely related (by name or semantics) to one
--- which already has an 'E' suffix. Another candidate would be 'splitE' to
--- complement 'joinE'. But events carrying pairs could obviously have other
--- sources than a 'joinE', so currently it is called 'split'.
---
--- 2003-05-19: Actually, have now changed to 'splitE' to avoid a clash with the
--- method 'split' in the class RandomGen.
---
--- 2003-05-19: What about 'gate'? Stands out compared to e.g. 'filterE'.
---
--- Currently the 'E' suffix is considered an exception. Maybe we should use
--- completely different names to avoid the 'E' suffix. If the functions are not
--- used that often, 'Event' might be approriate. Alternatively the suffix 'E'
--- should be adopted globaly (except if the name already contains 'event' in
--- some form?).
---
--- Arguably, having both a type 'Event' and a constructor 'Event' is confusing
--- since there are more than one constructor. But the name 'Event' for the
--- constructor is quite apt. It's really the type name that is wrong. But no
--- one has found a better name, and changing it would be a really major
--- undertaking. Yes, the constructor 'Event' is not exported, but we still need
--- to talk conceptually about them. On the other hand, if we consider
--- Event-signals as partial functions on time, maybe it isn't so confusing:
--- they just don't have a value between events, so 'NoEvent' does not really
--- exist conceptually.
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Event where
 
--- Event is an instance of Functor, Eq, and Ord. Some method instances:
--- fmap :: (a -> b) -> Event a -> Event b
--- (==)     :: Event a -> Event a -> Bool
--- (<=) :: Event a -> Event a -> Bool
-
-import Control.Applicative
-import Control.DeepSeq (NFData(..))
-import qualified Control.Monad.Fail as Fail
+import           Control.Applicative
+import           Control.DeepSeq     (NFData (..))
+import qualified Control.Monad.Fail  as Fail
 
 import FRP.Yampa.Diagnostics
-
 
 infixl 8 `tag`, `attach`, `gate`
 infixl 7 `joinE`
@@ -102,14 +40,6 @@ infixl 6 `lMerge`, `rMerge`, `merge`
 ------------------------------------------------------------------------------
 -- The Event type
 ------------------------------------------------------------------------------
-
--- The type Event represents a single possible event occurrence.
--- It is isomorphic to Maybe, but its constructors are not exposed outside
--- the AFRP implementation.
--- There could possibly be further constructors, but note that the NeverEvent-
--- idea does not work, at least not in the current AFRP implementation.
--- Also note that it unfortunately is possible to partially break the
--- abstractions through judicious use of e.g. snap and switching.
 
 -- | A single possible event occurrence, that is, a value that may or may
 -- not occur. Events are used to represent values that are not produced
@@ -264,14 +194,6 @@ e `attach` b = fmap (\a -> (a, b)) e
 ------------------------------------------------------------------------------
 -- Event merging (disjunction) and joining (conjunction)
 ------------------------------------------------------------------------------
-
--- !!! I think this is too complicated. rMerge can be obtained simply by
--- !!! swapping the arguments. So the only time it is possibly of any
--- !!! interest is for partial app. "merge" is inherently dangerous.
--- !!! But this is NOT obvious from its type: it's type is just like
--- !!! the others. This is the only example of such a def.
--- !!! Finally: mergeEvents is left-biased, but this is not reflected in
--- !!! its name.
 
 -- | Left-biased event merge (always prefer left event, if present).
 lMerge :: Event a -> Event a -> Event a

@@ -1,6 +1,45 @@
-name:                yampa-test
-version:             0.13.3
-synopsis:            Testing library for Yampa.
+-- Copyright (c) 2017, Ivan Perez
+--
+-- All rights reserved.
+--
+-- Redistribution and use in source and binary forms, with or without
+-- modification, are permitted provided that the following conditions are met:
+--
+--     * Redistributions of source code must retain the above copyright notice,
+--       this list of conditions and the following disclaimer.
+--
+--     * Redistributions in binary form must reproduce the above copyright
+--       notice, this list of conditions and the following disclaimer in the
+--       documentation and/or other materials provided with the distribution.
+--
+--     * Neither the name of Ivan Perez nor the names of other contributors may
+--       be used to endorse or promote products derived from this software
+--       without specific prior written permission.
+--
+-- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+-- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+-- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-- ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+-- LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+-- CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+-- SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+-- INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+-- CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+-- ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+-- POSSIBILITY OF SUCH DAMAGE.
+cabal-version: >= 1.10
+build-type:    Simple
+
+name:          yampa-test
+version:       0.13.4
+author:        Ivan Perez
+maintainer:    ivan.perez@keera.co.uk
+homepage:      http://github.com/ivanperez-keera/Yampa
+license:       BSD3
+license-file:  LICENSE
+-- copyright
+category:      Testing
+synopsis:      Testing library for Yampa.
 description:
   Testing and debugging library for Yampa.
   .
@@ -15,44 +54,118 @@ description:
   A detailed explanation of these ideas is included in the ICFP 2017 paper
   <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
 
-homepage:            http://github.com/ivanperez-keera/Yampa
-license:             BSD3
-license-file:        LICENSE
-author:              Ivan Perez
-maintainer:          ivan.perez@keera.co.uk
--- copyright:
-category:            Testing
-build-type:          Simple
-extra-source-files:  CHANGELOG
+extra-source-files:
+  CHANGELOG
 
-cabal-version:       >=1.10
+
+source-repository head
+  type:     git
+  location: git://github.com/ivanperez-keera/Yampa.git
+  subdir:   yampa-test
+
+
+-- You can disable the regression test suite with -f-test-regression
+flag test-regression
+  description: Enable regression test suite
+  default:     True
+  manual:      True
+
 
 library
-  exposed-modules:     FRP.Yampa.Debug
-                       FRP.Yampa.LTLFuture
-                       FRP.Yampa.LTLPast
-                       FRP.Yampa.Stream
-                       FRP.Yampa.QuickCheck
-  build-depends:       base >=4 && <5,
-                       Yampa >= 0.13.3 && < 0.14,
-                       QuickCheck,
-                       normaldistribution
-  hs-source-dirs:      src
-  default-language:    Haskell2010
+  exposed-modules:
+    FRP.Yampa.Debug
+    FRP.Yampa.LTLFuture
+    FRP.Yampa.LTLPast
+    FRP.Yampa.QuickCheck
+    FRP.Yampa.Stream
+
+  build-depends:
+      base               >= 4      && < 5
+    , normaldistribution
+    , QuickCheck
+    , Yampa              >= 0.13.4 && < 0.14
+
+  default-language:
+    Haskell2010
+
+  hs-source-dirs:
+    src
+
 
 test-suite yampa-quicheck
-  type:        exitcode-stdio-1.0
-  main-is:     YampaQC.hs
-  ghc-options: -Wall
-  default-language:    Haskell2010
+  type:
+    exitcode-stdio-1.0
 
-  hs-source-dirs:   tests
+  main-is:
+    YampaQC.hs
+
   build-depends:
-    base < 5,
-    random,
-    Cabal >= 1.19,
-    QuickCheck,
-    tasty,
-    tasty-quickcheck,
-    Yampa,
-    yampa-test
+      base             < 5
+    , Cabal            >= 1.19
+    , QuickCheck
+    , random
+    , tasty
+    , tasty-quickcheck
+    , Yampa
+    , yampa-test
+
+  default-language:
+    Haskell2010
+
+  hs-source-dirs:
+    tests
+
+  ghc-options:
+    -Wall
+
+
+test-suite regression
+  type:
+    exitcode-stdio-1.0
+
+  main-is:
+    testYampaMain.hs
+
+  other-modules:
+    Tests
+    TestsAccum
+    TestsArr
+    TestsBasicSF
+    TestsCOC
+    TestsCommon
+    TestsComp
+    TestsDelay
+    TestsDer
+    TestsEmbed
+    TestsEvSrc
+    TestsFirstSecond
+    TestsKSwitch
+    TestsLaws
+    TestsLoop
+    TestsLoopIntegral
+    TestsLoopLaws
+    TestsLoopPre
+    TestsPre
+    TestsPSwitch
+    TestsReact
+    TestsRPSwitch
+    TestsRSwitch
+    TestsSscan
+    TestsSwitch
+    TestsTask
+    TestsUtils
+    TestsWFG
+
+  default-language:
+    Haskell2010
+
+  hs-source-dirs:
+    tests
+
+  if !flag(test-regression)
+    buildable:
+      False
+  else
+    build-depends:
+        base
+      , Yampa

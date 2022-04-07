@@ -1,7 +1,3 @@
-{-# LANGUAGE CPP        #-}
-{-# LANGUAGE GADTs      #-}
-{-# LANGUAGE Rank2Types #-}
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Loop
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -13,22 +9,18 @@
 -- Portability :  non-portable -GHC extensions-
 --
 -- Well-initialised loops
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Loop (
     -- * Loops with guaranteed well-defined feedback
     loopPre,            -- :: c -> SF (a,c) (b,c) -> SF a b
     loopIntegral,       -- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
 ) where
 
-
 import Control.Arrow
 import Data.VectorSpace
 
-import FRP.Yampa.InternalCore (SF)
-
-import FRP.Yampa.Integration
 import FRP.Yampa.Delays
+import FRP.Yampa.Integration
+import FRP.Yampa.InternalCore (SF)
 
 -- * Loops with guaranteed well-defined feedback
 

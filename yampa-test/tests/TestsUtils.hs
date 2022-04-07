@@ -1,10 +1,10 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsUtils.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsUtils.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsUtils					     *
-*       Purpose:        Test cases for utilities (AFRPUtilities)	     *
+*       Module:         TestsUtils					         *
+*       Purpose:        Test cases for utilities (Utilities)	     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
@@ -14,7 +14,7 @@
 
 -- Not really intended to test all definitions in the utilities module.
 
-module AFRPTestsUtils (utils_tr, utils_trs) where
+module TestsUtils (utils_tr, utils_trs) where
 
 import FRP.Yampa
 import FRP.Yampa.Conditional
@@ -22,13 +22,13 @@ import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
 import FRP.Yampa.Switches
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
--- Test cases for utilities (AFRPUtils)
+-- Test cases for utilities (Utils)
 ------------------------------------------------------------------------------
 
--- Should re-order these test cases to reflect the order in AFRPUtils
+-- Should re-order these test cases to reflect the order in Utils
 -- at some point.
 
 utils_inp1 = deltaEncode 1.0 $

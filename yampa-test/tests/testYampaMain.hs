@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: testAFRPMain.hs,v 1.9 2003/11/10 21:28:58 antony Exp $
+{- $Id: testYampaMain.hs,v 1.9 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         testAFRPMain                                         *
+*       Module:         testYampaMain                                        *
 *       Purpose:        Main driver routine for running tests.               *
 *	Authors:	Henrik Nilsson and Antony Courtney		     *
 *                                                                            *
@@ -13,7 +13,7 @@
 -}
 module Main where
 
-import AFRPTests
+import Tests
 
 import Control.Monad (when)
 import System.Environment (getArgs, getProgName)

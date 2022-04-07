@@ -1,9 +1,3 @@
-{-# LANGUAGE CPP           #-}
-{-# LANGUAGE GADTs         #-}
-{-# LANGUAGE MultiWayIf    #-}
-{-# LANGUAGE PatternGuards #-}
-{-# LANGUAGE Rank2Types    #-}
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Simulation
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -36,8 +30,6 @@
 --
 -- This module also includes debugging aids needed to execute signal functions
 -- step by step, which are used by Yampa's testing facilities.
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Simulation (
    -- * Reactimation
     reactimate,         -- :: IO a
@@ -78,44 +70,15 @@ module FRP.Yampa.Simulation (
 
 import Control.Monad (unless)
 import Data.IORef
-import Data.Maybe (fromMaybe)
-
-import FRP.Yampa.InternalCore (SF(..), SF'(..), sfTF', DTime)
+import Data.Maybe    (fromMaybe)
 
 import FRP.Yampa.Diagnostics
+import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
+
 
 ------------------------------------------------------------------------------
 -- Reactimation
 ------------------------------------------------------------------------------
-
--- Reactimation of a signal function.
--- init ....... IO action for initialization. Will only be invoked once,
---              at (logical) time 0, before first call to "sense".
---              Expected to return the value of input at time 0.
--- sense ...... IO action for sensing of system input.
---      arg. #1 ....... True: action may block, waiting for an OS event.
---                      False: action must not block.
---      res. #1 ....... Time interval since previous invocation of the sensing
---                      action (or, the first time round, the init action),
---                      returned. The interval must be _strictly_ greater
---                      than 0. Thus even a non-blocking invocation must
---                      ensure that time progresses.
---      res. #2 ....... Nothing: input is unchanged w.r.t. the previously
---                      returned input sample.
---                      Just i: the input is currently i.
---                      It is OK to always return "Just", even if input is
---                      unchanged.
--- actuate .... IO action for outputting the system output.
---      arg. #1 ....... True: output may have changed from previous output
---                      sample.
---                      False: output is definitely unchanged from previous
---                      output sample.
---                      It is OK to ignore argument #1 and assume that the
---                      the output has always changed.
---      arg. #2 ....... Current output sample.
---      result .......  Termination flag. Once True, reactimate will exit
---                      the reactimation loop and return to its caller.
--- sf ......... Signal function to reactimate.
 
 -- | Convenience function to run a signal function indefinitely, using a IO
 -- actions to obtain new input and process the output.
@@ -214,30 +177,6 @@ react rh (dt,ma') =
 -- Embedding
 ------------------------------------------------------------------------------
 
--- New embed interface. We will probably have to revisit this. To run an
--- embedded signal function while retaining full control (e.g. start and
--- stop at will), one would probably need a continuation-based interface
--- (as well as a continuation based underlying implementation).
---
--- E.g. here are interesting alternative (or maybe complementary)
--- signatures:
---
---    sample :: SF a b -> SF (Event a) (Event b)
---    sample' :: SF a b -> SF (Event (DTime, a)) (Event b)
---
--- Maybe it should be called "subSample", since that's the only thing
--- that can be achieved. At least does not have the problem with missing
--- events when supersampling.
---
--- subSampleSynch :: SF a b -> SF (Event a) (Event b)
--- Time progresses at the same rate in the embedded system.
--- But it is only sampled on the events.
--- E.g.
--- repeatedly 0.1 () >>> subSampleSynch sf >>> hold
---
--- subSample :: DTime -> SF a b -> SF (Event a) (Event b)
--- Time advanced by dt for each event, not synchronized with the outer clock.
-
 -- | Given a signal function and a pair with an initial
 -- input sample for the input signal, and a list of sampling
 -- times, possibly with new input samples at those times,
@@ -260,19 +199,6 @@ embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
 -- | Synchronous embedding. The embedded signal function is run on the supplied
 -- input and time stream at a given (but variable) ratio >= 0 to the outer time
 -- flow. When the ratio is 0, the embedded signal function is paused.
-
--- What about running an embedded signal function at a fixed (guaranteed)
--- sampling frequency? E.g. super sampling if the outer sampling is slower,
--- subsampling otherwise. AS WELL as at a given ratio to the outer one.
---
--- Ah, but that's more or less what embedSync does.
--- So just simplify the interface. But maybe it should also be possible
--- to feed in input from the enclosing system.
-
--- !!! Should "dropped frames" be forced to avoid space leaks?
--- !!! It's kind of hard to se why, but "frame dropping" was a problem
--- !!! in the old robot simulator. Try to find an example!
-
 embedSynch :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
 embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
     where
@@ -303,29 +229,6 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
                     | t' <= tp = advance tp tbtbs
         advance _ _ = undefined
 
-
--- Embedding and missing events.
--- Suppose a subsystem is super sampled. Then some of the output
--- samples will have to be dropped. If we are unlycky, the dropped
--- samples could be occurring events that we'd rather not miss.
--- This is a real problem.
--- Similarly, when feeding input into a super-sampled system,
--- we may need to extrapolate the input, assuming that it is
--- constant. But if (part of) the input is an occurring event, we'd
--- rather not duplicate that!!!
--- This suggests that:
---    * output samples should be merged through a user-supplied merge
---      function.
---    * input samples should be extrapolated if necessary through a
---      user-supplied extrapolation function.
---
--- Possible signature:
---
--- resample :: Time -> (c -> [a]) -> SF a b -> ([b] -> d) -> SF c d
---
--- But what do we do if the inner system runs more slowly than the
--- outer one? Then we need to extrapolate the output from the
--- inner system, and we have the same problem with events AGAIN!
 
 -- | Spaces a list of samples by a fixed time delta, avoiding
 --   unnecessary samples when the input has not changed since

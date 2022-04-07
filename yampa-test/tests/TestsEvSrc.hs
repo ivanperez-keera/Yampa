@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsEvSrc.hs,v 1.3 2003/12/19 15:32:22 henrik Exp $
+{- $Id: TestsEvSrc.hs,v 1.3 2003/12/19 15:32:22 henrik Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsEvSrc					     *
+*       Module:         TestsEvSrc					                         *
 *       Purpose:        Test cases for event sources			     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsEvSrc (evsrc_trs, evsrc_tr) where
+module TestsEvSrc (evsrc_trs, evsrc_tr) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for basic event sources and stateful event suppression

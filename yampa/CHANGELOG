@@ -1,3 +1,11 @@
+2022-04-07 Ivan Perez <ivan.perez@haskell.sexy>
+        * Yampa.cabal: Version bump (0.13.4) (#203), syntax rules (#196),
+          remove regression tests (#201).
+        * src/: Remove unused extensions (#199), syntax rules (#200), remove
+          commented code and notes (#202).
+        * tests/: Rename tests (#195), remove regression tests (#201).
+        * README: Add new game (#197).
+
 2021-10-07 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Version bump (0.13.3) (#193), add modules missing from
           other modules (#181).

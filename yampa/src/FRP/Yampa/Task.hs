@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP        #-}
 {-# LANGUAGE Rank2Types #-}
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Task
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -11,9 +10,6 @@
 -- Portability :  non-portable (GHC extensions)
 --
 -- Task abstraction on top of signal transformers.
---
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Task (
     Task,
     mkTask,      -- :: SF a (b, Event c) -> Task a b c
@@ -46,11 +42,11 @@ infixl 0 `timeOut`, `abortWhen`
 
 -- | A task is a partially SF that may terminate with a result.
 
--- CPS-based representation allowing a termination to be detected.
--- (Note the rank 2 polymorphic type!)
--- The representation can be changed if necessary, but the Monad laws
--- follow trivially in this case.
 newtype Task a b c =
+    -- CPS-based representation allowing termination to be detected.
+    -- (Note the rank 2 polymorphic type!)
+    -- The representation can be changed if necessary, but the Monad laws
+    -- follow trivially in this case.
     Task (forall d . (c -> SF a (Either b d)) -> SF a (Either b d))
 
 unTask :: Task a b c -> ((c -> SF a (Either b d)) -> SF a (Either b d))
@@ -87,10 +83,6 @@ runTask_ tk = runTask tk
 
 -- | Creates an SF that represents an SF and produces an event
 -- when the task terminates, and otherwise produces just an output.
-
--- Seems as if the following is convenient after all. Suitable name???
--- Maybe that implies a representation change for Tasks?
--- Law: mkTask (taskToSF task) = task (but not (quite) vice versa.)
 taskToSF :: Task a b c -> SF a (b, Event c)
 taskToSF tk = runTask tk
               >>> (arr (either id (usrErr "AFRPTask" "runTask_"
@@ -116,38 +108,36 @@ instance Monad (Task a b) where
     tk >>= f = Task (\k -> unTask tk (\c -> unTask (f c) k))
     return x = Task (\k -> k x)
 
-{-
-Let's check the monad laws:
-
-    t >>= return
-    = \k -> t (\c -> return c k)
-    = \k -> t (\c -> (\x -> \k -> k x) c k)
-    = \k -> t (\c -> (\x -> \k' -> k' x) c k)
-    = \k -> t (\c -> k c)
-    = \k -> t k
-    = t
-    QED
-
-    return x >>= f
-    = \k -> (return x) (\c -> f c k)
-    = \k -> (\k -> k x) (\c -> f c k)
-    = \k -> (\k' -> k' x) (\c -> f c k)
-    = \k -> (\c -> f c k) x
-    = \k -> f x k
-    = f x
-    QED
-
-    (t >>= f) >>= g
-    = \k -> (t >>= f) (\c -> g c k)
-    = \k -> (\k' -> t (\c' -> f c' k')) (\c -> g c k)
-    = \k -> t (\c' -> f c' (\c -> g c k))
-    = \k -> t (\c' -> (\x -> \k' -> f x (\c -> g c k')) c' k)
-    = \k -> t (\c' -> (\x -> f x >>= g) c' k)
-    = t >>= (\x -> f x >>= g)
-    QED
-
-No surprises (obviously, since this is essentially just the CPS monad).
--}
+-- Let's check the monad laws:
+--
+--     t >>= return
+--     = \k -> t (\c -> return c k)
+--     = \k -> t (\c -> (\x -> \k -> k x) c k)
+--     = \k -> t (\c -> (\x -> \k' -> k' x) c k)
+--     = \k -> t (\c -> k c)
+--     = \k -> t k
+--     = t
+--     QED
+--
+--     return x >>= f
+--     = \k -> (return x) (\c -> f c k)
+--     = \k -> (\k -> k x) (\c -> f c k)
+--     = \k -> (\k' -> k' x) (\c -> f c k)
+--     = \k -> (\c -> f c k) x
+--     = \k -> f x k
+--     = f x
+--     QED
+--
+--     (t >>= f) >>= g
+--     = \k -> (t >>= f) (\c -> g c k)
+--     = \k -> (\k' -> t (\c' -> f c' k')) (\c -> g c k)
+--     = \k -> t (\c' -> f c' (\c -> g c k))
+--     = \k -> t (\c' -> (\x -> \k' -> f x (\c -> g c k')) c' k)
+--     = \k -> t (\c' -> (\x -> f x >>= g) c' k)
+--     = t >>= (\x -> f x >>= g)
+--     QED
+--
+-- No surprises (obviously, since this is essentially just the CPS monad).
 
 -- * Basic tasks
 

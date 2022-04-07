@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsLaws.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsLaws.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsLaws                                        *
+*       Module:         TestsLaws                                            *
 *       Purpose:        Test cases based on the arrow laws		     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -12,11 +12,11 @@
 ******************************************************************************
 -}
 
-module AFRPTestsLaws (laws_trs, laws_tr) where
+module TestsLaws (laws_trs, laws_tr) where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases based on the arrow laws

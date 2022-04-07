@@ -1,10 +1,10 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTests.hs,v 1.27 2003/11/10 21:28:58 antony Exp $
+{- $Id: Tests.hs,v 1.27 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTests                                            *
-*       Purpose:        AFRP regression tests.				     *
+*       Module:         Tests                                            *
+*       Purpose:         regression tests.				     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
@@ -13,8 +13,8 @@
 -}
 
 -- TODO:
--- * Add test cases for AFRP. There should be at least one test case for each
---   "non-trivial" entity exported from AFRP.
+-- * Add test cases for Yampa. There should be at least one test case for each
+--   "non-trivial" entity exported from Yampa.
 --
 -- * Make tests cases for after and repeatedly more robust.  Must not
 --   fail due to small discrepancies in floating point implementation.
@@ -22,8 +22,8 @@
 --   01-May-2002:  evsrc_t7 currently fails in hugs.
 --
 -- * Restructure test cases for papallel composition and switches to reflect
---   AFRP structure better. Separate test cases for the generic definitions?
--- There are some test cases for AFRPUtils. Not intended to be exhaustive.
+--   Yampa structure better. Separate test cases for the generic definitions?
+-- There are some test cases for Utils. Not intended to be exhaustive.
 --
 -- VectorSpace has caused some ambiguity problems. See e.g. looplaws_t2,
 -- switch_t1a.
@@ -38,37 +38,37 @@
 -- or we'd have to formulate many tests more carefully to allow a
 -- certain "fuzziness".
 
-module AFRPTests where
+module Tests where
 
 import FRP.Yampa
 
-import AFRPTestsCommon
-import AFRPTestsArr
-import AFRPTestsComp
-import AFRPTestsFirstSecond
-import AFRPTestsLaws
-import AFRPTestsLoop
-import AFRPTestsLoopLaws
-import AFRPTestsBasicSF
-import AFRPTestsSscan
-import AFRPTestsEvSrc
-import AFRPTestsCOC
-import AFRPTestsSwitch
-import AFRPTestsKSwitch
-import AFRPTestsRSwitch
-import AFRPTestsPSwitch
-import AFRPTestsRPSwitch
-import AFRPTestsWFG
-import AFRPTestsAccum
-import AFRPTestsPre
-import AFRPTestsDelay
-import AFRPTestsDer
-import AFRPTestsLoopPre
-import AFRPTestsLoopIntegral
-import AFRPTestsReact
-import AFRPTestsEmbed
-import AFRPTestsUtils
-import AFRPTestsTask
+import TestsCommon
+import TestsArr
+import TestsComp
+import TestsFirstSecond
+import TestsLaws
+import TestsLoop
+import TestsLoopLaws
+import TestsBasicSF
+import TestsSscan
+import TestsEvSrc
+import TestsCOC
+import TestsSwitch
+import TestsKSwitch
+import TestsRSwitch
+import TestsPSwitch
+import TestsRPSwitch
+import TestsWFG
+import TestsAccum
+import TestsPre
+import TestsDelay
+import TestsDer
+import TestsLoopPre
+import TestsLoopIntegral
+import TestsReact
+import TestsEmbed
+import TestsUtils
+import TestsTask
 
 
 ------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ failedTests =
 runRegTests :: IO Bool
 runRegTests = do
     putStrLn ""
-    putStrLn "Running the AFRP regression tests ..."
+    putStrLn "Running the Yampa regression tests ..."
     if allGood
       then putStrLn "All tests succeeded!"
       else mapM_ putStrLn failedTests
@@ -153,7 +153,7 @@ runRegTests = do
 runSpaceTests :: IO ()
 runSpaceTests = do
     putStrLn ""
-    putStrLn "Running the AFRP space tests ..."
+    putStrLn "Running the Yampa space tests ..."
     putStrLn "Testing the space behaviour. This may take a LONG time."
     putStrLn "Observe the process size using some tool like top."
     putStrLn "The process should not grow significantly."

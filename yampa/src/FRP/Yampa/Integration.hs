@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa.Integration
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -25,8 +24,6 @@
 -- example with other vector types like V2, V1, etc. from the library linear.
 -- For an example, see
 -- <https://gist.github.com/walseb/1e0a0ca98aaa9469ab5da04e24f482c2 this gist>.
---------------------------------------------------------------------------------
-
 module FRP.Yampa.Integration (
 
     -- * Integration

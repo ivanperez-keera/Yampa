@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         AFRPTestsSwitch					     *
+*       Module:         TestsSwitch					                         *
 *       Purpose:        Test cases for switch				     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -11,12 +11,12 @@
 *                                                                            *
 ******************************************************************************
 -}
-module AFRPTestsSwitch (switch_tr, switch_trs) where
+module TestsSwitch (switch_tr, switch_trs) where
 
 import FRP.Yampa
 import FRP.Yampa.EventS
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for switch and dSwitch

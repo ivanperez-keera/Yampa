@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-tabs #-}
-{- $Id: AFRPTestsAccum.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
+{- $Id: TestsAccum.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
 ******************************************************************************
-*                                  A F R P                                   *
+*                                  Y A M P A                                   *
 *                                                                            *
-*       Module:         AFRPTestsAccum					     *
+*       Module:         TestsAccum					     *
 *       Purpose:        Test cases for accumulators			     *
 *	Authors:	Antony Courtney and Henrik Nilsson		     *
 *                                                                            *
@@ -13,7 +13,7 @@
 ******************************************************************************
 -}
 
-module AFRPTestsAccum (
+module TestsAccum (
     accum_tr,
     accum_trs,
     accum_st0,
@@ -26,7 +26,7 @@ import Data.Maybe (fromJust)
 
 import FRP.Yampa
 
-import AFRPTestsCommon
+import TestsCommon
 
 ------------------------------------------------------------------------------
 -- Test cases for accumulators

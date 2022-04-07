@@ -1,6 +1,3 @@
-{-# LANGUAGE CPP        #-}
-{-# LANGUAGE GADTs      #-}
-{-# LANGUAGE Rank2Types #-}
 -- |
 -- Module      :  FRP.Yampa.Basic
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -33,7 +30,6 @@ module FRP.Yampa.Basic (
     initially           -- :: a -> SF a a
 
   ) where
-
 
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfConst, sfId)
 

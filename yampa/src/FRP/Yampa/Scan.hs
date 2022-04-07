@@ -1,6 +1,3 @@
-{-# LANGUAGE CPP        #-}
-{-# LANGUAGE GADTs      #-}
-{-# LANGUAGE Rank2Types #-}
 -- |
 -- Module      :  FRP.Yampa.Scan
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -16,7 +13,6 @@
 -- functions by means of an auxiliary function applied to each input and to an
 -- accumulator. For comparison with other FRP libraries and with stream
 -- processing abstractions, think of fold.
-
 module FRP.Yampa.Scan (
     sscan,              -- :: (b -> a -> b) -> b -> SF a b
     sscanPrim,          -- :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
@@ -28,10 +24,6 @@ import FRP.Yampa.InternalCore (SF(..), sfSScan)
 
 -- | Applies a function point-wise, using the last output as next input. This
 -- creates a well-formed loop based on a pure, auxiliary function.
-
--- New sscan primitive. It should be possible to define lots of functions
--- in terms of this one. Eventually a new constructor will be introduced if
--- this works out.
 sscan :: (b -> a -> b) -> b -> SF a b
 sscan f b_init = sscanPrim f' b_init b_init
     where
