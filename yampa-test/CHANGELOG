@@ -1,3 +1,6 @@
+2022-04-27 Ivan Perez <ivan.perez@haskell.sexy>
+        * yampa-test.cabal: Fix broken link in description (#204).
+
 2022-04-07 Ivan Perez <ivan.perez@haskell.sexy>
         * yampa-test.cabal: Version bump (0.13.4) (#203), syntax rules (#196),
           add regression tests (#201).
