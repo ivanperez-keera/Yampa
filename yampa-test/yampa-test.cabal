@@ -45,7 +45,8 @@ description:
   .
   It contains:
   .
-  * Debugging signal functions using "Debug.Trace".
+  * Debugging signal functions using
+    <https://hackage.haskell.org/package/base/docs/Debug-Trace.html Debug.Trace>.
   * A definition of Temporal Predicates based on LTL.
   * Monitoring signal functions with ptLTL using Signal Predicates.
   * A definition of Streams, and a Stream manipulation API.
