@@ -15,19 +15,17 @@ import System.IO
 -- main = runTests
 -- main = runSpaceTests
 
-data TestFlags = TestFlags { tReg :: Bool -- run regression tests
-                           , tSpace :: Bool -- run space tests
+data TestFlags = TestFlags { tSpace :: Bool -- run space tests
                            , tHelp :: Bool -- print usage and exit
                            }
 
-defFlags = TestFlags { tReg = False, tSpace = False, tHelp = False}
-allFlags = TestFlags { tReg = True, tSpace = True, tHelp = False}
+defFlags = TestFlags { tSpace = False, tHelp = False}
+allFlags = TestFlags { tSpace = True, tHelp = False}
 
 parseArgs :: TestFlags -> [String] -> Either TestFlags String
 parseArgs flags [] = Left flags
 parseArgs flags (arg:args) =
   case arg of
-    "-r" -> parseArgs (flags {tReg = True}) args
     "-s" -> parseArgs (flags {tSpace = True}) args
     "-h" -> parseArgs (flags {tHelp = True}) args
     _ -> Right ("invalid argument: " ++ arg)
@@ -37,9 +35,8 @@ usage pname mbEmsg = do
   case mbEmsg of
     (Just emsg) -> hPutStrLn stderr (pname ++ ": " ++ emsg)
     _ -> return ()
-  hPutStrLn stderr ("usage: " ++ pname ++ " [-r] [-s] [-h]")
+  hPutStrLn stderr ("usage: " ++ pname ++ " [-r] [-h]")
   hPutStrLn stderr "\t-s run space tests"
-  hPutStrLn stderr "\t-r run regression tests"
   hPutStrLn stderr "\t-h print this help message"
   hPutStrLn stderr "(no arguments runs all tests.)"
 
@@ -56,15 +53,7 @@ main = do
       if tHelp tFlags
         then usage pname Nothing
         else do
-          -- Run regresion tests, check if passed
-          t <- if tReg tFlags
-                 then runRegTests
-                 else return True
           -- Run space tests
           when (tSpace tFlags)
                   runSpaceTests
-          -- Communicate if all tests have passed
-          let exitCode = if t then ExitSuccess else (ExitFailure 1)
-          exitWith exitCode
-
-
+          exitWith ExitSuccess

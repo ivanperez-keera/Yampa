@@ -100,6 +100,35 @@ test-suite yampa-quicheck
   main-is:
     YampaQC.hs
 
+  other-modules:
+    TestsAccum
+    TestsArr
+    TestsBasicSF
+    TestsCOC
+    TestsCommon
+    TestsComp
+    TestsDelay
+    TestsDer
+    TestsEmbed
+    TestsEvSrc
+    TestsFirstSecond
+    TestsKSwitch
+    TestsLaws
+    TestsLoop
+    TestsLoopIntegral
+    TestsLoopLaws
+    TestsLoopPre
+    TestsPre
+    TestsPSwitch
+    TestsReact
+    TestsRPSwitch
+    TestsRSwitch
+    TestsSscan
+    TestsSwitch
+    TestsTask
+    TestsUtils
+    TestsWFG
+
   build-depends:
       base             < 5
     , Cabal            >= 1.19
@@ -131,31 +160,11 @@ test-suite regression
     Tests
     TestsAccum
     TestsArr
-    TestsBasicSF
-    TestsCOC
     TestsCommon
-    TestsComp
-    TestsDelay
-    TestsDer
-    TestsEmbed
-    TestsEvSrc
-    TestsFirstSecond
-    TestsKSwitch
-    TestsLaws
     TestsLoop
-    TestsLoopIntegral
-    TestsLoopLaws
-    TestsLoopPre
-    TestsPre
     TestsPSwitch
-    TestsReact
     TestsRPSwitch
     TestsRSwitch
-    TestsSscan
-    TestsSwitch
-    TestsTask
-    TestsUtils
-    TestsWFG
 
   default-language:
     Haskell2010
