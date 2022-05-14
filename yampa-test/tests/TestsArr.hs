@@ -3,14 +3,15 @@
 -- Description : Test cases for arr
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsArr (
-    arr_trs,
-    arr_tr,
-    arr_st0,
-    arr_st0r,
-    arr_st1,
-    arr_st1r
-) where
+module TestsArr
+    ( arr_trs
+    , arr_tr
+    , arr_st0
+    , arr_st0r
+    , arr_st1
+    , arr_st1r
+    )
+  where
 
 import FRP.Yampa
 
