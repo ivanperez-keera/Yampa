@@ -3,7 +3,11 @@
 -- Description : Test cases for switch
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsSwitch (switch_tr, switch_trs) where
+module TestsSwitch
+    ( switch_tr
+    , switch_trs
+    )
+  where
 
 import FRP.Yampa
 import FRP.Yampa.EventS
