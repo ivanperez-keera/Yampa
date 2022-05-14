@@ -3,12 +3,13 @@
 -- Description : Test cases for rSwitch and drSwitch
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsRSwitch (
-    rswitch_tr,
-    rswitch_trs,
-    rswitch_st0,
-    rswitch_st0r
-) where
+module TestsRSwitch
+    ( rswitch_tr
+    , rswitch_trs
+    , rswitch_st0
+    , rswitch_st0r
+    )
+  where
 
 import Data.Maybe (fromJust)
 
