@@ -1,16 +1,8 @@
-{- $Id: TestsKSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsKSwitch                                         *
-*       Purpose:        Test cases for kSwitch and dkSwitch                  *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsKSwitch
+-- Description : Test cases for kSwitch and dkSwitch
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsKSwitch (kswitch_tr, kswitch_trs) where
 
 import FRP.Yampa
