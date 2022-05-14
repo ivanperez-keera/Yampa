@@ -3,7 +3,11 @@
 -- Description : Test cases for embedding
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsEmbed (embed_tr, embed_trs) where
+module TestsEmbed
+    ( embed_tr
+    , embed_trs
+    )
+  where
 
 import FRP.Yampa
 
