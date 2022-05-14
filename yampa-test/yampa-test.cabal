@@ -149,12 +149,12 @@ test-suite yampa-quicheck
     -Wall
 
 
-test-suite regression
+test-suite space
   type:
     exitcode-stdio-1.0
 
   main-is:
-    testYampaMain.hs
+    testSpace.hs
 
   other-modules:
     Tests

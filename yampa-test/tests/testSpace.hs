@@ -1,5 +1,5 @@
 -- |
--- Module      : testYampaMain
+-- Module      : testSpace
 -- Description : Main driver routine for running tests.
 -- Copyright   : Yale University, 2003
 -- Authors     : Henrik Nilsson and Antony Courtney
