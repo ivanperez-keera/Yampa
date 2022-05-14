@@ -19,35 +19,35 @@
 module FRP.Yampa.EventS (
 
     -- * Basic event sources
-    never,              -- :: SF a (Event b)
-    now,                -- :: b -> SF a (Event b)
-    after,              -- :: Time -> b -> SF a (Event b)
-    repeatedly,         -- :: Time -> b -> SF a (Event b)
-    afterEach,          -- :: [(Time,b)] -> SF a (Event b)
-    afterEachCat,       -- :: [(Time,b)] -> SF a (Event [b])
-    delayEvent,         -- :: Time -> SF (Event a) (Event a)
-    delayEventCat,      -- :: Time -> SF (Event a) (Event [a])
-    edge,               -- :: SF Bool (Event ())
-    iEdge,              -- :: Bool -> SF Bool (Event ())
-    edgeTag,            -- :: a -> SF Bool (Event a)
-    edgeJust,           -- :: SF (Maybe a) (Event a)
-    edgeBy,             -- :: (a -> a -> Maybe b) -> a -> SF a (Event b)
+    never,
+    now,
+    after,
+    repeatedly,
+    afterEach,
+    afterEachCat,
+    delayEvent,
+    delayEventCat,
+    edge,
+    iEdge,
+    edgeTag,
+    edgeJust,
+    edgeBy,
 
     -- * Stateful event suppression
-    notYet,             -- :: SF (Event a) (Event a)
-    once,               -- :: SF (Event a) (Event a)
-    takeEvents,         -- :: Int -> SF (Event a) (Event a)
-    dropEvents,         -- :: Int -> SF (Event a) (Event a)
+    notYet,
+    once,
+    takeEvents,
+    dropEvents,
 
     -- * Hybrid SF combinators
-    snap,               -- :: SF a (Event a)
-    snapAfter,          -- :: Time -> SF a (Event a)
-    sample,             -- :: Time -> SF a (Event a)
-    sampleWindow,       -- :: Int -> Time -> SF a (Event [a])
+    snap,
+    snapAfter,
+    sample,
+    sampleWindow,
 
     -- * Repetition and switching
-    recur,              -- :: SF a (Event b) -> SF a (Event b)
-    andThen             -- :: SF a (Event b) -> SF a (Event b) -> SF a (Event b)
+    recur,
+    andThen
 
 ) where
 
