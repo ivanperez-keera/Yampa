@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for delays
-------------------------------------------------------------------------------
+-- * Test cases for delays
 
 delay_t0 = testSF1 (delay 0.0 undefined)
 delay_t0r =
