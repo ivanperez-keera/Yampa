@@ -1,16 +1,8 @@
-{- $Id: TestsComp.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsComp                                            *
-*       Purpose:        Test cases for (>>>)                                 *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsComp
+-- Description : Test cases for (>>>)
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsComp (comp_tr, comp_trs) where
 
 import FRP.Yampa
