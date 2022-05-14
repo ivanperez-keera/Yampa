@@ -14,6 +14,31 @@
 -- a QuickCheck predicate, which may not be possible or compatible
 -- with out goals.
 --
+-- Notes pertaining to regression tests:
+-- - Add test cases for Yampa. There should be at least one test case for each
+--   "non-trivial" entity exported from Yampa.
+--
+-- - Make tests cases for after and repeatedly more robust.  Must not
+--   fail due to small discrepancies in floating point implementation.
+--
+--   01-May-2002:  evsrc_t7 currently fails in hugs.
+--
+-- - Restructure test cases for papallel composition and switches to reflect
+--   Yampa structure better. Separate test cases for the generic definitions?
+-- There are some test cases for Utils. Not intended to be exhaustive.
+--
+-- VectorSpace has caused some ambiguity problems. See e.g. looplaws_t2,
+-- switch_t1a.
+--
+-- 2005-11-26: A simple way of making many test cases more robust would
+-- be to have a version of deltaEncode that adds a little extra time
+-- to the very first delta time. That way sampling would always be slightly
+-- "late".
+--
+-- But since we often compare time stamps, we'd also either have
+-- to adjust the "~=" relation to tolerate "jitter" of that magnitute,
+-- or we'd have to formulate many tests more carefully to allow a
+-- certain "fuzziness".
 module Main where
 
 ------------------------------------------------------------------------------
@@ -29,6 +54,34 @@ import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Stream
 import FRP.Yampa.QuickCheck
 import FRP.Yampa.LTLFuture
+
+-- Local tests
+import qualified TestsAccum        as Regression
+import qualified TestsArr          as Regression
+import qualified TestsBasicSF      as Regression
+import qualified TestsCOC          as Regression
+import qualified TestsComp         as Regression
+import qualified TestsDelay        as Regression
+import qualified TestsDer          as Regression
+import qualified TestsEmbed        as Regression
+import qualified TestsEvSrc        as Regression
+import qualified TestsFirstSecond  as Regression
+import qualified TestsKSwitch      as Regression
+import qualified TestsLaws         as Regression
+import qualified TestsLoop         as Regression
+import qualified TestsLoopIntegral as Regression
+import qualified TestsLoopLaws     as Regression
+import qualified TestsLoopPre      as Regression
+import qualified TestsPSwitch      as Regression
+import qualified TestsPre          as Regression
+import qualified TestsRPSwitch     as Regression
+import qualified TestsRSwitch      as Regression
+import qualified TestsReact        as Regression
+import qualified TestsSscan        as Regression
+import qualified TestsSwitch       as Regression
+import qualified TestsTask         as Regression
+import qualified TestsUtils        as Regression
+import qualified TestsWFG          as Regression
 
 ------------------------------------------------------------------------------
 main :: IO ()
@@ -77,6 +130,7 @@ tests = testGroup "Yampa QC properties"
     , testProperty "Arrows > Distributivity of First"       prop_arrow_first_distrib
     , testProperty "Arrows > Commutativity of id on first"  prop_arrow_first_id_comm
     , testProperty "Arrows > Nested firsts"                 prop_arrow_first_nested
+
     -- Missing: Loop *
     -- Missing: PSwitch
     -- Missing: iPre
@@ -89,6 +143,34 @@ tests = testGroup "Yampa QC properties"
     -- Missing: Task
     -- Missing: Utils
     -- Missing: WFG
+
+    , testProperty "Regression > arr"           (property $ and Regression.arr_trs)
+    , testProperty "Regression > comp"          (property $ and Regression.comp_trs)
+    , testProperty "Regression > first"         (property $ and Regression.first_trs)
+    , testProperty "Regression > second"        (property $ and Regression.second_trs)
+    , testProperty "Regression > laws"          (property $ and Regression.laws_trs)
+    , testProperty "Regression > loop"          (property $ and Regression.loop_trs)
+    , testProperty "Regression > looplaws"      (property $ and Regression.looplaws_trs)
+    , testProperty "Regression > basicsf"       (property $ and Regression.basicsf_trs)
+    , testProperty "Regression > sscan"         (property $ and Regression.sscan_trs)
+    , testProperty "Regression > evsrc"         (property $ and Regression.evsrc_trs)
+    , testProperty "Regression > coc"           (property $ and Regression.coc_trs)
+    , testProperty "Regression > switch"        (property $ and Regression.switch_trs)
+    , testProperty "Regression > kswitch"       (property $ and Regression.kswitch_trs)
+    , testProperty "Regression > rswitch"       (property $ and Regression.rswitch_trs)
+    , testProperty "Regression > pswitch"       (property $ and Regression.pswitch_trs)
+    , testProperty "Regression > rpswitch"      (property $ and Regression.rpswitch_trs)
+    , testProperty "Regression > wfg"           (property $ and Regression.wfg_trs)
+    , testProperty "Regression > accum"         (property $ and Regression.accum_trs)
+    , testProperty "Regression > pre"           (property $ and Regression.pre_trs)
+    , testProperty "Regression > delay"         (property $ and Regression.delay_trs)
+    , testProperty "Regression > der"           (property $ and Regression.der_trs)
+    , testProperty "Regression > loopPre"       (property $ and Regression.loopPre_trs)
+    , testProperty "Regression > loopIntegral"  (property $ and Regression.loopIntegral_trs)
+    , testProperty "Regression > react"         (property $ and Regression.react_trs)
+    , testProperty "Regression > embed"         (property $ and Regression.embed_trs)
+    , testProperty "Regression > utils"         (property $ and Regression.utils_trs)
+    , testProperty "Regression > task"          (property $ and Regression.task_trs)
     ]
 
 -- * Yampa laws
