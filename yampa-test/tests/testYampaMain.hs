@@ -1,15 +1,8 @@
-{- $Id: testYampaMain.hs,v 1.9 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         testYampaMain                                        *
-*       Purpose:        Main driver routine for running tests.               *
-*       Authors:        Henrik Nilsson and Antony Courtney                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
+-- |
+-- Module      : testYampaMain
+-- Description : Main driver routine for running tests.
+-- Copyright   : Yale University, 2003
+-- Authors     : Henrik Nilsson and Antony Courtney
 module Main where
 
 import Tests
