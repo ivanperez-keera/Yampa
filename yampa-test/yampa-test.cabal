@@ -163,6 +163,9 @@ test-suite regression
   hs-source-dirs:
     tests
 
+  ghc-options:
+    -Wall
+
   if !flag(test-regression)
     buildable:
       False
