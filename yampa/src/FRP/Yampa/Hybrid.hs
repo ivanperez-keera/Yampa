@@ -33,9 +33,7 @@ import FRP.Yampa.Delays
 import FRP.Yampa.Event
 import FRP.Yampa.InternalCore (SF, epPrim)
 
-------------------------------------------------------------------------------
--- Wave-form generation
-------------------------------------------------------------------------------
+-- * Wave-form generation
 
 -- | Zero-order hold.
 --
@@ -87,9 +85,7 @@ trackAndHold a_init = arr (maybe NoEvent Event) >>> hold a_init
 dTrackAndHold :: a -> SF (Maybe a) a
 dTrackAndHold a_init = trackAndHold a_init >>> iPre a_init
 
-------------------------------------------------------------------------------
--- Accumulators
-------------------------------------------------------------------------------
+-- * Accumulators
 
 -- | Given an initial value in an accumulator,
 --   it returns a signal function that processes
