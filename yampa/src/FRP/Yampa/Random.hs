@@ -10,18 +10,18 @@
 -- Signals and signal functions with noise and randomness.
 --
 -- The Random number generators are re-exported from "System.Random".
-module FRP.Yampa.Random (
+module FRP.Yampa.Random
+    (
+      -- * Random number generators
+      RandomGen(..)
+    , Random(..)
 
-    -- * Random number generators
-    RandomGen(..),
-    Random(..),
-
-    -- * Noise, random signals, and stochastic event sources
-    noise,
-    noiseR,
-    occasionally,
-
-) where
+      -- * Noise, random signals, and stochastic event sources
+    , noise
+    , noiseR
+    , occasionally
+    )
+  where
 
 import System.Random (Random (..), RandomGen (..))
 
