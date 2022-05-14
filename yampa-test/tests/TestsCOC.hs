@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for collection-oriented combinators
-------------------------------------------------------------------------------
+-- * Test cases for collection-oriented combinators
 
 coc_inp1 = deltaEncode 0.1 [0.0, 0.5 ..]
 
