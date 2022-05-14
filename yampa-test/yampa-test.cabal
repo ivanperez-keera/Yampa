@@ -68,7 +68,7 @@ source-repository head
 -- You can disable the regression test suite with -f-test-regression
 flag test-space
   description: Enable space usage test suite
-  default:     True
+  default:     False
   manual:      True
 
 
