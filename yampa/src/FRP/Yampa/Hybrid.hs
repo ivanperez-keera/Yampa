@@ -8,24 +8,24 @@
 -- Portability :  non-portable (GHC extensions)
 --
 -- Discrete to continuous-time signal functions.
-module FRP.Yampa.Hybrid (
+module FRP.Yampa.Hybrid
+    (
+      -- * Wave-form generation
+      hold
+    , dHold
+    , trackAndHold
+    , dTrackAndHold
 
-    -- * Wave-form generation
-    hold,
-    dHold,
-    trackAndHold,
-    dTrackAndHold,
-
-    -- * Accumulators
-    accum,
-    accumHold,
-    dAccumHold,
-    accumBy,
-    accumHoldBy,
-    dAccumHoldBy,
-    accumFilter,
-
-) where
+      -- * Accumulators
+    , accum
+    , accumHold
+    , dAccumHold
+    , accumBy
+    , accumHoldBy
+    , dAccumHoldBy
+    , accumFilter
+    )
+  where
 
 import Control.Arrow
 
