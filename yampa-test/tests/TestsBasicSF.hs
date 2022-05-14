@@ -1,16 +1,8 @@
-{- $Id: TestsBasicSF.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsBasicSF                                         *
-*       Purpose:        Test cases for basic signal functions                *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsBasicSF
+-- Description : Test cases for basic signal functions
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsBasicSF (basicsf_trs, basicsf_tr) where
 
 import FRP.Yampa
