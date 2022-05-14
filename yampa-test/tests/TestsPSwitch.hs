@@ -3,14 +3,15 @@
 -- Description : Test cases for pSwitchB and dpSwitchB
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsPSwitch (
-    pswitch_tr,
-    pswitch_trs,
-    pswitch_st0,
-    pswitch_st0r,
-    pswitch_st1,
-    pswitch_st1r
-) where
+module TestsPSwitch
+    ( pswitch_tr
+    , pswitch_trs
+    , pswitch_st0
+    , pswitch_st0r
+    , pswitch_st1
+    , pswitch_st1r
+    )
+  where
 
 import Data.List (findIndex)
 
