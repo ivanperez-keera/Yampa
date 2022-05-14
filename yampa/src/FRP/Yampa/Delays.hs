@@ -30,9 +30,7 @@ import FRP.Yampa.Scan
 
 infixr 0 `fby`
 
-------------------------------------------------------------------------------
--- Delays
-------------------------------------------------------------------------------
+-- * Delays
 
 -- | Uninitialized delay operator.
 --
@@ -64,9 +62,7 @@ iPre = (--> pre)
 fby :: b -> SF a b -> SF a b
 b0 `fby` sf = b0 --> sf >>> pre
 
-------------------------------------------------------------------------------
--- Timed delays
-------------------------------------------------------------------------------
+-- * Timed delays
 
 -- | Delay a signal by a fixed time 't', using the second parameter
 -- to fill in the initial 't' seconds.
