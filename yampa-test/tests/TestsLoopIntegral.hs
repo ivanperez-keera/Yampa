@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  A F R P                                   *
 *                                                                            *
-*       Module:         TestsLoopIntegral				                     *
-*       Purpose:        Test cases for loopIntegral			     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsLoopIntegral                                    *
+*       Purpose:        Test cases for loopIntegral                          *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -27,10 +27,10 @@ import TestsCommon
 -- 1.0, 2.71828, 7.38906, 20.0855, 54.5981, 148.413
 loopIntegral_t0 =
     let
-	es = embed (loopIntegral (arr (\(_, x) -> (x + 1, x + 1))))
+        es = embed (loopIntegral (arr (\(_, x) -> (x + 1, x + 1))))
                    (deltaEncode 0.001 (repeat ()))
     in
-	[es!!0, es!!1000, es!!2000, es!!3000, es!!4000, es!!5000]
+        [es!!0, es!!1000, es!!2000, es!!3000, es!!4000, es!!5000]
 loopIntegral_t0r :: [Double]
 loopIntegral_t0r = [1.0,2.71692,7.38167,20.05544,54.48911,148.04276]
 
@@ -47,27 +47,27 @@ type Acceleration = Double
 posCntrl :: SF b Position
 posCntrl = loopIntegral posCntrlNR
     where
-	posCntrlNR :: SF (b, Velocity) (Position, Acceleration)
-	posCntrlNR =
-	    arr snd			-- Get the velocity.
-	    >>> integral		-- This integral gives us the position.
-	    >>> arr (\x -> (x,x))
-	    >>>
-		(second $
-		    arr (\x -> (x,x))
-		    >>>
-			(first $
-			    arr (>=2.0)
-			    >>> edge
-			    >>> (arr (fmap (const (constant (-1.0))))))
-		    >>>
-			(second $
-			    arr (< 0.0)
-			    >>> edge
-			    >>> (arr (fmap (const (constant 1.0)))))
-		    >>> arr (\(e1,e2) -> e1 `lMerge` e2)
-		    >>> arr (\e -> ((), e))
-		    >>> rSwitch (constant 1.0))
+        posCntrlNR :: SF (b, Velocity) (Position, Acceleration)
+        posCntrlNR =
+            arr snd                     -- Get the velocity.
+            >>> integral                -- This integral gives us the position.
+            >>> arr (\x -> (x,x))
+            >>>
+                (second $
+                    arr (\x -> (x,x))
+                    >>>
+                        (first $
+                            arr (>=2.0)
+                            >>> edge
+                            >>> (arr (fmap (const (constant (-1.0))))))
+                    >>>
+                        (second $
+                            arr (< 0.0)
+                            >>> edge
+                            >>> (arr (fmap (const (constant 1.0)))))
+                    >>> arr (\(e1,e2) -> e1 `lMerge` e2)
+                    >>> arr (\e -> ((), e))
+                    >>> rSwitch (constant 1.0))
 
 
 loopIntegral_t1 = take 250 (embed posCntrl (deltaEncode 0.1 (repeat ())))

@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsComp					                         *
-*       Purpose:        Test cases for (>>>)				     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsComp                                            *
+*       Purpose:        Test cases for (>>>)                                 *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *

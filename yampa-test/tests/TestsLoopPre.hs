@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsLoopPre				                         *
-*       Purpose:        Test cases for loopPre				     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsLoopPre                                         *
+*       Purpose:        Test cases for loopPre                               *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *

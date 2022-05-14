@@ -4,8 +4,8 @@
 *                                  Y A M P A                                 *
 *                                                                            *
 *       Module:         TestsLoopLaws                                        *
-*       Purpose:        Test cases based on the arrow laws for loop	     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Purpose:        Test cases based on the arrow laws for loop          *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -32,7 +32,7 @@ import TestsCommon
 simple_loop :: ((a,c) -> (b,c)) -> (a -> b)
 simple_loop f a = b
     where
-	(b, c) = f (a, c)
+        (b, c) = f (a, c)
 
 
 -- Left tightening
@@ -72,8 +72,8 @@ looplaws_t2_rhs = testSF1 (loop (arr looplaws_t2_k >>> looplaws_t2_f))
 -- as lazy as it can be, and this problem could not have been solved by
 -- "fixing" the loop definition.
 looplaws_t3_f = second integral
-		>>> first (arr swap)
-		>>> arr (\ ~((a,b),c) -> ((a,c),b))
+                >>> first (arr swap)
+                >>> arr (\ ~((a,b),c) -> ((a,c),b))
 looplaws_t3_lhs :: [Double]
 looplaws_t3_lhs = testSF1 (loop (loop looplaws_t3_f))
 looplaws_t3_rhs :: [Double]
@@ -86,8 +86,8 @@ looplaws_t4_lhs :: [(Double,Double)]
 looplaws_t4_lhs = testSF1 (arr dup >>> (second (loop looplaws_t4_f)))
 looplaws_t4_rhs :: [(Double, Double)]
 looplaws_t4_rhs = testSF1 (arr dup >>> (loop (arr assoc
-				        >>> second looplaws_t4_f
-				        >>> arr assocInv)))
+                                        >>> second looplaws_t4_f
+                                        >>> arr assocInv)))
 
 
 -- Extension

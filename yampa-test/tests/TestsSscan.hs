@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsSscan					                         *
-*       Purpose:        Test cases for pre sscan	     		     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsSscan                                           *
+*       Purpose:        Test cases for pre sscan                             *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *             Copyright (c) University of Nottingham, 2005                   *
@@ -95,19 +95,19 @@ sscan_t4 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
                       arr (\(e,c) -> (e `tag` (c + 1)) `gate` (c < 10))
                       >>> dHold_sscan 0
                       >>> arr dup)
-sscan_t4r = [0,0,0,0,		-- 0s
-             0,1,1,1,		-- 1s
-             1,2,2,2,		-- 2s
-             2,3,3,3,		-- 3s
-             3,4,4,4,		-- 4s
-             4,5,5,5,		-- 5s
-             5,6,6,6,		-- 6s
-             6,7,7,7,		-- 7s
-             7,8,8,8,		-- 8s
-             8,9,9,9,		-- 9s
-             9,10,10,10,	-- 10s
-             10,10,10,10,	-- 11s
-             10,10]		-- 12s
+sscan_t4r = [0,0,0,0,      -- 0s
+             0,1,1,1,      -- 1s
+             1,2,2,2,      -- 2s
+             2,3,3,3,      -- 3s
+             3,4,4,4,      -- 4s
+             4,5,5,5,      -- 5s
+             5,6,6,6,      -- 6s
+             6,7,7,7,      -- 7s
+             7,8,8,8,      -- 8s
+             8,9,9,9,      -- 9s
+             9,10,10,10,   -- 10s
+             10,10,10,10,  -- 11s
+             10,10]        -- 12s
 
 -- Version of the above that tests that thigs still work OK also if
 -- there is an initial event.
@@ -119,19 +119,19 @@ sscan_t5 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
                       arr (\(e,c) -> (e `tag` (c + 1)) `gate` (c < 10))
                       >>> dHold_sscan 0
                       >>> arr dup)
-sscan_t5r = [0,1,1,1,		-- 0s
-             1,2,2,2,		-- 1s
-             2,3,3,3,		-- 2s
-             3,4,4,4,		-- 3s
-             4,5,5,5,		-- 4s
-             5,6,6,6,		-- 5s
-             6,7,7,7,		-- 6s
-             7,8,8,8,		-- 7s
-             8,9,9,9,		-- 8s
-             9,10,10,10,	-- 9s
-             10,10,10,10,	-- 10s
-             10,10,10,10,	-- 11s
-             10,10]		-- 12s
+sscan_t5r = [0,1,1,1,      -- 0s
+             1,2,2,2,      -- 1s
+             2,3,3,3,      -- 2s
+             3,4,4,4,      -- 3s
+             4,5,5,5,      -- 4s
+             5,6,6,6,      -- 5s
+             6,7,7,7,      -- 6s
+             7,8,8,8,      -- 7s
+             8,9,9,9,      -- 8s
+             9,10,10,10,   -- 9s
+             10,10,10,10,  -- 10s
+             10,10,10,10,  -- 11s
+             10,10]        -- 12s
 
 
 -- Version of the sscan_t4 in terms of sscan
@@ -144,22 +144,22 @@ sscan_t6 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
         f c (Event _) | c < 10    = Just (c', c')
                       | otherwise = Nothing
             where
-	        c' = c + 1
+                c' = c + 1
 
 
-sscan_t6r = [0,0,0,0,		-- 0s
-             1,1,1,1,		-- 1s
-             2,2,2,2,		-- 2s
-             3,3,3,3,		-- 3s
-             4,4,4,4,		-- 4s
-             5,5,5,5,		-- 5s
-             6,6,6,6,		-- 6s
-             7,7,7,7,		-- 7s
-             8,8,8,8,		-- 8s
-             9,9,9,9,		-- 9s
-             10,10,10,10,	-- 10s
-             10,10,10,10,	-- 11s
-             10,10]		-- 12s
+sscan_t6r = [0,0,0,0,      -- 0s
+             1,1,1,1,      -- 1s
+             2,2,2,2,      -- 2s
+             3,3,3,3,      -- 3s
+             4,4,4,4,      -- 4s
+             5,5,5,5,      -- 5s
+             6,6,6,6,      -- 6s
+             7,7,7,7,      -- 7s
+             8,8,8,8,      -- 8s
+             9,9,9,9,      -- 9s
+             10,10,10,10,  -- 10s
+             10,10,10,10,  -- 11s
+             10,10]        -- 12s
 
 -- Version of sscan_t5 directly in terms of sscan.
 sscan_t7, sscan_t7r :: [Int]
@@ -172,22 +172,22 @@ sscan_t7 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
         f c (Event _) | c < 10    = Just (c', c')
                       | otherwise = Nothing
             where
-	        c' = c + 1
+                c' = c + 1
 
 
-sscan_t7r = [1,1,1,1,		-- 0s
-             2,2,2,2,		-- 1s
-             3,3,3,3,		-- 2s
-             4,4,4,4,		-- 3s
-             5,5,5,5,		-- 4s
-             6,6,6,6,		-- 5s
-             7,7,7,7,		-- 6s
-             8,8,8,8,		-- 7s
-             9,9,9,9,		-- 8s
-             10,10,10,10,	-- 9s
-             10,10,10,10,	-- 10s
-             10,10,10,10,	-- 11s
-             10,10]		-- 12s
+sscan_t7r = [1,1,1,1,      -- 0s
+             2,2,2,2,      -- 1s
+             3,3,3,3,      -- 2s
+             4,4,4,4,      -- 3s
+             5,5,5,5,      -- 4s
+             6,6,6,6,      -- 5s
+             7,7,7,7,      -- 6s
+             8,8,8,8,      -- 7s
+             9,9,9,9,      -- 8s
+             10,10,10,10,  -- 9s
+             10,10,10,10,  -- 10s
+             10,10,10,10,  -- 11s
+             10,10]        -- 12s
 
 
 edge_sscan :: SF Bool (Event ())
@@ -205,12 +205,12 @@ sscan_t8 :: [Event ()]
 sscan_t8 = testSF1 (localTime >>> arr (>=0) >>> edge_sscan)
 
 sscan_t8r =
-    [NoEvent, NoEvent, NoEvent, NoEvent,	-- 0.0 s
-     NoEvent, NoEvent, NoEvent, NoEvent,	-- 1.0 s
-     NoEvent, NoEvent, NoEvent, NoEvent,	-- 2.0 s
-     NoEvent, NoEvent, NoEvent,	NoEvent,	-- 3.0 s
-     NoEvent, NoEvent, NoEvent,	NoEvent,	-- 4.0 s
-     NoEvent, NoEvent, NoEvent,	NoEvent,	-- 5.0 s
+    [NoEvent, NoEvent, NoEvent, NoEvent,  -- 0.0 s
+     NoEvent, NoEvent, NoEvent, NoEvent,  -- 1.0 s
+     NoEvent, NoEvent, NoEvent, NoEvent,  -- 2.0 s
+     NoEvent, NoEvent, NoEvent, NoEvent,  -- 3.0 s
+     NoEvent, NoEvent, NoEvent, NoEvent,  -- 4.0 s
+     NoEvent, NoEvent, NoEvent, NoEvent,  -- 5.0 s
      NoEvent]
 
 
@@ -218,12 +218,12 @@ sscan_t9 :: [Event ()]
 sscan_t9 = testSF1 (localTime >>> arr (>=4.26) >>> edge_sscan)
 
 sscan_t9r =
-    [NoEvent, NoEvent, NoEvent,  NoEvent,	-- 0.0 s
-     NoEvent, NoEvent, NoEvent,	 NoEvent,	-- 1.0 s
-     NoEvent, NoEvent, NoEvent,  NoEvent,	-- 2.0 s
-     NoEvent, NoEvent, NoEvent,	 NoEvent,	-- 3.0 s
-     NoEvent, NoEvent, Event (), NoEvent,	-- 4.0 s
-     NoEvent, NoEvent, NoEvent,	 NoEvent,	-- 5.0 s
+    [NoEvent, NoEvent, NoEvent,  NoEvent,  -- 0.0 s
+     NoEvent, NoEvent, NoEvent,  NoEvent,  -- 1.0 s
+     NoEvent, NoEvent, NoEvent,  NoEvent,  -- 2.0 s
+     NoEvent, NoEvent, NoEvent,  NoEvent,  -- 3.0 s
+     NoEvent, NoEvent, Event (), NoEvent,  -- 4.0 s
+     NoEvent, NoEvent, NoEvent,  NoEvent,  -- 5.0 s
      NoEvent]
 
 
@@ -246,12 +246,12 @@ sscan_t10 = testSF1 (localTime
                      >>> edgeBy_sscan sscan_isEdge False)
 
 sscan_t10r =
-    [Event (), NoEvent, NoEvent, NoEvent,	-- 0.0 s
-     NoEvent,  NoEvent, NoEvent, NoEvent,	-- 1.0 s
-     NoEvent,  NoEvent, NoEvent, NoEvent,	-- 2.0 s
-     NoEvent,  NoEvent, NoEvent, NoEvent,	-- 3.0 s
-     NoEvent,  NoEvent, NoEvent, NoEvent,	-- 4.0 s
-     NoEvent,  NoEvent, NoEvent, NoEvent,	-- 5.0 s
+    [Event (), NoEvent, NoEvent, NoEvent,  -- 0.0 s
+     NoEvent,  NoEvent, NoEvent, NoEvent,  -- 1.0 s
+     NoEvent,  NoEvent, NoEvent, NoEvent,  -- 2.0 s
+     NoEvent,  NoEvent, NoEvent, NoEvent,  -- 3.0 s
+     NoEvent,  NoEvent, NoEvent, NoEvent,  -- 4.0 s
+     NoEvent,  NoEvent, NoEvent, NoEvent,  -- 5.0 s
      NoEvent]
 
 sscan_t11 :: [Event ()]
@@ -260,12 +260,12 @@ sscan_t11 = testSF1 (localTime
                      >>> edgeBy_sscan sscan_isEdge False)
 
 sscan_t11r =
-    [NoEvent, NoEvent, NoEvent,  NoEvent,	-- 0.0 s
-     NoEvent, NoEvent, NoEvent,	 NoEvent,	-- 1.0 s
-     NoEvent, NoEvent, NoEvent,  NoEvent,	-- 2.0 s
-     NoEvent, NoEvent, NoEvent,	 NoEvent,	-- 3.0 s
-     NoEvent, NoEvent, Event (), NoEvent,	-- 4.0 s
-     NoEvent, NoEvent, NoEvent,	 NoEvent,	-- 5.0 s
+    [NoEvent, NoEvent, NoEvent,  NoEvent,  -- 0.0 s
+     NoEvent, NoEvent, NoEvent,  NoEvent,  -- 1.0 s
+     NoEvent, NoEvent, NoEvent,  NoEvent,  -- 2.0 s
+     NoEvent, NoEvent, NoEvent,  NoEvent,  -- 3.0 s
+     NoEvent, NoEvent, Event (), NoEvent,  -- 4.0 s
+     NoEvent, NoEvent, NoEvent,  NoEvent,  -- 5.0 s
      NoEvent]
 
 -- Raising and falling edge detector.
@@ -277,15 +277,15 @@ sscan_isEdge2 True  False = Just False
 sscan_t12 :: [Event Bool]
 sscan_t12 = testSF1 (localTime
                     >>> arr (\t -> t >=2.01 && t <= 4.51)
-		    >>> edgeBy_sscan sscan_isEdge2 True)
+                    >>> edgeBy_sscan sscan_isEdge2 True)
 
 sscan_t12r =
-    [Event False, NoEvent,    NoEvent, NoEvent,		-- 0.0 s
-     NoEvent,     NoEvent,    NoEvent, NoEvent,		-- 1.0 s
-     NoEvent,     Event True, NoEvent, NoEvent,		-- 2.0 s
-     NoEvent,     NoEvent,    NoEvent, NoEvent,		-- 3.0 s
-     NoEvent,     NoEvent,    NoEvent, Event False,	-- 4.0 s
-     NoEvent,     NoEvent,    NoEvent, NoEvent,		-- 5.0 s
+    [Event False, NoEvent,    NoEvent, NoEvent,      -- 0.0 s
+     NoEvent,     NoEvent,    NoEvent, NoEvent,      -- 1.0 s
+     NoEvent,     Event True, NoEvent, NoEvent,      -- 2.0 s
+     NoEvent,     NoEvent,    NoEvent, NoEvent,      -- 3.0 s
+     NoEvent,     NoEvent,    NoEvent, Event False,  -- 4.0 s
+     NoEvent,     NoEvent,    NoEvent, NoEvent,      -- 5.0 s
      NoEvent]
 
 

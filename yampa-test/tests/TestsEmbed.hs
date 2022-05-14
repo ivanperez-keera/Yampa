@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsEmbed					                         *
-*       Purpose:        Test cases for embedding			     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsEmbed                                           *
+*       Purpose:        Test cases for embedding                             *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -24,16 +24,16 @@ import TestsCommon
 
 embed_ratio :: SF a Double
 embed_ratio = switch (constant 1.0 &&& after 5.0 ()) $ \_ ->
-	      switch (constant 0.0 &&& after 5.0 ()) $ \_ ->
-	      constant 3.0
+              switch (constant 0.0 &&& after 5.0 ()) $ \_ ->
+              constant 3.0
 
 embed_sf :: SF a Double
 embed_sf = localTime >>> integral
 
 embed_t0 = take 20 $ embed (embed_ratio
-			    >>> embedSynch embed_sf
-					   (deltaEncode 0.01 (repeat ())))
-			   (deltaEncode 1.0 (repeat ()))
+                            >>> embedSynch embed_sf
+                                           (deltaEncode 0.01 (repeat ())))
+                           (deltaEncode 1.0 (repeat ()))
 
 embed_t0r =
     [  0.0000,   0.4851,   1.9701,    4.4850,   7.9800,
@@ -43,9 +43,9 @@ embed_t0r =
 
 
 embed_t1 = take 20 $ embed (embed_ratio
-			    >>> embedSynch embed_sf
-					   (deltaEncode 0.5 (replicate 30 ())))
-			   (deltaEncode 1.0 (repeat ()))
+                            >>> embedSynch embed_sf
+                                           (deltaEncode 0.5 (replicate 30 ())))
+                           (deltaEncode 1.0 (repeat ()))
 
 embed_t1r =
     [   0.00,   0.25,   1.50,   3.75,   7.00,

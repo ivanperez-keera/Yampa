@@ -4,8 +4,8 @@
 *                                  Y A M P A                                 *
 *                                                                            *
 *       Module:         TestsLaws                                            *
-*       Purpose:        Test cases based on the arrow laws		     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Purpose:        Test cases based on the arrow laws                   *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -69,10 +69,10 @@ laws_t7_rhs = testSF1 (arr dup >>> (arr fst >>> integral))
 
 laws_t8_lhs :: [(Double, (Double, ()))]
 laws_t8_lhs = testSF1 (arr (\x -> ((x,x),()))
-		       >>> (first (first integral) >>> arr assoc))
+                       >>> (first (first integral) >>> arr assoc))
 laws_t8_rhs :: [(Double, (Double, ()))]
 laws_t8_rhs = testSF1 (arr (\x -> ((x,x),()))
-		       >>> (arr assoc >>> first integral))
+                       >>> (arr assoc >>> first integral))
 
 
 laws_trs =
