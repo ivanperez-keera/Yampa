@@ -21,8 +21,8 @@
 -- time delta, and need to abandon the hybrid\/FRP abstraction, see
 -- 'FRP.Yampa.Integration.iterFrom'.
 module FRP.Yampa.Time (
-    localTime,          -- :: SF a Time
-    time,               -- :: SF a Time,        Other name for localTime.
+    localTime,
+    time,
 ) where
 
 import Control.Arrow
