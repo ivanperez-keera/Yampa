@@ -17,11 +17,9 @@ module FRP.Yampa.Random (
     Random(..),
 
     -- * Noise, random signals, and stochastic event sources
-    noise,              -- :: noise :: (RandomGen g, Random b) =>
-                        --        g -> SF a b
-    noiseR,             -- :: noise :: (RandomGen g, Random b) =>
-                        --        (b,b) -> g -> SF a b
-    occasionally,       -- :: RandomGen g => g -> Time -> b -> SF a (Event b)
+    noise,
+    noiseR,
+    occasionally,
 
 ) where
 

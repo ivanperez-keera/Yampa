@@ -64,56 +64,32 @@
 -- (/r/), parallel (/p/) switch with broadcasting (/B/).
 module FRP.Yampa.Switches (
     -- * Basic switching
-    switch,  dSwitch,   -- :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
-    rSwitch, drSwitch,  -- :: SF a b -> SF (a,Event (SF a b)) b
-    kSwitch, dkSwitch,  -- :: SF a b
-                        --    -> SF (a,b) (Event c)
-                        --    -> (SF a b -> c -> SF a b)
-                        --    -> SF a b
+    switch,  dSwitch,
+    rSwitch, drSwitch,
+    kSwitch, dkSwitch,
 
     -- * Parallel composition\/switching (collections)
     -- ** With broadcasting
-    parB,               -- :: Functor col => col (SF a b) -> SF a (col b)
-    pSwitchB,dpSwitchB, -- :: Functor col =>
-                        --        col (SF a b)
-                        --        -> SF (a, col b) (Event c)
-                        --        -> (col (SF a b) -> c -> SF a (col b))
-                        --        -> SF a (col b)
-    rpSwitchB,drpSwitchB,-- :: Functor col =>
-                        --        col (SF a b)
-                        --        -> SF (a, Event (col (SF a b)->col (SF a b)))
-                        --              (col b)
+    parB,
+    pSwitchB,dpSwitchB,
+    rpSwitchB,drpSwitchB,
 
     -- ** With helper routing function
-    par,                -- Functor col =>
-                        --     (forall sf . (a -> col sf -> col (b, sf)))
-                        --     -> col (SF b c)
-                        --     -> SF a (col c)
-    pSwitch, dpSwitch,  -- pSwitch :: Functor col =>
-                        --     (forall sf . (a -> col sf -> col (b, sf)))
-                        --     -> col (SF b c)
-                        --     -> SF (a, col c) (Event d)
-                        --     -> (col (SF b c) -> d -> SF a (col c))
-                        --     -> SF a (col c)
-    rpSwitch,drpSwitch, -- Functor col =>
-                        --    (forall sf . (a -> col sf -> col (b, sf)))
-                        --    -> col (SF b c)
-                        --    -> SF (a, Event (col (SF b c) -> col (SF b c)))
-                        --          (col c)
-                        --
+    par,
+    pSwitch, dpSwitch,
+    rpSwitch,drpSwitch,
+
     -- * Parallel composition\/switching (lists)
     --
     -- ** With "zip" routing
-    parZ,         -- [SF a b] -> SF [a] [b]
-    pSwitchZ,     -- [SF a b] -> SF ([a],[b]) (Event c)
-                  -- -> ([SF a b] -> c -> SF [a] [b]) -> SF [a] [b]
-    dpSwitchZ,    -- [SF a b] -> SF ([a],[b]) (Event c)
-                  -- -> ([SF a b] -> c ->SF [a] [b]) -> SF [a] [b]
-    rpSwitchZ,    -- [SF a b] -> SF ([a], Event ([SF a b]->[SF a b])) [b]
-    drpSwitchZ,   -- [SF a b] -> SF ([a], Event ([SF a b]->[SF a b])) [b]
+    parZ,
+    pSwitchZ,
+    dpSwitchZ,
+    rpSwitchZ,
+    drpSwitchZ,
 
     -- ** With replication
-    parC,         -- SF a b -> SF [a] [b]
+    parC,
 
 ) where
 

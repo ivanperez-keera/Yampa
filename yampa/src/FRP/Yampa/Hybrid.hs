@@ -11,20 +11,19 @@
 module FRP.Yampa.Hybrid (
 
     -- * Wave-form generation
-    hold,               -- :: a -> SF (Event a) a
-    dHold,              -- :: a -> SF (Event a) a
-    trackAndHold,       -- :: a -> SF (Maybe a) a
-    dTrackAndHold,      -- :: a -> SF (Maybe a) a
+    hold,
+    dHold,
+    trackAndHold,
+    dTrackAndHold,
 
     -- * Accumulators
-    accum,              -- :: a -> SF (Event (a -> a)) (Event a)
-    accumHold,          -- :: a -> SF (Event (a -> a)) a
-    dAccumHold,         -- :: a -> SF (Event (a -> a)) a
-    accumBy,            -- :: (b -> a -> b) -> b -> SF (Event a) (Event b)
-    accumHoldBy,        -- :: (b -> a -> b) -> b -> SF (Event a) b
-    dAccumHoldBy,       -- :: (b -> a -> b) -> b -> SF (Event a) b
-    accumFilter,        -- :: (c -> a -> (c, Maybe b)) -> c
-                        --    -> SF (Event a) (Event b)
+    accum,
+    accumHold,
+    dAccumHold,
+    accumBy,
+    accumHoldBy,
+    dAccumHoldBy,
+    accumFilter,
 
 ) where
 

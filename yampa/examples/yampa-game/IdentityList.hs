@@ -13,26 +13,26 @@
 -}
 
 module IdentityList (
-    ILKey,        -- Identity-list key type
-    IL,           -- Identity-list, abstract. Instance of functor.
-    emptyIL,      -- :: IL a
-    insertIL_,    -- :: a -> IL a -> IL a
-    insertIL,     -- :: a -> IL a -> (ILKey, IL a)
-    listToIL,     -- :: [a] -> IL a
-    keysIL,       -- :: IL a -> [ILKey]
-    elemsIL,      -- :: IL a -> [a]
-    assocsIL,     -- :: IL a -> [(ILKey, a)]
-    deleteIL,     -- :: ILKey -> IL a -> IL a
-    updateIL,     -- :: ILKey -> a -> IL a -> IL a
-    updateILWith, -- :: ILKey -> (a -> a) -> IL a -> IL a
-    mapIL,        -- :: ((ILKey, a) -> b) -> IL a -> IL b
-    filterIL,     -- :: ((ILKey, a) -> Bool) -> IL a -> IL a
-    mapFilterIL,  -- :: ((ILKey, a) -> Maybe b) -> IL a -> IL b
-    lookupIL,     -- :: ILKey -> IL a -> Maybe a
-    findIL,       -- :: ((ILKey, a) -> Bool) -> IL a -> Maybe a
-    mapFindIL,    -- :: ((ILKey, a) -> Maybe b) -> IL a -> Maybe b
-    findAllIL,    -- :: ((ILKey, a) -> Bool) -> IL a -> [a]
-    mapFindAllIL  -- :: ((ILKey, a) -> Maybe b) -> IL a -> [b]
+    ILKey,
+    IL,
+    emptyIL,
+    insertIL_,
+    insertIL,
+    listToIL,
+    keysIL,
+    elemsIL,
+    assocsIL,
+    deleteIL,
+    updateIL,
+    updateILWith,
+    mapIL,
+    filterIL,
+    mapFilterIL,
+    lookupIL,
+    findIL,
+    mapFindIL,
+    findAllIL,
+    mapFindAllIL
 ) where
 
 import Data.List (find)
@@ -42,7 +42,10 @@ import Data.List (find)
 -- Data type definitions
 ------------------------------------------------------------------------------
 
+-- | Identity-list key type
 type ILKey = Int
+
+-- | Identity-list, abstract. Instance of functor.
 
 -- Invariants:
 -- * Sorted in descending key order. (We don't worry about

@@ -32,31 +32,18 @@
 -- step by step, which are used by Yampa's testing facilities.
 module FRP.Yampa.Simulation (
    -- * Reactimation
-    reactimate,         -- :: IO a
-                        --    -> (Bool -> IO (DTime, Maybe a))
-                        --    -> (Bool -> b -> IO Bool)
-                        --    -> SF a b
-                        --    -> IO ()
+    reactimate,
 
     -- ** Low-level reactimation interface
     ReactHandle,
-    reactInit,          -- :: IO a -- init
-                        -- -> (ReactHandle a b -> Bool -> b -> IO Bool)
-                        --     -- actuate
-                        -- -> SF a b
-                        -- -> IO (ReactHandle a b)
-
-                        -- process a single input sample:
-    react,              --    ReactHandle a b
-                        --    -> (DTime,Maybe a)
-                        --    -> IO Bool
+    reactInit,
+    react,
 
     -- * Embedding
-    embed,              -- :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
-    embedSynch,         -- :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
-    deltaEncode,        -- :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
-    deltaEncodeBy,      -- :: (a -> a -> Bool) -> DTime -> [a]
-                        --    -> (a, [(DTime, Maybe a)])
+    embed,
+    embedSynch,
+    deltaEncode,
+    deltaEncodeBy,
 
     -- * Debugging / Step by step simulation
 

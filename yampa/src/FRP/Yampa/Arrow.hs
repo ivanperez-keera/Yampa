@@ -11,13 +11,13 @@
 -- Arrow helper functions.
 module FRP.Yampa.Arrow (
     -- * Arrow plumbing aids
-    dup,        -- :: a -> (a,a)
+    dup,
 
     -- * Liftings
-    arr2,       -- :: Arrow a => (b->c->d) -> a (b,c) d
-    arr3,       -- :: Arrow a => (b->c->d->e) -> a (b,c,d) e
-    arr4,       -- :: Arrow a => (b->c->d->e->f) -> a (b,c,d,e) f
-    arr5,       -- :: Arrow a => (b->c->d->e->f->g) -> a (b,c,d,e,f) g
+    arr2,
+    arr3,
+    arr4,
+    arr5,
 ) where
 
 #if __GLASGOW_HASKELL__ < 710
