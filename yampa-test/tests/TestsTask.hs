@@ -13,9 +13,7 @@ import FRP.Yampa.Task
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for tasks (Task)
-------------------------------------------------------------------------------
+-- * Test cases for tasks (Task)
 
 task_t0 = testSF1 (runTask (do
                                mkTask (localTime
