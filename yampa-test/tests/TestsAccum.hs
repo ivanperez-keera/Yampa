@@ -4,14 +4,15 @@
 -- Copyright   : Yale University, 2003
 --               University of Nottingham, 2005
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsAccum (
-    accum_tr,
-    accum_trs,
-    accum_st0,
-    accum_st0r,
-    accum_st1,
-    accum_st1r
-) where
+module TestsAccum
+    ( accum_tr
+    , accum_trs
+    , accum_st0
+    , accum_st0r
+    , accum_st1
+    , accum_st1r
+    )
+  where
 
 import Data.Maybe (fromJust)
 
