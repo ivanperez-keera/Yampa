@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- |
 -- Module      :  FRP.Yampa
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -232,7 +231,6 @@
 --   looking for opt. opportunities, whereas a plain "SF'" would
 --   indicate that things NEVER are going to change, and thus we can just
 --   as well give up?
---------------------------------------------------------------------------------
 
 module FRP.Yampa (
 
