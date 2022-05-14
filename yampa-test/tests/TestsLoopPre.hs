@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for loopPre
-------------------------------------------------------------------------------
+-- * Test cases for loopPre
 
 loop_acc :: SF (Double, Double) (Double, Double)
 loop_acc = arr (\(x, y)->(x+y, x+y))
