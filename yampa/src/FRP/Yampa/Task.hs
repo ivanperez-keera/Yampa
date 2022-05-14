@@ -12,15 +12,15 @@
 -- Task abstraction on top of signal transformers.
 module FRP.Yampa.Task (
     Task,
-    mkTask,      -- :: SF a (b, Event c) -> Task a b c
-    runTask,     -- :: Task a b c -> SF a (Either b c)    -- Might change.
-    runTask_,    -- :: Task a b c -> SF a b
-    taskToSF,    -- :: Task a b c -> SF a (b, Event c)    -- Might change.
-    constT,      -- :: b -> Task a b c
-    sleepT,      -- :: Time -> b -> Task a b ()
-    snapT,       -- :: Task a b a
-    timeOut,     -- :: Task a b c -> Time -> Task a b (Maybe c)
-    abortWhen,   -- :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
+    mkTask,
+    runTask,
+    runTask_,
+    taskToSF,
+    constT,
+    sleepT,
+    snapT,
+    timeOut,
+    abortWhen,
 ) where
 
 #if __GLASGOW_HASKELL__ < 710
