@@ -12,28 +12,29 @@
 ******************************************************************************
 -}
 
-module IdentityList (
-    ILKey,
-    IL,
-    emptyIL,
-    insertIL_,
-    insertIL,
-    listToIL,
-    keysIL,
-    elemsIL,
-    assocsIL,
-    deleteIL,
-    updateIL,
-    updateILWith,
-    mapIL,
-    filterIL,
-    mapFilterIL,
-    lookupIL,
-    findIL,
-    mapFindIL,
-    findAllIL,
-    mapFindAllIL
-) where
+module IdentityList
+    ( ILKey
+    , IL
+    , emptyIL
+    , insertIL_
+    , insertIL
+    , listToIL
+    , keysIL
+    , elemsIL
+    , assocsIL
+    , deleteIL
+    , updateIL
+    , updateILWith
+    , mapIL
+    , filterIL
+    , mapFilterIL
+    , lookupIL
+    , findIL
+    , mapFindIL
+    , findAllIL
+    , mapFindAllIL
+    )
+  where
 
 import Data.List (find)
 
