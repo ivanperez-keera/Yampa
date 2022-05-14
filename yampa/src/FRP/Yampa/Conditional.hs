@@ -9,8 +9,8 @@
 --
 -- Apply SFs only under certain conditions.
 module FRP.Yampa.Conditional (
-    provided  -- :: (a -> Bool) -> SF a b -> SF a b -> SF a b
-  , pause     -- :: b -> SF a b -> SF a Bool -> SF a b
+    provided
+  , pause
 
   ) where
 
