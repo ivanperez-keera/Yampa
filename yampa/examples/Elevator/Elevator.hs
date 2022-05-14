@@ -10,18 +10,14 @@ module Elevator where
 
 import FRP.Yampa
 
-------------------------------------------------------------------------------
--- Auxiliary definitions
-------------------------------------------------------------------------------
+-- * Auxiliary definitions
 
 type Position = Double  -- [m]
 type Distance = Double  -- [m]
 type Velocity = Double  -- [m/s]
 
 
-------------------------------------------------------------------------------
--- Elevator simulator
-------------------------------------------------------------------------------
+-- * Elevator simulator
 
 lower, upper :: Position
 lower = 0
