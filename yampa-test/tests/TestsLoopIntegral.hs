@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for loopIntegral
-------------------------------------------------------------------------------
+-- * Test cases for loopIntegral
 
 -- Computation of approximation to exp 0, exp 1, ..., exp 5 by integration.
 -- Values as given by using exp directly:
