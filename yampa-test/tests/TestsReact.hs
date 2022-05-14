@@ -1,16 +1,8 @@
-{- $Id: TestsReact.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsReact                                           *
-*       Purpose:        Test cases for reactimation                          *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsReact
+-- Description : Test cases for reactimation
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsReact (react_tr, react_trs) where
 
 import System.IO.Unsafe (unsafePerformIO)
