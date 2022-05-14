@@ -3,12 +3,13 @@
 -- Description : Test cases for rpSwitchB and drpSwitchB
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsRPSwitch (
-    rpswitch_tr,
-    rpswitch_trs,
-    rpswitch_st0,
-    rpswitch_st0r
-) where
+module TestsRPSwitch
+    ( rpswitch_tr
+    , rpswitch_trs
+    , rpswitch_st0
+    , rpswitch_st0r
+    )
+  where
 
 import Data.Maybe (fromJust)
 import Data.List (findIndex)
