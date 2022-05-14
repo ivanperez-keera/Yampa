@@ -1,16 +1,8 @@
-{- $Id: TestsLoopIntegral.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  A F R P                                   *
-*                                                                            *
-*       Module:         TestsLoopIntegral                                    *
-*       Purpose:        Test cases for loopIntegral                          *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsLoopIntegral
+-- Description : Test cases for loopIntegral
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsLoopIntegral (loopIntegral_tr, loopIntegral_trs) where
 
 import FRP.Yampa
