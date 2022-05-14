@@ -1,8 +1,11 @@
 2022-05-14 Ivan Perez <ivan.perez@haskell.sexy>
         * src/: Remove vim modeline settings (#209), remove unnecessary
-          comments from module export lists (#210).
+          comments from module export lists (#210),  style consistency of
+          separators (#211).
         * examples/: Replace tabs with spaces (#205), format module header to
-          conform to style guide (#207).
+          conform to style guide (#207), style consistency of separators
+          (#211).
+        * tests/: Style consistency of separators (#211).
 
 2022-04-07 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Version bump (0.13.4) (#203), syntax rules (#196),
