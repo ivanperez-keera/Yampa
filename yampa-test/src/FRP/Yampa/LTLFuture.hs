@@ -14,9 +14,9 @@
 -- see what is going on there... :(
 
 module FRP.Yampa.LTLFuture
-  ( TPred(..)
-  , evalT
-  )
+    ( TPred(..)
+    , evalT
+    )
   where
 
 import FRP.Yampa
