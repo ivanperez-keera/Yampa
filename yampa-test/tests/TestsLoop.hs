@@ -10,9 +10,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for loop
-------------------------------------------------------------------------------
+-- * Test cases for loop
 
 loop_acc :: SF (Double, Double) (Double, Double)
 loop_acc = arr (\(x, y)->(x+y, x+y))
