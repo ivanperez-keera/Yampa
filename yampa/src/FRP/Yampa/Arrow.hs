@@ -9,16 +9,18 @@
 -- Portability :  portable
 --
 -- Arrow helper functions.
-module FRP.Yampa.Arrow (
-    -- * Arrow plumbing aids
-    dup,
+module FRP.Yampa.Arrow
+    (
+      -- * Arrow plumbing aids
+      dup
 
-    -- * Liftings
-    arr2,
-    arr3,
-    arr4,
-    arr5,
-) where
+      -- * Liftings
+    , arr2
+    , arr3
+    , arr4
+    , arr5
+    )
+  where
 
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative (Applicative(..))
