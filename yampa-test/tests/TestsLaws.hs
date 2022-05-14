@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases based on the arrow laws
-------------------------------------------------------------------------------
+-- * Test cases based on the arrow laws
 
 -- For a description of the laws, see e.g. Ross Paterson: Embedding a Class of
 -- Domain-Specific Languages in a Functional Language.
