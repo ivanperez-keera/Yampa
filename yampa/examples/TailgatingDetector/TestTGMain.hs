@@ -1,18 +1,10 @@
 {-# LANGUAGE Arrows #-}
-
-{-
-******************************************************************************
-*                                  A F R P                                   *
-*                                                                            *
-*       Example:        Test TG                                              *
-*       Purpose:        Testing of the tailgating detector.                  *
-*       Authors:        Henrik Nilsson                                       *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Description : Testing of the tailgating detector.
+-- Copyright   : Yale University, 2003
+-- Authors     : Henrik Nilsson
+--
+-- Part of the TailgatingDetector example.
 module Main where
 
 import Data.List (sortBy)
