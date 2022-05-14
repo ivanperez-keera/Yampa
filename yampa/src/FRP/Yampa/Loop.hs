@@ -33,6 +33,3 @@ loopPre c_init sf = loop (second (iPre c_init) >>> sf)
 -- well defined.
 loopIntegral :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
 loopIntegral sf = loop (second integral >>> sf)
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

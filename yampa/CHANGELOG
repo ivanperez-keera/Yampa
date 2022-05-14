@@ -1,4 +1,5 @@
 2022-05-14 Ivan Perez <ivan.perez@haskell.sexy>
+        * src/: Remove vim modeline settings (#209).
         * examples/: Replace tabs with spaces (#205), format module header to
           conform to style guide (#207).
 

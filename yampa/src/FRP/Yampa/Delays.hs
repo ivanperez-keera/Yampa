@@ -102,6 +102,3 @@ delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
                         nextSmpl rbuf buf@((bdt, ba) : buf') t_diff a
                             | t_diff < bdt = (delayAux rbuf buf t_diff a, a)
                             | otherwise    = nextSmpl rbuf buf' (t_diff-bdt) ba
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

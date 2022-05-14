@@ -99,7 +99,3 @@ impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
 -- [Event 1,NoEvent,Event 2]
 count :: Integral b => SF (Event a) (Event b)
 count = accumBy (\n _ -> n + 1) 0
-
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

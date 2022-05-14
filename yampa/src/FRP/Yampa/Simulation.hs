@@ -304,6 +304,3 @@ evalFuture sf a dt = (b, sf' dt)
 evalStep :: SF a b -> a -> (b, DTime -> SF a b)
 evalStep (SF sf) a = (b, \dt -> SF (sfTF' sf' dt))
   where (sf', b) = sf a
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

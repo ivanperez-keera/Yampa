@@ -156,8 +156,3 @@ accumFilter g c_init = epPrim f c_init NoEvent
         f c a = case g c a of
                     (c', Nothing) -> (c', NoEvent, NoEvent)
                     (c', Just b)  -> (c', Event b, NoEvent)
-
-
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:
