@@ -1,17 +1,9 @@
 {-# LANGUAGE Arrows #-}
-
-{-
-******************************************************************************
-*                                  A F R P                                   *
-*                                                                            *
-*       Module:         TailgatingDetector                                   *
-*       Purpose:        AFRP Expressitivity Test                             *
-*       Authors:        Henrik Nilsson                                       *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
+-- |
+-- Module      : TailgatingDetector
+-- Description : AFRP Expressitivity Test
+-- Copyright   : Yale University, 2003
+-- Authors     : Henrik Nilsson
 
 -- Context: an autonomous flying vehicle carrying out traffic surveillance
 -- through an on-board video camera.
