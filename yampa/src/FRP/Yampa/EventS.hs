@@ -16,40 +16,40 @@
 -- For signals that carry events, there should be a limit in the number of
 -- events we can observe in a time period, no matter how much we increase the
 -- sampling frequency.
-module FRP.Yampa.EventS (
+module FRP.Yampa.EventS
+    (
+      -- * Basic event sources
+      never
+    , now
+    , after
+    , repeatedly
+    , afterEach
+    , afterEachCat
+    , delayEvent
+    , delayEventCat
+    , edge
+    , iEdge
+    , edgeTag
+    , edgeJust
+    , edgeBy
 
-    -- * Basic event sources
-    never,
-    now,
-    after,
-    repeatedly,
-    afterEach,
-    afterEachCat,
-    delayEvent,
-    delayEventCat,
-    edge,
-    iEdge,
-    edgeTag,
-    edgeJust,
-    edgeBy,
+      -- * Stateful event suppression
+    , notYet
+    , once
+    , takeEvents
+    , dropEvents
 
-    -- * Stateful event suppression
-    notYet,
-    once,
-    takeEvents,
-    dropEvents,
+      -- * Hybrid SF combinators
+    , snap
+    , snapAfter
+    , sample
+    , sampleWindow
 
-    -- * Hybrid SF combinators
-    snap,
-    snapAfter,
-    sample,
-    sampleWindow,
-
-    -- * Repetition and switching
-    recur,
-    andThen
-
-) where
+      -- * Repetition and switching
+    , recur
+    , andThen
+    )
+  where
 
 import Control.Arrow
 
