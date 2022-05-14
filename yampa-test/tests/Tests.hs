@@ -1,15 +1,8 @@
-{- $Id: Tests.hs,v 1.27 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         Tests                                            *
-*       Purpose:        regression tests.                                    *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
+-- |
+-- Module      : Tests
+-- Description : regression tests.
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 
 -- TODO:
 -- * Add test cases for Yampa. There should be at least one test case for each
