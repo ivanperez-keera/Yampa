@@ -1,13 +1,13 @@
 {-
 ******************************************************************************
-*                                  A F R P				     *
-*									     *
-*       Example:        Elevator					     *
-*       Purpose:        Testing of the Elevator simulator.		     *
-*	Authors:	Henrik Nilsson					     *
-*									     *
-*             Copyright (c) The University of Nottingham, 2004		     *
-*									     *
+*                                  A F R P                                     *
+*                                                                             *
+*       Example:        Elevator                                             *
+*       Purpose:        Testing of the Elevator simulator.                     *
+*        Authors:        Henrik Nilsson                                             *
+*                                                                             *
+*             Copyright (c) The University of Nottingham, 2004                     *
+*                                                                             *
 ******************************************************************************
 -}
 
@@ -54,29 +54,29 @@ findEvents tios@((_, (_, y)) : _) = feAux Stopped y tios
             if not (null message) then
                 (t, y, message) : feAux s y tios'
             else
-		feAux s y tios'
-	    where
-		s = if y == yPre then
-		        Stopped
+                feAux s y tios'
+            where
+                s = if y == yPre then
+                        Stopped
                     else if yPre < y then
                         GoingUp
                     else
-			GoingDown
+                        GoingDown
 
                 ms = if s /= sPre then
-		         case s of
-			     Stopped ->   Just "elevator stopped"
-			     GoingUp ->   Just "elevator started going up"
-			     GoingDown -> Just "elevator started going down"
-		     else
-			 Nothing
+                         case s of
+                             Stopped ->   Just "elevator stopped"
+                             GoingUp ->   Just "elevator started going up"
+                             GoingDown -> Just "elevator started going down"
+                     else
+                         Nothing
 
-		mu = if isEvent lbp then
+                mu = if isEvent lbp then
                          Just "up button pressed"
                      else
                          Nothing
 
-		md = if isEvent rbp then
+                md = if isEvent rbp then
                          Just "down button pressed"
                      else
                          Nothing
@@ -86,8 +86,8 @@ findEvents tios@((_, (_, y)) : _) = feAux Stopped y tios
 formatEvent :: (Time, Position, String) -> String
 formatEvent (t, y, m) = "t = " ++ t' ++ ",\ty = " ++ y' ++ ":\t" ++ m
     where
-	t' = show (fromIntegral (round (t * 100)) / 100)
-	y' = show (fromIntegral (round (y * 100)) / 100)
+        t' = show (fromIntegral (round (t * 100)) / 100)
+        y' = show (fromIntegral (round (y * 100)) / 100)
 
 ppEvents []       = return ()
 ppEvents (e : es) = putStrLn (formatEvent e) >> ppEvents es

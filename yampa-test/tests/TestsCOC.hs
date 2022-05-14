@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsCOC					                         *
-*       Purpose:        Test cases for collection-oriented combinators	     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsCOC                                             *
+*       Purpose:        Test cases for collection-oriented combinators       *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *

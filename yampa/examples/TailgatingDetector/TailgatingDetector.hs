@@ -5,8 +5,8 @@
 *                                  A F R P                                   *
 *                                                                            *
 *       Module:         TailgatingDetector                                   *
-*       Purpose:        AFRP Expressitivity Test		             *
-*	Authors:	Henrik Nilsson					     *
+*       Purpose:        AFRP Expressitivity Test                             *
+*       Authors:        Henrik Nilsson                                       *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -51,9 +51,9 @@ import FRP.Yampa.EventS
 -- Testing framework
 ------------------------------------------------------------------------------
 
-type Position = Double	-- [m]
-type Distance = Double	-- [m]
-type Velocity = Double	-- [m/s]
+type Position = Double  -- [m]
+type Distance = Double  -- [m]
+type Velocity = Double  -- [m/s]
 
 -- We'll call any ground vehicle "car". For our purposes, a car is
 -- represented by its ground position and ground velocity.
@@ -88,7 +88,7 @@ mkCar2 p0 v0 t0 v = switchAfter t0 (mkCar1 p0 v0) (flip mkCar1 v . fst)
 
 mkCar3 :: Position->Velocity->Time->Velocity->Time->Velocity->SF a Car
 mkCar3 p0 v0 t0 v1 t1 v = switchAfter t0 (mkCar1 p0 v0) $ \(p1, _) ->
-			  switchAfter t1 (mkCar1 p1 v1) $ \(p2, _) ->
+                          switchAfter t1 (mkCar1 p1 v1) $ \(p2, _) ->
                           mkCar1 p2 v
 
 
@@ -96,7 +96,7 @@ highway :: SF a Highway
 highway = parB [mkCar1 (-600) 30.9,
                 mkCar1 0 30,
                 mkCar3 (-1000) 40 95 30 200 30.9,
-		mkCar1 (-3000) 45,
+                mkCar1 (-3000) 45,
                 mkCar1 700 28,
                 mkCar1 800 29.1]
 
@@ -122,29 +122,29 @@ range = 500
 mkVideoAndTrackers :: SF (Highway, UAVStatus) (Video, Event CarTracker)
 mkVideoAndTrackers = arr mkVideo >>> identity &&& carEntry
     where
-	mkVideo :: (Highway, Position) -> Video
-	mkVideo (cars, p_uav) =
+        mkVideo :: (Highway, Position) -> Video
+        mkVideo (cars, p_uav) =
             [ (i, (p_rel, v))
             | (i, (p, v)) <- zip [0..] cars,
               let p_rel = p - p_uav, abs p_rel <= range]
 
-	carEntry :: SF Video (Event CarTracker)
-	carEntry = edgeBy newCar []
-	    where
-		newCar v_prev v =
-		    case (map fst v) \\ (map fst v_prev) of
-			[]      -> Nothing
-			(i : _) -> Just (mkCarTracker i)
+        carEntry :: SF Video (Event CarTracker)
+        carEntry = edgeBy newCar []
+            where
+                newCar v_prev v =
+                    case (map fst v) \\ (map fst v_prev) of
+                        []      -> Nothing
+                        (i : _) -> Just (mkCarTracker i)
 
-	mkCarTracker :: Int -> CarTracker
-	mkCarTracker i = arr (lookup i . fst)
+        mkCarTracker :: Int -> CarTracker
+        mkCarTracker i = arr (lookup i . fst)
                          >>> trackAndHold undefined
-			     &&& edgeBy justToNothing (Just undefined)
-	    where
-		justToNothing Nothing  Nothing  = Nothing
-		justToNothing Nothing  (Just _) = Nothing
-		justToNothing (Just _) (Just _) = Nothing
-		justToNothing (Just _) Nothing  = Just ()
+                             &&& edgeBy justToNothing (Just undefined)
+            where
+                justToNothing Nothing  Nothing  = Nothing
+                justToNothing Nothing  (Just _) = Nothing
+                justToNothing (Just _) (Just _) = Nothing
+                justToNothing (Just _) Nothing  = Just ()
 
 
 videoAndTrackers :: SF a (Video, Event CarTracker)
@@ -171,23 +171,23 @@ smplPer = 1/smplFreq
 tailgating :: SF (Car, Car) (Event ())
 tailgating = provided follow tooClose never
     where
-	follow ((p1, v1), (p2, v2)) = p1 < p2
+        follow ((p1, v1), (p2, v2)) = p1 < p2
                                       && v1 > 5.0
                                       && abs ((v2 - v1)/v1) < 0.2
                                       && (p2 - p1) / v1 < 5.0
 
-	-- Under the assumption that car c1 is following car c2, generate an
+        -- Under the assumption that car c1 is following car c2, generate an
         -- event if car1 has been too close to car2 on average during the
-	-- last 30 s.
-	tooClose :: SF (Car, Car) (Event ())
-	tooClose = proc (c1, c2) -> do
-	    ead <- recur (snapAfter 30 <<< avgDist) -< (c1, c2)
-	    returnA -< (filterE (<1.0) ead) `tag` ()
+        -- last 30 s.
+        tooClose :: SF (Car, Car) (Event ())
+        tooClose = proc (c1, c2) -> do
+            ead <- recur (snapAfter 30 <<< avgDist) -< (c1, c2)
+            returnA -< (filterE (<1.0) ead) `tag` ()
 
         avgDist = proc ((p1, v1), (p2, v2)) -> do
-	    let nd = (p2 - p1) / v1
-	    ind <- integral  -< nd
-	    t   <- localTime -< ()
+            let nd = (p2 - p1) / v1
+            ind <- integral  -< nd
+            t   <- localTime -< ()
             returnA -< if t > 0 then ind / t else nd
 
 
@@ -226,34 +226,34 @@ mct :: SF (Video, UAVStatus, Event CarTracker) [(Id, Car)]
 mct = pSwitch route cts_init addOrDelCTs (\cts' f -> mctAux (f cts'))
       >>^ getCars
     where
-	mctAux cts = pSwitch route
-			     cts
-			     (noEvent --> addOrDelCTs)
-			     (\cts' f -> mctAux (f cts'))
+        mctAux cts = pSwitch route
+                             cts
+                             (noEvent --> addOrDelCTs)
+                             (\cts' f -> mctAux (f cts'))
 
-	route (v, s, _) = fmap (\ct -> ((v, s), ct))
+        route (v, s, _) = fmap (\ct -> ((v, s), ct))
 
-	-- addOrDelCTs :: SF _ (Event (MCTCol CarTracker -> MCTCol carTracker))
-	addOrDelCTs = proc ((_, _, ect), ces) -> do
-	    let eAdd = fmap addCT ect
+        -- addOrDelCTs :: SF _ (Event (MCTCol CarTracker -> MCTCol carTracker))
+        addOrDelCTs = proc ((_, _, ect), ces) -> do
+            let eAdd = fmap addCT ect
             let eDel = fmap delCTs (catEvents (getEvents ces))
             returnA -< mergeBy (.) eAdd eDel
 
-	cts_init :: MCTCol CarTracker
-	cts_init = MCTCol 0 []
+        cts_init :: MCTCol CarTracker
+        cts_init = MCTCol 0 []
 
-	addCT :: CarTracker -> MCTCol CarTracker -> MCTCol CarTracker
-	addCT ct (MCTCol n icts) = MCTCol (n+1) ((n, ct) : icts)
+        addCT :: CarTracker -> MCTCol CarTracker -> MCTCol CarTracker
+        addCT ct (MCTCol n icts) = MCTCol (n+1) ((n, ct) : icts)
 
-	delCTs :: [Id] -> MCTCol CarTracker -> MCTCol CarTracker
-	delCTs is (MCTCol n icts) =
+        delCTs :: [Id] -> MCTCol CarTracker -> MCTCol CarTracker
+        delCTs is (MCTCol n icts) =
             MCTCol n (filter (flip notElem is . fst) icts)
 
-	getCars :: MCTCol (Car, Event ()) -> [(Id, Car)]
-	getCars (MCTCol _ ices) = [(i, c) | (i, (c, _)) <- ices ]
+        getCars :: MCTCol (Car, Event ()) -> [(Id, Car)]
+        getCars (MCTCol _ ices) = [(i, c) | (i, (c, _)) <- ices ]
 
-	getEvents :: MCTCol (Car, Event ()) -> [Event Id]
-	getEvents (MCTCol _ ices) = [e `tag` i | (i,(_,e)) <- ices]
+        getEvents :: MCTCol (Car, Event ()) -> [Event Id]
+        getEvents (MCTCol _ ices) = [e `tag` i | (i,(_,e)) <- ices]
 
 
 ------------------------------------------------------------------------------
@@ -284,34 +284,34 @@ mtgd = proc ics -> do
     etgs <- rpSwitch route (MTGDCol []) -< (ics', fmap updateTGDs eno)
     returnA -< tailgaters etgs
     where
-	route ics (MTGDCol iitgs) = MTGDCol $
-	    let cs = map snd ics
-	    in
-	        [ (ii, (cc, tg))
-		| (cc, (ii, tg)) <- zip (zip cs (tail cs)) iitgs ]
+        route ics (MTGDCol iitgs) = MTGDCol $
+            let cs = map snd ics
+            in
+                [ (ii, (cc, tg))
+                | (cc, (ii, tg)) <- zip (zip cs (tail cs)) iitgs ]
 
-	relPos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
+        relPos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
 
-	newOrder :: SF [(Id, Car)] (Event [Id])
-	newOrder = edgeBy (\ics ics' -> if sameOrder ics ics' then
-					    Nothing
-					else
-					    Just (map fst ics'))
-			  []
-	    where
-		sameOrder [] [] = True
-		sameOrder [] _  = False
-		sameOrder _  [] = False
-		sameOrder ((i,_):ics) ((i',_):ics')
-		    | i == i'   = sameOrder ics ics'
-		    | otherwise = False
+        newOrder :: SF [(Id, Car)] (Event [Id])
+        newOrder = edgeBy (\ics ics' -> if sameOrder ics ics' then
+                                            Nothing
+                                        else
+                                            Just (map fst ics'))
+                          []
+            where
+                sameOrder [] [] = True
+                sameOrder [] _  = False
+                sameOrder _  [] = False
+                sameOrder ((i,_):ics) ((i',_):ics')
+                    | i == i'   = sameOrder ics ics'
+                    | otherwise = False
 
-	updateTGDs is (MTGDCol iitgs) = MTGDCol $
-	    [ (ii, maybe tailgating id (lookup ii iitgs))
-	    | ii <- zip is (tail is) ]
+        updateTGDs is (MTGDCol iitgs) = MTGDCol $
+            [ (ii, maybe tailgating id (lookup ii iitgs))
+            | ii <- zip is (tail is) ]
 
-	tailgaters :: MTGDCol (Event ()) -> Event [(Id, Id)]
-	tailgaters (MTGDCol iies) = catEvents [ e `tag` ii | (ii, e) <- iies ]
+        tailgaters :: MTGDCol (Event ()) -> Event [(Id, Id)]
+        tailgaters (MTGDCol iies) = catEvents [ e `tag` ii | (ii, e) <- iies ]
 
 
 -- Finally, we can tie the individaul pieces together into a signal

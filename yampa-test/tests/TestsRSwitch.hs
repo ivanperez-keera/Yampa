@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsRSwitch				                         *
-*       Purpose:        Test cases for rSwitch and drSwitch		     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsRSwitch                                         *
+*       Purpose:        Test cases for rSwitch and drSwitch                  *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -31,7 +31,7 @@ import TestsCommon
 
 rswitch_inp1 = (fromJust (head delta_inp), zip (repeat 1.0) (tail delta_inp))
     where
-	delta_inp =
+        delta_inp =
             [Just (1.0, NoEvent), Nothing, Nothing,
              Just (2.0, Event (arr (*3))), Just (3.0, NoEvent), Nothing,
              Just (4.0, NoEvent), Nothing, Nothing,

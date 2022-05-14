@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsKSwitch				                         *
-*       Purpose:        Test cases for kSwitch and dkSwitch		     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsKSwitch                                         *
+*       Purpose:        Test cases for kSwitch and dkSwitch                  *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -31,9 +31,9 @@ whenSndGE b c = arr snd >>> arr (>= b) >>> edge >>> arr (`tag` c)
 kswitch_t0 :: [Double]
 kswitch_t0 = take 20 $ embed sf kswitch_inp1
     where
-	sf =
-	    kSwitch integral (whenSndGE 0.2 (-1.0)) $ \sf1 x ->
-	    kSwitch (integral >>> arr (+x)) (whenSndGE 1.0 (1.0)) $ \_ _ ->
+        sf =
+            kSwitch integral (whenSndGE 0.2 (-1.0)) $ \sf1 x ->
+            kSwitch (integral >>> arr (+x)) (whenSndGE 1.0 (1.0)) $ \_ _ ->
             sf1
 
 kswitch_t0r =
@@ -46,9 +46,9 @@ kswitch_t0r =
 kswitch_t1 :: [Double]
 kswitch_t1 = take 20 $ embed sf kswitch_inp1
     where
-	sf =
-	    dkSwitch integral (whenSndGE 0.2 (-1.0)) $ \sf1 x ->
-	    dkSwitch (integral >>> arr (+x)) (whenSndGE 1.0 (1.0)) $ \_ _ ->
+        sf =
+            dkSwitch integral (whenSndGE 0.2 (-1.0)) $ \sf1 x ->
+            dkSwitch (integral >>> arr (+x)) (whenSndGE 1.0 (1.0)) $ \_ _ ->
             sf1
 
 kswitch_t1r =
@@ -61,9 +61,9 @@ kswitch_t1r =
 kswitch_t2 :: [Double]
 kswitch_t2 = take 20 $ embed sf kswitch_inp1
     where
-	sf =
-	    kSwitch integral (now (-1.0)) $ \sf1 x ->
-	    kSwitch (integral >>> arr (+x)) (whenSndGE 1.0 (1.0)) $ \_ _ ->
+        sf =
+            kSwitch integral (now (-1.0)) $ \sf1 x ->
+            kSwitch (integral >>> arr (+x)) (whenSndGE 1.0 (1.0)) $ \_ _ ->
             sf1
 
 kswitch_t2r =
@@ -76,9 +76,9 @@ kswitch_t2r =
 kswitch_t3 :: [Double]
 kswitch_t3 = take 20 $ embed sf kswitch_inp1
     where
-	sf =
-	    dkSwitch integral (now (-1.0)) $ \sf1 x ->
-	    dkSwitch (integral >>> arr (+x)) (whenSndGE 1.0 (1.0)) $ \_ _ ->
+        sf =
+            dkSwitch integral (now (-1.0)) $ \sf1 x ->
+            dkSwitch (integral >>> arr (+x)) (whenSndGE 1.0 (1.0)) $ \_ _ ->
             sf1
 
 kswitch_t3r =
@@ -92,20 +92,20 @@ kswitch_t3r =
 -- kSwitch does not work.
 kswitch_t4 = take 40 $
     embed (loop $
-	       dkSwitch sf (sfe 0.55 (-1.0))              $ \sf1 x ->
-	       dkSwitch (sf >>> arr2 (+x)) (sfe 0.05 8.0) $ \sf2 y ->
-	       dkSwitch sf1 (sfe 2.0 (-2.0))              $ \_   z ->
-	       sf2 >>> arr2 (+(y + z))
+               dkSwitch sf (sfe 0.55 (-1.0))              $ \sf1 x ->
+               dkSwitch (sf >>> arr2 (+x)) (sfe 0.05 8.0) $ \sf2 y ->
+               dkSwitch sf1 (sfe 2.0 (-2.0))              $ \_   z ->
+               sf2 >>> arr2 (+(y + z))
            )
           (deltaEncode 0.1 (repeat ()))
     where
         sf :: SF (a, Double) (Double, Double)
         sf = constant 1.0 >>> integral >>> arr dup
 
-	sfe :: Double -> Double -> SF ((a, Double), b) (Event Double)
-	sfe x e = arr fst >>> whenSndGE x e
+        sfe :: Double -> Double -> SF ((a, Double), b) (Event Double)
+        sfe x e = arr fst >>> whenSndGE x e
 
-	arr2 f = arr (\(x,y) -> (f x, f y))
+        arr2 f = arr (\(x,y) -> (f x, f y))
 
 kswitch_t4r =
     [ 0.0,  0.1,  0.2,  0.3,  0.4,

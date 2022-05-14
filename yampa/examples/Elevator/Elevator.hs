@@ -4,13 +4,13 @@
 ******************************************************************************
 *                                  A F R P                                   *
 *                                                                            *
-*       Module:         Elevator					     *
-*       Purpose:        Elevator simulation based on the Fran version	     *
-*			from Simon Thompson's paper "A functional reactive   *
-*			animation of a lift using Fran".		     *
-*	Authors:	Henrik Nilsson					     *
+*       Module:         Elevator                                             *
+*       Purpose:        Elevator simulation based on the Fran version        *
+*                       from Simon Thompson's paper "A functional reactive   *
+*                       animation of a lift using Fran".                     *
+*       Authors:        Henrik Nilsson                                       *
 *                                                                            *
-*             Copyright (c) The University of Nottingham, 2004		     *
+*             Copyright (c) The University of Nottingham, 2004               *
 *                                                                            *
 ******************************************************************************
 -}
@@ -23,9 +23,9 @@ import FRP.Yampa
 -- Auxiliary definitions
 ------------------------------------------------------------------------------
 
-type Position = Double	-- [m]
-type Distance = Double	-- [m]
-type Velocity = Double	-- [m/s]
+type Position = Double  -- [m]
+type Distance = Double  -- [m]
+type Velocity = Double  -- [m/s]
 
 
 ------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ elevator = proc (lbp,rbp) -> do
 
         let atBottom = y <= lower
             atTop    = y >= upper
-            stopped  = v == 0		-- Somewhat dubious ...
+            stopped  = v == 0                -- Somewhat dubious ...
 
             waitingBottom = atBottom && stopped
             waitingTop    = atTop    && stopped
@@ -77,14 +77,14 @@ elevator = proc (lbp,rbp) -> do
 --          resetUp   = goUp `tag` False
 --          resetDown = goDown `tag` False
 
-	-- One approach would be to wait for "physical confiramtion"
-	-- that the elevator actually is moving in the desired direction:
---	resetUp   <- (`tag` True)  ^<< edge -< v > 0
+        -- One approach would be to wait for "physical confiramtion"
+        -- that the elevator actually is moving in the desired direction:
+--        resetUp   <- (`tag` True)  ^<< edge -< v > 0
 --      resetDown <- (`tag` False) ^<< edge -< v < 0
 
-	-- Another approach is to simply delay the reset events to avoid
+        -- Another approach is to simply delay the reset events to avoid
         -- suppressing the very event that generates the reset event.
-	resetUp   <- iPre noEvent -< goUp `tag` False
+        resetUp   <- iPre noEvent -< goUp `tag` False
         resetDown <- iPre noEvent -< goDown `tag` False
 
         -- Of course, a third approach would be to just use dHold below.

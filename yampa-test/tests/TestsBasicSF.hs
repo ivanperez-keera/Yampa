@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsBasicSF				                         *
-*       Purpose:        Test cases for basic signal functions		     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsBasicSF                                         *
+*       Purpose:        Test cases for basic signal functions                *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *

@@ -4,8 +4,8 @@
 *                                  Y A M P A                                 *
 *                                                                            *
 *       Module:         Tests                                            *
-*       Purpose:         regression tests.				     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Purpose:        regression tests.                                    *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -85,23 +85,23 @@ allGood = arr_tr
           && basicsf_tr
           && sscan_tr
           && evsrc_tr
- 	  && coc_tr
- 	  && switch_tr
- 	  && kswitch_tr
- 	  && rswitch_tr
- 	  && pswitch_tr
- 	  && rpswitch_tr
- 	  && wfg_tr
-	  && accum_tr
+          && coc_tr
+          && switch_tr
+          && kswitch_tr
+          && rswitch_tr
+          && pswitch_tr
+          && rpswitch_tr
+          && wfg_tr
+          && accum_tr
           && pre_tr
- 	  && delay_tr
-	  && der_tr
-	  && loopPre_tr
-	  && loopIntegral_tr
-	  && react_tr
-	  && embed_tr
-	  && utils_tr
-	  && task_tr
+          && delay_tr
+          && der_tr
+          && loopPre_tr
+          && loopIntegral_tr
+          && react_tr
+          && embed_tr
+          && utils_tr
+          && task_tr
 
 
 all_trs =
@@ -113,7 +113,7 @@ all_trs =
       ("loop",         loop_trs),
       ("looplaws",     looplaws_trs),
       ("basicsf",      basicsf_trs),
-      ("sscan",	       sscan_trs),
+      ("sscan",        sscan_trs),
       ("evsrc",        evsrc_trs),
       ("coc",          coc_trs),
       ("switch",       switch_trs),
@@ -121,9 +121,9 @@ all_trs =
       ("rswitch",      rswitch_trs),
       ("pswitch",      pswitch_trs),
       ("rpswitch",     rpswitch_trs),
-      ("wfg",	       wfg_trs),
-      ("accum",	       accum_trs),
-      ("pre",	       pre_trs),
+      ("wfg",          wfg_trs),
+      ("accum",        accum_trs),
+      ("pre",          pre_trs),
       ("delay",        delay_trs),
       ("der",          der_trs),
       ("loopPre",      loopPre_trs),
@@ -138,7 +138,7 @@ all_trs =
 failedTests =
     [ format n i | (n, trs) <- all_trs, (i, tr) <- zip [0..] trs, not tr ]
     where
-	format n i = "Test " ++ n ++ "_t" ++ show i ++ " failed."
+        format n i = "Test " ++ n ++ "_t" ++ show i ++ " failed."
 
 
 runRegTests :: IO Bool
@@ -173,13 +173,13 @@ runSpaceTests = do
     rst "accum" 0 accum_st0 accum_st0r
     rst "accum" 1 accum_st1 accum_st1r
     where
-	rst n i st str = do
-	    putStrLn ("Running " ++ n ++ "_st" ++ show i ++ " ...")
-	    if st ~= str then
-		putStrLn "Success!"
-	     else
-		-- We probably won't get here in case of a (space) failure ...
-		putStrLn "Failure!"
+        rst n i st str = do
+            putStrLn ("Running " ++ n ++ "_st" ++ show i ++ " ...")
+            if st ~= str then
+                putStrLn "Success!"
+             else
+                -- We probably won't get here in case of a (space) failure ...
+                putStrLn "Failure!"
 
 -- AC: here because I had trouble running ghci:
 -- fixTest :: IO ()

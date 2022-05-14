@@ -4,8 +4,8 @@
 *                                  Y A M P A                                 *
 *                                                                            *
 *       Module:         TestsArr                                             *
-*       Purpose:        Test cases for first and second			     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Purpose:        Test cases for first and second                      *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *

@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsSwitch					                         *
-*       Purpose:        Test cases for switch				     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsSwitch                                          *
+*       Purpose:        Test cases for switch                                *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -36,13 +36,13 @@ switch_inp1 = deltaEncode 1.0 $
 switch_t0 = take 18 $
     embed (switch switch_t0a $ \x ->
            switch (switch_t0b x) $ \x ->
-	   switch (switch_t0c x) $ \x ->
-	   switch (switch_t0c x) $ \x ->
-	   switch (switch_t0d x) $ \x ->
-	   switch (switch_t0e x) $ \x ->
-	   switch (switch_t0e x) $
+           switch (switch_t0c x) $ \x ->
+           switch (switch_t0c x) $ \x ->
+           switch (switch_t0d x) $ \x ->
+           switch (switch_t0e x) $ \x ->
+           switch (switch_t0e x) $
            switch_t0final)
-	  switch_inp1
+          switch_inp1
 
 switch_t0a :: SF Double (Double, Event Int)
 switch_t0a = localTime
@@ -68,10 +68,10 @@ switch_t0final :: Double -> SF Double Double
 switch_t0final x = arr (+x)
 
 switch_t0r =
-    [0.0,  1.0,  2.0, 				-- switch_t0a
-     0.0,  1.0,  2.0,   			-- switch_t0b
-     46.0, 46.0, 46.0, 47.0, 48.0, 48.0,	-- switch_t0d
-     14.0, 14.0, 14.0, 15.0, 16.0, 16.0		-- switch_t0final
+    [0.0,  1.0,  2.0,                     -- switch_t0a
+     0.0,  1.0,  2.0,                     -- switch_t0b
+     46.0, 46.0, 46.0, 47.0, 48.0, 48.0,  -- switch_t0d
+     14.0, 14.0, 14.0, 15.0, 16.0, 16.0   -- switch_t0final
     ]
 
 
@@ -82,7 +82,7 @@ switch_t1 = take 32 $ embed (switch_t1rec 42.0) switch_inp1
 -- at which point an event occurs.
 switch_t1a :: Double -> SF Double ((Double,Double,Double), Event ())
 switch_t1a x = (arr dup >>> second localTime >>> arr (\(a,t) -> (a,t,x)))
-	       &&& (constant 0.5
+               &&& (constant 0.5
                     >>> integral
                     >>> (arr (>= (2.0 :: Double)) -- Used to work with no sig.
                     >>> edge))
@@ -113,17 +113,17 @@ switch_t2 = take 18 $
            dSwitch (switch_t0b x) $ \x ->
            dSwitch (switch_t0c x) $ \x ->
            dSwitch (switch_t0c x) $ \x ->
-	   dSwitch (switch_t0d x) $ \x ->
-	   dSwitch (switch_t0e x) $ \x ->
-	   dSwitch (switch_t0e x) $
+           dSwitch (switch_t0d x) $ \x ->
+           dSwitch (switch_t0e x) $ \x ->
+           dSwitch (switch_t0e x) $
            switch_t0final)
-	  switch_inp1
+          switch_inp1
 
 switch_t2r =
-    [0.0,  1.0,  2.0,				-- switch_t0a
-     3.0,  1.0,  2.0,				-- switch_t0b
-     3.0,  46.0, 46.0, 47.0, 48.0, 48.0,	-- switch_t0d
-     49.0, 14.0, 14.0, 15.0, 16.0, 16.0		-- switch_t0final
+    [0.0,  1.0,  2.0,                     -- switch_t0a
+     3.0,  1.0,  2.0,                     -- switch_t0b
+     3.0,  46.0, 46.0, 47.0, 48.0, 48.0,  -- switch_t0d
+     49.0, 14.0, 14.0, 15.0, 16.0, 16.0   -- switch_t0final
     ]
 
 
@@ -151,10 +151,10 @@ switch_t3r =
 -- switch does not work.
 switch_t4 = take 25 $
     embed (loop $
-	       dSwitch switch_t4a $ \_ ->
-	       dSwitch switch_t4a $ \_ ->
-	       dSwitch switch_t4a $ \_ ->
-	       switch_t4final
+               dSwitch switch_t4a $ \_ ->
+               dSwitch switch_t4a $ \_ ->
+               dSwitch switch_t4a $ \_ ->
+               switch_t4final
            )
           (deltaEncode 1.0 (repeat ()))
 
@@ -167,10 +167,10 @@ switch_t4final :: SF (a, Double) (Double, Double)
 switch_t4final = constant 0.1 >>> integral >>> arr dup
 
 switch_t4r =
-    [0.0, 1.0, 2.0, 3.0, 4.0,				-- switch_t4a
-     5.0, 1.0, 2.0, 3.0, 4.0,				-- switch_t4a
-     5.0, 1.0, 2.0, 3.0, 4.0,				-- switch_t4a
-     5.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9	-- switch_t4final
+    [0.0, 1.0, 2.0, 3.0, 4.0,                          -- switch_t4a
+     5.0, 1.0, 2.0, 3.0, 4.0,                          -- switch_t4a
+     5.0, 1.0, 2.0, 3.0, 4.0,                          -- switch_t4a
+     5.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9  -- switch_t4final
     ]
 
 
@@ -187,11 +187,11 @@ impulseIntegral2 =
 
 switch_t5 :: [Double]
 switch_t5 = take 50 $ embed impulseIntegral2
-			    (deltaEncode 0.1 (zip (repeat 1.0) evSeq))
+                            (deltaEncode 0.1 (zip (repeat 1.0) evSeq))
     where
-	evSeq = replicate 9 NoEvent ++ [Event 10.0]
-		++ replicate 9 NoEvent ++ [Event (-10.0)]
-		++ evSeq
+        evSeq = replicate 9 NoEvent ++ [Event 10.0]
+                ++ replicate 9 NoEvent ++ [Event (-10.0)]
+                ++ evSeq
 
 switch_t5r =
     [ 0.0,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8, 10.9,

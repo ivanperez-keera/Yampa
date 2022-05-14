@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsReact					                         *
-*       Purpose:        Test cases for reactimation			     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsReact                                           *
+*       Purpose:        Test cases for reactimation                          *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -31,26 +31,26 @@ react_t0 = unsafePerformIO $ do
     inputr   <- newIORef undefined
     outputsr <- newIORef []
     let init = do
-	    writeIORef countr 1
-	    let input0 = 0.0
+            writeIORef countr 1
+            let input0 = 0.0
             writeIORef inputr input0
-	    return input0
+            return input0
         sense _ = do
-	    count <- readIORef countr
-	    if count >= 5 then do
-		writeIORef countr 1
-		input <- readIORef inputr
-		let input' = input + 0.5
-		writeIORef inputr input'
-		return (0.1, Just input')
-	     else do
-		writeIORef countr (count + 1)
-		return (0.1, Nothing)
-	actuate _ output = do
-	    outputs <- readIORef outputsr
-	    writeIORef outputsr (output : outputs)
-	    input <- readIORef inputr
-	    return (input > 5.0)
+            count <- readIORef countr
+            if count >= 5 then do
+                writeIORef countr 1
+                input <- readIORef inputr
+                let input' = input + 0.5
+                writeIORef inputr input'
+                return (0.1, Just input')
+             else do
+                writeIORef countr (count + 1)
+                return (0.1, Nothing)
+        actuate _ output = do
+            outputs <- readIORef outputsr
+            writeIORef outputsr (output : outputs)
+            input <- readIORef inputr
+            return (input > 5.0)
     reactimate init sense actuate (arr dup >>> second integral)
     outputs <- readIORef outputsr
     return (take 25 (reverse outputs))

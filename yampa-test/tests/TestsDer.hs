@@ -3,9 +3,9 @@
 ******************************************************************************
 *                                  Y A M P A                                 *
 *                                                                            *
-*       Module:         TestsDer					                         *
-*       Purpose:        Test cases for derivative			     *
-*	Authors:	Antony Courtney and Henrik Nilsson		     *
+*       Module:         TestsDer                                             *
+*       Purpose:        Test cases for derivative                            *
+*       Authors:        Antony Courtney and Henrik Nilsson                   *
 *                                                                            *
 *             Copyright (c) Yale University, 2003                            *
 *                                                                            *
@@ -26,10 +26,10 @@ der_step = 0.001
 der_N = 1000
 
 der_t0 :: [Double]
-der_t0 = take der_N $	-- First value is always 0
+der_t0 = take der_N $  -- First value is always 0
          embed derivative
                (deltaEncode der_step
-			    [sin(2 * pi * t) | t <- [0.0, der_step ..]])
+                            [sin(2 * pi * t) | t <- [0.0, der_step ..]])
 {-
 -- For stepsize 0.1
 der_t0r :: [Double]
