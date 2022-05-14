@@ -10,9 +10,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases sscan
-------------------------------------------------------------------------------
+-- * Test cases sscan
 
 -- pre and iPre in terms of sscan
 pre_sscan :: SF a a
