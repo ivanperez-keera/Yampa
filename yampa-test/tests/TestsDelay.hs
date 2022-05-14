@@ -3,7 +3,11 @@
 -- Description : Test cases for delays
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsDelay (delay_tr, delay_trs) where
+module TestsDelay
+    ( delay_tr
+    , delay_trs
+    )
+  where
 
 import FRP.Yampa
 
