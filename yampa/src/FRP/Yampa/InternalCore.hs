@@ -52,27 +52,17 @@
 
 module FRP.Yampa.InternalCore (
     module Control.Arrow,
-    -- SF is an instance of Arrow and ArrowLoop. Method instances:
-    -- arr      :: (a -> b) -> SF a b
-    -- (>>>)    :: SF a b -> SF b c -> SF a c
-    -- (<<<)    :: SF b c -> SF a b -> SF a c
-    -- first    :: SF a b -> SF (a,c) (b,c)
-    -- second   :: SF a b -> SF (c,a) (c,b)
-    -- (***)    :: SF a b -> SF a' b' -> SF (a,a') (b,b')
-    -- (&&&)    :: SF a b -> SF a b' -> SF a (b,b')
-    -- returnA  :: SF a a
-    -- loop     :: SF (a,c) (b,c) -> SF a b
 
     -- * Basic definitions
     -- ** Time
-    Time,       -- [s] Both for time w.r.t. some reference and intervals.
-    DTime,      -- [s] Sampling interval, always > 0.
+    Time,
+    DTime,
 
     -- ** Signal Functions
-    SF(..),             -- Signal Function.
+    SF(..),
 
     -- ** Future Signal Function
-    SF'(..),            -- Signal Function.
+    SF'(..),
     Transition,
     sfTF',
     sfId,
@@ -88,7 +78,7 @@ module FRP.Yampa.InternalCore (
 
     -- ** Lifting
     arrPrim,
-    arrEPrim, -- For optimization
+    arrEPrim,
     epPrim
 
 ) where
