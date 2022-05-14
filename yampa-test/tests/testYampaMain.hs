@@ -7,53 +7,5 @@ module Main where
 
 import Tests
 
-import Control.Monad (when)
-import System.Environment (getArgs, getProgName)
-import System.Exit (exitWith, ExitCode(..))
-import System.IO
-
--- main = runTests
--- main = runSpaceTests
-
-data TestFlags = TestFlags { tSpace :: Bool -- run space tests
-                           , tHelp :: Bool -- print usage and exit
-                           }
-
-defFlags = TestFlags { tSpace = False, tHelp = False}
-allFlags = TestFlags { tSpace = True, tHelp = False}
-
-parseArgs :: TestFlags -> [String] -> Either TestFlags String
-parseArgs flags [] = Left flags
-parseArgs flags (arg:args) =
-  case arg of
-    "-s" -> parseArgs (flags {tSpace = True}) args
-    "-h" -> parseArgs (flags {tHelp = True}) args
-    _ -> Right ("invalid argument: " ++ arg)
-
-usage :: String -> Maybe String -> IO ()
-usage pname mbEmsg = do
-  case mbEmsg of
-    (Just emsg) -> hPutStrLn stderr (pname ++ ": " ++ emsg)
-    _ -> return ()
-  hPutStrLn stderr ("usage: " ++ pname ++ " [-r] [-h]")
-  hPutStrLn stderr "\t-s run space tests"
-  hPutStrLn stderr "\t-h print this help message"
-  hPutStrLn stderr "(no arguments runs all tests.)"
-
 main :: IO ()
-main = do
-  pname <- getProgName
-  args <- getArgs
-  let eFlags = if (length args) < 1
-                 then Left allFlags
-                 else parseArgs defFlags args
-  case eFlags of
-    Right emsg  -> usage pname (Just emsg)
-    Left tFlags ->
-      if tHelp tFlags
-        then usage pname Nothing
-        else do
-          -- Run space tests
-          when (tSpace tFlags)
-                  runSpaceTests
-          exitWith ExitSuccess
+main = runSpaceTests
