@@ -1,16 +1,8 @@
-{- $Id: TestsFirstSecond.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsArr                                             *
-*       Purpose:        Test cases for first and second                      *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsArr
+-- Description : Test cases for first and second
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsFirstSecond (first_trs, first_tr, second_trs, second_tr) where
 
 import Data.Tuple (swap)
