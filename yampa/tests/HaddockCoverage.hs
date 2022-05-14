@@ -1,4 +1,3 @@
------------------------------------------------------------------------------
 -- |
 -- Module      :  Main (HaddockCoverage)
 -- Copyright   :  (C) 2015 Ivan Perez
@@ -13,7 +12,6 @@
 --
 -- Run haddock on a source tree and report if anything in any
 -- module is not documented.
------------------------------------------------------------------------------
 module Main where
 
 import Control.Applicative
