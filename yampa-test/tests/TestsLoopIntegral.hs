@@ -3,7 +3,11 @@
 -- Description : Test cases for loopIntegral
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsLoopIntegral (loopIntegral_tr, loopIntegral_trs) where
+module TestsLoopIntegral
+    ( loopIntegral_tr
+    , loopIntegral_trs
+    )
+  where
 
 import FRP.Yampa
 
