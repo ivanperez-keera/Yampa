@@ -38,9 +38,7 @@ module IdentityList (
 import Data.List (find)
 
 
-------------------------------------------------------------------------------
--- Data type definitions
-------------------------------------------------------------------------------
+-- * Data type definitions
 
 -- | Identity-list key type
 type ILKey = Int
@@ -54,18 +52,14 @@ type ILKey = Int
 data IL a = IL { ilNextKey :: ILKey, ilAssocs :: [(ILKey, a)] }
 
 
-------------------------------------------------------------------------------
--- Class instances
-------------------------------------------------------------------------------
+-- * Class instances
 
 instance Functor IL where
     fmap f (IL {ilNextKey = nk, ilAssocs = kas}) =
         IL {ilNextKey = nk, ilAssocs = [ (i, f a) | (i, a) <- kas ]}
 
 
-------------------------------------------------------------------------------
--- Constructors
-------------------------------------------------------------------------------
+-- * Constructors
 
 emptyIL :: IL a
 emptyIL = IL {ilNextKey = 0, ilAssocs = []}
@@ -85,9 +79,7 @@ listToIL as = IL {ilNextKey = length as,
                   ilAssocs = reverse (zip [0..] as)} -- Maintain invariant!
 
 
-------------------------------------------------------------------------------
--- Additional selectors
-------------------------------------------------------------------------------
+-- * Additional selectors
 
 assocsIL :: IL a -> [(ILKey, a)]
 assocsIL = ilAssocs
@@ -101,9 +93,7 @@ elemsIL :: IL a -> [a]
 elemsIL = map snd . ilAssocs
 
 
-------------------------------------------------------------------------------
--- Mutators
-------------------------------------------------------------------------------
+-- * Mutators
 
 deleteIL :: ILKey -> IL a -> IL a
 deleteIL k (IL {ilNextKey = nk, ilAssocs = kas}) =
@@ -119,12 +109,11 @@ updateIL k v l = updateILWith k (const v) l
 
 updateILWith :: ILKey -> (a -> a) -> IL a -> IL a
 updateILWith k f l = mapIL g l
- where g (k',v') | k == k'   = f v' 
+ where g (k',v') | k == k'   = f v'
                  | otherwise = v'
 
-------------------------------------------------------------------------------
--- Filter and map operations
-------------------------------------------------------------------------------
+
+-- * Filter and map operations
 
 -- These are "identity-preserving", i.e. the key associated with an element
 -- in the result is the same as the key of the element from which the
@@ -148,9 +137,7 @@ mapFilterIL p (IL {ilNextKey = nk, ilAssocs = kas}) =
     }
 
 
-------------------------------------------------------------------------------
--- Lookup operations
-------------------------------------------------------------------------------
+-- * Lookup operations
 
 lookupIL :: ILKey -> IL a -> Maybe a
 lookupIL k il = lookup k (ilAssocs il)
