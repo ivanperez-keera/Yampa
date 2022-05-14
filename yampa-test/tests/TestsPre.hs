@@ -1,18 +1,12 @@
-{- $Id: TestsDelay.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsPre                                             *
-*       Purpose:        Test cases for pre and (derived) combinators         *
-*                       that (semantically) involves a pre.                  *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*             Copyright (c) University of Nottingham, 2005                   *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsPre
+-- Description : Test cases for pre and (derived) combinators.
+-- Copyright   : Yale University, 2003
+--               University of Nottingham, 2005
+-- Authors     : Antony Courtney and Henrik Nilsson
+--
+-- Test cases for pre and (derived) combinators that (semantically) involves a
+-- pre.
 module TestsPre (pre_tr, pre_trs) where
 
 import FRP.Yampa
