@@ -10,9 +10,7 @@ import FRP.Yampa.EventS
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for switch and dSwitch
-------------------------------------------------------------------------------
+-- * Test cases for switch and dSwitch
 
 switch_inp1 = deltaEncode 1.0 $
     [1.0, 1.0, 1.0,
