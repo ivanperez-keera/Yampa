@@ -18,16 +18,16 @@
 module FRP.Yampa.Basic (
 
     -- * Basic signal functions
-    identity,           -- :: SF a a
-    constant,           -- :: b -> SF a b
+    identity,
+    constant,
 
     -- ** Initialization
-    (-->),              -- :: b -> SF a b -> SF a b,            infixr 0
-    (-:>),              -- :: b -> SF a b -> SF a b,            infixr 0
-    (>--),              -- :: a -> SF a b -> SF a b,            infixr 0
-    (-=>),              -- :: (b -> b) -> SF a b -> SF a b      infixr 0
-    (>=-),              -- :: (a -> a) -> SF a b -> SF a b      infixr 0
-    initially           -- :: a -> SF a a
+    (-->),
+    (-:>),
+    (>--),
+    (-=>),
+    (>=-),
+    initially
 
   ) where
 
