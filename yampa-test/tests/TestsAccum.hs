@@ -19,9 +19,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for accumulators
-------------------------------------------------------------------------------
+-- * Test cases for accumulators
 
 accum_inp1 = (fromJust (head delta_inp), zip (repeat 1.0) (tail delta_inp))
     where
