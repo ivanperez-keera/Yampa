@@ -1,16 +1,8 @@
-{- $Id: TestsRSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsRSwitch                                         *
-*       Purpose:        Test cases for rSwitch and drSwitch                  *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsRSwitch
+-- Description : Test cases for rSwitch and drSwitch
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsRSwitch (
     rswitch_tr,
     rswitch_trs,
