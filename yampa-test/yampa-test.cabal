@@ -66,8 +66,8 @@ source-repository head
 
 
 -- You can disable the regression test suite with -f-test-regression
-flag test-regression
-  description: Enable regression test suite
+flag test-space
+  description: Enable space usage test suite
   default:     True
   manual:      True
 
@@ -174,7 +174,7 @@ test-suite space
   ghc-options:
     -Wall
 
-  if !flag(test-regression)
+  if !flag(test-space)
     buildable:
       False
   else
