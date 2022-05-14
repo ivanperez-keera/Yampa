@@ -5,7 +5,11 @@
 -- Authors     : Antony Courtney and Henrik Nilsson
 -- Very rudimentary testing of Task.
 
-module TestsTask (task_tr, task_trs) where
+module TestsTask
+    ( task_tr
+    , task_trs
+    )
+  where
 
 import Control.Monad (when, forever)
 import FRP.Yampa
