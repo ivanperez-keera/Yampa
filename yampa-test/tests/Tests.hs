@@ -1,6 +1,6 @@
 -- |
 -- Module      : Tests
--- Description : regression tests.
+-- Description : Space tests.
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
 
