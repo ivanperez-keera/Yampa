@@ -63,9 +63,7 @@ import FRP.Yampa.Diagnostics
 import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
 
 
-------------------------------------------------------------------------------
--- Reactimation
-------------------------------------------------------------------------------
+-- * Reactimation
 
 -- | Convenience function to run a signal function indefinitely, using a IO
 -- actions to obtain new input and process the output.
@@ -160,9 +158,7 @@ react rh (dt,ma') =
      return done
 
 
-------------------------------------------------------------------------------
--- Embedding
-------------------------------------------------------------------------------
+-- * Embedding
 
 -- | Given a signal function and a pair with an initial
 -- input sample for the input signal, and a list of sampling

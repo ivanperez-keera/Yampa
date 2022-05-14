@@ -12,9 +12,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for reactimation
-------------------------------------------------------------------------------
+-- * Test cases for reactimation
 
 react_t0 :: [(Double, Double)]
 react_t0 = unsafePerformIO $ do

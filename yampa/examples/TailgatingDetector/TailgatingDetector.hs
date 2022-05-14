@@ -39,9 +39,7 @@ import FRP.Yampa.Conditional
 import FRP.Yampa.EventS
 
 
-------------------------------------------------------------------------------
--- Testing framework
-------------------------------------------------------------------------------
+-- * Testing framework
 
 type Position = Double  -- [m]
 type Distance = Double  -- [m]
@@ -147,9 +145,7 @@ smplFreq = 2.0
 smplPer = 1/smplFreq
 
 
-------------------------------------------------------------------------------
--- Tailgating detector
-------------------------------------------------------------------------------
+-- * Tailgating detector
 
 -- Looks at the positions of two cars and determines if the first is
 -- tailgating the second. Tailgating is assumed to have occurred if:
@@ -183,9 +179,7 @@ tailgating = provided follow tooClose never
             returnA -< if t > 0 then ind / t else nd
 
 
-------------------------------------------------------------------------------
--- Multi-Car tracker
-------------------------------------------------------------------------------
+-- * Multi-Car tracker
 
 -- Auxiliary definitions
 
@@ -248,9 +242,7 @@ mct = pSwitch route cts_init addOrDelCTs (\cts' f -> mctAux (f cts'))
         getEvents (MCTCol _ ices) = [e `tag` i | (i,(_,e)) <- ices]
 
 
-------------------------------------------------------------------------------
--- Multi tailgating detector
-------------------------------------------------------------------------------
+-- * Multi tailgating detector
 
 -- Auxiliary definitions
 

@@ -96,9 +96,7 @@ import qualified Control.Category (Category(..))
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
 
-------------------------------------------------------------------------------
--- Basic type definitions with associated utilities
-------------------------------------------------------------------------------
+-- * Basic type definitions with associated utilities
 
 
 -- | Time is used both for time intervals (duration), and time w.r.t. some
@@ -303,9 +301,7 @@ vfyNoEv _       _  =
     "Assertion failed: Functions on events must not map NoEvent to Event."
 
 
-------------------------------------------------------------------------------
--- Arrow instance and implementation
-------------------------------------------------------------------------------
+-- * Arrow instance and implementation
 
 #if __GLASGOW_HASKELL__ >= 610
 -- | Composition and identity for SFs.

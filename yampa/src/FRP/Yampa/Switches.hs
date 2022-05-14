@@ -101,9 +101,8 @@ import FRP.Yampa.Event
 import FRP.Yampa.InternalCore (DTime, FunDesc (..), SF (..), SF' (..), fdFun,
                                sfArrG, sfConst, sfTF')
 
-------------------------------------------------------------------------------
--- Basic switches
-------------------------------------------------------------------------------
+-- * Basic switches
+
 -- | Basic switch.
 --
 -- By default, the first signal function is applied. Whenever the second value
@@ -354,9 +353,7 @@ dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
                         b)
 
 
-------------------------------------------------------------------------------
--- Parallel composition and switching over collections with broadcasting
-------------------------------------------------------------------------------
+-- * Parallel composition and switching over collections with broadcasting
 
 -- | Tuple a value up with every element of a collection of signal
 -- functions.
@@ -431,9 +428,7 @@ drpSwitchB :: Functor col =>
     col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
 drpSwitchB = drpSwitch broadcast
 
-------------------------------------------------------------------------------
--- Parallel composition and switching over collections with general routing
-------------------------------------------------------------------------------
+-- * Parallel composition and switching over collections with general routing
 
 -- | Spatial parallel composition of a signal function collection parameterized
 -- on the routing function.
@@ -630,9 +625,7 @@ drpSwitch rf sfs =
     dpSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
     noEventSnd >=- drpSwitch rf (f sfs')
 
-------------------------------------------------------------------------------
 -- * Parallel composition/switchers with "zip" routing
-------------------------------------------------------------------------------
 
 -- | Parallel composition of a list of SFs.
 --

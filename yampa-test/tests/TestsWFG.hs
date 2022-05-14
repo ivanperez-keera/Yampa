@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for wave-form generation
-------------------------------------------------------------------------------
+-- * Test cases for wave-form generation
 
 wfg_inp1 = deltaEncode 1.0 $
     [NoEvent,   NoEvent,   Event 1.0, NoEvent,

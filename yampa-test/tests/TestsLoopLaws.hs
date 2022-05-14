@@ -11,9 +11,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases based on the arrow laws for loop
-------------------------------------------------------------------------------
+-- * Test cases based on the arrow laws for loop
 
 -- For a description of the laws, see Ross Paterson: Embedding a Class of
 -- Domain-Specific Languages in a Functional Language.

@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for derivative
-------------------------------------------------------------------------------
+-- * Test cases for derivative
 
 der_step = 0.001
 der_N = 1000

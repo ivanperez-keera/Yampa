@@ -11,9 +11,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for first
-------------------------------------------------------------------------------
+-- * Test cases for first
 
 first_t0 :: [(Int,Double)]
 first_t0 = testSF1 (arr dup >>> first (constant 7))

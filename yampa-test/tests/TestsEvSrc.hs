@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for basic event sources and stateful event suppression
-------------------------------------------------------------------------------
+-- * Test cases for basic event sources and stateful event suppression
 
 evsrc_t0 :: [Event ()]
 evsrc_t0 = testSF1 never

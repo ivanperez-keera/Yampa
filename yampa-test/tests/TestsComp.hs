@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for comp
-------------------------------------------------------------------------------
+-- * Test cases for comp
 
 comp_t0 = testSF1 ((arr (+1)) >>> (arr (+2)))
 comp_t0r :: [Double]

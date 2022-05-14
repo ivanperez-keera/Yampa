@@ -35,9 +35,7 @@ import FRP.Yampa.InternalCore (SF(..), SF'(..), sfConst, sfId)
 
 infixr 0 -->, -:>, >--, -=>, >=-
 
-------------------------------------------------------------------------------
--- Basic signal functions
-------------------------------------------------------------------------------
+-- * Basic signal functions
 
 -- | Identity: identity = arr id
 --
@@ -56,9 +54,7 @@ identity = SF {sfTF = \a -> (sfId, a)}
 constant :: b -> SF a b
 constant b = SF {sfTF = \_ -> (sfConst b, b)}
 
-------------------------------------------------------------------------------
--- Initialization
-------------------------------------------------------------------------------
+-- * Initialization
 
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --

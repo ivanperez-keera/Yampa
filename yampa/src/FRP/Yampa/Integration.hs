@@ -45,9 +45,7 @@ import FRP.Yampa.Event
 import FRP.Yampa.Hybrid
 import FRP.Yampa.InternalCore (SF(..), SF'(..), DTime)
 
-------------------------------------------------------------------------------
--- Integration and differentiation
-------------------------------------------------------------------------------
+-- * Integration and differentiation
 
 -- | Integration using the rectangle rule.
 {-# INLINE integral #-}

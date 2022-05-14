@@ -37,9 +37,7 @@ infixl 7 `joinE`
 infixl 6 `lMerge`, `rMerge`, `merge`
 
 
-------------------------------------------------------------------------------
--- The Event type
-------------------------------------------------------------------------------
+-- * The Event type
 
 -- | A single possible event occurrence, that is, a value that may or may
 -- not occur. Events are used to represent values that are not produced
@@ -130,9 +128,7 @@ instance NFData a => NFData (Event a) where
     rnf NoEvent   = ()
     rnf (Event a) = rnf a `seq` ()
 
-------------------------------------------------------------------------------
--- Internal utilities for event construction
-------------------------------------------------------------------------------
+-- * Internal utilities for event construction
 
 -- These utilities are to be considered strictly internal to AFRP for the
 -- time being.
@@ -143,9 +139,7 @@ maybeToEvent Nothing  = NoEvent
 maybeToEvent (Just a) = Event a
 
 
-------------------------------------------------------------------------------
--- Utility functions similar to those available for Maybe
-------------------------------------------------------------------------------
+-- * Utility functions similar to those available for Maybe
 
 -- | An event-based version of the maybe function.
 event :: a -> (b -> a) -> Event b -> a
@@ -167,9 +161,7 @@ isNoEvent :: Event a -> Bool
 isNoEvent = not . isEvent
 
 
-------------------------------------------------------------------------------
--- Event tagging
-------------------------------------------------------------------------------
+-- * Event tagging
 
 -- | Tags an (occurring) event with a value ("replacing" the old value).
 --
@@ -191,9 +183,7 @@ attach :: Event a -> b -> Event (a, b)
 e `attach` b = fmap (\a -> (a, b)) e
 
 
-------------------------------------------------------------------------------
--- Event merging (disjunction) and joining (conjunction)
-------------------------------------------------------------------------------
+-- * Event merging (disjunction) and joining (conjunction)
 
 -- | Left-biased event merge (always prefer left event, if present).
 lMerge :: Event a -> Event a -> Event a
@@ -269,9 +259,7 @@ splitE NoEvent       = (NoEvent, NoEvent)
 splitE (Event (a,b)) = (Event a, Event b)
 
 
-------------------------------------------------------------------------------
--- Event filtering
-------------------------------------------------------------------------------
+-- * Event filtering
 
 -- | Filter out events that don't satisfy some predicate.
 filterE :: (a -> Bool) -> Event a -> Event a

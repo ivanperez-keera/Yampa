@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for basic signal functions and initialization
-------------------------------------------------------------------------------
+-- * Test cases for basic signal functions and initialization
 
 basicsf_t0 :: [Double]
 basicsf_t0 = testSF1 identity

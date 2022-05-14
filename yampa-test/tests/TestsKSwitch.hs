@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for kSwitch and dkSwitch
-------------------------------------------------------------------------------
+-- * Test cases for kSwitch and dkSwitch
 
 kswitch_inp1 = deltaEncode 0.1 [0.0, 0.5 ..]
 

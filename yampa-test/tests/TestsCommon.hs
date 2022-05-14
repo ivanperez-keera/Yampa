@@ -10,9 +10,7 @@ import Data.IORef (newIORef, writeIORef, readIORef)
 
 import FRP.Yampa
 
-------------------------------------------------------------------------------
--- Rough equality with instances
-------------------------------------------------------------------------------
+-- * Rough equality with instances
 
 -- Rough equality. Only intended to be good enough for test cases in this
 -- module.

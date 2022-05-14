@@ -9,9 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for embedding
-------------------------------------------------------------------------------
+-- * Test cases for embedding
 
 embed_ratio :: SF a Double
 embed_ratio = switch (constant 1.0 &&& after 5.0 ()) $ \_ ->

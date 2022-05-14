@@ -16,9 +16,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for rSwitch and drSwitch
-------------------------------------------------------------------------------
+-- * Test cases for rSwitch and drSwitch
 
 rswitch_inp1 = (fromJust (head delta_inp), zip (repeat 1.0) (tail delta_inp))
     where

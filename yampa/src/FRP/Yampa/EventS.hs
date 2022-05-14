@@ -64,9 +64,7 @@ import FRP.Yampa.Switches
 
 infixr 5 `andThen`
 
-------------------------------------------------------------------------------
--- Basic event sources
-------------------------------------------------------------------------------
+-- * Basic event sources
 
 -- | Event source that never occurs.
 {-# ANN never "HLint: ignore Use const" #-}
@@ -266,9 +264,7 @@ edgeBy isEdge a_init = SF {sfTF = tf0}
                 tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
 
 
-------------------------------------------------------------------------------
--- Stateful event suppression
-------------------------------------------------------------------------------
+-- * Stateful event suppression
 
 -- | Suppression of initial (at local time 0) event.
 notYet :: SF (Event a) (Event a)

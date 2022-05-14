@@ -13,9 +13,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for pre and related combinators
-------------------------------------------------------------------------------
+-- * Test cases for pre and related combinators
 
 pre_t0 = testSF1 (iPre 17)
 pre_t0r =

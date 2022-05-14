@@ -29,9 +29,7 @@ import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
 import FRP.Yampa.InternalCore (SF (..), SF' (..), Time)
 
-------------------------------------------------------------------------------
--- Noise (i.e. random signal generators) and stochastic processes
-------------------------------------------------------------------------------
+-- * Noise (i.e. random signal generators) and stochastic processes
 
 -- | Noise (random signal) with default range for type in question;
 -- based on "randoms".

@@ -16,9 +16,7 @@ import FRP.Yampa.Switches
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for utilities (Utils)
-------------------------------------------------------------------------------
+-- * Test cases for utilities (Utils)
 
 -- Should re-order these test cases to reflect the order in Utils
 -- at some point.
