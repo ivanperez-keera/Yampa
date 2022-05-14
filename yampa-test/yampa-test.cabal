@@ -157,7 +157,6 @@ test-suite space
     testSpace.hs
 
   other-modules:
-    Tests
     TestsAccum
     TestsArr
     TestsCommon
