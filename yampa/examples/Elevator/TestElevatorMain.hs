@@ -1,16 +1,9 @@
-{-
-******************************************************************************
-*                                  A F R P                                     *
-*                                                                             *
-*       Example:        Elevator                                             *
-*       Purpose:        Testing of the Elevator simulator.                     *
-*        Authors:        Henrik Nilsson                                             *
-*                                                                             *
-*             Copyright (c) The University of Nottingham, 2004                     *
-*                                                                             *
-******************************************************************************
--}
-
+-- |
+-- Description : Testing of the Elevator simulator.
+-- Copyright   : The University of Nottingham, 2004
+--  Authors    : Henrik Nilsson
+--
+-- Part of Elevator example.
 module Main where
 
 import Data.List (sortBy, intersperse)
