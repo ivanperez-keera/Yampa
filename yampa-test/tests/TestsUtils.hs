@@ -6,7 +6,11 @@
 --
 -- Not really intended to test all definitions in the utilities module.
 
-module TestsUtils (utils_tr, utils_trs) where
+module TestsUtils
+    ( utils_tr
+    , utils_trs
+    )
+  where
 
 import FRP.Yampa
 import FRP.Yampa.Conditional
