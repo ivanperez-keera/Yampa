@@ -18,9 +18,7 @@ import FRP.Yampa
 
 import TestsCommon
 
-------------------------------------------------------------------------------
--- Test cases for pSwitchB and dpSwitchB
-------------------------------------------------------------------------------
+-- * Test cases for pSwitchB and dpSwitchB
 
 pswitch_inp1 = deltaEncode 0.1 [0.0, 0.5 ..]
 
