@@ -232,179 +232,179 @@
 --   indicate that things NEVER are going to change, and thus we can just
 --   as well give up?
 
-module FRP.Yampa (
+module FRP.Yampa
+    (
+      -- * Basic definitions
+      Time
+    , DTime
+    , SF
+    , Event(..)
 
-    -- * Basic definitions
-    Time,
-    DTime,
-    SF,
-    Event(..),
+      -- ** Lifting
+    , arrPrim, arrEPrim
 
-    -- ** Lifting
-    arrPrim, arrEPrim,
+      -- * Signal functions
 
-    -- * Signal functions
+      -- ** Basic signal functions
+    , identity
+    , constant
+    , localTime
+    , time
 
-    -- ** Basic signal functions
-    identity,
-    constant,
-    localTime,
-    time,
+      -- ** Initialization
+    , (-->)
+    , (-:>)
+    , (>--)
+    , (-=>)
+    , (>=-)
+    , initially
 
-    -- ** Initialization
-    (-->),
-    (-:>),
-    (>--),
-    (-=>),
-    (>=-),
-    initially,
+      -- ** Simple, stateful signal processing
+    , sscan
+    , sscanPrim
 
-    -- ** Simple, stateful signal processing
-    sscan,
-    sscanPrim,
+      -- * Events
+      -- ** Basic event sources
+    , never
+    , now
+    , after
+    , repeatedly
+    , afterEach
+    , afterEachCat
+    , delayEvent
+    , delayEventCat
+    , edge
+    , iEdge
+    , edgeTag
+    , edgeJust
+    , edgeBy
+    , maybeToEvent
 
-    -- * Events
-    -- ** Basic event sources
-    never,
-    now,
-    after,
-    repeatedly,
-    afterEach,
-    afterEachCat,
-    delayEvent,
-    delayEventCat,
-    edge,
-    iEdge,
-    edgeTag,
-    edgeJust,
-    edgeBy,
-    maybeToEvent,
+      -- ** Stateful event suppression
+    , notYet
+    , once
+    , takeEvents
+    , dropEvents
 
-    -- ** Stateful event suppression
-    notYet,
-    once,
-    takeEvents,
-    dropEvents,
+      -- ** Pointwise functions on events
+    , noEvent
+    , noEventFst
+    , noEventSnd
+    , event
+    , fromEvent
+    , isEvent
+    , isNoEvent
+    , tag
+    , tagWith
+    , attach
+    , lMerge
+    , rMerge
+    , merge
+    , mergeBy
+    , mapMerge
+    , mergeEvents
+    , catEvents
+    , joinE
+    , splitE
+    , filterE
+    , mapFilterE
+    , gate
 
-    -- ** Pointwise functions on events
-    noEvent,
-    noEventFst,
-    noEventSnd,
-    event,
-    fromEvent,
-    isEvent,
-    isNoEvent,
-    tag,
-    tagWith,
-    attach,
-    lMerge,
-    rMerge,
-    merge,
-    mergeBy,
-    mapMerge,
-    mergeEvents,
-    catEvents,
-    joinE,
-    splitE,
-    filterE,
-    mapFilterE,
-    gate,
+      -- * Switching
+      -- ** Basic switchers
+    , switch,  dSwitch
+    , rSwitch, drSwitch
+    , kSwitch, dkSwitch
 
-    -- * Switching
-    -- ** Basic switchers
-    switch,  dSwitch,
-    rSwitch, drSwitch,
-    kSwitch, dkSwitch,
+      -- ** Parallel composition and switching
+      -- *** Parallel composition and switching over collections with broadcasting
+    , parB
+    , pSwitchB,dpSwitchB
+    , rpSwitchB,drpSwitchB
 
-    -- ** Parallel composition and switching
-    -- *** Parallel composition and switching over collections with broadcasting
-    parB,
-    pSwitchB,dpSwitchB,
-    rpSwitchB,drpSwitchB,
+      -- *** Parallel composition and switching over collections with general routing
+    , par
+    , pSwitch, dpSwitch
+    , rpSwitch,drpSwitch
 
-    -- *** Parallel composition and switching over collections with general routing
-    par,
-    pSwitch, dpSwitch,
-    rpSwitch,drpSwitch,
+      -- * Discrete to continuous-time signal functions
+      -- ** Wave-form generation
+    , hold
+    , dHold
+    , trackAndHold
 
-    -- * Discrete to continuous-time signal functions
-    -- ** Wave-form generation
-    hold,
-    dHold,
-    trackAndHold,
+      -- ** Accumulators
+    , accum
+    , accumHold
+    , dAccumHold
+    , accumBy
+    , accumHoldBy
+    , dAccumHoldBy
+    , accumFilter
 
-    -- ** Accumulators
-    accum,
-    accumHold,
-    dAccumHold,
-    accumBy,
-    accumHoldBy,
-    dAccumHoldBy,
-    accumFilter,
+      -- * Delays
+      -- ** Basic delays
+    , pre
+    , iPre
 
-    -- * Delays
-    -- ** Basic delays
-    pre,
-    iPre,
+      -- ** Timed delays
+    , delay
 
-    -- ** Timed delays
-    delay,
+      -- ** Variable delay
+    , pause
 
-    -- ** Variable delay
-    pause,
+      -- * State keeping combinators
 
-    -- * State keeping combinators
+      -- ** Loops with guaranteed well-defined feedback
+    , loopPre
+    , loopIntegral
 
-    -- ** Loops with guaranteed well-defined feedback
-    loopPre,
-    loopIntegral,
-
-    -- ** Integration and differentiation
-    integral,
-    imIntegral,
-    impulseIntegral,
-    count,
-    derivative,
+      -- ** Integration and differentiation
+    , integral
+    , imIntegral
+    , impulseIntegral
+    , count
+    , derivative
 
 
-    -- Temporarily hidden, but will eventually be made public.
-    iterFrom,
+      -- Temporarily hidden, but will eventually be made public.
+    , iterFrom
 
-    -- * Noise (random signal) sources and stochastic event sources
-    noise,
-    noiseR,
-    occasionally,
+      -- * Noise (random signal) sources and stochastic event sources
+    , noise
+    , noiseR
+    , occasionally
 
-    RandomGen(..),
-    Random(..),
+    , RandomGen(..)
+    , Random(..)
 
-    -- * Execution/simulation
-    -- ** Reactimation
-    reactimate,
-    ReactHandle,
-    reactInit,
-    react,
+      -- * Execution/simulation
+      -- ** Reactimation
+    , reactimate
+    , ReactHandle
+    , reactInit
+    , react
 
-    -- ** Embedding
-    embed,
-    embedSynch,
-    deltaEncode,
-    deltaEncodeBy,
+      -- ** Embedding
+    , embed
+    , embedSynch
+    , deltaEncode
+    , deltaEncodeBy
 
-    FutureSF,
-    evalAtZero,
-    evalAt,
-    evalFuture,
+    , FutureSF
+    , evalAtZero
+    , evalAt
+    , evalFuture
 
-    -- * Auxiliary definitions
-    --   Reverse function composition and arrow plumbing aids
-    dup,
+      -- * Auxiliary definitions
+      --   Reverse function composition and arrow plumbing aids
+    , dup
 
-    -- Re-exported module, classes, and types
-    module Control.Arrow,
-    module Data.VectorSpace,
-
-) where
+      -- Re-exported module, classes, and types
+    , module Control.Arrow
+    , module Data.VectorSpace
+    )
+  where
 
 
 import FRP.Yampa.InternalCore
