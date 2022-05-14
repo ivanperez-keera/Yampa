@@ -12,12 +12,12 @@
 module FRP.Yampa.Delays (
 
     -- * Basic delays
-    pre,                -- :: SF a a
-    iPre,               -- :: a -> SF a a
-    fby,                -- :: b -> SF a b -> SF a b,    infixr 0
+    pre,
+    iPre,
+    fby,
 
     -- * Timed delays
-    delay,              -- :: Time -> a -> SF a a
+    delay,
 
 ) where
 
