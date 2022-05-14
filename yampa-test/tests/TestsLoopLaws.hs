@@ -1,16 +1,8 @@
-{- $Id: TestsLoopLaws.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsLoopLaws                                        *
-*       Purpose:        Test cases based on the arrow laws for loop          *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsLoopLaws
+-- Description : Test cases based on the arrow laws for loop
+-- Authors     : Antony Courtney and Henrik Nilsson
+-- Copyright   : Yale University, 2003
 module TestsLoopLaws (looplaws_trs, looplaws_tr) where
 
 import Data.Tuple(swap)

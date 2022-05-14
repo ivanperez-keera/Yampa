@@ -1,16 +1,8 @@
-{- $Id: TestsCOC.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsCOC                                             *
-*       Purpose:        Test cases for collection-oriented combinators       *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsCOC
+-- Description : Test cases for collection-oriented combinators
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsCOC (coc_tr, coc_trs) where
 
 import FRP.Yampa

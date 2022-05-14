@@ -1,16 +1,8 @@
-{- $Id: TestsLaws.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsLaws                                            *
-*       Purpose:        Test cases based on the arrow laws                   *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsLaws
+-- Description : Test cases based on the arrow laws
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsLaws (laws_trs, laws_tr) where
 
 import FRP.Yampa

@@ -1,20 +1,11 @@
 {-# LANGUAGE Arrows #-}
-
-{-
-******************************************************************************
-*                                  A F R P                                   *
-*                                                                            *
-*       Module:         Elevator                                             *
-*       Purpose:        Elevator simulation based on the Fran version        *
-*                       from Simon Thompson's paper "A functional reactive   *
-*                       animation of a lift using Fran".                     *
-*       Authors:        Henrik Nilsson                                       *
-*                                                                            *
-*             Copyright (c) The University of Nottingham, 2004               *
-*                                                                            *
-******************************************************************************
--}
-
+-- Module      : Elevator
+-- Description : Elevator simulation based on the Fran version by Thompson.
+-- Copyright   : The University of Nottingham, 2004
+-- Authors     : Henrik Nilsson
+--
+-- Elevator simulation based on the Fran version from Simon Thompson's paper "A
+-- functional reactive animation of a lift using Fran".
 module Elevator where
 
 import FRP.Yampa

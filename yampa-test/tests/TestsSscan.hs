@@ -1,17 +1,9 @@
-{- $Id$
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsSscan                                           *
-*       Purpose:        Test cases for pre sscan                             *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*             Copyright (c) University of Nottingham, 2005                   *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsSscan
+-- Description : Test cases for pre sscan
+-- Copyright   : Yale University, 2003
+--               University of Nottingham, 2005
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsSscan (sscan_tr, sscan_trs) where
 
 import FRP.Yampa

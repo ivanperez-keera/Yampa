@@ -1,16 +1,9 @@
-{- $Id: TestsUtils.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsUtils                                           *
-*       Purpose:        Test cases for utilities (Utilities)                 *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsUtils
+-- Description : Test cases for utilities (Utilities)
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
+--
 -- Not really intended to test all definitions in the utilities module.
 
 module TestsUtils (utils_tr, utils_trs) where

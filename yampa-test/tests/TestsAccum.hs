@@ -1,17 +1,9 @@
-{- $Id: TestsAccum.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                   *
-*                                                                            *
-*       Module:         TestsAccum                                             *
-*       Purpose:        Test cases for accumulators                          *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                           University of Nottingham, 2005                   *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsAccum
+-- Description : Test cases for accumulators
+-- Copyright   : Yale University, 2003
+--               University of Nottingham, 2005
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsAccum (
     accum_tr,
     accum_trs,

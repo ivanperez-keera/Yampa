@@ -1,16 +1,8 @@
-{- $Id: TestsTask.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsTask                                            *
-*       Purpose:        Test cases for tasks (Task)                          *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsTask
+-- Description : Test cases for tasks (Task)
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 -- Very rudimentary testing of Task.
 
 module TestsTask (task_tr, task_trs) where

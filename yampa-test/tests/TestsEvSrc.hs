@@ -1,16 +1,8 @@
-{- $Id: TestsEvSrc.hs,v 1.3 2003/12/19 15:32:22 henrik Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsEvSrc                                           *
-*       Purpose:        Test cases for event sources                         *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsEvSrc
+-- Description : Test cases for event sources
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsEvSrc (evsrc_trs, evsrc_tr) where
 
 import FRP.Yampa

@@ -1,16 +1,8 @@
-{- $Id: TestsRPSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsRPSwitch                                        *
-*       Purpose:        Test cases for rpSwitchB and drpSwitchB              *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsRPSwitch
+-- Description : Test cases for rpSwitchB and drpSwitchB
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsRPSwitch (
     rpswitch_tr,
     rpswitch_trs,

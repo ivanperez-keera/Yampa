@@ -1,6 +1,7 @@
 2022-05-14 Ivan Perez <ivan.perez@haskell.sexy>
         * tests/: Replace tabs with spaces (#205), remove local option disable
-          warning on tabs (#206).
+          warning on tabs (#206), format module header to conform to style
+          guide (#207).
         * yampa-test.cabal: Fix broken link in description (#204), enable all
           warnings (#206).
 

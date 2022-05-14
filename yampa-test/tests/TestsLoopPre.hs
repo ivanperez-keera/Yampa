@@ -1,16 +1,8 @@
-{- $Id: TestsLoopPre.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsLoopPre                                         *
-*       Purpose:        Test cases for loopPre                               *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsLoopPre
+-- Description : Test cases for loopPre
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsLoopPre (loopPre_tr, loopPre_trs) where
 
 import FRP.Yampa

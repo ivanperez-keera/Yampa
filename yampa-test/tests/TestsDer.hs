@@ -1,16 +1,8 @@
-{- $Id: TestsDer.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsDer                                             *
-*       Purpose:        Test cases for derivative                            *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsDer
+-- Description : Test cases for derivative
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsDer (der_tr, der_trs) where
 
 import FRP.Yampa

@@ -1,16 +1,8 @@
-{- $Id: TestsWFG.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsWFG                                             *
-*       Purpose:        Test cases for wave-form generation                  *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsWFG
+-- Description : Test cases for wave-form generation
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsWFG (wfg_tr, wfg_trs) where
 
 import FRP.Yampa

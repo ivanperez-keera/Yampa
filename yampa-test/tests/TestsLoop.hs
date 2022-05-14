@@ -1,16 +1,8 @@
-{- $Id: TestsLoop.hs,v 1.6 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsLoop                                            *
-*       Purpose:        Test cases for loop                                  *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsLoop
+-- Description : Test cases for loop
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsLoop (loop_trs, loop_tr, loop_st0, loop_st0r,
                       loop_st1, loop_st1r) where
 

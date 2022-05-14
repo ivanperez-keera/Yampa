@@ -1,16 +1,8 @@
-{-
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsCommon                                          *
-*       Purpose:        Common definitions for the regression test modules.  *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Module      : TestsCommon
+-- Description : Common definitions for the regression test modules.
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsCommon where
 
 import System.IO.Unsafe (unsafePerformIO)

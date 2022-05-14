@@ -1,15 +1,8 @@
-{- $Id: TestsSwitch.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                                  Y A M P A                                 *
-*                                                                            *
-*       Module:         TestsSwitch                                          *
-*       Purpose:        Test cases for switch                                *
-*       Authors:        Antony Courtney and Henrik Nilsson                   *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
+-- |
+-- Module      : TestsSwitch
+-- Description : Test cases for switch
+-- Copyright   : Yale University, 2003
+-- Authors     : Antony Courtney and Henrik Nilsson
 module TestsSwitch (switch_tr, switch_trs) where
 
 import FRP.Yampa
