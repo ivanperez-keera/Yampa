@@ -799,6 +799,3 @@ listSeq x = x `seq` (listSeq' x)
 listSeq' :: [a] -> [a]
 listSeq' []        = []
 listSeq' rs@(a:as) = a `seq` listSeq' as `seq` rs
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

@@ -42,6 +42,3 @@ sscanPrim f c_init b_init = SF {sfTF = tf0}
         tf0 a0 = case f c_init a0 of
                      Nothing       -> (sfSScan f c_init b_init, b_init)
                      Just (c', b') -> (sfSScan f c' b', b')
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

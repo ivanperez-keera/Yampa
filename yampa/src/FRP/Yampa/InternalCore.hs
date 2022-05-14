@@ -959,6 +959,3 @@ sfSScan f c b = sf
         tf _ a = case f c a of
                      Nothing       -> (sf, b)
                      Just (c', b') -> (sfSScan f c' b', b')
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

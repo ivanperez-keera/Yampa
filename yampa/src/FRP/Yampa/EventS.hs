@@ -349,6 +349,3 @@ recur sfe = switch (never &&& sfe) $ \b -> Event b --> (recur (NoEvent-->sfe))
 -- sometimes is more understandable switch-based code.
 andThen :: SF a (Event b) -> SF a (Event b) -> SF a (Event b)
 sfe1 `andThen` sfe2 = dSwitch (sfe1 >>^ dup) (const sfe2)
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

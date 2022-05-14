@@ -38,6 +38,3 @@ localTime = constant 1.0 >>> integral
 -- | Alternative name for localTime.
 time :: SF a Time
 time = localTime
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

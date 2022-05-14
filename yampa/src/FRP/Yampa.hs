@@ -488,6 +488,3 @@ import FRP.Yampa.Time
 
 import Control.Arrow
 import Data.VectorSpace
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:
