@@ -3,8 +3,15 @@
 -- Description : Test cases for loop
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsLoop (loop_trs, loop_tr, loop_st0, loop_st0r,
-                      loop_st1, loop_st1r) where
+module TestsLoop
+    ( loop_trs
+    , loop_tr
+    , loop_st0
+    , loop_st0r
+    , loop_st1
+    , loop_st1r
+    )
+  where
 
 import FRP.Yampa
 
