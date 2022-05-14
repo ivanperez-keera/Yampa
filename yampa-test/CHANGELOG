@@ -1,6 +1,8 @@
 2022-05-14 Ivan Perez <ivan.perez@haskell.sexy>
-        * tests/: Replace tabs with spaces (#205).
-        * yampa-test.cabal: Fix broken link in description (#204).
+        * tests/: Replace tabs with spaces (#205), remove local option disable
+          warning on tabs (#206).
+        * yampa-test.cabal: Fix broken link in description (#204), enable all
+          warnings (#206).
 
 2022-04-07 Ivan Perez <ivan.perez@haskell.sexy>
         * yampa-test.cabal: Version bump (0.13.4) (#203), syntax rules (#196),
