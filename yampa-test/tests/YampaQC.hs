@@ -41,7 +41,6 @@
 -- certain "fuzziness".
 module Main where
 
-------------------------------------------------------------------------------
 import Data.Fixed
 
 import Test.QuickCheck
@@ -83,7 +82,6 @@ import qualified TestsTask         as Regression
 import qualified TestsUtils        as Regression
 import qualified TestsWFG          as Regression
 
-------------------------------------------------------------------------------
 main :: IO ()
 main = defaultMain tests
 
