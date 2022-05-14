@@ -11,8 +11,8 @@
 -- Well-initialised loops
 module FRP.Yampa.Loop (
     -- * Loops with guaranteed well-defined feedback
-    loopPre,            -- :: c -> SF (a,c) (b,c) -> SF a b
-    loopIntegral,       -- :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
+    loopPre,
+    loopIntegral,
 ) where
 
 import Control.Arrow
