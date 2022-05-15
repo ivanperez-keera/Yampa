@@ -38,9 +38,9 @@ infixr 0 `fby`
 -- zero is undefined.
 pre :: SF a a
 pre = sscanPrim f uninit uninit
-    where
-        f c a = Just (a, c)
-        uninit = usrErr "AFRP" "pre" "Uninitialized pre operator."
+  where
+    f c a = Just (a, c)
+    uninit = usrErr "AFRP" "pre" "Uninitialized pre operator."
 
 -- | Initialized delay operator.
 --
@@ -69,31 +69,31 @@ delay :: Time -> a -> SF a a
 delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
                | q == 0    = identity
                | otherwise = SF {sfTF = tf0}
-    where
-        tf0 a0 = (delayAux [] [(q, a0)] 0 a_init, a_init)
+  where
+    tf0 a0 = (delayAux [] [(q, a0)] 0 a_init, a_init)
 
-        -- Invariants:
-        -- t_diff measure the time since the latest output sample ideally
-        -- should have been output. Whenever that equals or exceeds the
-        -- time delta for the next buffered sample, it is time to output a
-        -- new sample (although not necessarily the one first in the queue:
-        -- it might be necessary to "catch up" by discarding samples.
-        -- 0 <= t_diff < bdt, where bdt is the buffered time delta for the
-        -- sample on the front of the buffer queue.
-        --
-        -- Sum of time deltas in the queue >= q.
-        delayAux _ [] _ _ = undefined
-        delayAux rbuf buf@((bdt, ba) : buf') t_diff a_prev = SF' tf -- True
-            where
-                tf dt a | t_diff' < bdt =
-                              (delayAux rbuf' buf t_diff' a_prev, a_prev)
-                        | otherwise = nextSmpl rbuf' buf' (t_diff' - bdt) ba
-                    where
-                        t_diff' = t_diff + dt
-                        rbuf'   = (dt, a) : rbuf
+    -- Invariants:
+    -- t_diff measure the time since the latest output sample ideally
+    -- should have been output. Whenever that equals or exceeds the
+    -- time delta for the next buffered sample, it is time to output a
+    -- new sample (although not necessarily the one first in the queue:
+    -- it might be necessary to "catch up" by discarding samples.
+    -- 0 <= t_diff < bdt, where bdt is the buffered time delta for the
+    -- sample on the front of the buffer queue.
+    --
+    -- Sum of time deltas in the queue >= q.
+    delayAux _ [] _ _ = undefined
+    delayAux rbuf buf@((bdt, ba) : buf') t_diff a_prev = SF' tf -- True
+      where
+        tf dt a | t_diff' < bdt =
+                    (delayAux rbuf' buf t_diff' a_prev, a_prev)
+                | otherwise = nextSmpl rbuf' buf' (t_diff' - bdt) ba
+          where
+            t_diff' = t_diff + dt
+            rbuf'   = (dt, a) : rbuf
 
-                        nextSmpl rbuf [] t_diff a =
-                            nextSmpl [] (reverse rbuf) t_diff a
-                        nextSmpl rbuf buf@((bdt, ba) : buf') t_diff a
-                            | t_diff < bdt = (delayAux rbuf buf t_diff a, a)
-                            | otherwise    = nextSmpl rbuf buf' (t_diff-bdt) ba
+            nextSmpl rbuf [] t_diff a =
+              nextSmpl [] (reverse rbuf) t_diff a
+            nextSmpl rbuf buf@((bdt, ba) : buf') t_diff a
+              | t_diff < bdt = (delayAux rbuf buf t_diff a, a)
+              | otherwise    = nextSmpl rbuf buf' (t_diff-bdt) ba
