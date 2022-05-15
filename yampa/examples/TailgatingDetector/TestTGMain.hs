@@ -21,17 +21,16 @@ testVideo t_max = filter (isEvent . snd) $
                   embed (localTime &&& (videoAndTrackers >>^ fst)
                          >>> filterVideo)
                   (deltaEncode smplPer (repeat ()))
-    where
-        filterVideo = second (edgeBy change [])
-            where
-                change v_prev v =
-                    if (map fst (sortBy comparePos v_prev))
-                       /= (map fst (sortBy comparePos v)) then
-                        Just v
-                    else
-                        Nothing
+  where
+    filterVideo = second (edgeBy change [])
+      where
+        change v_prev v =
+          if (map fst (sortBy comparePos v_prev))
+               /= (map fst (sortBy comparePos v))
+            then Just v
+            else Nothing
 
-        comparePos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
+    comparePos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
 
 ppTestVideo t = mapM_ (putStrLn . show) (testVideo t)
 
@@ -54,17 +53,16 @@ testMCT t_max = filter (isEvent . snd) $
                             >>> mct)
                        >>> filterMCTOutput)
                 (deltaEncode smplPer (repeat ()))
-    where
-        filterMCTOutput = second (edgeBy change [])
-            where
-                change v_prev v =
-                    if (map fst (sortBy comparePos v_prev))
-                       /= (map fst (sortBy comparePos v)) then
-                        Just v
-                    else
-                        Nothing
+  where
+    filterMCTOutput = second (edgeBy change [])
+      where
+        change v_prev v =
+          if (map fst (sortBy comparePos v_prev))
+             /= (map fst (sortBy comparePos v))
+            then Just v
+            else Nothing
 
-        comparePos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
+    comparePos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
 
 ppTestMCT t = mapM_ (putStrLn . show) (testMCT t)
 
