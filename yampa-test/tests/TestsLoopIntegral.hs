@@ -27,7 +27,6 @@ loopIntegral_t0 =
 loopIntegral_t0r :: [Double]
 loopIntegral_t0r = [1.0,2.71692,7.38167,20.05544,54.48911,148.04276]
 
-
 -- Test case with a time varying signal transformer inside the loop.
 -- Starting at position 0 [m], accelerate by 1.0 [m/s^2] until position
 -- exceeds 2.0 [m]. Then accelerate by -1.0 [m/s^2] until position gets
@@ -62,7 +61,6 @@ posCntrl = loopIntegral posCntrlNR
                     >>> arr (\e -> ((), e))
                     >>> rSwitch (constant 1.0))
 
-
 loopIntegral_t1 = take 250 (embed posCntrl (deltaEncode 0.1 (repeat ())))
 
 -- Result only partially verified. But the sign of the acceleration changes
@@ -89,7 +87,6 @@ loopIntegral_t1r =
     , -3.35,-3.74,-4.12,-4.49,-4.85,-5.2,-5.54,-5.87,-6.19,-6.5,-6.8,-7.09
     , -7.37,-7.64,-7.9
     ]
-
 
 loopIntegral_trs =
     [ loopIntegral_t0 ~= loopIntegral_t0r

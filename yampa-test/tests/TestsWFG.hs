@@ -23,7 +23,6 @@ wfg_inp1 = deltaEncode 1.0 $
     ]
     ++ repeat NoEvent
 
-
 wfg_inp2 = deltaEncode 1.0 $
     [ Event 1.0, NoEvent,   NoEvent,   NoEvent
     , Event 2.0, NoEvent,   NoEvent,   NoEvent
@@ -31,7 +30,6 @@ wfg_inp2 = deltaEncode 1.0 $
     , Event 0.0, NoEvent,   NoEvent,   NoEvent
     ]
     ++ repeat NoEvent
-
 
 wfg_t0 :: [Double]
 wfg_t0 = take 16 $ embed (hold 99.99) wfg_inp1
@@ -67,7 +65,6 @@ wfg_inp4 = deltaEncode 1.0 $
     , Just 2.0, Just 3.0, Nothing,  Nothing,  Just 4.0
     ]
     ++ repeat Nothing
-
 
 wfg_t2 :: [Double]
 wfg_t2 = take 25 $ embed (trackAndHold 99.99) wfg_inp3

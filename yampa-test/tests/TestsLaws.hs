@@ -67,7 +67,6 @@ laws_t8_rhs :: [(Double, (Double, ()))]
 laws_t8_rhs = testSF1 (arr (\x -> ((x,x),()))
                        >>> (arr assoc >>> first integral))
 
-
 laws_trs =
     [ laws_t0_lhs ~= laws_t0_rhs
     ,  laws_t1_lhs ~= laws_t1_rhs

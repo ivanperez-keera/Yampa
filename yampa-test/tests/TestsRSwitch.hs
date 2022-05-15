@@ -32,7 +32,6 @@ rswitch_inp1 = (fromJust (head delta_inp), zip (repeat 1.0) (tail delta_inp))
             ]
             ++ repeat Nothing
 
-
 -- This input contains exaples of "continuos switching", i.e. the same
 -- switching event ocurring during a a few contiguous time steps.
 -- It also starts with an immediate switch.
@@ -52,7 +51,6 @@ rswitch_inp2 = (fromJust (head delta_inp), zip (repeat 1.0) (tail delta_inp))
             ]
             ++ repeat Nothing
 
-
 rswitch_t0 = take 20 $ embed (rSwitch (arr (+3))) rswitch_inp1
 
 -- Integration using rectangle rule assumed.
@@ -63,7 +61,6 @@ rswitch_t0r =
     , 5.0,  11.0, 17.0, 24.0, 31.0
     , 56.0, 63.0, 63.0, 63.0, 63.0
     ]
-
 
 rswitch_t1 = take 20 $ embed (rSwitch integral) rswitch_inp1
 
@@ -87,7 +84,6 @@ rswitch_t2r =
     , 18.0, 28.0, 0.0, 8.0, 17.0
     ]
 
-
 rswitch_t3 = take 20 $ embed (drSwitch (arr (+100))) rswitch_inp2
 
 -- Integration using rectangle rule assumed.
@@ -98,7 +94,6 @@ rswitch_t3r =
     , 7.0,   11.0, 15.0, 5.0, 10.0
     , 15.0,  21.0, 32.0, 8.0, 17.0
     ]
-
 
 rswitch_sawTooth :: SF a Double
 rswitch_sawTooth =
@@ -135,7 +130,6 @@ rswitch_trs =
     ]
 
 rswitch_tr = and rswitch_trs
-
 
 rswitch_st0 = testSFSpaceLeak 2000000 rswitch_sawTooth
 rswitch_st0r = 4.75

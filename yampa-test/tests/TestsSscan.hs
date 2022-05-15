@@ -26,7 +26,6 @@ pre_sscan = sscanPrim f uninit uninit
 iPre_sscan :: a -> SF a a
 iPre_sscan = (--> pre_sscan)
 
-
 sscan_t0, sscan_t0r :: [Double]
 sscan_t0 = testSF1 (iPre_sscan 17)
 sscan_t0r =
@@ -34,14 +33,12 @@ sscan_t0r =
     , 15.0,16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0
     ]
 
-
 sscan_t1, sscan_t1r :: [Double]
 sscan_t1 = testSF2 (iPre_sscan 17)
 sscan_t1r =
     [ 17.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,1.0,2.0,2.0,2.0,2.0,2.0
     , 3.0,3.0,3.0,3.0,3.0,4.0,4.0,4.0,4.0
     ]
-
 
 sscan_t2, sscan_t2r :: [Double]
 sscan_t2 = testSF1 (time
@@ -53,8 +50,6 @@ sscan_t2r =
          (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
           in tail (scanl max 0 xs))
 
-
-
 sscan_t3, sscan_t3r :: [Double]
 sscan_t3 = testSF1 (time
                     >>> arr (\t -> sin (0.5 * t * pi + pi))
@@ -65,17 +60,14 @@ sscan_t3r =
          (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
           in tail (scanl max 0 xs))
 
-
 hold_sscan :: a -> SF (Event a) a
 hold_sscan a = sscanPrim f () a
     where
         f _ NoEvent   = Nothing
         f _ (Event a) = Just ((), a)
 
-
 dHold_sscan :: a -> SF (Event a) a
 dHold_sscan a = hold_sscan a >>> iPre_sscan a
-
 
 -- This is a (somewhat strange) way of doing a counter that
 -- stops after reaching a threshold. Note that the ingoing event
@@ -130,7 +122,6 @@ sscan_t5r = [ 0,1,1,1      -- 0s
             , 10,10        -- 12s
             ]
 
-
 -- Version of the sscan_t4 in terms of sscan
 sscan_t6, sscan_t6r :: [Int]
 sscan_t6 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
@@ -142,7 +133,6 @@ sscan_t6 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
                       | otherwise = Nothing
             where
                 c' = c + 1
-
 
 sscan_t6r = [ 0,0,0,0      -- 0s
             , 1,1,1,1      -- 1s
@@ -172,7 +162,6 @@ sscan_t7 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
             where
                 c' = c + 1
 
-
 sscan_t7r = [ 1,1,1,1      -- 0s
             , 2,2,2,2      -- 1s
             , 3,3,3,3      -- 2s
@@ -188,7 +177,6 @@ sscan_t7r = [ 1,1,1,1      -- 0s
             , 10,10        -- 12s
             ]
 
-
 edge_sscan :: SF Bool (Event ())
 edge_sscan = sscanPrim f 2 NoEvent
     where
@@ -198,7 +186,6 @@ edge_sscan = sscanPrim f 2 NoEvent
         f 1 True  = Just (2, NoEvent)
         f 2 False = Just (0, NoEvent)
         f 2 True  = Nothing
-
 
 sscan_t8 :: [Event ()]
 sscan_t8 = testSF1 (localTime >>> arr (>=0) >>> edge_sscan)
@@ -213,7 +200,6 @@ sscan_t8r =
     , NoEvent
     ]
 
-
 sscan_t9 :: [Event ()]
 sscan_t9 = testSF1 (localTime >>> arr (>=4.26) >>> edge_sscan)
 
@@ -227,19 +213,16 @@ sscan_t9r =
     , NoEvent
     ]
 
-
 edgeBy_sscan :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 edgeBy_sscan f a = sscanPrim g a NoEvent
     where
         g a_prev a = Just (a, maybeToEvent (f a_prev a))
-
 
 -- Raising edge detector.
 sscan_isEdge False False = Nothing
 sscan_isEdge False True  = Just ()
 sscan_isEdge True  True  = Nothing
 sscan_isEdge True  False = Nothing
-
 
 sscan_t10 :: [Event ()]
 sscan_t10 = testSF1 (localTime
@@ -292,8 +275,6 @@ sscan_t12r =
     , NoEvent
     ]
 
-
-
 smaximum_sscan :: Ord a => SF a a
 smaximum_sscan =
     switch (identity &&& now () >>> arr (\(a,e) -> (a, e `tag` a)))
@@ -301,7 +282,6 @@ smaximum_sscan =
                                       then (Just (a,a))
                                       else Nothing)
                              a0 a0)
-
 
 sscan_t13, sscan_t13r :: [Double]
 sscan_t13 = take 100 (embed sf (deltaEncode 0.1 (repeat ())))
@@ -314,7 +294,6 @@ sscan_t13r =
     take 100
          (let xs = [ (t + 1) * cos (pi * t + pi) | t <- [0.0, 0.1 ..] ]
           in tail (scanl max (-100) xs))
-
 
 -- Some tests of signal functions that may be implemented using sscan
 -- internally and their combinations with other sscan-based signal

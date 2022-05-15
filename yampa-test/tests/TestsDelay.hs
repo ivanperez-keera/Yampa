@@ -63,7 +63,6 @@ delay_t4r =
     , 42                                     -- 8.0 s
     ]
 
-
 delay_t5 = take 100 (drop 6 (embed sf (deltaEncode 0.1 (repeat ()))))
     where
         sf = time >>> arr (\t -> sin (2*pi*t)) >>> delay 0.55 (-1.0)
@@ -71,7 +70,6 @@ delay_t5 = take 100 (drop 6 (embed sf (deltaEncode 0.1 (repeat ()))))
 delay_t5r = take 100 (drop 6 (embed sf (deltaEncode 0.1 (repeat ()))))
     where
         sf = time >>> arr (\t -> sin (2*pi*(t-0.6)))
-
 
 delay_trs =
     [ delay_t0 ~= delay_t0r

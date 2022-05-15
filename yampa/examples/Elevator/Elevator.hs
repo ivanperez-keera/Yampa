@@ -16,7 +16,6 @@ type Position = Double  -- [m]
 type Distance = Double  -- [m]
 type Velocity = Double  -- [m/s]
 
-
 -- * Elevator simulator
 
 lower, upper :: Position
@@ -26,7 +25,6 @@ upper = 5
 upRate, downRate :: Velocity
 upRate = 1
 downRate = 1.1
-
 
 elevator :: SF (Event (), Event ()) Position
 elevator = proc (lbp,rbp) -> do

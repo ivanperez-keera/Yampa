@@ -42,7 +42,6 @@ pre = sscanPrim f uninit uninit
         f c a = Just (a, c)
         uninit = usrErr "AFRP" "pre" "Uninitialized pre operator."
 
-
 -- | Initialized delay operator.
 --
 -- Creates an SF that delays the input signal, introducing an infinitesimal

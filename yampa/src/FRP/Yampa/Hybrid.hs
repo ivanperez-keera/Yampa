@@ -49,7 +49,6 @@ hold a_init = epPrim f () a_init
     where
         f _ a = ((), a, a)
 
-
 -- | Zero-order hold with a delay.
 --
 -- Converts a discrete-time signal into a continuous-time signal, by holding
@@ -102,7 +101,6 @@ accum a_init = epPrim f a_init NoEvent
             where
                 a' = g a
 
-
 -- | Zero-order hold accumulator (always produces the last outputted value
 --   until an event arrives).
 accumHold :: a -> SF (Event (a -> a)) a
@@ -139,7 +137,6 @@ accumHoldBy g b_init = epPrim f b_init b_init
 --   given accumulator).
 dAccumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
 dAccumHoldBy f a_init = accumHoldBy f a_init >>> iPre a_init
-
 
 -- | Accumulator parameterized by the accumulator function with filtering,
 --   possibly discarding some of the input events based on whether the second

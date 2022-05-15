@@ -69,7 +69,6 @@ switch_t0r =
     , 14.0, 14.0, 14.0, 15.0, 16.0, 16.0  -- switch_t0final
     ]
 
-
 switch_t1 = take 32 $ embed (switch_t1rec 42.0) switch_inp1
 
 -- Outputs current input, local time, and the value of the initializing
@@ -122,7 +121,6 @@ switch_t2r =
     , 49.0, 14.0, 14.0, 15.0, 16.0, 16.0  -- switch_t0final
     ]
 
-
 switch_t3 = take 32 $ embed (switch_t3rec 42.0) switch_inp1
 
 switch_t3rec :: Double -> SF Double (Double,Double,Double)
@@ -143,7 +141,6 @@ switch_t3r =
     , (9.0,4.0,9.0),  (9.0,1.0,9.0),  (9.0,2.0,9.0),  (9.0,3.0,9.0)
     ]
 
-
 -- The correct strictness properties of dSwitch are crucial here.
 -- switch does not work.
 switch_t4 = take 25 $
@@ -154,7 +151,6 @@ switch_t4 = take 25 $
                switch_t4final
            )
           (deltaEncode 1.0 (repeat ()))
-
 
 switch_t4a :: SF (a, Double) ((Double, Double), Event ())
 switch_t4a = (constant 1.0 >>> integral >>> arr dup)
@@ -169,7 +165,6 @@ switch_t4r =
     , 5.0, 1.0, 2.0, 3.0, 4.0                           -- switch_t4a
     , 5.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9  -- switch_t4final
     ]
-
 
 impulseIntegral2 :: VectorSpace a s => SF (a, Event a) a
 impulseIntegral2 =
@@ -197,7 +192,6 @@ switch_t5r =
     , 13.0, 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8,  3.9
     ,  4.0,  4.1,  4.2,  4.3,  4.4,  4.5,  4.6,  4.7,  4.8, 14.9
     ]
-
 
 switch_trs =
     [ switch_t0 ~= switch_t0r

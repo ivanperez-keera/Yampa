@@ -98,13 +98,11 @@ import FRP.Yampa.Event
 
 -- * Basic type definitions with associated utilities
 
-
 -- | Time is used both for time intervals (duration), and time w.r.t. some
 -- agreed reference point in time.
 
 --  Conceptually, Time = R, i.e. time can be 0 -- or even negative.
 type Time = Double      -- [s]
-
 
 -- | DTime is the time type for lengths of sample intervals. Conceptually,
 -- DTime = R+ = { x in R | x > 0 }. Don't assume Time and DTime have the
@@ -116,7 +114,6 @@ type DTime = Double     -- [s]
 -- (Signal a -> Signal b). A signal is, conceptually, a
 -- function from 'Time' to value.
 data SF a b = SF {sfTF :: a -> Transition a b}
-
 
 -- | Signal function in "running" state.
 --
@@ -152,7 +149,6 @@ sfTF' (SFEP tf _ _ _)    = tf
 sfTF' (SFCpAXA tf _ _ _) = tf
 sfTF' (SF' tf)           = tf
 
-
 -- | Constructor for a lifted structured function.
 sfArr :: FunDesc a b -> SF' a b
 sfArr FDI         = sfId
@@ -184,7 +180,6 @@ sfArrG :: (a -> b) -> SF' a b
 sfArrG f = sf
     where
         sf = SFArr (\_ a -> (sf, f a)) (FDG f)
-
 
 -- | Versatile zero-order hold SF' with folding.
 --
@@ -287,7 +282,6 @@ fdFanOut (FDE f1 f1ne) (FDE f2 f2ne) = FDE f1f2 f1f2ne
 fdFanOut fd1 fd2 =
     FDG (\a -> ((fdFun fd1) a, (fdFun fd2) a))
 
-
 -- | Verifies that the first argument is NoEvent. Returns the value of the
 -- second argument that is the case. Raises an error otherwise.
 -- Used to check that functions on events do not map NoEvent to Event
@@ -299,7 +293,6 @@ vfyNoEv _       _  =
     "AFRP"
     "vfyNoEv"
     "Assertion failed: Functions on events must not map NoEvent to Event."
-
 
 -- * Arrow instance and implementation
 
@@ -353,8 +346,6 @@ instance ArrowChoice SF where
           Right d -> let (sf', e) = sfTF' sfCR dt d
                      in (choose sfCL sf', Right e)
 
-
-
 -- | Signal Functions as Arrows. See "The Yampa Arcade", by Courtney, Nilsson
 --   and Peterson.
 instance Arrow SF where
@@ -379,7 +370,6 @@ instance Applicative (SF a) where
   pure x = arr (const x)
   f <*>  x  = (f &&& x) >>> arr (uncurry ($))
 
-
 -- * Lifting.
 
 -- | Lifts a pure function into a signal function (applied pointwise).
@@ -392,7 +382,6 @@ arrPrim f = SF {sfTF = \a -> (sfArrG f, f a)}
 {-# RULES "arrPrim/arrEPrim" arrPrim = arrEPrim #-}
 arrEPrim :: (Event a -> b) -> SF (Event a) b
 arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
-
 
 -- * Composition.
 
@@ -513,7 +502,6 @@ cpXX sf1 sf2 = SF' tf --  False
                 (sf1', b) = (sfTF' sf1) dt a
                 (sf2', c) = (sfTF' sf2) dt b
 
-
 cpAXA :: FunDesc a b -> SF' b c -> FunDesc c d -> SF' a d
 -- Termination: cpAX/cpXA, via cpCX, cpEX etc. only call cpAXA if sf2
 -- is SFCpAXA, and then on the embedded sf and hence on a smaller arg.
@@ -569,7 +557,6 @@ cpCX b sf2 = SFCpAXA tf (FDC b) sf2 FDI
             where
                 (sf2', c) = (sfTF' sf2) dt b
 
-
 cpCXA :: b -> SF' b c -> FunDesc c d -> SF' a d
 cpCXA b sf2 FDI     = cpCX b sf2
 cpCXA _ _   (FDC c) = sfConst c
@@ -594,7 +581,6 @@ cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
                     where
                         (sf2', c) = (sfTF' sf2) dt b
 
-
 cpGX :: (a -> b) -> SF' b c -> SF' a c
 cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
     where
@@ -613,7 +599,6 @@ cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
                 tf dt a = (cpGXAux fd1 f1 sf2', c)
                     where
                         (sf2', c) = (sfTF' sf2) dt (f1 a)
-
 
 cpXG :: SF' a b -> (b -> c) -> SF' a c
 cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
@@ -636,7 +621,6 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
                 tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
                     where
                         (sf1', b) = (sfTF' sf1) dt a
-
 
 cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
 cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
@@ -674,7 +658,6 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
                                 NoEvent -> (sfTF' sf2) dt f1ne
                                 _       -> (sfTF' sf2) dt (f1 ea)
 
-
 cpXE :: SF' a (Event b) -> (Event b -> c) -> c -> SF' a c
 cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
     where
@@ -707,7 +690,6 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
                     where
                         (sf1', eb) = (sfTF' sf1) dt a
 
-
 -- * Widening.
 
 -- | Widening
@@ -723,7 +705,6 @@ firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
             where
                 (sf1, b0) = tf10 a0
 
-
 fpAux :: SF' a b -> SF' (a,c) (b,c)
 fpAux (SFArr _ FDI)       = sfId                        -- New
 fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
@@ -734,7 +715,6 @@ fpAux sf1 = SF' tf
             where
                 (sf1', b) = (sfTF' sf1) dt a
 
-
 -- Mirror image of first.
 secondPrim :: SF a b -> SF (c,a) (c,b)
 secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
@@ -742,7 +722,6 @@ secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
         tf0 ~(c0, a0) = (spAux sf1, (c0, b0))
             where
                 (sf1, b0) = tf10 a0
-
 
 spAux :: SF' a b -> SF' (c,a) (c,b)
 spAux (SFArr _ FDI)       = sfId                        -- New
@@ -753,8 +732,6 @@ spAux sf1 = SF' tf
         tf dt ~(c, a) = (spAux sf1', (c, b))
             where
                 (sf1', b) = (sfTF' sf1) dt a
-
-
 
 -- * Parallel composition.
 
@@ -826,7 +803,6 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
                     where
                         (sf1', b) = (sfTF' sf1) dt a
 
-
 parFanOutPrim :: SF a b -> SF a c -> SF a (b, c)
 parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     where
@@ -896,7 +872,6 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
                     where
                         (sf2', c) = (sfTF' sf2) dt a
 
-
         pfoXA :: SF' a b -> (a -> c) -> SF' a (b ,c)
         pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
         pfoXA sf1 f2 = SF' tf
@@ -904,7 +879,6 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
                 tf dt a = (pfoXA sf1' f2, (b, f2 a))
                     where
                         (sf1', b) = (sfTF' sf1) dt a
-
 
 -- * ArrowLoop instance and implementation
 
@@ -929,7 +903,6 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
                 tf dt a = (loopAux sf1', b)
                     where
                         (sf1', (b, c)) = (sfTF' sf1) dt (a, c)
-
 
 -- * Scanning
 

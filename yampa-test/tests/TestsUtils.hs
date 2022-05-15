@@ -33,7 +33,6 @@ utils_inp1 = deltaEncode 1.0 $
     ]
     ++ repeat NoEvent
 
-
 utils_inp2 = deltaEncode 1.0 $
     [ Event 1.0, NoEvent,   NoEvent,   NoEvent
     , Event 2.0, NoEvent,   NoEvent,   NoEvent
@@ -41,7 +40,6 @@ utils_inp2 = deltaEncode 1.0 $
     , Event 0.0, NoEvent,   NoEvent,   NoEvent
     ]
     ++ repeat NoEvent
-
 
 utils_t0 :: [Double]
 utils_t0 = take 16 $ embed (dHold 99.99) utils_inp1
@@ -79,7 +77,6 @@ utils_inp4 = deltaEncode 1.0 $
     ]
     ++ repeat Nothing
 
-
 utils_t2 :: [Double]
 utils_t2 = take 25 $ embed (dTrackAndHold 99.99) utils_inp3
 
@@ -102,7 +99,6 @@ utils_t3r =
     , 4.0,   4.0, 4.0, 4.0, 4.0
     ]
 
-
 utils_t4 :: [Event Int]
 utils_t4 = take 16 $ embed count utils_inp1
 
@@ -124,7 +120,6 @@ utils_t5r =
     , Event 3, Event 4, Event 5, NoEvent
     , Event 6, NoEvent, NoEvent, NoEvent
     ]
-
 
 dynDelayLine :: a -> SF (a, Event Bool) a
 dynDelayLine a0 =
@@ -223,7 +218,6 @@ utils_t10r =
     , NoEvent
     ]
 
-
 utils_t11 :: [Event Double]
 utils_t11 = testSF1 (snapAfter 2.6)
 
@@ -236,7 +230,6 @@ utils_t11r =
     , NoEvent, NoEvent, NoEvent, NoEvent     -- 5.0 s
     , NoEvent
     ]
-
 
 utils_t12 :: [Event Double]
 utils_t12 = testSF1 (sample 0.99)
@@ -251,7 +244,6 @@ utils_t12r =
     , Event 24.0
     ]
 
-
 utils_t13 :: [Event ()]
 utils_t13 = testSF1 (recur (after 0.99 ()))
 
@@ -264,7 +256,6 @@ utils_t13r =
     , Event (), NoEvent, NoEvent, NoEvent  -- 5.0 s
     , Event ()
     ]
-
 
 utils_t14 :: [Event Int]
 utils_t14 = testSF1 (after 1.0 1 `andThen` now 2 `andThen` after 2.0 3)
@@ -297,7 +288,6 @@ utils_t15r =
     , Event [3.5,4.0,4.5,5.0,5.5], NoEvent, NoEvent, NoEvent  -- 5.5 s
     , Event [4.0,4.5,5.0,5.5,6.0], NoEvent                    -- 6.0 s
     ]
-
 
 {-
 -- Not robust

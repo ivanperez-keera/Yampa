@@ -34,7 +34,6 @@ task_t0r =
     , Right 40.0, Right 40.0, Right 40.0, Right 40.0, Right 40.0
     ]
 
-
 task_t1 = testSF1 (runTask (do
                                mkTask (localTime
                                        &&& (localTime>>>arr (>=5.0) >>> edge))
@@ -45,7 +44,6 @@ task_t1 = testSF1 (runTask (do
                                x <- snapT
                                return (x * 2.0))
                   )
-
 
 task_t2 = testSF1 (runTask (do
                                sleepT 1.51 42.0
@@ -69,7 +67,6 @@ task_t2r =
     , Right ()
     ]
 
-
 task_t3 = testSF1 (runTask (do
                               c <- sawtooth `timeOut` 3.49
                               case c of
@@ -92,7 +89,6 @@ task_t3r =
     , Left (-10.0), Right (),     Right (),     Right ()      -- 5.0 s
     , Right ()
     ]
-
 
 task_t4 = testSF1 (runTask (do
                               c <- sawtooth `timeOut` 3.49
@@ -119,7 +115,6 @@ task_t4r =
     , Right ()
     ]
 
-
 task_t5 = testSF1 (runTask (do
                               x<-(sawtoothCycle>>snapT) `repeatUntil` (>=20.0)
                               y<-snapT
@@ -139,7 +134,6 @@ task_t5r =
     , Left 1.0, Left 1.5, Left 2.0, Left 2.5  -- 5.0 s, 20 - 23
     , Right True
     ]
-
 
 task_t6 = testSF1 $ runTask $
     do

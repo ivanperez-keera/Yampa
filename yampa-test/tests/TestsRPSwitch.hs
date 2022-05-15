@@ -33,7 +33,6 @@ rpswitch_inp1 = (fromJust (head delta_inp), zip (repeat 1.0) (tail delta_inp))
             ]
             ++ repeat Nothing
 
-
 -- This input contains exaples of "continuos switching", i.e. the same
 -- switching event ocurring during a a few contiguous time steps.
 -- It also starts with an immediate switch.
@@ -52,7 +51,6 @@ rpswitch_inp2 = (fromJust (head delta_inp), zip (repeat 1.0) (tail delta_inp))
             , Just (9.0, NoEvent), Nothing
             ]
             ++ repeat Nothing
-
 
 rpswitch_t0 :: [[Double]]
 rpswitch_t0 = take 20 $ embed (rpSwitchB []) rpswitch_inp1
@@ -80,7 +78,6 @@ rpswitch_t0r =
     , [93.0]         -- 19 s
     ]
 
-
 rpswitch_t1 :: [[Double]]
 rpswitch_t1 = take 20 $ embed (drpSwitchB []) rpswitch_inp1
 
@@ -106,7 +103,6 @@ rpswitch_t1r =
     , [84.0]          -- 18 s
     , [93.0]          -- 19 s
     ]
-
 
 rpswitch_t2 :: [[Double]]
 rpswitch_t2 = take 20 $ embed (rpSwitchB []) rpswitch_inp2
@@ -134,7 +130,6 @@ rpswitch_t2r =
     , [63.0, 260.0]                                           -- 19 s
     ]
 
-
 rpswitch_t3 :: [[Double]]
 rpswitch_t3 = take 20 $ embed (drpSwitchB []) rpswitch_inp2
 
@@ -160,7 +155,6 @@ rpswitch_t3r =
     , [63.0, 251.0]                                           -- 18 s
     , [63.0, 260.0]                                           -- 19 s
     ]
-
 
 -- Starts three "ramps" with different phase. As soon as one exceeds a
 -- threshold, it's restarted, while the others are left alone. The observaton
@@ -230,7 +224,6 @@ rpswitch_trs =
     ]
 
 rpswitch_tr = and rpswitch_trs
-
 
 rpswitch_st0 = testSFSpaceLeak 1000000 (loop sf)
     where

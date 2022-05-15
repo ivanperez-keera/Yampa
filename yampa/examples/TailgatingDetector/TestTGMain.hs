@@ -13,7 +13,6 @@ import FRP.Yampa
 
 import TailgatingDetector
 
-
 -- Looks for interesting events in the video stream (cars entering,
 -- leaving, overtaking) in the interval [0, t].
 testVideo :: Time -> [(Time, Event Video)]
@@ -34,9 +33,7 @@ testVideo t_max = filter (isEvent . snd) $
 
         comparePos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
 
-
 ppTestVideo t = mapM_ (putStrLn . show) (testVideo t)
-
 
 testTailgating t_max = filter (isEvent . snd) $
                        takeWhile (\(t, _) -> t <= t_max) $
@@ -45,7 +42,6 @@ testTailgating t_max = filter (isEvent . snd) $
                                    &&& mkCar1 0 30
                                    >>> tailgating))
                        (deltaEncode smplPer (repeat ()))
-
 
 testMCT :: Time -> [(Time, Event [(Id, Car)])]
 testMCT t_max = filter (isEvent . snd) $
@@ -70,9 +66,7 @@ testMCT t_max = filter (isEvent . snd) $
 
         comparePos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
 
-
 ppTestMCT t = mapM_ (putStrLn . show) (testMCT t)
-
 
 testMTGD :: Time -> [(Time, (Event [(Id,Id)], [(Id, Car)]))]
 testMTGD t_max = filter (isEvent . fst . snd) $
@@ -87,7 +81,6 @@ testMTGD t_max = filter (isEvent . fst . snd) $
                        (deltaEncode smplPer (repeat ()))
 
 ppTestMTGD t = mapM_ (putStrLn . show) (testMTGD t)
-
 
 -- We could read the car specification from standard input.
 main = ppTestMTGD 2000
