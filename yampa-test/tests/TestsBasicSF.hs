@@ -3,7 +3,11 @@
 -- Description : Test cases for basic signal functions
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsBasicSF (basicsf_trs, basicsf_tr) where
+module TestsBasicSF
+    ( basicsf_trs
+    , basicsf_tr
+    )
+  where
 
 import FRP.Yampa
 

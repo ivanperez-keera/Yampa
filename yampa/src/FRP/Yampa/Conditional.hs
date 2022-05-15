@@ -8,11 +8,11 @@
 -- Portability :  non-portable (GHC extensions)
 --
 -- Apply SFs only under certain conditions.
-module FRP.Yampa.Conditional (
-    provided
-  , pause
-
-  ) where
+module FRP.Yampa.Conditional
+    ( provided
+    , pause
+    )
+  where
 
 import Control.Arrow
 

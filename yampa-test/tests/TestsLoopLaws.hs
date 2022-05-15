@@ -3,7 +3,11 @@
 -- Description : Test cases based on the arrow laws for loop
 -- Authors     : Antony Courtney and Henrik Nilsson
 -- Copyright   : Yale University, 2003
-module TestsLoopLaws (looplaws_trs, looplaws_tr) where
+module TestsLoopLaws
+    ( looplaws_trs
+    , looplaws_tr
+    )
+  where
 
 import Data.Tuple(swap)
 

@@ -3,7 +3,11 @@
 -- Description : Test cases for wave-form generation
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsWFG (wfg_tr, wfg_trs) where
+module TestsWFG
+    ( wfg_tr
+    , wfg_trs
+    )
+  where
 
 import FRP.Yampa
 

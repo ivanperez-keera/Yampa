@@ -3,7 +3,11 @@
 -- Description : Test cases for kSwitch and dkSwitch
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsKSwitch (kswitch_tr, kswitch_trs) where
+module TestsKSwitch
+    ( kswitch_tr
+    , kswitch_trs
+    )
+  where
 
 import FRP.Yampa
 

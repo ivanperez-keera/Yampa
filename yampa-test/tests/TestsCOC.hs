@@ -3,7 +3,11 @@
 -- Description : Test cases for collection-oriented combinators
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsCOC (coc_tr, coc_trs) where
+module TestsCOC
+    ( coc_tr
+    , coc_trs
+    )
+  where
 
 import FRP.Yampa
 

@@ -50,38 +50,38 @@
 --
 -- Finally, see [<#g:26>] for sources of randomness (useful in games).
 
-module FRP.Yampa.InternalCore (
-    module Control.Arrow,
+module FRP.Yampa.InternalCore
+    ( module Control.Arrow
 
-    -- * Basic definitions
-    -- ** Time
-    Time,
-    DTime,
+      -- * Basic definitions
+      -- ** Time
+    , Time
+    , DTime
 
-    -- ** Signal Functions
-    SF(..),
+      -- ** Signal Functions
+    , SF(..)
 
-    -- ** Future Signal Function
-    SF'(..),
-    Transition,
-    sfTF',
-    sfId,
-    sfConst,
-    sfArrG,
+      -- ** Future Signal Function
+    , SF'(..)
+    , Transition
+    , sfTF'
+    , sfId
+    , sfConst
+    , sfArrG
 
-    -- *** Scanning
-    sfSScan,
+      -- *** Scanning
+    , sfSScan
 
-    -- ** Function descriptions
-    FunDesc(..),
-    fdFun,
+      -- ** Function descriptions
+    , FunDesc(..)
+    , fdFun
 
-    -- ** Lifting
-    arrPrim,
-    arrEPrim,
-    epPrim
-
-) where
+      -- ** Lifting
+    , arrPrim
+    , arrEPrim
+    , epPrim
+    )
+  where
 
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative (Applicative(..))

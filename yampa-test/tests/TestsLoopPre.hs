@@ -3,7 +3,11 @@
 -- Description : Test cases for loopPre
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsLoopPre (loopPre_tr, loopPre_trs) where
+module TestsLoopPre
+    ( loopPre_tr
+    , loopPre_trs
+    )
+  where
 
 import FRP.Yampa
 

@@ -3,7 +3,11 @@
 -- Description : Test cases for (>>>)
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsComp (comp_tr, comp_trs) where
+module TestsComp
+    ( comp_tr
+    , comp_trs
+    )
+  where
 
 import FRP.Yampa
 

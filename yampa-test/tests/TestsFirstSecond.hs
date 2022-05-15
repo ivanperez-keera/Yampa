@@ -3,7 +3,13 @@
 -- Description : Test cases for first and second
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsFirstSecond (first_trs, first_tr, second_trs, second_tr) where
+module TestsFirstSecond
+    ( first_trs
+    , first_tr
+    , second_trs
+    , second_tr
+    )
+  where
 
 import Data.Tuple (swap)
 

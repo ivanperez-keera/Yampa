@@ -4,7 +4,11 @@
 -- Copyright   : Yale University, 2003
 --               University of Nottingham, 2005
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsSscan (sscan_tr, sscan_trs) where
+module TestsSscan
+    ( sscan_tr
+    , sscan_trs
+    )
+  where
 
 import FRP.Yampa
 

@@ -3,7 +3,11 @@
 -- Description : Test cases based on the arrow laws
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsLaws (laws_trs, laws_tr) where
+module TestsLaws
+    ( laws_trs
+    , laws_tr
+    )
+  where
 
 import FRP.Yampa
 

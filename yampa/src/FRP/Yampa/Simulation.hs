@@ -30,30 +30,30 @@
 --
 -- This module also includes debugging aids needed to execute signal functions
 -- step by step, which are used by Yampa's testing facilities.
-module FRP.Yampa.Simulation (
-   -- * Reactimation
-    reactimate,
+module FRP.Yampa.Simulation
+    (
+      -- * Reactimation
+      reactimate
 
-    -- ** Low-level reactimation interface
-    ReactHandle,
-    reactInit,
-    react,
+      -- ** Low-level reactimation interface
+    , ReactHandle
+    , reactInit
+    , react
 
-    -- * Embedding
-    embed,
-    embedSynch,
-    deltaEncode,
-    deltaEncodeBy,
+      -- * Embedding
+    , embed
+    , embedSynch
+    , deltaEncode
+    , deltaEncodeBy
 
-    -- * Debugging / Step by step simulation
+      -- * Debugging / Step by step simulation
 
-    FutureSF,
-    evalAtZero,
-    evalAt,
-    evalFuture,
-
-
-) where
+    , FutureSF
+    , evalAtZero
+    , evalAt
+    , evalFuture
+    )
+  where
 
 import Control.Monad (unless)
 import Data.IORef

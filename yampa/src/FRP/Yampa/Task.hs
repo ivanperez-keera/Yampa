@@ -10,18 +10,19 @@
 -- Portability :  non-portable (GHC extensions)
 --
 -- Task abstraction on top of signal transformers.
-module FRP.Yampa.Task (
-    Task,
-    mkTask,
-    runTask,
-    runTask_,
-    taskToSF,
-    constT,
-    sleepT,
-    snapT,
-    timeOut,
-    abortWhen,
-) where
+module FRP.Yampa.Task
+    ( Task
+    , mkTask
+    , runTask
+    , runTask_
+    , taskToSF
+    , constT
+    , sleepT
+    , snapT
+    , timeOut
+    , abortWhen
+    )
+  where
 
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative (Applicative(..))

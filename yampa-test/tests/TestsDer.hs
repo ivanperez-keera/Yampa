@@ -3,7 +3,11 @@
 -- Description : Test cases for derivative
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsDer (der_tr, der_trs) where
+module TestsDer
+    ( der_tr
+    , der_trs
+    )
+  where
 
 import FRP.Yampa
 

@@ -15,21 +15,21 @@
 --
 -- It also defines ways of altering the input and the output signal only
 -- by inserting one value in the signal, or by transforming it.
-module FRP.Yampa.Basic (
+module FRP.Yampa.Basic
+    (
+      -- * Basic signal functions
+      identity
+    , constant
 
-    -- * Basic signal functions
-    identity,
-    constant,
-
-    -- ** Initialization
-    (-->),
-    (-:>),
-    (>--),
-    (-=>),
-    (>=-),
-    initially
-
-  ) where
+      -- ** Initialization
+    , (-->)
+    , (-:>)
+    , (>--)
+    , (-=>)
+    , (>=-)
+    , initially
+    )
+  where
 
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfConst, sfId)
 

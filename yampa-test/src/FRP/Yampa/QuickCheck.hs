@@ -17,22 +17,22 @@
 -- paper was: uniDistStream. This has been fixed.
 
 module FRP.Yampa.QuickCheck
-  (
-    -- * Random stream generation
-    generateStream
-  , generateStreamWith
+    (
+      -- * Random stream generation
+      generateStream
+    , generateStreamWith
 
-    -- ** Parameters used to generate random input streams
-  , Distribution(..)
-  , Range
-  , Length
+      -- ** Parameters used to generate random input streams
+    , Distribution(..)
+    , Range
+    , Length
 
-    -- ** Helpers for common cases
-  , uniDistStream
-  , uniDistStreamMaxDT
-  , fixedDelayStream
-  , fixedDelayStreamWith
-  )
+      -- ** Helpers for common cases
+    , uniDistStream
+    , uniDistStreamMaxDT
+    , fixedDelayStream
+    , fixedDelayStreamWith
+    )
   where
 
 import Control.Applicative ((<$>), pure)

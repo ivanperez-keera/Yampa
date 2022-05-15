@@ -7,7 +7,11 @@
 --
 -- Test cases for pre and (derived) combinators that (semantically) involves a
 -- pre.
-module TestsPre (pre_tr, pre_trs) where
+module TestsPre
+    ( pre_tr
+    , pre_trs
+    )
+  where
 
 import FRP.Yampa
 

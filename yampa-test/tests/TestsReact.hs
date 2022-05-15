@@ -3,7 +3,11 @@
 -- Description : Test cases for reactimation
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsReact (react_tr, react_trs) where
+module TestsReact
+    ( react_tr
+    , react_trs
+    )
+  where
 
 import System.IO.Unsafe (unsafePerformIO)
 import Data.IORef (newIORef, writeIORef, readIORef)

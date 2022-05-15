@@ -3,7 +3,11 @@
 -- Description : Test cases for event sources
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsEvSrc (evsrc_trs, evsrc_tr) where
+module TestsEvSrc
+    ( evsrc_trs
+    , evsrc_tr
+    )
+  where
 
 import FRP.Yampa
 

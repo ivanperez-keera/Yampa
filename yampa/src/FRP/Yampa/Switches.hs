@@ -62,36 +62,37 @@
 -- and also helps determine the expected behaviour of a combinator by looking
 -- at its name. For example, 'drpSwitchB' is the decoupled (/d/), recurrent
 -- (/r/), parallel (/p/) switch with broadcasting (/B/).
-module FRP.Yampa.Switches (
-    -- * Basic switching
-    switch,  dSwitch,
-    rSwitch, drSwitch,
-    kSwitch, dkSwitch,
+module FRP.Yampa.Switches
+    (
+      -- * Basic switching
+      switch,  dSwitch
+    , rSwitch, drSwitch
+    , kSwitch, dkSwitch
 
-    -- * Parallel composition\/switching (collections)
-    -- ** With broadcasting
-    parB,
-    pSwitchB,dpSwitchB,
-    rpSwitchB,drpSwitchB,
+      -- * Parallel composition\/switching (collections)
+      -- ** With broadcasting
+    , parB
+    , pSwitchB,dpSwitchB
+    , rpSwitchB,drpSwitchB
 
-    -- ** With helper routing function
-    par,
-    pSwitch, dpSwitch,
-    rpSwitch,drpSwitch,
+      -- ** With helper routing function
+    , par
+    , pSwitch, dpSwitch
+    , rpSwitch,drpSwitch
 
-    -- * Parallel composition\/switching (lists)
-    --
-    -- ** With "zip" routing
-    parZ,
-    pSwitchZ,
-    dpSwitchZ,
-    rpSwitchZ,
-    drpSwitchZ,
+      -- * Parallel composition\/switching (lists)
+      --
+      -- ** With "zip" routing
+    , parZ
+    , pSwitchZ
+    , dpSwitchZ
+    , rpSwitchZ
+    , drpSwitchZ
 
-    -- ** With replication
-    parC,
-
-) where
+      -- ** With replication
+    , parC
+    )
+  where
 
 import Control.Arrow
 

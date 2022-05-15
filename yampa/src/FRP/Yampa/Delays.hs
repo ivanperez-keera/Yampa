@@ -9,17 +9,17 @@
 --
 -- SF primitives and combinators to delay signals, introducing new values in
 -- them.
-module FRP.Yampa.Delays (
+module FRP.Yampa.Delays
+    (
+      -- * Basic delays
+      pre
+    , iPre
+    , fby
 
-    -- * Basic delays
-    pre,
-    iPre,
-    fby,
-
-    -- * Timed delays
-    delay,
-
-) where
+      -- * Timed delays
+    , delay
+    )
+  where
 
 import Control.Arrow
 

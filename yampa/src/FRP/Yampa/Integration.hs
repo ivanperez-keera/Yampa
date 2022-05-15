@@ -24,19 +24,19 @@
 -- example with other vector types like V2, V1, etc. from the library linear.
 -- For an example, see
 -- <https://gist.github.com/walseb/1e0a0ca98aaa9469ab5da04e24f482c2 this gist>.
-module FRP.Yampa.Integration (
+module FRP.Yampa.Integration
+    (
+      -- * Integration
+      integral
+    , imIntegral
+    , impulseIntegral
+    , count
 
-    -- * Integration
-    integral,
-    imIntegral,
-    impulseIntegral,
-    count,
-
-    -- * Differentiation
-    derivative,
-    iterFrom
-
-) where
+      -- * Differentiation
+    , derivative
+    , iterFrom
+    )
+  where
 
 import Control.Arrow
 import Data.VectorSpace
