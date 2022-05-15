@@ -38,7 +38,6 @@ import FRP.Yampa
 import FRP.Yampa.Conditional
 import FRP.Yampa.EventS
 
-
 -- * Testing framework
 
 type Position = Double  -- [m]
@@ -49,25 +48,20 @@ type Velocity = Double  -- [m/s]
 -- represented by its ground position and ground velocity.
 type Car = (Position, Velocity)
 
-
 -- A highway is just a list of cars. In this simple setting, we assume all
 -- cars are there all the time (no enter or exit ramps etc.)
 type Highway = [Car]
-
 
 -- Type of the Video signal. Here just an association list of cars *in view*
 -- with *relative* positions.
 type Video = [(Int, Car)]
 
-
 -- System info, such as height and ground speed. Here, just the position.
 type UAVStatus = Position
-
 
 -- Various ways of making cars.
 switchAfter :: Time -> SF a b -> (b -> SF a b) -> SF a b
 switchAfter t sf k = switch (sf &&& after t () >>^ \(b,e) -> (b, e `tag` b)) k
-
 
 mkCar1 :: Position -> Velocity -> SF a Car
 mkCar1 p0 v = constant v >>> (integral >>^ (+p0)) &&& identity
@@ -75,12 +69,10 @@ mkCar1 p0 v = constant v >>> (integral >>^ (+p0)) &&& identity
 mkCar2 :: Position -> Velocity -> Time -> Velocity -> SF a Car
 mkCar2 p0 v0 t0 v = switchAfter t0 (mkCar1 p0 v0) (flip mkCar1 v . fst)
 
-
 mkCar3 :: Position->Velocity->Time->Velocity->Time->Velocity->SF a Car
 mkCar3 p0 v0 t0 v1 t1 v = switchAfter t0 (mkCar1 p0 v0) $ \(p1, _) ->
                           switchAfter t1 (mkCar1 p1 v1) $ \(p2, _) ->
                           mkCar1 p2 v
-
 
 highway :: SF a Highway
 highway = parB [ mkCar1 (-600) 30.9
@@ -91,11 +83,9 @@ highway = parB [ mkCar1 (-600) 30.9
                , mkCar1 800 29.1
                ]
 
-
 -- The status of the UAV. For now, it's just flying at constant speed.
 uavStatus :: SF a UAVStatus
 uavStatus = constant 30 >>> integral
-
 
 -- Tracks a car in the video stream. An event is generated when tracking is
 -- lost, which we assume only happens if the car leaves the field of vision.
@@ -138,14 +128,11 @@ mkVideoAndTrackers = arr mkVideo >>> identity &&& carEntry
                 justToNothing (Just _) (Just _) = Nothing
                 justToNothing (Just _) Nothing  = Just ()
 
-
 videoAndTrackers :: SF a (Video, Event CarTracker)
 videoAndTrackers = highway &&& uavStatus >>> mkVideoAndTrackers
 
-
 smplFreq = 2.0
 smplPer = 1/smplFreq
-
 
 -- * Tailgating detector
 
@@ -180,7 +167,6 @@ tailgating = provided follow tooClose never
             t   <- localTime -< ()
             returnA -< if t > 0 then ind / t else nd
 
-
 -- * Multi-Car tracker
 
 -- Auxiliary definitions
@@ -189,10 +175,8 @@ type Id = Int
 
 data MCTCol a = MCTCol Id [(Id, a)]
 
-
 instance Functor MCTCol where
     fmap f (MCTCol n ias) = MCTCol n [ (i, f a) | (i, a) <- ias ]
-
 
 -- Tracking of individual cars in a group. The arrival of a new car is
 -- signalled by an external event, which causes a new tracker to be added
@@ -243,17 +227,14 @@ mct = pSwitch route cts_init addOrDelCTs (\cts' f -> mctAux (f cts'))
         getEvents :: MCTCol (Car, Event ()) -> [Event Id]
         getEvents (MCTCol _ ices) = [e `tag` i | (i,(_,e)) <- ices]
 
-
 -- * Multi tailgating detector
 
 -- Auxiliary definitions
 
 newtype MTGDCol a = MTGDCol [((Id,Id), a)]
 
-
 instance Functor MTGDCol where
     fmap f (MTGDCol iias) = MTGDCol [ (ii, f a) | (ii, a) <- iias ]
-
 
 -- Run tailgating above for each pair of tracked cars. A structural change
 -- to the list of tracked cars is signalled by an event, at which point
@@ -298,7 +279,6 @@ mtgd = proc ics -> do
 
         tailgaters :: MTGDCol (Event ()) -> Event [(Id, Id)]
         tailgaters (MTGDCol iies) = catEvents [ e `tag` ii | (ii, e) <- iies ]
-
 
 -- Finally, we can tie the individaul pieces together into a signal
 -- function which finds tailgaters:
