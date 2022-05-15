@@ -180,10 +180,11 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
     where
         tf0 a0 =
             let (sf1, (b0, ec0)) = tf10 a0
-            in (case ec0 of
-                    NoEvent  -> dSwitchAux sf1 k
-                    Event c0 -> fst (sfTF (k c0) a0),
-                b0)
+            in ( case ec0 of
+                     NoEvent  -> dSwitchAux sf1 k
+                     Event c0 -> fst (sfTF (k c0) a0)
+               , b0
+               )
 
         -- It would be nice to optimize further here. E.g. if it would be
         -- possible to observe the event source only.
@@ -194,11 +195,11 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
             where
                 tf dt a =
                     let (sf1', (b, ec)) = (sfTF' sf1) dt a
-                    in (case ec of
-                            NoEvent -> dSwitchAux sf1' k
-                            Event c -> fst (sfTF (k c) a),
-
-                        b)
+                    in ( case ec of
+                             NoEvent -> dSwitchAux sf1' k
+                             Event c -> fst (sfTF (k c) a)
+                       , b
+                       )
 
         -- Note: While dSwitch behaves as a stateless arrow at this point, that
         -- could change after a switch. Hence, SF' overall.
@@ -208,11 +209,11 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
                 sf = SF' tf -- False
                 tf _ a =
                     let (b, ec) = f1 a
-                    in (case ec of
-                            NoEvent -> sf
-                            Event c -> fst (sfTF (k c) a),
-
-                        b)
+                    in ( case ec of
+                             NoEvent -> sf
+                             Event c -> fst (sfTF (k c) a)
+                       , b
+                       )
 
 
 -- | Recurring switch.
@@ -338,20 +339,22 @@ dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
     where
         tf0 a0 =
             let (sf1, b0) = tf10 a0
-            in (case tfe0 (a0, b0) of
-                    (sfe, NoEvent)  -> dkSwitchAux sf1 sfe
-                    (_,   Event c0) -> fst (sfTF (k sf10 c0) a0),
-                b0)
+            in ( case tfe0 (a0, b0) of
+                     (sfe, NoEvent)  -> dkSwitchAux sf1 sfe
+                     (_,   Event c0) -> fst (sfTF (k sf10 c0) a0)
+               , b0
+               )
 
         dkSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
         dkSwitchAux sf1 sfe                     = SF' tf -- False
             where
                 tf dt a =
                     let (sf1', b) = (sfTF' sf1) dt a
-                    in (case (sfTF' sfe) dt (a, b) of
-                            (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
-                            (_, Event c) -> fst (sfTF (k (freeze sf1 dt) c) a),
-                        b)
+                    in ( case (sfTF' sfe) dt (a, b) of
+                             (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
+                             (_, Event c) -> fst (sfTF (k (freeze sf1 dt) c) a)
+                       , b
+                       )
 
 
 -- * Parallel composition and switching over collections with broadcasting
@@ -554,10 +557,11 @@ dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
                 sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
                 cs0   = fmap snd sfcs0
             in
-                (case (sfTF sfe0) (a0, cs0) of
-                     (sfe, NoEvent)  -> dpSwitchAux (fmap fst sfcs0) sfe
-                     (_,   Event d0) -> fst (sfTF (k sfs0 d0) a0),
-                 cs0)
+                ( case (sfTF sfe0) (a0, cs0) of
+                      (sfe, NoEvent)  -> dpSwitchAux (fmap fst sfcs0) sfe
+                      (_,   Event d0) -> fst (sfTF (k sfs0 d0) a0)
+                , cs0
+                )
 
         dpSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
         dpSwitchAux sfs sfe = SF' tf -- False
@@ -567,13 +571,14 @@ dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
                         sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
                         cs    = fmap snd sfcs'
                     in
-                        (case (sfTF' sfe) dt (a, cs) of
-                             (sfe', NoEvent) -> dpSwitchAux (fmap fst sfcs')
-                                                            sfe'
-                             (_,    Event d) -> fst (sfTF (k (freezeCol sfs dt)
-                                                             d)
-                                                          a),
-                         cs)
+                        ( case (sfTF' sfe) dt (a, cs) of
+                              (sfe', NoEvent) -> dpSwitchAux (fmap fst sfcs')
+                                                             sfe'
+                              (_,    Event d) -> fst (sfTF (k (freezeCol sfs dt)
+                                                              d)
+                                                           a)
+                        , cs
+                        )
 
 
 -- | Recurring parallel switch parameterized on the routing function.

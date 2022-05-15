@@ -701,8 +701,9 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
             cpAXA fd11 sf12 (fdComp fd13 fd2)
         cpXEAux fd2 f2 f2ne sf1 = SFCpAXA tf FDI sf1 fd2
             where
-                tf dt a = (cpXEAux fd2 f2 f2ne sf1',
-                           case eb of NoEvent -> f2ne; _ -> f2 eb)
+                tf dt a = ( cpXEAux fd2 f2 f2ne sf1'
+                          , case eb of NoEvent -> f2ne; _ -> f2 eb
+                          )
                     where
                         (sf1', eb) = (sfTF' sf1) dt a
 

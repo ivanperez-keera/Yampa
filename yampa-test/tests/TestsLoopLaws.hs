@@ -92,12 +92,12 @@ looplaws_t5_rhs = testSF1 (arr (simple_loop looplaws_t5_f))
 
 
 looplaws_trs =
-    [ looplaws_t0_lhs  ~= looplaws_t0_rhs,
-      looplaws_t1_lhs  ~= looplaws_t1_rhs,
-      looplaws_t2_lhs  ~= looplaws_t2_rhs,
-      looplaws_t3_lhs  ~= looplaws_t3_rhs,
-      looplaws_t4_lhs  ~= looplaws_t4_rhs,
-      looplaws_t5_lhs  ~= looplaws_t5_rhs
+    [ looplaws_t0_lhs  ~= looplaws_t0_rhs
+    , looplaws_t1_lhs  ~= looplaws_t1_rhs
+    , looplaws_t2_lhs  ~= looplaws_t2_rhs
+    , looplaws_t3_lhs  ~= looplaws_t3_rhs
+    , looplaws_t4_lhs  ~= looplaws_t4_rhs
+    , looplaws_t5_lhs  ~= looplaws_t5_rhs
     ]
 
 looplaws_tr = and looplaws_trs

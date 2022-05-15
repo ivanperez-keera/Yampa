@@ -83,12 +83,13 @@ mkCar3 p0 v0 t0 v1 t1 v = switchAfter t0 (mkCar1 p0 v0) $ \(p1, _) ->
 
 
 highway :: SF a Highway
-highway = parB [mkCar1 (-600) 30.9,
-                mkCar1 0 30,
-                mkCar3 (-1000) 40 95 30 200 30.9,
-                mkCar1 (-3000) 45,
-                mkCar1 700 28,
-                mkCar1 800 29.1]
+highway = parB [ mkCar1 (-600) 30.9
+               , mkCar1 0 30
+               , mkCar3 (-1000) 40 95 30 200 30.9
+               , mkCar1 (-3000) 45
+               , mkCar1 700 28
+               , mkCar1 800 29.1
+               ]
 
 
 -- The status of the UAV. For now, it's just flying at constant speed.
@@ -115,8 +116,9 @@ mkVideoAndTrackers = arr mkVideo >>> identity &&& carEntry
         mkVideo :: (Highway, Position) -> Video
         mkVideo (cars, p_uav) =
             [ (i, (p_rel, v))
-            | (i, (p, v)) <- zip [0..] cars,
-              let p_rel = p - p_uav, abs p_rel <= range]
+            | (i, (p, v)) <- zip [0..] cars
+            , let p_rel = p - p_uav, abs p_rel <= range
+            ]
 
         carEntry :: SF Video (Event CarTracker)
         carEntry = edgeBy newCar []

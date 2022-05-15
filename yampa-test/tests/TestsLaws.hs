@@ -69,15 +69,15 @@ laws_t8_rhs = testSF1 (arr (\x -> ((x,x),()))
 
 
 laws_trs =
-    [ laws_t0_lhs ~= laws_t0_rhs,
-      laws_t1_lhs ~= laws_t1_rhs,
-      laws_t2_lhs ~= laws_t2_rhs,
-      laws_t3_lhs ~= laws_t3_rhs,
-      laws_t4_lhs ~= laws_t4_rhs,
-      laws_t5_lhs ~= laws_t5_rhs,
-      laws_t6_lhs ~= laws_t6_rhs,
-      laws_t7_lhs ~= laws_t7_rhs,
-      laws_t8_lhs ~= laws_t8_rhs
+    [ laws_t0_lhs ~= laws_t0_rhs
+    ,  laws_t1_lhs ~= laws_t1_rhs
+    ,  laws_t2_lhs ~= laws_t2_rhs
+    ,  laws_t3_lhs ~= laws_t3_rhs
+    ,  laws_t4_lhs ~= laws_t4_rhs
+    ,  laws_t5_lhs ~= laws_t5_rhs
+    ,  laws_t6_lhs ~= laws_t6_rhs
+    ,  laws_t7_lhs ~= laws_t7_rhs
+    ,  laws_t8_lhs ~= laws_t8_rhs
     ]
 
 laws_tr = and laws_trs

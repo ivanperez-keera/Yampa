@@ -148,17 +148,19 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                 | q == 0    = arr (fmap (:[]))
                 | otherwise = SF {sfTF = tf0}
     where
-        tf0 e = (case e of
-                     NoEvent -> noPendingEvent
-                     Event x -> pendingEvents (-q) [] [] (-q) x,
-                 NoEvent)
+        tf0 e = ( case e of
+                      NoEvent -> noPendingEvent
+                      Event x -> pendingEvents (-q) [] [] (-q) x
+                , NoEvent
+                )
 
         noPendingEvent = SF' tf -- True
             where
-                tf _ e = (case e of
-                              NoEvent -> noPendingEvent
-                              Event x -> pendingEvents (-q) [] [] (-q) x,
-                          NoEvent)
+                tf _ e = ( case e of
+                               NoEvent -> noPendingEvent
+                               Event x -> pendingEvents (-q) [] [] (-q) x
+                         , NoEvent
+                         )
 
         -- t_next is the present time w.r.t. the next scheduled event.
         -- t_last is the present time w.r.t. the last scheduled event.
@@ -186,27 +188,29 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
         -- Thus, t_next - q' is the present time w.r.t. the event at the head
         -- of the event queue.
         emitEventsScheduleNext e _ [] [] _ rxs =
-            (case e of
-                 NoEvent -> noPendingEvent
-                 Event x -> pendingEvents (-q) [] [] (-q) x,
-             Event (reverse rxs))
+            ( case e of
+                  NoEvent -> noPendingEvent
+                  Event x -> pendingEvents (-q) [] [] (-q) x
+            , Event (reverse rxs)
+            )
         emitEventsScheduleNext e t_last rqxs [] t_next rxs =
             emitEventsScheduleNext e t_last [] (reverse rqxs) t_next rxs
         emitEventsScheduleNext e t_last rqxs ((q', x') : qxs') t_next rxs
-            | q' > t_next = (case e of
-                                 NoEvent ->
-                                     pendingEvents t_last
-                                                   rqxs
-                                                   qxs'
-                                                   (t_next - q')
-                                                   x'
-                                 Event x'' ->
-                                     pendingEvents (-q)
-                                                   ((t_last+q, x'') : rqxs)
-                                                   qxs'
-                                                   (t_next - q')
-                                                   x',
-                             Event (reverse rxs))
+            | q' > t_next = ( case e of
+                                  NoEvent ->
+                                      pendingEvents t_last
+                                                    rqxs
+                                                    qxs'
+                                                    (t_next - q')
+                                                    x'
+                                  Event x'' ->
+                                      pendingEvents (-q)
+                                                    ((t_last+q, x'') : rqxs)
+                                                    qxs'
+                                                    (t_next - q')
+                                                    x'
+                            , Event (reverse rxs)
+                            )
             | otherwise   = emitEventsScheduleNext e
                                                    t_last
                                                    rqxs

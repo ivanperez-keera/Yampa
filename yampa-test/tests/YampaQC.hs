@@ -588,14 +588,15 @@ prop_switch_t1 =
   where myStream :: Gen (SignalSampleStream Double)
         myStream = fixedDelayStreamWith f 1.0
         f dt = l!!(floor dt)
-        l = [1.0, 1.0, 1.0,
-             2.0,
-             3.0, 3.0,
-             4.0, 4.0, 4.0,
-             5.0,
-             6.0, 6.0,
-             7.0, 7.0, 7.0,
-             8.0]
+        l = [ 1.0, 1.0, 1.0
+            , 2.0
+            , 3.0, 3.0
+            , 4.0, 4.0, 4.0
+            , 5.0
+            , 6.0, 6.0
+            , 7.0, 7.0, 7.0
+            , 8.0
+            ]
              ++ repeat 9.0
 
         same = (uncurry (==))

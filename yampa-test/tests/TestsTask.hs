@@ -27,11 +27,12 @@ task_t0 = testSF1 (runTask (do
                   )
 
 task_t0r =
-    [Left 0.0,   Left 0.25,  Left 0.5,   Left 0.75,  Left 1.0,
-     Left 1.25,  Left 1.5,   Left 1.75,  Left 2.0,   Left 2.25,
-     Left 2.5,   Left 2.75,  Left 3.0,   Left 3.25,  Left 3.5,
-     Left 3.75,  Left 4.0,   Left 4.25,  Left 4.5,   Left 4.75,
-     Right 40.0, Right 40.0, Right 40.0, Right 40.0, Right 40.0]
+    [ Left 0.0,   Left 0.25,  Left 0.5,   Left 0.75,  Left 1.0
+    , Left 1.25,  Left 1.5,   Left 1.75,  Left 2.0,   Left 2.25
+    , Left 2.5,   Left 2.75,  Left 3.0,   Left 3.25,  Left 3.5
+    , Left 3.75,  Left 4.0,   Left 4.25,  Left 4.5,   Left 4.75
+    , Right 40.0, Right 40.0, Right 40.0, Right 40.0, Right 40.0
+    ]
 
 
 task_t1 = testSF1 (runTask (do
@@ -59,13 +60,14 @@ task_t2 = testSF1 (runTask (do
                   )
 
 task_t2r =
-    [Left 42.0, Left 42.0, Left 42.0, Left 42.0,  -- 0.0 s
-     Left 42.0, Left 42.0, Left 42.0, Left 7.0,   -- 1.0 s
-     Left 7.0,  Left 7.0,  Left 7.0,  Left 7.0,   -- 2.0 s
-     Left 7.0,  Left 7.0,  Left 14.0, Left 14.0,  -- 3.0 s
-     Left 14.0, Left 14.0, Left 14.0, Left 14.0,  -- 4.0 s
-     Left 14.0, Right (),  Right (),  Right (),   -- 5.0 s
-     Right ()]
+    [ Left 42.0, Left 42.0, Left 42.0, Left 42.0  -- 0.0 s
+    , Left 42.0, Left 42.0, Left 42.0, Left 7.0   -- 1.0 s
+    , Left 7.0,  Left 7.0,  Left 7.0,  Left 7.0   -- 2.0 s
+    , Left 7.0,  Left 7.0,  Left 14.0, Left 14.0  -- 3.0 s
+    , Left 14.0, Left 14.0, Left 14.0, Left 14.0  -- 4.0 s
+    , Left 14.0, Right (),  Right (),  Right ()   -- 5.0 s
+    , Right ()
+    ]
 
 
 task_t3 = testSF1 (runTask (do
@@ -82,13 +84,14 @@ task_t3 = testSF1 (runTask (do
 
 task_t3r :: [Either Double ()]
 task_t3r =
-    [Left 0.0,     Left 0.5,     Left 1.0,     Left 1.5,      -- 0.0 s
-     Left 2.0,     Left 2.5,     Left 0.0,     Left 0.5,      -- 1.0 s
-     Left 1.0,     Left 1.5,     Left 2.0,     Left 2.5,      -- 2.0 s
-     Left 0.0,     Left 0.5,     Left (-10.0), Left (-10.0),  -- 3.0 s
-     Left (-10.0), Left (-10.0), Left (-10.0), Left (-10.0),  -- 4.0 s
-     Left (-10.0), Right (),     Right (),     Right (),      -- 5.0 s
-     Right ()]
+    [ Left 0.0,     Left 0.5,     Left 1.0,     Left 1.5      -- 0.0 s
+    , Left 2.0,     Left 2.5,     Left 0.0,     Left 0.5      -- 1.0 s
+    , Left 1.0,     Left 1.5,     Left 2.0,     Left 2.5      -- 2.0 s
+    , Left 0.0,     Left 0.5,     Left (-10.0), Left (-10.0)  -- 3.0 s
+    , Left (-10.0), Left (-10.0), Left (-10.0), Left (-10.0)  -- 4.0 s
+    , Left (-10.0), Right (),     Right (),     Right ()      -- 5.0 s
+    , Right ()
+    ]
 
 
 task_t4 = testSF1 (runTask (do
@@ -107,13 +110,14 @@ task_t4 = testSF1 (runTask (do
 
 task_t4r :: [Either Double ()]
 task_t4r =
-    [Left 0.0,     Left 0.5,     Left 1.0,     Left 1.5,      -- 0.0 s
-     Left 2.0,     Left 2.5,     Left 0.0,     Left 0.5,      -- 1.0 s
-     Left 1.0,     Left 1.5,     Left 2.0,     Left 2.5,      -- 2.0 s
-     Left (-42.0), Left (-42.0), Left (-42.0), Left (-42.0),  -- 3.0 s
-     Left (-42.0), Left (-42.0), Left (-42.0), Right (),      -- 4.0 s
-     Right (),     Right (),     Right (),     Right (),      -- 5.0 s
-     Right ()]
+    [ Left 0.0,     Left 0.5,     Left 1.0,     Left 1.5      -- 0.0 s
+    , Left 2.0,     Left 2.5,     Left 0.0,     Left 0.5      -- 1.0 s
+    , Left 1.0,     Left 1.5,     Left 2.0,     Left 2.5      -- 2.0 s
+    , Left (-42.0), Left (-42.0), Left (-42.0), Left (-42.0)  -- 3.0 s
+    , Left (-42.0), Left (-42.0), Left (-42.0), Right ()      -- 4.0 s
+    , Right (),     Right (),     Right (),     Right ()      -- 5.0 s
+    , Right ()
+    ]
 
 
 task_t5 = testSF1 (runTask (do
@@ -127,13 +131,14 @@ task_t5 = testSF1 (runTask (do
 
 task_t5r :: [Either Double Bool]
 task_t5r =
-    [Left 0.0, Left 0.5, Left 1.0, Left 1.5,  -- 0.0 s, 0 - 3
-     Left 2.0, Left 2.5, Left 0.0, Left 0.5,  -- 1.0 s, 4 - 7
-     Left 1.0, Left 1.5, Left 2.0, Left 2.5,  -- 2.0 s, 8 - 11
-     Left 0.0, Left 0.5, Left 1.0, Left 1.5,  -- 3.0 s, 12 - 15
-     Left 2.0, Left 2.5, Left 0.0, Left 0.5,  -- 4.0 s, 16 - 19,
-     Left 1.0, Left 1.5, Left 2.0, Left 2.5,  -- 5.0 s, 20 - 23
-     Right True]
+    [ Left 0.0, Left 0.5, Left 1.0, Left 1.5  -- 0.0 s, 0 - 3
+    , Left 2.0, Left 2.5, Left 0.0, Left 0.5  -- 1.0 s, 4 - 7
+    , Left 1.0, Left 1.5, Left 2.0, Left 2.5  -- 2.0 s, 8 - 11
+    , Left 0.0, Left 0.5, Left 1.0, Left 1.5  -- 3.0 s, 12 - 15
+    , Left 2.0, Left 2.5, Left 0.0, Left 0.5  -- 4.0 s, 16 - 19
+    , Left 1.0, Left 1.5, Left 2.0, Left 2.5  -- 5.0 s, 20 - 23
+    , Right True
+    ]
 
 
 task_t6 = testSF1 $ runTask $
@@ -147,15 +152,16 @@ task_t6 = testSF1 $ runTask $
 
 task_t6r :: [Either Double (Either Double (), Double)]
 task_t6r =
-    [Left 0.0, Left 0.5, Left 1.0, Left 1.5,              -- 0.0 s, 0 - 3
-     Left 2.0, Left 2.5, Left 0.0, Left 0.5,              -- 1.0 s, 4 - 7
-     Left 1.0, Left 1.5, Left 2.0, Left 2.5,              -- 2.0 s, 8 - 11
-     Left 0.0, Left 0.5, Left 1.0, Right (Right (),15.0), -- 3.0 s, 12 - 15
-     Right (Right (),15.0), Right (Right (),15.0),        -- 4.0 s, 16, 17
-     Right (Right (),15.0), Right (Right (),15.0),        -- 4.5 s, 18, 19
-     Right (Right (),15.0), Right (Right (),15.0),        -- 5.0 s, 20, 21
-     Right (Right (),15.0), Right (Right (),15.0),        -- 5.5 s, 22, 23
-     Right (Right (),15.0)]
+    [ Left 0.0, Left 0.5, Left 1.0, Left 1.5              -- 0.0 s, 0 - 3
+    , Left 2.0, Left 2.5, Left 0.0, Left 0.5              -- 1.0 s, 4 - 7
+    , Left 1.0, Left 1.5, Left 2.0, Left 2.5              -- 2.0 s, 8 - 11
+    , Left 0.0, Left 0.5, Left 1.0, Right (Right (),15.0) -- 3.0 s, 12 - 15
+    , Right (Right (),15.0), Right (Right (),15.0)        -- 4.0 s, 16, 17
+    , Right (Right (),15.0), Right (Right (),15.0)        -- 4.5 s, 18, 19
+    , Right (Right (),15.0), Right (Right (),15.0)        -- 5.0 s, 20, 21
+    , Right (Right (),15.0), Right (Right (),15.0)        -- 5.5 s, 22, 23
+    , Right (Right (),15.0)
+    ]
 
 task_t7 = testSF1 $ runTask $
     do
@@ -168,13 +174,14 @@ task_t7 = testSF1 $ runTask $
 
 task_t7r :: [Either Double (Either Double (), Double)]
 task_t7r =
-    [Left 0.0, Left 0.5, Left 1.0, Left 1.5,              -- 0.0 s, 0 - 3
-     Left 2.0, Left 2.5, Left 0.0, Left 0.5,              -- 1.0 s, 4 - 7
-     Left 1.0, Left 1.5, Left 2.0, Left 2.5,              -- 2.0 s, 8 - 11
-     Left 0.0, Left 0.5, Left 1.0, Left 1.5,              -- 3.0 s, 12 - 15
-     Left 2.0, Left 2.5, Left 0.0, Left 0.5,              -- 4.0 s, 16 - 19
-     Left 1.0, Left 1.5, Left 2.0, Right (Right (),23.0), -- 5.0 s, 20 - 23
-     Right (Right (),23.0)]
+    [ Left 0.0, Left 0.5, Left 1.0, Left 1.5              -- 0.0 s, 0 - 3
+    , Left 2.0, Left 2.5, Left 0.0, Left 0.5              -- 1.0 s, 4 - 7
+    , Left 1.0, Left 1.5, Left 2.0, Left 2.5              -- 2.0 s, 8 - 11
+    , Left 0.0, Left 0.5, Left 1.0, Left 1.5              -- 3.0 s, 12 - 15
+    , Left 2.0, Left 2.5, Left 0.0, Left 0.5              -- 4.0 s, 16 - 19
+    , Left 1.0, Left 1.5, Left 2.0, Right (Right (),23.0) -- 5.0 s, 20 - 23
+    , Right (Right (),23.0)
+    ]
 
 task_t8 = testSF1 $ runTask $
     do
@@ -189,24 +196,25 @@ task_t8 = testSF1 $ runTask $
 -- gets priority over the aborting event.
 task_t8r :: [Either Double (Either Double (), Double)]
 task_t8r =
-    [Left 0.0, Left 0.5, Left 1.0, Left 1.5,  -- 0.0 s, 0 - 3
-     Left 2.0, Left 2.5, Left 0.0, Left 0.5,  -- 1.0 s, 4 - 7
-     Left 1.0, Left 1.5, Left 2.0, Left 2.5,  -- 2.0 s, 8 - 11
-     Left 0.0, Left 0.5, Left 1.0, Left 1.5,  -- 3.0 s, 12 - 15
-     Left 2.0, Left 2.5, Left 0.0, Left 0.5,  -- 4.0 s, 16 - 19
-     Left 1.0, Left 1.5, Left 2.0, Left 2.5,  -- 5.0 s, 20 - 23
-     Right (Left 24.0,24.0)]
+    [ Left 0.0, Left 0.5, Left 1.0, Left 1.5  -- 0.0 s, 0 - 3
+    , Left 2.0, Left 2.5, Left 0.0, Left 0.5  -- 1.0 s, 4 - 7
+    , Left 1.0, Left 1.5, Left 2.0, Left 2.5  -- 2.0 s, 8 - 11
+    , Left 0.0, Left 0.5, Left 1.0, Left 1.5  -- 3.0 s, 12 - 15
+    , Left 2.0, Left 2.5, Left 0.0, Left 0.5  -- 4.0 s, 16 - 19
+    , Left 1.0, Left 1.5, Left 2.0, Left 2.5  -- 5.0 s, 20 - 23
+    , Right (Left 24.0,24.0)
+    ]
 
 task_trs =
-    [ task_t0 ~= task_t0r,
-      task_t1 ~= task_t0r,  -- Intentionally! task_t0 = task_t1!
-      task_t2 ~= task_t2r,
-      task_t3 ~= task_t3r,
-      task_t4 ~= task_t4r,
-      task_t5 ~= task_t5r,
-      task_t6 ~= task_t6r,
-      task_t7 ~= task_t7r,
-      task_t8 ~= task_t8r
+    [ task_t0 ~= task_t0r
+    , task_t1 ~= task_t0r  -- Intentionally! task_t0 = task_t1!
+    , task_t2 ~= task_t2r
+    , task_t3 ~= task_t3r
+    , task_t4 ~= task_t4r
+    , task_t5 ~= task_t5r
+    , task_t6 ~= task_t6r
+    , task_t7 ~= task_t7r
+    , task_t8 ~= task_t8r
     ]
 
 task_tr = and task_trs

@@ -6,7 +6,8 @@
           guide (#207), adjust modules to run regression tests with QuickCheck
           testing module (#208), rename space usage test to reflect module's
           new purpose (#208), style consistency of separators (#211), adjust
-          format of export lists (#212).
+          format of export lists (#212), align lists, tuples, records by
+          leading comma (#213).
         * yampa-test.cabal: Fix broken link in description (#204), enable all
           warnings (#206), rename flag (#208), rename test (#208), adjust
           modules to run regression tests with QuickCheck testing module
