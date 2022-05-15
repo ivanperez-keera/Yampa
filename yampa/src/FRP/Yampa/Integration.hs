@@ -51,16 +51,16 @@ import FRP.Yampa.InternalCore (SF(..), SF'(..), DTime)
 {-# INLINE integral #-}
 integral :: VectorSpace a s => SF a a
 integral = SF {sfTF = tf0}
-    where
-        tf0 a0 = (integralAux igrl0 a0, igrl0)
+  where
+    tf0 a0 = (integralAux igrl0 a0, igrl0)
 
-        igrl0  = zeroVector
+    igrl0  = zeroVector
 
-        integralAux igrl a_prev = SF' tf -- True
-            where
-                tf dt a = (integralAux igrl' a, igrl')
-                    where
-                       igrl' = igrl ^+^ realToFrac dt *^ a_prev
+    integralAux igrl a_prev = SF' tf -- True
+      where
+        tf dt a = (integralAux igrl' a, igrl')
+          where
+            igrl' = igrl ^+^ realToFrac dt *^ a_prev
 
 -- | \"Immediate\" integration (using the function's value at the current time)
 imIntegral :: VectorSpace a s => a -> SF a a
@@ -71,19 +71,19 @@ imIntegral = ((\ _ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
 --   new output.
 iterFrom :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 f `iterFrom` b = SF (iterAux b)
-    where
-        iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a'), b)
+  where
+    iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a'), b)
 
 -- | A very crude version of a derivative. It simply divides the
 --   value difference by the time difference. Use at your own risk.
 derivative :: VectorSpace a s => SF a a
 derivative = SF {sfTF = tf0}
-    where
-        tf0 a0 = (derivativeAux a0, zeroVector)
+  where
+    tf0 a0 = (derivativeAux a0, zeroVector)
 
-        derivativeAux a_prev = SF' tf -- True
-            where
-                tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
+    derivativeAux a_prev = SF' tf -- True
+      where
+        tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
 
 -- | Integrate the first input signal and add the /discrete/ accumulation (sum)
 --   of the second, discrete, input signal.
