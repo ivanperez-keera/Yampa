@@ -35,7 +35,6 @@ embed_t0r =
     , 241.6701, 312.1251, 391.5801, 480.03510, 577.4901
     ]
 
-
 embed_t1 = take 20 $ embed (embed_ratio
                             >>> embedSynch embed_sf
                                            (deltaEncode 0.5 (replicate 30 ())))
@@ -52,6 +51,5 @@ embed_trs =
     [ embed_t0 ~= embed_t0r
     , embed_t1 ~= embed_t1r
     ]
-
 
 embed_tr = and embed_trs
