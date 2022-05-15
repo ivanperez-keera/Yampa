@@ -79,7 +79,6 @@ sfNever = sfConst NoEvent
 now :: b -> SF a (Event b)
 now b0 = Event b0 --> never
 
-
 -- | Event source with a single occurrence at or as soon after (local) time /q/
 -- as possible.
 after :: Time -- ^ The time /q/ after which the event should be produced
@@ -98,7 +97,6 @@ repeatedly q x | q > 0 = afterEach qxs
                | otherwise = usrErr "AFRP" "repeatedly" "Non-positive period."
     where
         qxs = (q,x):qxs
-
 
 -- | Event source with consecutive occurrences at the given intervals.
 -- Should more than one event be scheduled to occur in any sampling interval,
@@ -139,7 +137,6 @@ delayEvent :: Time -> SF (Event a) (Event a)
 delayEvent q | q < 0     = usrErr "AFRP" "delayEvent" "Negative delay."
              | q == 0    = identity
              | otherwise = delayEventCat q >>> arr (fmap head)
-
 
 -- | Delay an event by a given delta and catenate events that occur so closely
 -- so as to be /inseparable/.
@@ -218,7 +215,6 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                                                    (t_next - q')
                                                    (x' : rxs)
 
-
 -- | A rising edge detector. Useful for things like detecting key presses.
 -- It is initialised as /up/, meaning that events occuring at time 0 will
 -- not be detected.
@@ -244,7 +240,6 @@ iEdge b = sscanPrim f (if b then 2 else 0) NoEvent
 edgeTag :: a -> SF Bool (Event a)
 edgeTag a = edge >>> arr (`tag` a)
 
-
 -- | Edge detector particularized for detecting transtitions
 --   on a 'Maybe' signal from 'Nothing' to 'Just'.
 edgeJust :: SF (Maybe a) (Event a)
@@ -267,24 +262,20 @@ edgeBy isEdge a_init = SF {sfTF = tf0}
             where
                 tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
 
-
 -- * Stateful event suppression
 
 -- | Suppression of initial (at local time 0) event.
 notYet :: SF (Event a) (Event a)
 notYet = initially NoEvent
 
-
 -- | Suppress all but the first event.
 once :: SF (Event a) (Event a)
 once = takeEvents 1
-
 
 -- | Suppress all but the first n events.
 takeEvents :: Int -> SF (Event a) (Event a)
 takeEvents n | n <= 0 = never
 takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
-
 
 -- | Suppress first n events.
 dropEvents :: Int -> SF (Event a) (Event a)
@@ -293,7 +284,6 @@ dropEvents n =
   -- Here dSwitch or switch does not really matter.
   dSwitch (never &&& identity)
           (const (NoEvent >-- dropEvents (n - 1)))
-
 
 -- ** Hybrid continuous-to-discrete SF combinators.
 
@@ -305,7 +295,6 @@ snap =
    -- "constant" once the sample has been taken.
    switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
 
-
 -- | Event source with a single occurrence at or as soon after (local) time
 -- @t_ev@ as possible. The value of the event is obtained by sampling the input
 -- a that time.
@@ -314,7 +303,6 @@ snapAfter t_ev = switch (never
              &&& (identity
                   &&& after t_ev () >>^ \(a, e) -> e `tag` a))
             now
-
 
 -- | Sample a signal at regular intervals.
 sample :: Time -> SF a (Event a)
