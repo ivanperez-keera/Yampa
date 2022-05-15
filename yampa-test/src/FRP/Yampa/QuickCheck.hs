@@ -56,7 +56,6 @@ type Range = (Maybe DTime, Maybe DTime)
 -- samples.
 type Length = Maybe (Either Int DTime)
 
-
 -- | Generate a random delta according to some required specifications.
 generateDeltas :: Distribution -> Range -> Length -> Gen DTime
 generateDeltas DistConstant            (mn, mx) len = generateDelta mn mx
@@ -179,7 +178,6 @@ generateStreamLenDT range len = do
 -- generateStreamLenDT (Nothing, Nothing) (Just (Right ds)) = f2  <$> arbitrary
 --   where
 --     f2 l = (ds / fromIntegral l, l)
-
 
 -- | Generate a stream of values with uniformly distributed time deltas.
 uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)
