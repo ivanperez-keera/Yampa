@@ -54,8 +54,8 @@ data IL a = IL { ilNextKey :: ILKey, ilAssocs :: [(ILKey, a)] }
 -- * Class instances
 
 instance Functor IL where
-    fmap f (IL {ilNextKey = nk, ilAssocs = kas}) =
-        IL {ilNextKey = nk, ilAssocs = [ (i, f a) | (i, a) <- kas ]}
+  fmap f (IL {ilNextKey = nk, ilAssocs = kas}) =
+    IL {ilNextKey = nk, ilAssocs = [ (i, f a) | (i, a) <- kas ]}
 
 -- * Constructors
 
@@ -90,19 +90,19 @@ elemsIL = map snd . ilAssocs
 deleteIL :: ILKey -> IL a -> IL a
 deleteIL k (IL {ilNextKey = nk, ilAssocs = kas}) =
     IL {ilNextKey = nk, ilAssocs = deleteHlp kas}
-    where
-        deleteHlp []                                   = []
-        deleteHlp kakas@(ka@(k', _) : kas) | k > k'    = kakas
-                                           | k == k'   = kas
-                                           | otherwise = ka : deleteHlp kas
+  where
+    deleteHlp []                                   = []
+    deleteHlp kakas@(ka@(k', _) : kas) | k > k'    = kakas
+                                       | k == k'   = kas
+                                       | otherwise = ka : deleteHlp kas
 
 updateIL :: ILKey -> a -> IL a -> IL a
 updateIL k v l = updateILWith k (const v) l
 
 updateILWith :: ILKey -> (a -> a) -> IL a -> IL a
 updateILWith k f l = mapIL g l
- where g (k',v') | k == k'   = f v'
-                 | otherwise = v'
+  where g (k',v') | k == k'   = f v'
+                  | otherwise = v'
 
 -- * Filter and map operations
 
@@ -112,17 +112,17 @@ updateILWith k f l = mapIL g l
 
 mapIL :: ((ILKey, a) -> b) -> IL a -> IL b
 mapIL f (IL {ilNextKey = nk, ilAssocs = kas}) =
-    IL {ilNextKey = nk, ilAssocs = [(k, f ka) | ka@(k,_) <- kas]}
+  IL {ilNextKey = nk, ilAssocs = [(k, f ka) | ka@(k,_) <- kas]}
 
 filterIL :: ((ILKey, a) -> Bool) -> IL a -> IL a
 filterIL p (IL {ilNextKey = nk, ilAssocs = kas}) =
-    IL {ilNextKey = nk, ilAssocs = filter p kas}
+  IL {ilNextKey = nk, ilAssocs = filter p kas}
 
 mapFilterIL :: ((ILKey, a) -> Maybe b) -> IL a -> IL b
 mapFilterIL p (IL {ilNextKey = nk, ilAssocs = kas}) =
-    IL { ilNextKey = nk
-       , ilAssocs = [(k, b) | ka@(k, _) <- kas, Just b <- [p ka]]
-       }
+  IL { ilNextKey = nk
+     , ilAssocs = [(k, b) | ka@(k, _) <- kas, Just b <- [p ka]]
+     }
 
 -- * Lookup operations
 
@@ -131,17 +131,17 @@ lookupIL k il = lookup k (ilAssocs il)
 
 findIL :: ((ILKey, a) -> Bool) -> IL a -> Maybe a
 findIL p (IL {ilAssocs = kas}) = findHlp kas
-    where
-        findHlp []                = Nothing
-        findHlp (ka@(_, a) : kas) = if p ka then Just a else findHlp kas
+  where
+    findHlp []                = Nothing
+    findHlp (ka@(_, a) : kas) = if p ka then Just a else findHlp kas
 
 mapFindIL :: ((ILKey, a) -> Maybe b) -> IL a -> Maybe b
 mapFindIL p (IL {ilAssocs = kas}) = mapFindHlp kas
-    where
-        mapFindHlp []         = Nothing
-        mapFindHlp (ka : kas) = case p ka of
-                                    Nothing     -> mapFindHlp kas
-                                    jb@(Just _) -> jb
+  where
+    mapFindHlp []         = Nothing
+    mapFindHlp (ka : kas) = case p ka of
+                              Nothing     -> mapFindHlp kas
+                              jb@(Just _) -> jb
 
 findAllIL :: ((ILKey, a) -> Bool) -> IL a -> [a]
 findAllIL p (IL {ilAssocs = kas}) = [ a | ka@(_, a) <- kas, p ka ]
