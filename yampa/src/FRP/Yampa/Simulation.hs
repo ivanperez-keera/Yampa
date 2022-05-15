@@ -62,7 +62,6 @@ import Data.Maybe    (fromMaybe)
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
 
-
 -- * Reactimation
 
 -- | Convenience function to run a signal function indefinitely, using a IO
@@ -108,7 +107,6 @@ reactimate init sense actuate (SF {sfTF = tf0}) =
                 let a' = fromMaybe a ma'
                     (sf', b') = (sfTF' sf) dt a'
                 loop sf' a' b'
-
 
 -- An API for animating a signal function when some other library
 -- needs to own the top-level control flow:
@@ -157,7 +155,6 @@ react rh (dt,ma') =
      done <- actuate rh True b'
      return done
 
-
 -- * Embedding
 
 -- | Given a signal function and a pair with an initial
@@ -177,7 +174,6 @@ embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
             where
                 a        = fromMaybe a_prev ma
                 (sf', b) = (sfTF' sf) dt a
-
 
 -- | Synchronous embedding. The embedded signal function is run on the supplied
 -- input and time stream at a given (but variable) ratio >= 0 to the outer time
@@ -212,14 +208,12 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
                     | t' <= tp = advance tp tbtbs
         advance _ _ = undefined
 
-
 -- | Spaces a list of samples by a fixed time delta, avoiding
 --   unnecessary samples when the input has not changed since
 --   the last sample.
 deltaEncode :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
 deltaEncode _  []        = usrErr "AFRP" "deltaEncode" "Empty input list."
 deltaEncode dt aas@(_:_) = deltaEncodeBy (==) dt aas
-
 
 -- | 'deltaEncode' parameterized by the equality test.
 deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
@@ -230,14 +224,12 @@ deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
         debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
                              | otherwise     = Just a  : debAux a as
 
-
 -- * Debugging / Step by step simulation
 
 -- | A wrapper around an initialized SF (continuation), needed for testing and
 -- debugging purposes.
 --
 newtype FutureSF a b = FutureSF { unsafeSF :: SF' a b }
-
 
 -- | Evaluate an SF, and return an output and an initialized SF.
 --
@@ -251,7 +243,6 @@ evalAtZero :: SF a b
 evalAtZero (SF { sfTF = tf }) a = (b, FutureSF tf' )
   where (tf', b) = tf a
 
-
 -- | Evaluate an initialized SF, and return an output and a continuation.
 --
 --   /WARN/: Do not use this function for standard simulation. This function is
@@ -263,7 +254,6 @@ evalAt :: FutureSF a b
        -> (b, FutureSF a b)  -- ^ Output x Continuation
 evalAt (FutureSF { unsafeSF = tf }) dt a = (b, FutureSF tf')
   where (tf', b) = (sfTF' tf) dt a
-
 
 -- | Given a signal function and time delta, it moves the signal function into
 --   the future, returning a new uninitialized SF and the initial output.
@@ -279,7 +269,6 @@ evalAt (FutureSF { unsafeSF = tf }) dt a = (b, FutureSF tf')
 evalFuture :: SF a b -> a -> DTime -> (b, SF a b)
 evalFuture sf a dt = (b, sf' dt)
   where (b, sf') = evalStep sf a
-
 
 -- | Steps the signal function into the future one step. It returns the current
 -- output, and a signal function that expects, apart from an input, a time
