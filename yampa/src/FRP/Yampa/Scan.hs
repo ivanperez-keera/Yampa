@@ -27,8 +27,8 @@ import FRP.Yampa.InternalCore (SF(..), sfSScan)
 -- creates a well-formed loop based on a pure, auxiliary function.
 sscan :: (b -> a -> b) -> b -> SF a b
 sscan f b_init = sscanPrim f' b_init b_init
-    where
-        f' b a = let b' = f b a in Just (b', b')
+  where
+    f' b a = let b' = f b a in Just (b', b')
 
 -- | Generic version of 'sscan', in which the auxiliary function produces
 -- an internal accumulator and an "held" output.
@@ -39,7 +39,7 @@ sscan f b_init = sscanPrim f' b_init b_init
 -- pure, auxiliary function.
 sscanPrim :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
 sscanPrim f c_init b_init = SF {sfTF = tf0}
-    where
-        tf0 a0 = case f c_init a0 of
-                     Nothing       -> (sfSScan f c_init b_init, b_init)
-                     Just (c', b') -> (sfSScan f c' b', b')
+  where
+    tf0 a0 = case f c_init a0 of
+               Nothing       -> (sfSScan f c_init b_init, b_init)
+               Just (c', b') -> (sfSScan f c' b', b')

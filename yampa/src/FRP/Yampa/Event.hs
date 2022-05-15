@@ -59,68 +59,68 @@ noEventSnd (a, _) = (a, NoEvent)
 
 -- | Eq instance (equivalent to derived instance)
 instance Eq a => Eq (Event a) where
-    -- | Equal if both NoEvent or both Event carrying equal values.
-    NoEvent   == NoEvent   = True
-    (Event x) == (Event y) = x == y
-    _         == _         = False
+  -- | Equal if both NoEvent or both Event carrying equal values.
+  NoEvent   == NoEvent   = True
+  (Event x) == (Event y) = x == y
+  _         == _         = False
 
 -- | Ord instance (equivalent to derived instance)
 instance Ord a => Ord (Event a) where
-    -- | NoEvent is smaller than Event, Event x < Event y if x < y
-    compare NoEvent   NoEvent   = EQ
-    compare NoEvent   (Event _) = LT
-    compare (Event _) NoEvent   = GT
-    compare (Event x) (Event y) = compare x y
+  -- | NoEvent is smaller than Event, Event x < Event y if x < y
+  compare NoEvent   NoEvent   = EQ
+  compare NoEvent   (Event _) = LT
+  compare (Event _) NoEvent   = GT
+  compare (Event x) (Event y) = compare x y
 
 -- | Functor instance (could be derived).
 instance Functor Event where
-    -- | Apply function to value carried by 'Event', if any.
-    fmap _ NoEvent   = NoEvent
-    fmap f (Event a) = Event (f a)
+  -- | Apply function to value carried by 'Event', if any.
+  fmap _ NoEvent   = NoEvent
+  fmap f (Event a) = Event (f a)
 
 -- | Applicative instance (similar to 'Maybe').
 instance Applicative Event where
-    -- | Wrap a pure value in an 'Event'.
-    pure = Event
-    -- | If any value (function or arg) is 'NoEvent', everything is.
-    NoEvent <*> _ = NoEvent
-    Event f <*> x = f <$> x
+  -- | Wrap a pure value in an 'Event'.
+  pure = Event
+  -- | If any value (function or arg) is 'NoEvent', everything is.
+  NoEvent <*> _ = NoEvent
+  Event f <*> x = f <$> x
 
 -- | Monad instance
 instance Monad Event where
-    -- | Combine events, return 'NoEvent' if any value in the
-    -- sequence is 'NoEvent'.
-    (Event x) >>= k = k x
-    NoEvent  >>= _  = NoEvent
+  -- | Combine events, return 'NoEvent' if any value in the
+  -- sequence is 'NoEvent'.
+  (Event x) >>= k = k x
+  NoEvent  >>= _  = NoEvent
 
-    (>>) = (*>)
+  (>>) = (*>)
 
-    -- | See 'pure'.
-    return          = pure
+  -- | See 'pure'.
+  return          = pure
 
 #if !(MIN_VERSION_base(4,13,0))
-    -- | Fail with 'NoEvent'.
-    fail            = Fail.fail
+  -- | Fail with 'NoEvent'.
+  fail            = Fail.fail
 #endif
 
 instance Fail.MonadFail Event where
-    -- | Fail with 'NoEvent'.
-    fail _          = NoEvent
+  -- | Fail with 'NoEvent'.
+  fail _          = NoEvent
 
 -- | Alternative instance
 instance Alternative Event where
-    -- | An empty alternative carries no event, so it is ignored.
-    empty = NoEvent
-    -- | Merge favouring the left event ('NoEvent' only if both are
-    -- 'NoEvent').
-    NoEvent <|> r = r
-    l       <|> _ = l
+  -- | An empty alternative carries no event, so it is ignored.
+  empty = NoEvent
+  -- | Merge favouring the left event ('NoEvent' only if both are
+  -- 'NoEvent').
+  NoEvent <|> r = r
+  l       <|> _ = l
 
 -- | NFData instance
 instance NFData a => NFData (Event a) where
-    -- | Evaluate value carried by event.
-    rnf NoEvent   = ()
-    rnf (Event a) = rnf a `seq` ()
+  -- | Evaluate value carried by event.
+  rnf NoEvent   = ()
+  rnf (Event a) = rnf a `seq` ()
 
 -- * Internal utilities for event construction
 
@@ -227,8 +227,8 @@ mergeEvents = foldr lMerge NoEvent
 -- carEvents e  = if (null e) then NoEvent else (sequenceA e)
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
-                    [] -> NoEvent
-                    as -> Event as
+                  [] -> NoEvent
+                  as -> Event as
 
 -- | Join (conjunction) of two events. Only produces an event
 -- if both events exist.
@@ -257,8 +257,8 @@ filterE _ NoEvent     = NoEvent
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
 mapFilterE _ NoEvent   = NoEvent
 mapFilterE f (Event a) = case f a of
-                            Nothing -> NoEvent
-                            Just b  -> Event b
+                           Nothing -> NoEvent
+                           Just b  -> Event b
 
 -- | Enable/disable event occurences based on an external condition.
 gate :: Event a -> Bool -> Event a

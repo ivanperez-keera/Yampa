@@ -70,7 +70,7 @@ b0 --> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (fst (tf10 a0), b0)}
 -- like the given sf.
 (-:>) :: b -> SF a b -> SF a b
 b0 -:> (SF {sfTF = tf10}) = SF {sfTF = \_a0 -> (ct, b0)}
- where ct = SF' $ \_dt a0 -> tf10 a0
+  where ct = SF' $ \_dt a0 -> tf10 a0
 
 -- | Input initialization operator.
 --
@@ -86,7 +86,7 @@ a0 >-- (SF {sfTF = tf10}) = SF {sfTF = \_ -> tf10 a0}
 -- time zero.
 (-=>) :: (b -> b) -> SF a b -> SF a b
 f -=> (SF {sfTF = tf10}) =
-    SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
+  SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
 
 -- | Transform initial input value.
 --

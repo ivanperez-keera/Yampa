@@ -1,13 +1,15 @@
-2022-05-14 Ivan Perez <ivan.perez@haskell.sexy>
+2022-05-15 Ivan Perez <ivan.perez@haskell.sexy>
         * src/: Style consistency of separators (#211), adjust format of export
-          lists (#212), compress multiple empty lines (#214).
+          lists (#212), compress multiple empty lines (#214), adjust
+          indentation to two spaces (#215).
         * tests/: Replace tabs with spaces (#205), remove local option disable
           warning on tabs (#206), format module header to conform to style
           guide (#207), adjust modules to run regression tests with QuickCheck
           testing module (#208), rename space usage test to reflect module's
           new purpose (#208), style consistency of separators (#211), adjust
           format of export lists (#212), align lists, tuples, records by
-          leading comma (#213), compress multiple empty lines (#214).
+          leading comma (#213), compress multiple empty lines (#214), adjust
+          indentation to two spaces (#215).
         * yampa-test.cabal: Fix broken link in description (#204), enable all
           warnings (#206), rename flag (#208), rename test (#208), adjust
           modules to run regression tests with QuickCheck testing module

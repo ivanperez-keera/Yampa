@@ -138,13 +138,13 @@ showBallBouncing1 = embed (bouncingBall 110.24999999999999 0 >>> arr fst ) ((), 
 testBallOverFloor' = evalT (ballOverFloor 110.24999999999999) stream0_5'
 
 propTestBallOverFloor =
-  forAll myStream (evalT (ballOverFloor 110.24999999999999))
- where  myStream :: Gen (SignalSampleStream ())
+    forAll myStream (evalT (ballOverFloor 110.24999999999999))
+  where myStream :: Gen (SignalSampleStream ())
         myStream = uniDistStream
 
 propTestBallOverFloorFixed =
-  forAll myStream (evalT (ballOverFloor 110.24999999999999))
- where  myStream :: Gen (SignalSampleStream ())
+    forAll myStream (evalT (ballOverFloor 110.24999999999999))
+  where myStream :: Gen (SignalSampleStream ())
         myStream = fixedDelayStream (1/60)
 
 bouncingBall' p0 v0 = bouncingBall p0 v0 >>> arr fst

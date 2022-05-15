@@ -43,14 +43,14 @@ noiseR range g0 = streamToSF (randomRs range g0)
 streamToSF :: [b] -> SF a b
 streamToSF []     = intErr "AFRP" "streamToSF" "Empty list!"
 streamToSF (b:bs) = SF {sfTF = tf0}
-    where
-        tf0 _ = (stsfAux bs, b)
+  where
+    tf0 _ = (stsfAux bs, b)
 
-        stsfAux []     = intErr "AFRP" "streamToSF" "Empty list!"
-        -- Invarying since stsfAux [] is an error.
-        stsfAux (b:bs) = SF' tf -- True
-            where
-                tf _ _ = (stsfAux bs, b)
+    stsfAux []     = intErr "AFRP" "streamToSF" "Empty list!"
+    -- Invarying since stsfAux [] is an error.
+    stsfAux (b:bs) = SF' tf -- True
+      where
+        tf _ _ = (stsfAux bs, b)
 
 -- | Stochastic event source with events occurring on average once every t_avg
 -- seconds. However, no more than one event results from any one sampling
@@ -62,20 +62,19 @@ occasionally :: RandomGen g => g -> Time -> b -> SF a (Event b)
 occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
                        | otherwise = usrErr "AFRP" "occasionally"
                                             "Non-positive average interval."
-    where
-        -- Generally, if events occur with an average frequency of f, the
-        -- probability of at least one event occurring in an interval of t
-        -- is given by (1 - exp (-f*t)). The goal in the following is to
-        -- decide whether at least one event occurred in the interval of size
-        -- dt preceding the current sample point. For the first point,
-        -- we can think of the preceding interval as being 0, implying
-        -- no probability of an event occurring.
+  where
+    -- Generally, if events occur with an average frequency of f, the
+    -- probability of at least one event occurring in an interval of t is given
+    -- by (1 - exp (-f*t)). The goal in the following is to decide whether at
+    -- least one event occurred in the interval of size dt preceding the
+    -- current sample point. For the first point, we can think of the preceding
+    -- interval as being 0, implying no probability of an event occurring.
 
     tf0 _ = (occAux (randoms g :: [Time]), NoEvent)
 
     occAux [] = undefined
     occAux (r:rs) = SF' tf -- True
-        where
+      where
         tf dt _ = let p = 1 - exp (-(dt/t_avg)) -- Probability for at least one
                                                 -- event.
                   in (occAux rs, if r < p then Event x else NoEvent)

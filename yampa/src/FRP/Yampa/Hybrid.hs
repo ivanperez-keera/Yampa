@@ -46,8 +46,8 @@ import FRP.Yampa.InternalCore (SF, epPrim)
 -- [1,1,2,2,3,3]
 hold :: a -> SF (Event a) a
 hold a_init = epPrim f () a_init
-    where
-        f _ a = ((), a, a)
+  where
+    f _ a = ((), a, a)
 
 -- | Zero-order hold with a delay.
 --
@@ -95,20 +95,20 @@ dTrackAndHold a_init = trackAndHold a_init >>> iPre a_init
 --
 accum :: a -> SF (Event (a -> a)) (Event a)
 accum a_init = epPrim f a_init NoEvent
-    where
-        f a g = (a', Event a', NoEvent) -- Accumulator, output if Event,
-                                        -- output if no event
-            where
-                a' = g a
+  where
+    f a g = (a', Event a', NoEvent) -- Accumulator, output if Event,
+                                    -- output if no event
+      where
+        a' = g a
 
 -- | Zero-order hold accumulator (always produces the last outputted value
 --   until an event arrives).
 accumHold :: a -> SF (Event (a -> a)) a
 accumHold a_init = epPrim f a_init a_init
-    where
-        f a g = (a', a', a') -- Accumulator, output if Event, output if no event
-            where
-                a' = g a
+  where
+    f a g = (a', a', a') -- Accumulator, output if Event, output if no event
+      where
+        a' = g a
 
 -- | Zero-order hold accumulator with delayed initialization (always produces
 -- the last outputted value until an event arrives, but the very initial output
@@ -119,18 +119,18 @@ dAccumHold a_init = accumHold a_init >>> iPre a_init
 -- | Accumulator parameterized by the accumulation function.
 accumBy :: (b -> a -> b) -> b -> SF (Event a) (Event b)
 accumBy g b_init = epPrim f b_init NoEvent
-    where
-        f b a = (b', Event b', NoEvent)
-            where
-                b' = g b a
+  where
+    f b a = (b', Event b', NoEvent)
+      where
+        b' = g b a
 
 -- | Zero-order hold accumulator parameterized by the accumulation function.
 accumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
 accumHoldBy g b_init = epPrim f b_init b_init
-    where
-        f b a = (b', b', b')
-            where
-                b' = g b a
+  where
+    f b a = (b', b', b')
+      where
+        b' = g b a
 
 -- | Zero-order hold accumulator parameterized by the accumulation function
 --   with delayed initialization (initial output sample is always the
@@ -144,7 +144,7 @@ dAccumHoldBy f a_init = accumHoldBy f a_init >>> iPre a_init
 --   'Nothing' or 'Just' x for some x.
 accumFilter :: (c -> a -> (c, Maybe b)) -> c -> SF (Event a) (Event b)
 accumFilter g c_init = epPrim f c_init NoEvent
-    where
-        f c a = case g c a of
-                    (c', Nothing) -> (c', NoEvent, NoEvent)
-                    (c', Just b)  -> (c', Event b, NoEvent)
+  where
+    f c a = case g c a of
+              (c', Nothing) -> (c', NoEvent, NoEvent)
+              (c', Just b)  -> (c', Event b, NoEvent)

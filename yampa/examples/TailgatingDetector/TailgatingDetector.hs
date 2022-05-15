@@ -102,31 +102,31 @@ range = 500
 -- as cars enters the field of view.
 mkVideoAndTrackers :: SF (Highway, UAVStatus) (Video, Event CarTracker)
 mkVideoAndTrackers = arr mkVideo >>> identity &&& carEntry
-    where
-        mkVideo :: (Highway, Position) -> Video
-        mkVideo (cars, p_uav) =
-            [ (i, (p_rel, v))
-            | (i, (p, v)) <- zip [0..] cars
-            , let p_rel = p - p_uav, abs p_rel <= range
-            ]
+  where
+    mkVideo :: (Highway, Position) -> Video
+    mkVideo (cars, p_uav) =
+      [ (i, (p_rel, v))
+      | (i, (p, v)) <- zip [0..] cars
+      , let p_rel = p - p_uav, abs p_rel <= range
+      ]
 
-        carEntry :: SF Video (Event CarTracker)
-        carEntry = edgeBy newCar []
-            where
-                newCar v_prev v =
-                    case (map fst v) \\ (map fst v_prev) of
-                        []      -> Nothing
-                        (i : _) -> Just (mkCarTracker i)
+    carEntry :: SF Video (Event CarTracker)
+    carEntry = edgeBy newCar []
+      where
+        newCar v_prev v =
+          case (map fst v) \\ (map fst v_prev) of
+            []      -> Nothing
+            (i : _) -> Just (mkCarTracker i)
 
-        mkCarTracker :: Int -> CarTracker
-        mkCarTracker i = arr (lookup i . fst)
-                         >>> trackAndHold undefined
-                             &&& edgeBy justToNothing (Just undefined)
-            where
-                justToNothing Nothing  Nothing  = Nothing
-                justToNothing Nothing  (Just _) = Nothing
-                justToNothing (Just _) (Just _) = Nothing
-                justToNothing (Just _) Nothing  = Just ()
+    mkCarTracker :: Int -> CarTracker
+    mkCarTracker i = arr (lookup i . fst)
+                     >>> trackAndHold undefined
+                         &&& edgeBy justToNothing (Just undefined)
+      where
+        justToNothing Nothing  Nothing  = Nothing
+        justToNothing Nothing  (Just _) = Nothing
+        justToNothing (Just _) (Just _) = Nothing
+        justToNothing (Just _) Nothing  = Just ()
 
 videoAndTrackers :: SF a (Video, Event CarTracker)
 videoAndTrackers = highway &&& uavStatus >>> mkVideoAndTrackers
@@ -147,25 +147,24 @@ smplPer = 1/smplFreq
 
 tailgating :: SF (Car, Car) (Event ())
 tailgating = provided follow tooClose never
-    where
-        follow ((p1, v1), (p2, v2)) = p1 < p2
-                                      && v1 > 5.0
-                                      && abs ((v2 - v1)/v1) < 0.2
-                                      && (p2 - p1) / v1 < 5.0
+  where
+    follow ((p1, v1), (p2, v2)) = p1 < p2
+                                  && v1 > 5.0
+                                  && abs ((v2 - v1)/v1) < 0.2
+                                  && (p2 - p1) / v1 < 5.0
 
-        -- Under the assumption that car c1 is following car c2, generate an
-        -- event if car1 has been too close to car2 on average during the
-        -- last 30 s.
-        tooClose :: SF (Car, Car) (Event ())
-        tooClose = proc (c1, c2) -> do
-            ead <- recur (snapAfter 30 <<< avgDist) -< (c1, c2)
-            returnA -< (filterE (<1.0) ead) `tag` ()
+    -- Under the assumption that car c1 is following car c2, generate an event
+    -- if car1 has been too close to car2 on average during the last 30 s.
+    tooClose :: SF (Car, Car) (Event ())
+    tooClose = proc (c1, c2) -> do
+      ead <- recur (snapAfter 30 <<< avgDist) -< (c1, c2)
+      returnA -< (filterE (<1.0) ead) `tag` ()
 
-        avgDist = proc ((p1, v1), (p2, v2)) -> do
-            let nd = (p2 - p1) / v1
-            ind <- integral  -< nd
-            t   <- localTime -< ()
-            returnA -< if t > 0 then ind / t else nd
+    avgDist = proc ((p1, v1), (p2, v2)) -> do
+      let nd = (p2 - p1) / v1
+      ind <- integral  -< nd
+      t   <- localTime -< ()
+      returnA -< if t > 0 then ind / t else nd
 
 -- * Multi-Car tracker
 
@@ -176,7 +175,7 @@ type Id = Int
 data MCTCol a = MCTCol Id [(Id, a)]
 
 instance Functor MCTCol where
-    fmap f (MCTCol n ias) = MCTCol n [ (i, f a) | (i, a) <- ias ]
+  fmap f (MCTCol n ias) = MCTCol n [ (i, f a) | (i, a) <- ias ]
 
 -- Tracking of individual cars in a group. The arrival of a new car is
 -- signalled by an external event, which causes a new tracker to be added
@@ -197,35 +196,35 @@ instance Functor MCTCol where
 mct :: SF (Video, UAVStatus, Event CarTracker) [(Id, Car)]
 mct = pSwitch route cts_init addOrDelCTs (\cts' f -> mctAux (f cts'))
       >>^ getCars
-    where
-        mctAux cts = pSwitch route
-                             cts
-                             (noEvent --> addOrDelCTs)
-                             (\cts' f -> mctAux (f cts'))
+  where
+    mctAux cts = pSwitch route
+                         cts
+                         (noEvent --> addOrDelCTs)
+                         (\cts' f -> mctAux (f cts'))
 
-        route (v, s, _) = fmap (\ct -> ((v, s), ct))
+    route (v, s, _) = fmap (\ct -> ((v, s), ct))
 
-        -- addOrDelCTs :: SF _ (Event (MCTCol CarTracker -> MCTCol carTracker))
-        addOrDelCTs = proc ((_, _, ect), ces) -> do
-            let eAdd = fmap addCT ect
-            let eDel = fmap delCTs (catEvents (getEvents ces))
-            returnA -< mergeBy (.) eAdd eDel
+    -- addOrDelCTs :: SF _ (Event (MCTCol CarTracker -> MCTCol carTracker))
+    addOrDelCTs = proc ((_, _, ect), ces) -> do
+      let eAdd = fmap addCT ect
+      let eDel = fmap delCTs (catEvents (getEvents ces))
+      returnA -< mergeBy (.) eAdd eDel
 
-        cts_init :: MCTCol CarTracker
-        cts_init = MCTCol 0 []
+    cts_init :: MCTCol CarTracker
+    cts_init = MCTCol 0 []
 
-        addCT :: CarTracker -> MCTCol CarTracker -> MCTCol CarTracker
-        addCT ct (MCTCol n icts) = MCTCol (n+1) ((n, ct) : icts)
+    addCT :: CarTracker -> MCTCol CarTracker -> MCTCol CarTracker
+    addCT ct (MCTCol n icts) = MCTCol (n+1) ((n, ct) : icts)
 
-        delCTs :: [Id] -> MCTCol CarTracker -> MCTCol CarTracker
-        delCTs is (MCTCol n icts) =
-            MCTCol n (filter (flip notElem is . fst) icts)
+    delCTs :: [Id] -> MCTCol CarTracker -> MCTCol CarTracker
+    delCTs is (MCTCol n icts) =
+      MCTCol n (filter (flip notElem is . fst) icts)
 
-        getCars :: MCTCol (Car, Event ()) -> [(Id, Car)]
-        getCars (MCTCol _ ices) = [(i, c) | (i, (c, _)) <- ices ]
+    getCars :: MCTCol (Car, Event ()) -> [(Id, Car)]
+    getCars (MCTCol _ ices) = [(i, c) | (i, (c, _)) <- ices ]
 
-        getEvents :: MCTCol (Car, Event ()) -> [Event Id]
-        getEvents (MCTCol _ ices) = [e `tag` i | (i,(_,e)) <- ices]
+    getEvents :: MCTCol (Car, Event ()) -> [Event Id]
+    getEvents (MCTCol _ ices) = [e `tag` i | (i,(_,e)) <- ices]
 
 -- * Multi tailgating detector
 
@@ -234,7 +233,7 @@ mct = pSwitch route cts_init addOrDelCTs (\cts' f -> mctAux (f cts'))
 newtype MTGDCol a = MTGDCol [((Id,Id), a)]
 
 instance Functor MTGDCol where
-    fmap f (MTGDCol iias) = MTGDCol [ (ii, f a) | (ii, a) <- iias ]
+  fmap f (MTGDCol iias) = MTGDCol [ (ii, f a) | (ii, a) <- iias ]
 
 -- Run tailgating above for each pair of tracked cars. A structural change
 -- to the list of tracked cars is signalled by an event, at which point
@@ -250,42 +249,41 @@ mtgd = proc ics -> do
     eno  <- newOrder -< ics'
     etgs <- rpSwitch route (MTGDCol []) -< (ics', fmap updateTGDs eno)
     returnA -< tailgaters etgs
-    where
-        route ics (MTGDCol iitgs) = MTGDCol $
-            let cs = map snd ics
-            in
-                [ (ii, (cc, tg))
-                | (cc, (ii, tg)) <- zip (zip cs (tail cs)) iitgs ]
+  where
+    route ics (MTGDCol iitgs) = MTGDCol $
+      let cs = map snd ics
+      in [ (ii, (cc, tg))
+         | (cc, (ii, tg)) <- zip (zip cs (tail cs)) iitgs
+         ]
 
-        relPos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
+    relPos (_, (p1, _)) (_, (p2, _)) = compare p1 p2
 
-        newOrder :: SF [(Id, Car)] (Event [Id])
-        newOrder = edgeBy (\ics ics' -> if sameOrder ics ics' then
-                                            Nothing
-                                        else
-                                            Just (map fst ics'))
-                          []
-            where
-                sameOrder [] [] = True
-                sameOrder [] _  = False
-                sameOrder _  [] = False
-                sameOrder ((i,_):ics) ((i',_):ics')
-                    | i == i'   = sameOrder ics ics'
-                    | otherwise = False
+    newOrder :: SF [(Id, Car)] (Event [Id])
+    newOrder = edgeBy (\ics ics' -> if sameOrder ics ics'
+                                      then Nothing
+                                      else Just (map fst ics'))
+                      []
+      where
+        sameOrder [] [] = True
+        sameOrder [] _  = False
+        sameOrder _  [] = False
+        sameOrder ((i,_):ics) ((i',_):ics')
+          | i == i'   = sameOrder ics ics'
+          | otherwise = False
 
-        updateTGDs is (MTGDCol iitgs) = MTGDCol $
-            [ (ii, maybe tailgating id (lookup ii iitgs))
-            | ii <- zip is (tail is) ]
+    updateTGDs is (MTGDCol iitgs) = MTGDCol $
+      [ (ii, maybe tailgating id (lookup ii iitgs))
+      | ii <- zip is (tail is) ]
 
-        tailgaters :: MTGDCol (Event ()) -> Event [(Id, Id)]
-        tailgaters (MTGDCol iies) = catEvents [ e `tag` ii | (ii, e) <- iies ]
+    tailgaters :: MTGDCol (Event ()) -> Event [(Id, Id)]
+    tailgaters (MTGDCol iies) = catEvents [ e `tag` ii | (ii, e) <- iies ]
 
 -- Finally, we can tie the individaul pieces together into a signal
 -- function which finds tailgaters:
 
 findTailgaters ::
-    SF (Video, UAVStatus, Event CarTracker) ([(Id, Car)], Event [(Id, Id)])
+  SF (Video, UAVStatus, Event CarTracker) ([(Id, Car)], Event [(Id, Id)])
 findTailgaters = proc (v, s, ect) -> do
-    ics  <- mct  -< (v, s, ect)
-    etgs <- mtgd -< ics
-    returnA -< (ics, etgs)
+  ics  <- mct  -< (v, s, ect)
+  etgs <- mtgd -< ics
+  returnA -< (ics, etgs)
