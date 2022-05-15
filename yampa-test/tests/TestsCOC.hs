@@ -43,7 +43,6 @@ coc_t0r =
     , [1.0, 9.5, 8.55]
     ]
 
-
 coc_trs =
     [ coc_t0 ~= coc_t0r
     ]
