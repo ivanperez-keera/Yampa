@@ -36,7 +36,6 @@ infixl 8 `tag`, `attach`, `gate`
 infixl 7 `joinE`
 infixl 6 `lMerge`, `rMerge`, `merge`
 
-
 -- * The Event type
 
 -- | A single possible event occurrence, that is, a value that may or may
@@ -50,16 +49,13 @@ data Event a = NoEvent | Event a deriving (Show)
 noEvent :: Event a
 noEvent = NoEvent
 
-
 -- | Suppress any event in the first component of a pair.
 noEventFst :: (Event a, b) -> (Event c, b)
 noEventFst (_, b) = (NoEvent, b)
 
-
 -- | Suppress any event in the second component of a pair.
 noEventSnd :: (a, Event b) -> (a, Event c)
 noEventSnd (a, _) = (a, NoEvent)
-
 
 -- | Eq instance (equivalent to derived instance)
 instance Eq a => Eq (Event a) where
@@ -67,7 +63,6 @@ instance Eq a => Eq (Event a) where
     NoEvent   == NoEvent   = True
     (Event x) == (Event y) = x == y
     _         == _         = False
-
 
 -- | Ord instance (equivalent to derived instance)
 instance Ord a => Ord (Event a) where
@@ -82,7 +77,6 @@ instance Functor Event where
     -- | Apply function to value carried by 'Event', if any.
     fmap _ NoEvent   = NoEvent
     fmap f (Event a) = Event (f a)
-
 
 -- | Applicative instance (similar to 'Maybe').
 instance Applicative Event where
@@ -138,7 +132,6 @@ maybeToEvent :: Maybe a -> Event a
 maybeToEvent Nothing  = NoEvent
 maybeToEvent (Just a) = Event a
 
-
 -- * Utility functions similar to those available for Maybe
 
 -- | An event-based version of the maybe function.
@@ -159,7 +152,6 @@ isEvent (Event _) = True
 -- | Negation of 'isEvent'.
 isNoEvent :: Event a -> Bool
 isNoEvent = not . isEvent
-
 
 -- * Event tagging
 
@@ -182,23 +174,19 @@ tagWith = flip tag
 attach :: Event a -> b -> Event (a, b)
 e `attach` b = fmap (\a -> (a, b)) e
 
-
 -- * Event merging (disjunction) and joining (conjunction)
 
 -- | Left-biased event merge (always prefer left event, if present).
 lMerge :: Event a -> Event a -> Event a
 lMerge = (<|>)
 
-
 -- | Right-biased event merge (always prefer right event, if present).
 rMerge :: Event a -> Event a -> Event a
 rMerge = flip (<|>)
 
-
 -- | Unbiased event merge: simultaneous occurrence is an error.
 merge :: Event a -> Event a -> Event a
 merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
-
 
 -- | Event merge parameterized by a conflict resolution function.
 --
@@ -252,12 +240,10 @@ joinE NoEvent   _         = NoEvent
 joinE _         NoEvent   = NoEvent
 joinE (Event l) (Event r) = Event (l,r)
 
-
 -- | Split event carrying pairs into two events.
 splitE :: Event (a,b) -> (Event a, Event b)
 splitE NoEvent       = (NoEvent, NoEvent)
 splitE (Event (a,b)) = (Event a, Event b)
-
 
 -- * Event filtering
 
@@ -266,7 +252,6 @@ filterE :: (a -> Bool) -> Event a -> Event a
 filterE p e@(Event a) = if p a then e else NoEvent
 filterE _ NoEvent     = NoEvent
 
-
 -- | Combined event mapping and filtering. Note: since 'Event' is a 'Functor',
 -- see 'fmap' for a simpler version of this function with no filtering.
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
@@ -274,7 +259,6 @@ mapFilterE _ NoEvent   = NoEvent
 mapFilterE f (Event a) = case f a of
                             Nothing -> NoEvent
                             Just b  -> Event b
-
 
 -- | Enable/disable event occurences based on an external condition.
 gate :: Event a -> Bool -> Event a
