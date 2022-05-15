@@ -76,8 +76,9 @@ insertIL a (IL {ilNextKey = k, ilAssocs = kas}) = (k, il') where
 
 
 listToIL :: [a] -> IL a
-listToIL as = IL {ilNextKey = length as,
-                  ilAssocs = reverse (zip [0..] as)} -- Maintain invariant!
+listToIL as = IL { ilNextKey = length as
+                 , ilAssocs = reverse (zip [0..] as) -- Maintain invariant!
+                 }
 
 
 -- * Additional selectors
@@ -132,10 +133,9 @@ filterIL p (IL {ilNextKey = nk, ilAssocs = kas}) =
 
 mapFilterIL :: ((ILKey, a) -> Maybe b) -> IL a -> IL b
 mapFilterIL p (IL {ilNextKey = nk, ilAssocs = kas}) =
-    IL {
-        ilNextKey = nk,
-        ilAssocs = [(k, b) | ka@(k, _) <- kas, Just b <- [p ka]]
-    }
+    IL { ilNextKey = nk
+       , ilAssocs = [(k, b) | ka@(k, _) <- kas, Just b <- [p ka]]
+       }
 
 
 -- * Lookup operations
