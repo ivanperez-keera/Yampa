@@ -81,14 +81,12 @@ instance REq a => REq [a] where
     (x:xs) ~= (y:ys) = x ~= y && xs ~= ys
     _      ~= _      = False
 
-
 ------------------------------------------------------------------------------
 -- Testing utilities
 ------------------------------------------------------------------------------
 
 testSF1 :: SF Double a -> [a]
 testSF1 sf = take 25 (embed sf (deltaEncodeBy (~=) 0.25 [0.0..]))
-
 
 testSF2 :: SF Double a -> [a]
 testSF2 sf = take 25 (embed sf (deltaEncodeBy (~=) 0.25 input))
@@ -97,7 +95,6 @@ testSF2 sf = take 25 (embed sf (deltaEncodeBy (~=) 0.25 input))
         -- version.
         input = 0.0 : [ fromIntegral (b `div` freq) | b <- [1..] :: [Int] ]
         freq = 5
-
 
 ------------------------------------------------------------------------------
 -- Test harness for space behaviour
@@ -111,7 +108,6 @@ testSF2 sf = take 25 (embed sf (deltaEncodeBy (~=) 0.25 input))
 testSFSpaceLeak :: Int -> SF Double a -> a
 testSFSpaceLeak n sf = embed sf (deltaEncodeBy (~=) 0.25 [(seq n 0.0)..]) !! n
 -}
-
 
 -- Using embed/deltaEncode seems to be a bad idea since fully lazy
 -- lambda lifting often results in lifting a big input list to the top
