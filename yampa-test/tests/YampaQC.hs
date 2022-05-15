@@ -647,7 +647,6 @@ simpleF = arr id &&& cond
 delayedF = arr id &&& cond
  where cond = after 1.5 (Event ())
 
-
 -- * Generic SF predicate building functions
 
 -- | Compares two SFs, resulting in true if they are always equal
