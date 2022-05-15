@@ -59,7 +59,6 @@ pswitch_t0r =
     , [25.80, 17.15]        -- 9.5
     ]
 
-
 pswitch_t1 :: [[Double]]
 pswitch_t1 = take 20 $ embed sf pswitch_inp1
     where
@@ -69,7 +68,6 @@ pswitch_t1 = take 20 $ embed sf pswitch_inp1
             dpSwitchB ((integral>>>arr(+x)):sfs)(whenFstGE 5.25 20.0)$ \sfs x->
             dpSwitchB ((integral>>>arr(+x)):sfs)(whenFstGE 7.25 20.0)$ \sfs _->
             parB (take 2 sfs)
-
 
 pswitch_t1r =
     [ []                    -- 0.0
@@ -93,7 +91,6 @@ pswitch_t1r =
     , [24.90, 16.25]        -- 9.0
     , [25.80, 17.15]        -- 9.5
     ]
-
 
 pswitch_t2 :: [[Double]]
 pswitch_t2 = take 20 $ embed sf pswitch_inp1
@@ -128,7 +125,6 @@ pswitch_t2r =
     , [25.80, 17.15]  -- 9.5
     ]
 
-
 pswitch_t3 :: [[Double]]
 pswitch_t3 = take 20 $ embed sf pswitch_inp1
     where
@@ -161,7 +157,6 @@ pswitch_t3r =
     , [24.90, 16.25]    -- 9.0
     , [25.80, 17.15]    -- 9.5
     ]
-
 
 -- Starts three "ramps" with different phase. As soon as one exceeds a
 -- threshold, it's restarted, while the others are left alone. The
@@ -226,7 +221,6 @@ pswitch_t4r =
     , [2.8, 0.8, 1.8]
     ]
 
-
 -- Variation of the test above, with direct observation (not via loop) and
 -- immediate switch.
 
@@ -285,7 +279,6 @@ pswitch_t5r =
     , ([2.8, 0.8, 1.8], 5.4)
     ]
 
-
 pswitch_trs =
     [ pswitch_t0 ~= pswitch_t0r
     , pswitch_t1 ~= pswitch_t1r
@@ -297,7 +290,6 @@ pswitch_trs =
 
 pswitch_tr = and pswitch_trs
 
-
 pswitch_st0 = testSFSpaceLeak 1000000 (loop sf)
     where
         sf :: SF (a, [Double]) ([Double],[Double])
@@ -307,7 +299,6 @@ pswitch_st0 = testSFSpaceLeak 1000000 (loop sf)
              >>> arr dup
 
 pswitch_st0r = [1.5,2.5,0.5]
-
 
 pswitch_st1 = testSFSpaceLeak 1000000 (loop sf)
     where
