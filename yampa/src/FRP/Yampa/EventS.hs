@@ -95,8 +95,8 @@ after q x = afterEach [(q,x)]
 repeatedly :: Time -> b -> SF a (Event b)
 repeatedly q x | q > 0 = afterEach qxs
                | otherwise = usrErr "AFRP" "repeatedly" "Non-positive period."
-    where
-        qxs = (q,x):qxs
+  where
+    qxs = (q,x):qxs
 
 -- | Event source with consecutive occurrences at the given intervals.
 -- Should more than one event be scheduled to occur in any sampling interval,
@@ -112,25 +112,24 @@ afterEachCat [] = never
 afterEachCat ((q,x):qxs)
     | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
     | otherwise = SF {sfTF = tf0}
-    where
-        tf0 _ = if q <= 0 then
-                    emitEventsScheduleNext 0.0 [x] qxs
-                else
-                    (awaitNextEvent (-q) x qxs, NoEvent)
+  where
+    tf0 _ = if q <= 0
+              then emitEventsScheduleNext 0.0 [x] qxs
+              else (awaitNextEvent (-q) x qxs, NoEvent)
 
-        emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
-        emitEventsScheduleNext t xs ((q,x):qxs)
-            | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
-            | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
-            | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
-            where
-                t' = t - q
-        awaitNextEvent t x qxs = SF' tf -- False
-            where
-                tf dt _ | t' >= 0   = emitEventsScheduleNext t' [x] qxs
-                        | otherwise = (awaitNextEvent t' x qxs, NoEvent)
-                    where
-                        t' = t + dt
+    emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
+    emitEventsScheduleNext t xs ((q,x):qxs)
+        | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
+        | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
+        | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
+      where
+        t' = t - q
+    awaitNextEvent t x qxs = SF' tf -- False
+      where
+        tf dt _ | t' >= 0   = emitEventsScheduleNext t' [x] qxs
+                | otherwise = (awaitNextEvent t' x qxs, NoEvent)
+          where
+            t' = t + dt
 
 -- | Delay for events. (Consider it a triggered after, hence /basic/.)
 delayEvent :: Time -> SF (Event a) (Event a)
@@ -144,76 +143,76 @@ delayEventCat :: Time -> SF (Event a) (Event [a])
 delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                 | q == 0    = arr (fmap (:[]))
                 | otherwise = SF {sfTF = tf0}
-    where
-        tf0 e = ( case e of
-                      NoEvent -> noPendingEvent
-                      Event x -> pendingEvents (-q) [] [] (-q) x
-                , NoEvent
-                )
-
-        noPendingEvent = SF' tf -- True
-            where
-                tf _ e = ( case e of
-                               NoEvent -> noPendingEvent
-                               Event x -> pendingEvents (-q) [] [] (-q) x
-                         , NoEvent
-                         )
-
-        -- t_next is the present time w.r.t. the next scheduled event.
-        -- t_last is the present time w.r.t. the last scheduled event.
-        -- In the event queues, events are associated with their time
-        -- w.r.t. to preceding event (positive).
-        pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
-            where
-                tf dt e
-                    | t_next' >= 0 =
-                        emitEventsScheduleNext e t_last' rqxs qxs t_next' [x]
-                    | otherwise    =
-                        (pendingEvents t_last'' rqxs' qxs t_next' x, NoEvent)
-                    where
-                        t_next' = t_next  + dt
-                        t_last' = t_last  + dt
-                        (t_last'', rqxs') =
-                            case e of
-                                NoEvent  -> (t_last', rqxs)
-                                Event x' -> (-q, (t_last'+q,x') : rqxs)
-
-        -- t_next is the present time w.r.t. the *scheduled* time of the
-        -- event that is about to be emitted (i.e. >= 0).
-        -- The time associated with any event at the head of the event
-        -- queue is also given w.r.t. the event that is about to be emitted.
-        -- Thus, t_next - q' is the present time w.r.t. the event at the head
-        -- of the event queue.
-        emitEventsScheduleNext e _ [] [] _ rxs =
-            ( case e of
-                  NoEvent -> noPendingEvent
-                  Event x -> pendingEvents (-q) [] [] (-q) x
-            , Event (reverse rxs)
+  where
+    tf0 e = ( case e of
+                NoEvent -> noPendingEvent
+                Event x -> pendingEvents (-q) [] [] (-q) x
+            , NoEvent
             )
-        emitEventsScheduleNext e t_last rqxs [] t_next rxs =
-            emitEventsScheduleNext e t_last [] (reverse rqxs) t_next rxs
-        emitEventsScheduleNext e t_last rqxs ((q', x') : qxs') t_next rxs
-            | q' > t_next = ( case e of
-                                  NoEvent ->
-                                      pendingEvents t_last
-                                                    rqxs
-                                                    qxs'
-                                                    (t_next - q')
-                                                    x'
-                                  Event x'' ->
-                                      pendingEvents (-q)
-                                                    ((t_last+q, x'') : rqxs)
-                                                    qxs'
-                                                    (t_next - q')
-                                                    x'
-                            , Event (reverse rxs)
-                            )
-            | otherwise   = emitEventsScheduleNext e
-                                                   t_last
-                                                   rqxs
-                                                   qxs'
-                                                   (t_next - q')
-                                                   (x' : rxs)
+
+    noPendingEvent = SF' tf -- True
+      where
+        tf _ e = ( case e of
+                     NoEvent -> noPendingEvent
+                     Event x -> pendingEvents (-q) [] [] (-q) x
+                 , NoEvent
+                 )
+
+    -- t_next is the present time w.r.t. the next scheduled event.
+    -- t_last is the present time w.r.t. the last scheduled event.
+    -- In the event queues, events are associated with their time
+    -- w.r.t. to preceding event (positive).
+    pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
+      where
+        tf dt e
+            | t_next' >= 0
+            = emitEventsScheduleNext e t_last' rqxs qxs t_next' [x]
+            | otherwise
+            = (pendingEvents t_last'' rqxs' qxs t_next' x, NoEvent)
+          where
+            t_next' = t_next  + dt
+            t_last' = t_last  + dt
+            (t_last'', rqxs') =
+              case e of
+                NoEvent  -> (t_last', rqxs)
+                Event x' -> (-q, (t_last'+q,x') : rqxs)
+
+    -- t_next is the present time w.r.t. the *scheduled* time of the
+    -- event that is about to be emitted (i.e. >= 0).
+    -- The time associated with any event at the head of the event
+    -- queue is also given w.r.t. the event that is about to be emitted.
+    -- Thus, t_next - q' is the present time w.r.t. the event at the head
+    -- of the event queue.
+    emitEventsScheduleNext e _ [] [] _ rxs =
+      ( case e of
+          NoEvent -> noPendingEvent
+          Event x -> pendingEvents (-q) [] [] (-q) x
+      , Event (reverse rxs)
+      )
+    emitEventsScheduleNext e t_last rqxs [] t_next rxs =
+      emitEventsScheduleNext e t_last [] (reverse rqxs) t_next rxs
+    emitEventsScheduleNext e t_last rqxs ((q', x') : qxs') t_next rxs
+      | q' > t_next = ( case e of
+                          NoEvent ->
+                            pendingEvents t_last
+                                          rqxs
+                                          qxs'
+                                          (t_next - q')
+                                          x'
+                          Event x'' ->
+                            pendingEvents (-q)
+                                          ((t_last+q, x'') : rqxs)
+                                          qxs'
+                                          (t_next - q')
+                                          x'
+                      , Event (reverse rxs)
+                      )
+      | otherwise   = emitEventsScheduleNext e
+                                             t_last
+                                             rqxs
+                                             qxs'
+                                             (t_next - q')
+                                             (x' : rxs)
 
 -- | A rising edge detector. Useful for things like detecting key presses.
 -- It is initialised as /up/, meaning that events occuring at time 0 will
@@ -226,15 +225,15 @@ edge = iEdge True
 --   ('False', meaning that events ocurring at time 0 will be detected).
 iEdge :: Bool -> SF Bool (Event ())
 iEdge b = sscanPrim f (if b then 2 else 0) NoEvent
-    where
-        f :: Int -> Bool -> Maybe (Int, Event ())
-        f 0 False = Nothing
-        f 0 True  = Just (1, Event ())
-        f 1 False = Just (0, NoEvent)
-        f 1 True  = Just (2, NoEvent)
-        f 2 False = Just (0, NoEvent)
-        f 2 True  = Nothing
-        f _ _     = undefined
+  where
+    f :: Int -> Bool -> Maybe (Int, Event ())
+    f 0 False = Nothing
+    f 0 True  = Just (1, Event ())
+    f 1 False = Just (0, NoEvent)
+    f 1 True  = Just (2, NoEvent)
+    f 2 False = Just (0, NoEvent)
+    f 2 True  = Nothing
+    f _ _     = undefined
 
 -- | Like 'edge', but parameterized on the tag value.
 edgeTag :: a -> SF Bool (Event a)
@@ -244,23 +243,23 @@ edgeTag a = edge >>> arr (`tag` a)
 --   on a 'Maybe' signal from 'Nothing' to 'Just'.
 edgeJust :: SF (Maybe a) (Event a)
 edgeJust = edgeBy isJustEdge (Just undefined)
-    where
-        isJustEdge Nothing  Nothing     = Nothing
-        isJustEdge Nothing  ma@(Just _) = ma
-        isJustEdge (Just _) (Just _)    = Nothing
-        isJustEdge (Just _) Nothing     = Nothing
+  where
+    isJustEdge Nothing  Nothing     = Nothing
+    isJustEdge Nothing  ma@(Just _) = ma
+    isJustEdge (Just _) (Just _)    = Nothing
+    isJustEdge (Just _) Nothing     = Nothing
 
 -- | Edge detector parameterized on the edge detection function and initial
 -- state, i.e., the previous input sample. The first argument to the
 -- edge detection function is the previous sample, the second the current one.
 edgeBy :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 edgeBy isEdge a_init = SF {sfTF = tf0}
-    where
-        tf0 a0 = (ebAux a0, maybeToEvent (isEdge a_init a0))
+  where
+    tf0 a0 = (ebAux a0, maybeToEvent (isEdge a_init a0))
 
-        ebAux a_prev = SF' tf -- True
-            where
-                tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
+    ebAux a_prev = SF' tf -- True
+      where
+        tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
 
 -- * Stateful event suppression
 
@@ -291,18 +290,16 @@ dropEvents n =
 -- obtained by sampling the input at that time.
 snap :: SF a (Event a)
 snap =
-   -- switch ensures that the entire signal function will become just
-   -- "constant" once the sample has been taken.
-   switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
+  -- switch ensures that the entire signal function will become just
+  -- "constant" once the sample has been taken.
+  switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
 
 -- | Event source with a single occurrence at or as soon after (local) time
 -- @t_ev@ as possible. The value of the event is obtained by sampling the input
 -- a that time.
 snapAfter :: Time -> SF a (Event a)
-snapAfter t_ev = switch (never
-             &&& (identity
-                  &&& after t_ev () >>^ \(a, e) -> e `tag` a))
-            now
+snapAfter t_ev =
+  switch (never &&& (identity &&& after t_ev () >>^ \(a, e) -> e `tag` a)) now
 
 -- | Sample a signal at regular intervals.
 sample :: Time -> SF a (Event a)
@@ -321,9 +318,9 @@ sampleWindow wl q =
     identity &&& afterEachCat (repeat (q, ()))
     >>> arr (\(a, e) -> fmap (map (const a)) e)
     >>> accumBy updateWindow []
-    where
-        updateWindow w as = drop (max (length w' - wl) 0) w'
-            where w' = w ++ as
+  where
+    updateWindow w as = drop (max (length w' - wl) 0) w'
+      where w' = w ++ as
 
 -- * Repetition and switching
 
