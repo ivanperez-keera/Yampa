@@ -94,19 +94,18 @@ reactimate :: Monad m
                                            --   action
            -> SF a b                       -- ^ Signal function
            -> m ()
-reactimate init sense actuate (SF {sfTF = tf0}) =
-    do
-        a0 <- init
-        let (sf, b0) = tf0 a0
-        loop sf a0 b0
-    where
-        loop sf a b = do
-            done <- actuate True b
-            unless (a `seq` b `seq` done) $ do
-                (dt, ma') <- sense False
-                let a' = fromMaybe a ma'
-                    (sf', b') = (sfTF' sf) dt a'
-                loop sf' a' b'
+reactimate init sense actuate (SF {sfTF = tf0}) = do
+    a0 <- init
+    let (sf, b0) = tf0 a0
+    loop sf a0 b0
+  where
+    loop sf a b = do
+      done <- actuate True b
+      unless (a `seq` b `seq` done) $ do
+        (dt, ma') <- sense False
+        let a' = fromMaybe a ma'
+            (sf', b') = (sfTF' sf) dt a'
+        loop sf' a' b'
 
 -- An API for animating a signal function when some other library
 -- needs to own the top-level control flow:
@@ -128,32 +127,32 @@ reactInit :: IO a -- init
              -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
              -> SF a b
              -> IO (ReactHandle a b)
-reactInit init actuate (SF {sfTF = tf0}) =
-  do a0 <- init
-     let (sf,b0) = tf0 a0
-     -- TODO: really need to fix this interface, since right now we
-     -- just ignore termination at time 0:
-     r' <- newIORef (ReactState { rsActuate = actuate, rsSF = sf
-                                , rsA = a0, rsB = b0
-                                }
-                    )
-     let r = ReactHandle r'
-     _ <- actuate r True b0
-     return r
+reactInit init actuate (SF {sfTF = tf0}) = do
+  a0 <- init
+  let (sf,b0) = tf0 a0
+  -- TODO: really need to fix this interface, since right now we
+  -- just ignore termination at time 0:
+  r' <- newIORef (ReactState { rsActuate = actuate, rsSF = sf
+                             , rsA = a0, rsB = b0
+                             }
+                 )
+  let r = ReactHandle r'
+  _ <- actuate r True b0
+  return r
 
 -- | Process a single input sample.
 react :: ReactHandle a b
       -> (DTime,Maybe a)
       -> IO Bool
-react rh (dt,ma') =
-  do rs <- readIORef (reactHandle rh)
-     let ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b } = rs
+react rh (dt,ma') = do
+  rs <- readIORef (reactHandle rh)
+  let ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b } = rs
 
-     let a' = fromMaybe a ma'
-         (sf',b') = (sfTF' sf) dt a'
-     writeIORef (reactHandle rh) (rs {rsSF = sf',rsA = a',rsB = b'})
-     done <- actuate rh True b'
-     return done
+  let a' = fromMaybe a ma'
+      (sf',b') = (sfTF' sf) dt a'
+  writeIORef (reactHandle rh) (rs {rsSF = sf',rsA = a',rsB = b'})
+  done <- actuate rh True b'
+  return done
 
 -- * Embedding
 
@@ -165,48 +164,45 @@ react rh (dt,ma') =
 -- This is a simplified, purely-functional version of 'reactimate'.
 embed :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
 embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
-    where
-        (sf, b0) = (sfTF sf0) a0
+  where
+    (sf, b0) = (sfTF sf0) a0
 
-        loop _ _ [] = []
-        loop a_prev sf ((dt, ma) : dtas) =
-            b : (a `seq` b `seq` loop a sf' dtas)
-            where
-                a        = fromMaybe a_prev ma
-                (sf', b) = (sfTF' sf) dt a
+    loop _ _ [] = []
+    loop a_prev sf ((dt, ma) : dtas) =
+        b : (a `seq` b `seq` loop a sf' dtas)
+      where
+        a        = fromMaybe a_prev ma
+        (sf', b) = (sfTF' sf) dt a
 
 -- | Synchronous embedding. The embedded signal function is run on the supplied
 -- input and time stream at a given (but variable) ratio >= 0 to the outer time
 -- flow. When the ratio is 0, the embedded signal function is paused.
 embedSynch :: SF a b -> (a, [(DTime, Maybe a)]) -> SF Double b
 embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
-    where
-        tts       = scanl (\t (dt, _) -> t + dt) 0 dtas
-        bbs@(b:_) = embed sf0 (a0, dtas)
+  where
+    tts       = scanl (\t (dt, _) -> t + dt) 0 dtas
+    bbs@(b:_) = embed sf0 (a0, dtas)
 
-        tf0 _ = (esAux 0 (zip tts bbs), b)
+    tf0 _ = (esAux 0 (zip tts bbs), b)
 
-        esAux _       []    = intErr "AFRP" "embedSynch" "Empty list!"
-        -- Invarying below since esAux [] is an error.
-        esAux tp_prev tbtbs = SF' tf -- True
-            where
-                tf dt r | r < 0     = usrErr "AFRP" "embedSynch"
-                                             "Negative ratio."
-                        | otherwise = let tp = tp_prev + dt * r
-                                          (b, tbtbs') = advance tp tbtbs
-                                      in
-                                          (esAux tp tbtbs', b)
+    esAux _       []    = intErr "AFRP" "embedSynch" "Empty list!"
+    -- Invarying below since esAux [] is an error.
+    esAux tp_prev tbtbs = SF' tf -- True
+      where
+        tf dt r | r < 0     = usrErr "AFRP" "embedSynch" "Negative ratio."
+                | otherwise = let tp = tp_prev + dt * r
+                                  (b, tbtbs') = advance tp tbtbs
+                              in (esAux tp tbtbs', b)
 
-                -- Advance the time stamped stream to the perceived time tp.
-                -- Under the assumption that the perceived time never goes
-                -- backwards (non-negative ratio), advance maintains the
-                -- invariant that the perceived time is always >= the first
-                -- time stamp.
-        advance _  tbtbs@[(_, b)] = (b, tbtbs)
-        advance tp tbtbtbs@((_, b) : tbtbs@((t', _) : _))
-                    | tp <  t' = (b, tbtbtbs)
-                    | t' <= tp = advance tp tbtbs
-        advance _ _ = undefined
+    -- Advance the time stamped stream to the perceived time tp.  Under the
+    -- assumption that the perceived time never goes backwards (non-negative
+    -- ratio), advance maintains the invariant that the perceived time is
+    -- always >= the first time stamp.
+    advance _  tbtbs@[(_, b)] = (b, tbtbs)
+    advance tp tbtbtbs@((_, b) : tbtbs@((t', _) : _))
+      | tp <  t' = (b, tbtbtbs)
+      | t' <= tp = advance tp tbtbs
+    advance _ _ = undefined
 
 -- | Spaces a list of samples by a fixed time delta, avoiding
 --   unnecessary samples when the input has not changed since
@@ -219,10 +215,10 @@ deltaEncode dt aas@(_:_) = deltaEncodeBy (==) dt aas
 deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
 deltaEncodeBy _  _  []      = usrErr "AFRP" "deltaEncodeBy" "Empty input list."
 deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
-    where
-        debAux _      []                     = []
-        debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
-                             | otherwise     = Just a  : debAux a as
+  where
+    debAux _      []                     = []
+    debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
+                         | otherwise     = Just a  : debAux a as
 
 -- * Debugging / Step by step simulation
 
