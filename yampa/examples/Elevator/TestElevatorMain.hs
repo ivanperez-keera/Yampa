@@ -21,12 +21,10 @@ lbps = afterEach [(3.0, ()), (2.0, ()), (50.0, ())]
 rbps :: SF a (Event ())
 rbps = afterEach [(20.0, ()), (2.0, ()), (18.0, ()), (15.001, ())]
 
-
 -- Looks for interesting events by inspecting the input events
 -- and the elevator position over the interval [0, t_max].
 
 data State = Stopped | GoingUp | GoingDown deriving Eq
-
 
 testElevator :: Time -> [(Time, ((Event (), Event ()), Position))]
 testElevator t_max = takeWhile ((<= t_max) . fst) tios
@@ -35,7 +33,6 @@ testElevator t_max = takeWhile ((<= t_max) . fst) tios
         tios = embed (localTime &&& ((lbps &&& rbps >>^ dup)
                                      >>> second elevator))
                      (deltaEncode smplPer (repeat ()))
-
 
 findEvents :: [(Time, ((Event (), Event ()), Position))]
               -> [(Time, Position, String)]
