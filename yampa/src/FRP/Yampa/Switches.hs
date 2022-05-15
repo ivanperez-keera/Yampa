@@ -151,7 +151,6 @@ switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
                         (b, NoEvent) -> (sf, b)
                         (_, Event c) -> sfTF (k c) a
 
-
 -- | Switch with delayed observation.
 --
 -- By default, the first signal function is applied.
@@ -215,7 +214,6 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
                        , b
                        )
 
-
 -- | Recurring switch.
 --
 -- Uses the given SF until an event comes in the input, in which case the SF in
@@ -225,7 +223,6 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 -- information on how this switch works.
 rSwitch :: SF a b -> SF (a, Event (SF a b)) b
 rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
-
 
 -- | Recurring switch with delayed observation.
 --
@@ -238,7 +235,6 @@ rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
 -- information on how this switch works.
 drSwitch :: SF a b -> SF (a, Event (SF a b)) b
 drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
-
 
 -- | Call-with-current-continuation switch.
 --
@@ -323,7 +319,6 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
                             NoEvent -> (kSwitchAuxA1AE f1 fe, b)
                             Event c -> sfTF (k (arr f1) c) a
 
-
 -- | 'kSwitch' with delayed observation.
 --
 -- Applies the first SF until the input signal and the output signal, when
@@ -356,14 +351,12 @@ dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
                        , b
                        )
 
-
 -- * Parallel composition and switching over collections with broadcasting
 
 -- | Tuple a value up with every element of a collection of signal
 -- functions.
 broadcast :: Functor col => a -> col sf -> col (a, sf)
 broadcast a = fmap (\sf -> (a, sf))
-
 
 -- | Spatial parallel composition of a signal function collection.
 -- Given a collection of signal functions, it returns a signal
@@ -455,7 +448,6 @@ par rf sfs0 = SF {sfTF = tf0}
             in
                 (parAux rf sfs, cs0)
 
-
 -- Internal definition. Also used in parallel switchers.
 parAux :: Functor col =>
     (forall sf . (a -> col sf -> col (b, sf)))
@@ -470,7 +462,6 @@ parAux rf sfs = SF' tf -- True
                 cs    = fmap snd sfcs'
             in
                 (parAux rf sfs', cs)
-
 
 -- | Parallel switch parameterized on the routing function. This is the most
 -- general switch from which all other (non-delayed) switches in principle
@@ -516,7 +507,6 @@ pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
                         case (sfTF' sfe) dt (a, cs) of
                             (sfe', NoEvent) -> (pSwitchAux sfs' sfe', cs)
                             (_,    Event d) -> sfTF (k (freezeCol sfs dt) d) a
-
 
 -- | Parallel switch with delayed observation parameterized on the routing
 -- function.
@@ -580,7 +570,6 @@ dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
                         , cs
                         )
 
-
 -- | Recurring parallel switch parameterized on the routing function.
 --
 -- Uses the given collection of SFs, until an event comes in the input, in
@@ -604,7 +593,6 @@ rpSwitch :: Functor col
 rpSwitch rf sfs =
     pSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
     noEventSnd >=- rpSwitch rf (f sfs')
-
 
 -- | Recurring parallel switch with delayed observation parameterized on the
 -- routing function.
@@ -721,7 +709,6 @@ safeZip fn l1 l2 = safeZip' l1 l2
 
     err :: a
     err = usrErr "FRP.Yampa.Switches" fn "Input list too short."
-
 
 -- Freezes a "running" signal function, i.e., turns it into a continuation in
 -- the form of a plain signal function.
