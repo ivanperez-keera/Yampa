@@ -16,70 +16,70 @@ import FRP.Yampa
 -- module.
 
 class REq a where
-    (~=) :: a -> a -> Bool
+  (~=) :: a -> a -> Bool
 
 epsilon :: Fractional a => a
 epsilon = 0.0001
 
 instance REq Float where
-    x ~= y = abs (x - y) < epsilon -- A relative measure should be used.
+  x ~= y = abs (x - y) < epsilon -- A relative measure should be used.
 
 instance REq Double where
-    x ~= y = abs (x - y) < epsilon -- A relative measure should be used.
+  x ~= y = abs (x - y) < epsilon -- A relative measure should be used.
 
 instance REq Int where
-    (~=) = (==)
+  (~=) = (==)
 
 instance REq Integer where
-    (~=) = (==)
+  (~=) = (==)
 
 instance REq Bool where
-    (~=) = (==)
+  (~=) = (==)
 
 instance REq Char where
-    (~=) = (==)
+  (~=) = (==)
 
 instance REq () where
-    () ~= () = True
+  () ~= () = True
 
 instance (REq a, REq b) => REq (a,b) where
-    (x1,x2) ~= (y1,y2) = x1 ~= y1 && x2 ~= y2
+  (x1,x2) ~= (y1,y2) = x1 ~= y1 && x2 ~= y2
 
 instance (REq a, REq b, REq c) => REq (a,b,c) where
-    (x1,x2,x3) ~= (y1,y2,y3) = x1 ~= y1 && x2 ~= y2 && x3 ~= y3
+  (x1,x2,x3) ~= (y1,y2,y3) = x1 ~= y1 && x2 ~= y2 && x3 ~= y3
 
 instance (REq a, REq b, REq c, REq d) => REq (a,b,c,d) where
-    (x1,x2,x3,x4) ~= (y1,y2,y3,y4) = x1 ~= y1
-                                     && x2 ~= y2
-                                     && x3 ~= y3
-                                     && x4 ~= y4
+  (x1,x2,x3,x4) ~= (y1,y2,y3,y4) = x1 ~= y1
+                                   && x2 ~= y2
+                                   && x3 ~= y3
+                                   && x4 ~= y4
 
 instance (REq a, REq b, REq c, REq d, REq e) => REq (a,b,c,d,e) where
-    (x1,x2,x3,x4,x5) ~= (y1,y2,y3,y4,y5) = x1 ~= y1
-                                           && x2 ~= y2
-                                           && x3 ~= y3
-                                           && x4 ~= y4
-                                           && x5 ~= y5
+  (x1,x2,x3,x4,x5) ~= (y1,y2,y3,y4,y5) = x1 ~= y1
+                                         && x2 ~= y2
+                                         && x3 ~= y3
+                                         && x4 ~= y4
+                                         && x5 ~= y5
 
 instance REq a => REq (Maybe a) where
-    Nothing ~= Nothing   = True
-    (Just x) ~= (Just y) = x ~= y
-    _        ~= _        = False
+  Nothing ~= Nothing   = True
+  (Just x) ~= (Just y) = x ~= y
+  _        ~= _        = False
 
 instance REq a => REq (Event a) where
-    NoEvent   ~= NoEvent   = True
-    (Event x) ~= (Event y) = x ~= y
-    _         ~= _         = False
+  NoEvent   ~= NoEvent   = True
+  (Event x) ~= (Event y) = x ~= y
+  _         ~= _         = False
 
 instance (REq a, REq b) => REq (Either a b) where
-    (Left x)  ~= (Left y)  = x ~= y
-    (Right x) ~= (Right y) = x ~= y
-    _         ~= _         = False
+  (Left x)  ~= (Left y)  = x ~= y
+  (Right x) ~= (Right y) = x ~= y
+  _         ~= _         = False
 
 instance REq a => REq [a] where
-    [] ~= []         = True
-    (x:xs) ~= (y:ys) = x ~= y && xs ~= ys
-    _      ~= _      = False
+  [] ~= []         = True
+  (x:xs) ~= (y:ys) = x ~= y && xs ~= ys
+  _      ~= _      = False
 
 ------------------------------------------------------------------------------
 -- Testing utilities
@@ -90,11 +90,11 @@ testSF1 sf = take 25 (embed sf (deltaEncodeBy (~=) 0.25 [0.0..]))
 
 testSF2 :: SF Double a -> [a]
 testSF2 sf = take 25 (embed sf (deltaEncodeBy (~=) 0.25 input))
-    where
-        -- The initial 0.0 is just for result compatibility with an older
-        -- version.
-        input = 0.0 : [ fromIntegral (b `div` freq) | b <- [1..] :: [Int] ]
-        freq = 5
+  where
+    -- The initial 0.0 is just for result compatibility with an older
+    -- version.
+    input = 0.0 : [ fromIntegral (b `div` freq) | b <- [1..] :: [Int] ]
+    freq = 5
 
 ------------------------------------------------------------------------------
 -- Test harness for space behaviour
@@ -116,31 +116,34 @@ testSFSpaceLeak n sf = embed sf (deltaEncodeBy (~=) 0.25 [(seq n 0.0)..]) !! n
 
 testSFSpaceLeak :: Int -> SF Double a -> a
 testSFSpaceLeak n sf = unsafePerformIO $ do
-    countr  <- newIORef 0
-    inputr  <- newIORef undefined
-    outputr <- newIORef undefined
-    let init = do
-            let input0 = 0.0
-            writeIORef inputr input0
-            count <- readIORef countr
-            writeIORef countr (count + 1)
-            return input0
-        sense _ = do
-            input <- readIORef inputr
-            let input' = input + 0.5
-            writeIORef inputr input'
-            count <- readIORef countr
-            writeIORef countr (count + 1)
-            return (0.25, Just input')
-        actuate _ output = do
-            writeIORef outputr output
-            _input <- readIORef inputr
-            count  <- readIORef countr
-            return (count >= n)
-    reactimate init sense actuate sf
+  countr  <- newIORef 0
+  inputr  <- newIORef undefined
+  outputr <- newIORef undefined
+  let init = do
+        let input0 = 0.0
+        writeIORef inputr input0
+        count <- readIORef countr
+        writeIORef countr (count + 1)
+        return input0
 
-    -- return output
-    readIORef outputr
+      sense _ = do
+        input <- readIORef inputr
+        let input' = input + 0.5
+        writeIORef inputr input'
+        count <- readIORef countr
+        writeIORef countr (count + 1)
+        return (0.25, Just input')
+
+      actuate _ output = do
+        writeIORef outputr output
+        _input <- readIORef inputr
+        count  <- readIORef countr
+        return (count >= n)
+
+  reactimate init sense actuate sf
+
+  -- return output
+  readIORef outputr
 
 ------------------------------------------------------------------------------
 -- Some utilities used for testing laws
