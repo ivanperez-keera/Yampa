@@ -114,11 +114,11 @@ reactimate init sense actuate (SF {sfTF = tf0}) =
 -- needs to own the top-level control flow:
 
 -- reactimate's state, maintained across samples:
-data ReactState a b = ReactState {
-    rsActuate :: ReactHandle a b -> Bool -> b -> IO Bool,
-    rsSF :: SF' a b,
-    rsA :: a,
-    rsB :: b
+data ReactState a b = ReactState
+  { rsActuate :: ReactHandle a b -> Bool -> b -> IO Bool
+  , rsSF :: SF' a b
+  , rsA :: a
+  , rsB :: b
   }
 
 -- | A reference to reactimate's state, maintained across samples.
