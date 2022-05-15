@@ -37,9 +37,7 @@ import FRP.Yampa.Switches     (switch)
 
 infixl 0 `timeOut`, `abortWhen`
 
-
 -- * The Task type
-
 
 -- | A task is a partially SF that may terminate with a result.
 
@@ -58,7 +56,6 @@ unTask (Task f) = f
 mkTask :: SF a (b, Event c) -> Task a b c
 mkTask st = Task (switch (st >>> first (arr Left)))
 
-
 -- | Runs a task.
 --
 -- The output from the resulting signal transformer is tagged with Left while
@@ -70,7 +67,6 @@ mkTask st = Task (switch (st >>> first (arr Left)))
 runTask :: Task a b c -> SF a (Either b c)
 runTask tk = (unTask tk) (constant . Right)
 
-
 -- | Runs a task that never terminates.
 --
 -- The output becomes undefined once the underlying task has terminated.
@@ -80,7 +76,6 @@ runTask_ :: Task a b c -> SF a b
 runTask_ tk = runTask tk
               >>> arr (either id (usrErr "AFRPTask" "runTask_"
                                          "Task terminated!"))
-
 
 -- | Creates an SF that represents an SF and produces an event
 -- when the task terminates, and otherwise produces just an output.
@@ -94,7 +89,6 @@ taskToSF tk = runTask tk
         isEdge (Left _)  (Right c) = Just c
         isEdge (Right _) (Right _) = Nothing
         isEdge (Right _) (Left _)  = Nothing
-
 
 -- * Functor, Applicative and Monad instance
 
@@ -146,11 +140,9 @@ instance Monad (Task a b) where
 constT :: b -> Task a b c
 constT b = mkTask (constant b &&& never)
 
-
 -- | "Sleeps" for t seconds with constant output b.
 sleepT :: Time -> b -> Task a b ()
 sleepT t b = mkTask (constant b &&& after t ())
-
 
 -- | Takes a "snapshot" of the input and terminates immediately with the input
 -- value as the result.
@@ -161,7 +153,6 @@ sleepT t b = mkTask (constant b &&& after t ())
 
 snapT :: Task a b a
 snapT = mkTask (constant (intErr "AFRPTask" "snapT" "Bad switch?") &&& snap)
-
 
 -- * Basic tasks combinators
 
