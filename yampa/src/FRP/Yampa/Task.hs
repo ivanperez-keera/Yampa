@@ -42,11 +42,11 @@ infixl 0 `timeOut`, `abortWhen`
 -- | A task is a partially SF that may terminate with a result.
 
 newtype Task a b c =
-    -- CPS-based representation allowing termination to be detected.
-    -- (Note the rank 2 polymorphic type!)
-    -- The representation can be changed if necessary, but the Monad laws
-    -- follow trivially in this case.
-    Task (forall d . (c -> SF a (Either b d)) -> SF a (Either b d))
+  -- CPS-based representation allowing termination to be detected.
+  -- (Note the rank 2 polymorphic type!)
+  -- The representation can be changed if necessary, but the Monad laws
+  -- follow trivially in this case.
+  Task (forall d . (c -> SF a (Either b d)) -> SF a (Either b d))
 
 unTask :: Task a b c -> ((c -> SF a (Either b d)) -> SF a (Either b d))
 unTask (Task f) = f
@@ -84,53 +84,53 @@ taskToSF tk = runTask tk
               >>> (arr (either id (usrErr "AFRPTask" "runTask_"
                                           "Task terminated!"))
                    &&& edgeBy isEdge (Left undefined))
-    where
-        isEdge (Left _)  (Left _)  = Nothing
-        isEdge (Left _)  (Right c) = Just c
-        isEdge (Right _) (Right _) = Nothing
-        isEdge (Right _) (Left _)  = Nothing
+  where
+    isEdge (Left _)  (Left _)  = Nothing
+    isEdge (Left _)  (Right c) = Just c
+    isEdge (Right _) (Right _) = Nothing
+    isEdge (Right _) (Left _)  = Nothing
 
 -- * Functor, Applicative and Monad instance
 
 instance Functor (Task a b) where
-    fmap f tk = Task (\k -> unTask tk (k . f))
+  fmap f tk = Task (\k -> unTask tk (k . f))
 
 instance Applicative (Task a b) where
-    pure x  = Task (\k -> k x)
-    f <*> v = Task (\k -> (unTask f) (\c -> unTask v (k . c)))
+  pure x  = Task (\k -> k x)
+  f <*> v = Task (\k -> (unTask f) (\c -> unTask v (k . c)))
 
 instance Monad (Task a b) where
-    tk >>= f = Task (\k -> unTask tk (\c -> unTask (f c) k))
-    return x = Task (\k -> k x)
+  tk >>= f = Task (\k -> unTask tk (\c -> unTask (f c) k))
+  return x = Task (\k -> k x)
 
 -- Let's check the monad laws:
 --
---     t >>= return
---     = \k -> t (\c -> return c k)
---     = \k -> t (\c -> (\x -> \k -> k x) c k)
---     = \k -> t (\c -> (\x -> \k' -> k' x) c k)
---     = \k -> t (\c -> k c)
---     = \k -> t k
---     = t
---     QED
+--   t >>= return
+--   = \k -> t (\c -> return c k)
+--   = \k -> t (\c -> (\x -> \k -> k x) c k)
+--   = \k -> t (\c -> (\x -> \k' -> k' x) c k)
+--   = \k -> t (\c -> k c)
+--   = \k -> t k
+--   = t
+--   QED
 --
---     return x >>= f
---     = \k -> (return x) (\c -> f c k)
---     = \k -> (\k -> k x) (\c -> f c k)
---     = \k -> (\k' -> k' x) (\c -> f c k)
---     = \k -> (\c -> f c k) x
---     = \k -> f x k
---     = f x
---     QED
+--   return x >>= f
+--   = \k -> (return x) (\c -> f c k)
+--   = \k -> (\k -> k x) (\c -> f c k)
+--   = \k -> (\k' -> k' x) (\c -> f c k)
+--   = \k -> (\c -> f c k) x
+--   = \k -> f x k
+--   = f x
+--   QED
 --
---     (t >>= f) >>= g
---     = \k -> (t >>= f) (\c -> g c k)
---     = \k -> (\k' -> t (\c' -> f c' k')) (\c -> g c k)
---     = \k -> t (\c' -> f c' (\c -> g c k))
---     = \k -> t (\c' -> (\x -> \k' -> f x (\c -> g c k')) c' k)
---     = \k -> t (\c' -> (\x -> f x >>= g) c' k)
---     = t >>= (\x -> f x >>= g)
---     QED
+--   (t >>= f) >>= g
+--   = \k -> (t >>= f) (\c -> g c k)
+--   = \k -> (\k' -> t (\c' -> f c' k')) (\c -> g c k)
+--   = \k -> t (\c' -> f c' (\c -> g c k))
+--   = \k -> t (\c' -> (\x -> \k' -> f x (\c -> g c k')) c' k)
+--   = \k -> t (\c' -> (\x -> f x >>= g) c' k)
+--   = t >>= (\x -> f x >>= g)
+--   QED
 --
 -- No surprises (obviously, since this is essentially just the CPS monad).
 
@@ -159,9 +159,8 @@ snapT = mkTask (constant (intErr "AFRPTask" "snapT" "Bad switch?") &&& snap)
 -- | Impose a time out on a task.
 timeOut :: Task a b c -> Time -> Task a b (Maybe c)
 tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
-    where
-        aux ((b, ec), et) = (b, (lMerge (fmap Just ec)
-                                 (fmap (const Nothing) et)))
+  where
+    aux ((b, ec), et) = (b, (lMerge (fmap Just ec) (fmap (const Nothing) et)))
 
 -- | Run a "guarding" event source (SF a (Event b)) in parallel with a
 -- (possibly non-terminating) task.
@@ -177,5 +176,5 @@ tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
 -- Example: @tsk `abortWhen` lbp@
 abortWhen :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
 tk `abortWhen` est = mkTask ((taskToSF tk &&& est) >>> arr aux)
-    where
-        aux ((b, ec), ed) = (b, (lMerge (fmap Left ec) (fmap Right ed)))
+  where
+    aux ((b, ec), ed) = (b, (lMerge (fmap Left ec) (fmap Right ed)))
