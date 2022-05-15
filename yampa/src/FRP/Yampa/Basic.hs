@@ -80,7 +80,6 @@ b0 -:> (SF {sfTF = tf10}) = SF {sfTF = \_a0 -> (ct, b0)}
 (>--) :: a -> SF a b -> SF a b
 a0 >-- (SF {sfTF = tf10}) = SF {sfTF = \_ -> tf10 a0}
 
-
 -- | Transform initial output value.
 --
 -- Applies a transformation 'f' only to the first output value at
@@ -88,7 +87,6 @@ a0 >-- (SF {sfTF = tf10}) = SF {sfTF = \_ -> tf10 a0}
 (-=>) :: (b -> b) -> SF a b -> SF a b
 f -=> (SF {sfTF = tf10}) =
     SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
-
 
 -- | Transform initial input value.
 --
