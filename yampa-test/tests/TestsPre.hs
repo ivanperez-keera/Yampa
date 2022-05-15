@@ -41,7 +41,6 @@ pre_t2r =
          (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
           in tail (scanl max 0 xs))
 
-
 -- This is a (somewhat strange) way of doing a counter that
 -- stops after reaching a threshold. Note that the ingoing event
 -- is *control dependent* on the output of the counter, so
@@ -95,7 +94,6 @@ pre_t4r = [ 0,1,1,1      -- 0s
           , 10,10        -- 12s
           ]
 
-
 -- Similar test to "pre_t3" above but for dAccumHold.
 pre_t5, pre_t5r :: [Int]
 pre_t5 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
@@ -144,7 +142,6 @@ pre_t6r = [ 0,1,1,1      -- 0s
           , 10,10        -- 12s
           ]
 
-
 -- Similar test to "pre_t3" above but for dAccumHoldBy.
 pre_t7, pre_t7r :: [Int]
 pre_t7 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
@@ -169,7 +166,6 @@ pre_t7r = [ 0,0,0,0      -- 0s
           , 10,10        -- 12s
           ]
 
-
 -- Similar test to "pre_t4" above but for dAccumHoldBy.
 pre_t8, pre_t8r :: [Int]
 pre_t8 = take 50 (embed sf (deltaEncode 0.25 (repeat ())))
@@ -193,7 +189,6 @@ pre_t8r = [ 0,1,1,1      -- 0s
           , 10,10,10,10  -- 11s
           , 10,10        -- 12s
           ]
-
 
 pre_trs =
     [ pre_t0 ~= pre_t0r
