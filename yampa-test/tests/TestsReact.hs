@@ -48,7 +48,6 @@ react_t0 = unsafePerformIO $ do
     outputs <- readIORef outputsr
     return (take 25 (reverse outputs))
 
-
 react_t0r :: [(Double, Double)]
 react_t0r =
   [ (0.0,0.00), (0.0,0.00), (0.0,0.00), (0.0,0.00), (0.0,0.00)
@@ -58,8 +57,6 @@ react_t0r =
   , (2.0,1.50), (2.0,1.70), (2.0,1.90), (2.0,2.10), (2.0,2.30)
   ]
 
-
 react_trs = [ react_t0 ~= react_t0r ]
-
 
 react_tr = and react_trs
