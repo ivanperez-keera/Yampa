@@ -366,7 +366,6 @@ module FRP.Yampa
     , count
     , derivative
 
-
       -- Temporarily hidden, but will eventually be made public.
     , iterFrom
 
@@ -405,7 +404,6 @@ module FRP.Yampa
     , module Data.VectorSpace
     )
   where
-
 
 import FRP.Yampa.InternalCore
 import FRP.Yampa.Basic
