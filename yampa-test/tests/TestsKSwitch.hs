@@ -20,7 +20,6 @@ kswitch_inp1 = deltaEncode 0.1 [0.0, 0.5 ..]
 whenSndGE :: Ord b => b -> c -> SF (a, b) (Event c)
 whenSndGE b c = arr snd >>> arr (>= b) >>> edge >>> arr (`tag` c)
 
-
 kswitch_t0 :: [Double]
 kswitch_t0 = take 20 $ embed sf kswitch_inp1
     where
@@ -35,7 +34,6 @@ kswitch_t0r =
     ,  0.95,  0.30,  0.85, 1.45,  2.10
     ,  2.80,  3.55,  4.35, 5.20,  6.10
     ]
-
 
 kswitch_t1 :: [Double]
 kswitch_t1 = take 20 $ embed sf kswitch_inp1
@@ -52,7 +50,6 @@ kswitch_t1r =
     ,  2.80,  3.55,  4.35, 5.20, 6.10
     ]
 
-
 kswitch_t2 :: [Double]
 kswitch_t2 = take 20 $ embed sf kswitch_inp1
     where
@@ -68,7 +65,6 @@ kswitch_t2r =
     ,  3.00,  3.75,  4.55,  5.40,  6.30
     ]
 
-
 kswitch_t3 :: [Double]
 kswitch_t3 = take 20 $ embed sf kswitch_inp1
     where
@@ -83,7 +79,6 @@ kswitch_t3r =
     ,  1.25,  0.50,  1.05,  1.65,  2.30
     ,  3.00,  3.75,  4.55,  5.40,  6.30
     ]
-
 
 -- The correct strictness properties of dkSwitch are crucial here.
 -- kSwitch does not work.
@@ -114,7 +109,6 @@ kswitch_t4r =
     ,  1.9,  2.0,  6.2,  6.3,  6.4
     ,  6.5,  6.6,  6.7,  6.8,  6.9
     ]
-
 
 kswitch_trs =
     [ kswitch_t0 ~= kswitch_t0r
