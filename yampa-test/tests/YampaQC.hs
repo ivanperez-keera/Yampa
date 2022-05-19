@@ -81,8 +81,9 @@ import qualified TestsTask         as Regression
 import qualified TestsUtils        as Regression
 import qualified TestsWFG          as Regression
 
-import qualified Test.FRP.Yampa.Basic as NewBasic
-import qualified Test.FRP.Yampa.Time  as NewTime
+import qualified Test.FRP.Yampa.Basic       as NewBasic
+import qualified Test.FRP.Yampa.Conditional as NewConditional
+import qualified Test.FRP.Yampa.Time        as NewTime
 
 main :: IO ()
 main = defaultMain tests
@@ -163,6 +164,7 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > utils"         (property $ and Regression.utils_trs)
   , testProperty "Regression > task"          (property $ and Regression.task_trs)
   , NewBasic.tests
+  , NewConditional.tests
   , NewTime.tests
   ]
 

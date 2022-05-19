@@ -169,42 +169,6 @@ utils_t7r =
   ,  4.0,  4.1,  4.2,  4.3,  4.4,  4.5,  4.6,  4.7,  4.8, 14.9
   ]
 
-utils_t8 :: [Double]
-utils_t8 = take 50 $ embed (provided (even . floor) integral (constant (-1)))
-                           (deltaEncode 0.1 input)
-  where
-    input = replicate 10 1
-            ++ replicate 10 2
-            ++ replicate 10 3
-            ++ replicate 10 4
-            ++ input
-
-utils_t8r =
-  [ -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
-  ,  0.0,  0.2,  0.4,  0.6,  0.8,  1.0,  1.2,  1.4,  1.6,  1.8
-  , -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
-  ,  0.0,  0.4,  0.8,  1.2,  1.6,  2.0,  2.4,  2.8,  3.2,  3.6
-  , -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
-  ]
-
-utils_t9 :: [Double]
-utils_t9 = take 50 $ embed (provided (odd . floor) integral (constant (-1)))
-                           (deltaEncode 0.1 input)
-  where
-    input = replicate 10 1
-            ++ replicate 10 2
-            ++ replicate 10 3
-            ++ replicate 10 4
-            ++ input
-
-utils_t9r =
-  [  0.0,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9
-  , -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
-  ,  0.0,  0.3,  0.6,  0.9,  1.2,  1.5,  1.8,  2.1,  2.4,  2.7
-  , -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
-  ,  0.0,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9
-  ]
-
 utils_t10 :: [Event Double]
 utils_t10 = testSF1 snap
 
@@ -356,8 +320,6 @@ utils_trs =
   , utils_t5 ~= utils_t5r
   , utils_t6 ~= utils_t6r
   , utils_t7 ~= utils_t7r
-  , utils_t8 ~= utils_t8r
-  , utils_t9 ~= utils_t9r
   , utils_t10 ~= utils_t10r
   , utils_t11 ~= utils_t11r
   , utils_t12 ~= utils_t12r
