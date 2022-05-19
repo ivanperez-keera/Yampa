@@ -115,7 +115,6 @@ test-suite yampa-quicheck
     TestsEmbed
     TestsEvSrc
     TestsFirstSecond
-    TestsKSwitch
     TestsLaws
     TestsLoop
     TestsLoopIntegral

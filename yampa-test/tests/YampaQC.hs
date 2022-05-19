@@ -61,7 +61,6 @@ import qualified TestsComp         as Regression
 import qualified TestsEmbed        as Regression
 import qualified TestsEvSrc        as Regression
 import qualified TestsFirstSecond  as Regression
-import qualified TestsKSwitch      as Regression
 import qualified TestsLaws         as Regression
 import qualified TestsLoop         as Regression
 import qualified TestsLoopIntegral as Regression
@@ -139,7 +138,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > looplaws"      (property $ and Regression.looplaws_trs)
   , testProperty "Regression > sscan"         (property $ and Regression.sscan_trs)
   , testProperty "Regression > evsrc"         (property $ and Regression.evsrc_trs)
-  , testProperty "Regression > kswitch"       (property $ and Regression.kswitch_trs)
   , testProperty "Regression > rswitch"       (property $ and Regression.rswitch_trs)
   , testProperty "Regression > pswitch"       (property $ and Regression.pswitch_trs)
   , testProperty "Regression > rpswitch"      (property $ and Regression.rpswitch_trs)
