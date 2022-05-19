@@ -126,7 +126,6 @@ test-suite yampa-quicheck
     TestsRPSwitch
     TestsRSwitch
     TestsSscan
-    TestsSwitch
     TestsUtils
     TestsWFG
 
