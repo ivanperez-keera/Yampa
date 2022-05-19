@@ -59,7 +59,6 @@ import qualified TestsAccum        as Regression
 import qualified TestsArr          as Regression
 import qualified TestsCOC          as Regression
 import qualified TestsComp         as Regression
-import qualified TestsDelay        as Regression
 import qualified TestsDer          as Regression
 import qualified TestsEmbed        as Regression
 import qualified TestsEvSrc        as Regression
@@ -152,7 +151,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > rpswitch"      (property $ and Regression.rpswitch_trs)
   , testProperty "Regression > wfg"           (property $ and Regression.wfg_trs)
   , testProperty "Regression > accum"         (property $ and Regression.accum_trs)
-  , testProperty "Regression > delay"         (property $ and Regression.delay_trs)
   , testProperty "Regression > der"           (property $ and Regression.der_trs)
   , testProperty "Regression > loopPre"       (property $ and Regression.loopPre_trs)
   , testProperty "Regression > loopIntegral"  (property $ and Regression.loopIntegral_trs)

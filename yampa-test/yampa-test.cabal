@@ -110,7 +110,6 @@ test-suite yampa-quicheck
     TestsCOC
     TestsCommon
     TestsComp
-    TestsDelay
     TestsDer
     TestsEmbed
     TestsEvSrc

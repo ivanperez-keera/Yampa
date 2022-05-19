@@ -29,6 +29,12 @@ tests = testGroup "Regression tests for FRP.Yampa.Delays"
   , testProperty "iPre (6, fixed)"         (property $ pre_t6 == pre_t6r)
   , testProperty "iPre (7, fixed)"         (property $ pre_t7 == pre_t7r)
   , testProperty "iPre (8, fixed)"         (property $ pre_t8 == pre_t8r)
+  , testProperty "delay (0, fixed)"        (property $ delay_t0 ~= delay_t0r)
+  , testProperty "delay (1, fixed)"        (property $ delay_t1 ~= delay_t1r)
+  , testProperty "delay (2, fixed)"        (property $ delay_t2 ~= delay_t2r)
+  , testProperty "delay (3, fixed)"        (property $ delay_t3 ~= delay_t3r)
+  , testProperty "delay (4, fixed)"        (property $ delay_t4 == delay_t4r)
+  , testProperty "delay (5, fixed)"        (property $ delay_t5 ~= delay_t5r)
   , testProperty "delay (zero delay, qc)"  prop_delay_1
   , testProperty "delay (small delay, qc)" prop_delay_2
   ]
