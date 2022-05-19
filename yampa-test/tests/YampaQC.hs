@@ -57,7 +57,6 @@ import FRP.Yampa.LTLFuture
 -- Local tests
 import qualified TestsAccum        as Regression
 import qualified TestsArr          as Regression
-import qualified TestsCOC          as Regression
 import qualified TestsComp         as Regression
 import qualified TestsDer          as Regression
 import qualified TestsEmbed        as Regression
@@ -82,6 +81,7 @@ import qualified TestsWFG          as Regression
 import qualified Test.FRP.Yampa.Basic       as NewBasic
 import qualified Test.FRP.Yampa.Conditional as NewConditional
 import qualified Test.FRP.Yampa.Delays      as NewDelays
+import qualified Test.FRP.Yampa.Switches    as NewSwitches
 import qualified Test.FRP.Yampa.Time        as NewTime
 
 main :: IO ()
@@ -92,7 +92,6 @@ tests = testGroup "Yampa QC properties"
   [ testProperty "Identity"                               prop_arr_id
   , testProperty "Arrow Naturality"                       prop_arr_naturality
   , testProperty "Naturality"                             prop_arr_naturality
-  , testProperty "Collections > parB"                     prop_broadcast
   , testProperty "Arrows > Composition (1)"               prop_arrow_comp_1
   , testProperty "Arrows > Composition (2)"               prop_arrow_comp_2
   , testProperty "Arrows > Composition (3)"               prop_arrow_comp_3
@@ -143,7 +142,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > looplaws"      (property $ and Regression.looplaws_trs)
   , testProperty "Regression > sscan"         (property $ and Regression.sscan_trs)
   , testProperty "Regression > evsrc"         (property $ and Regression.evsrc_trs)
-  , testProperty "Regression > coc"           (property $ and Regression.coc_trs)
   , testProperty "Regression > switch"        (property $ and Regression.switch_trs)
   , testProperty "Regression > kswitch"       (property $ and Regression.kswitch_trs)
   , testProperty "Regression > rswitch"       (property $ and Regression.rswitch_trs)
@@ -161,6 +159,7 @@ tests = testGroup "Yampa QC properties"
   , NewBasic.tests
   , NewConditional.tests
   , NewDelays.tests
+  , NewSwitches.tests
   , NewTime.tests
   ]
 
@@ -190,16 +189,6 @@ prop_arr_naturality =
         myStream = uniDistStream
         f :: Gen (Fun Int Int)
         f = arbitrary
-
--- Par with broadcast (collection-oriented combinators)
--- TODO: Add integral to the list of SFs being tested
-prop_broadcast =
-    forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-
-        sf   = parB [identity, (arr (+1))]
-        pred = (\x [y,z] -> x == y && (x + 1) == z)
 
 prop_arrow_1 = forAll myStream $ evalT $
     Always $ prop (arr id, \x y -> x == y)
