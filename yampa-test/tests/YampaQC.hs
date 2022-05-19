@@ -412,69 +412,6 @@ prop_arrow_first_nested =
     myStream :: Gen (SignalSampleStream Double)
     myStream = uniDistStream
 
-prop_switch_t1 =
-    forAll myStream $ evalT $
-      Always $ SP ((switch_t1rec 42.0 &&& switch_tr) >>> arr same)
-
-  where myStream :: Gen (SignalSampleStream Double)
-        myStream = fixedDelayStreamWith f 1.0
-        f dt = l!!(floor dt)
-        l = [ 1.0, 1.0, 1.0
-            , 2.0
-            , 3.0, 3.0
-            , 4.0, 4.0, 4.0
-            , 5.0
-            , 6.0, 6.0
-            , 7.0, 7.0, 7.0
-            , 8.0
-            ]
-             ++ repeat 9.0
-
-        same = (uncurry (==))
-
--- Outputs current input, local time, and the value of the initializing
--- argument until some time has passed (determined by integrating a constant),
--- at which point an event occurs.
-switch_t1a :: Double -> SF Double ((Double,Double,Double), Event ())
-switch_t1a x = (arr dup >>> second localTime >>> arr (\(a,t) -> (a,t,x)))
-           &&& (constant 0.5
-                  >>> integral
-                  >>> (arr (>= (2.0 :: Double)) -- Used to work with no sig.
-                  >>> edge))
-
--- This should raise an event IMMEDIATELY: no time should pass.
-switch_t1b :: b -> SF a ((Double,Double,Double), Event a)
-switch_t1b _ = constant (-999.0,-999.0,-999.0) &&& snap
-
-switch_t1rec :: Double -> SF Double (Double,Double,Double)
-switch_t1rec x =
-  switch (switch_t1a x) $ \x ->
-  switch (switch_t1b x) $ \x ->
-  switch (switch_t1b x) $
-  switch_t1rec
-
-switch_tr :: SF Double (Double, Double, Double)
-switch_tr = proc (a) -> do
-  t <- localTime -< ()
-  let mt = fromIntegral $ floor (mod' t 4.0)
-      v  = case floor (t / 4.0) of
-             0 -> 42.0
-             1 -> 3.0
-             2 -> 4.0
-             3 -> 7.0
-             _ -> 9.0
-  returnA -< (a, mt, v)
-
-infiniteSwitch sf1 sf2 input =
-    switched (evalAtZero sf1 input) /= switched (evalAtZero sf2 input)
-  where switched = isEvent . snd . fst
-
-switch1 = switch (simpleF)
-                 (\_ -> switch1)
-
-simpleF = arr id &&& cond
-  where cond = arr (const (Event ()))
-
 delayedF = arr id &&& cond
   where cond = after 1.5 (Event ())
 

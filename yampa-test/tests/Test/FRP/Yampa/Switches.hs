@@ -1,3 +1,4 @@
+{-# LANGUAGE Arrows #-}
 -- |
 -- Description : Test cases for FRP.Yampa.Switches
 -- Copyright   : Yale University, 2003
@@ -257,6 +258,37 @@ switch_t5r =
   ,  4.0,  4.1,  4.2,  4.3,  4.4,  4.5,  4.6,  4.7,  4.8, 14.9
   ]
 
+prop_switch_t1 =
+    forAll myStream $ evalT $
+      Always $ SP ((switch_t1rec 42.0 &&& switch_tr) >>> arr same)
+
+  where myStream :: Gen (SignalSampleStream Double)
+        myStream = fixedDelayStreamWith f 1.0
+        f dt = l!!(floor dt)
+        l = [ 1.0, 1.0, 1.0
+            , 2.0
+            , 3.0, 3.0
+            , 4.0, 4.0, 4.0
+            , 5.0
+            , 6.0, 6.0
+            , 7.0, 7.0, 7.0
+            , 8.0
+            ]
+             ++ repeat 9.0
+
+        same = (uncurry (==))
+
+switch_tr :: SF Double (Double, Double, Double)
+switch_tr = proc (a) -> do
+  t <- localTime -< ()
+  let mt = fromIntegral $ floor (mod' t 4.0)
+      v  = case floor (t / 4.0) of
+             0 -> 42.0
+             1 -> 3.0
+             2 -> 4.0
+             3 -> 7.0
+             _ -> 9.0
+  returnA -< (a, mt, v)
 
 -- * Test cases for kSwitch and dkSwitch
 
