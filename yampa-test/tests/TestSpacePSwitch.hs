@@ -3,7 +3,7 @@
 -- Description : Test cases for pSwitchB and dpSwitchB
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsPSwitch
+module TestSpacePSwitch
     ( pswitch_st0
     , pswitch_st0r
     , pswitch_st1

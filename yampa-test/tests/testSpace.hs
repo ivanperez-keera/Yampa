@@ -11,7 +11,7 @@ import TestsCommon
 import TestsArr
 import TestsLoop
 import TestsRSwitch
-import TestsPSwitch
+import TestSpacePSwitch
 import TestsRPSwitch
 import TestsAccum
 

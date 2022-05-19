@@ -120,7 +120,6 @@ test-suite yampa-quicheck
     TestsLoopIntegral
     TestsLoopLaws
     TestsLoopPre
-    TestsPSwitch
     TestsReact
     TestsRPSwitch
     TestsRSwitch
@@ -156,11 +155,11 @@ test-suite space
     testSpace.hs
 
   other-modules:
+    TestSpacePSwitch
     TestsAccum
     TestsArr
     TestsCommon
     TestsLoop
-    TestsPSwitch
     TestsRPSwitch
     TestsRSwitch
 
