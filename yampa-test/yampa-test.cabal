@@ -101,9 +101,10 @@ test-suite yampa-quicheck
     YampaQC.hs
 
   other-modules:
+    Test.FRP.Yampa.Basic
+    Test.FRP.Yampa.Time
     TestsAccum
     TestsArr
-    TestsBasicSF
     TestsCOC
     TestsCommon
     TestsComp

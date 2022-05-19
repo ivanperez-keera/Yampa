@@ -57,7 +57,6 @@ import FRP.Yampa.LTLFuture
 -- Local tests
 import qualified TestsAccum        as Regression
 import qualified TestsArr          as Regression
-import qualified TestsBasicSF      as Regression
 import qualified TestsCOC          as Regression
 import qualified TestsComp         as Regression
 import qualified TestsDelay        as Regression
@@ -82,6 +81,9 @@ import qualified TestsTask         as Regression
 import qualified TestsUtils        as Regression
 import qualified TestsWFG          as Regression
 
+import qualified Test.FRP.Yampa.Basic as NewBasic
+import qualified Test.FRP.Yampa.Time  as NewTime
+
 main :: IO ()
 main = defaultMain tests
 
@@ -90,14 +92,6 @@ tests = testGroup "Yampa QC properties"
   [ testProperty "Identity"                               prop_arr_id
   , testProperty "Arrow Naturality"                       prop_arr_naturality
   , testProperty "Naturality"                             prop_arr_naturality
-  , testProperty "Basic > Identity (1)"                   prop_basic_identity_1
-  , testProperty "Basic > Identity (2)"                   prop_basic_identity_2
-  , testProperty "Basic > Constant"                       prop_basic_constant
-  , testProperty "Basic > Initially"                      prop_basic_initially
-  , testProperty "Basic > Time"                           prop_basic_time_increasing
-  , testProperty "Basic > Time (fixed delay)"             prop_basic_time_fixed_delay
-  , testProperty "Basic > localTime"                      prop_basic_localtime_increasing
-  , testProperty "Basic > localTime (fixed delay)"        prop_basic_localtime_fixed_delay
   , testProperty "Collections > parB"                     prop_broadcast
   , testProperty "Arrows > Composition (1)"               prop_arrow_comp_1
   , testProperty "Arrows > Composition (2)"               prop_arrow_comp_2
@@ -149,7 +143,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > laws"          (property $ and Regression.laws_trs)
   , testProperty "Regression > loop"          (property $ and Regression.loop_trs)
   , testProperty "Regression > looplaws"      (property $ and Regression.looplaws_trs)
-  , testProperty "Regression > basicsf"       (property $ and Regression.basicsf_trs)
   , testProperty "Regression > sscan"         (property $ and Regression.sscan_trs)
   , testProperty "Regression > evsrc"         (property $ and Regression.evsrc_trs)
   , testProperty "Regression > coc"           (property $ and Regression.coc_trs)
@@ -169,6 +162,8 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > embed"         (property $ and Regression.embed_trs)
   , testProperty "Regression > utils"         (property $ and Regression.utils_trs)
   , testProperty "Regression > task"          (property $ and Regression.task_trs)
+  , NewBasic.tests
+  , NewTime.tests
   ]
 
 -- * Yampa laws
@@ -197,95 +192,6 @@ prop_arr_naturality =
         myStream = uniDistStream
         f :: Gen (Fun Int Int)
         f = arbitrary
-
--- Yampa's Basic SF builders
-prop_basic_identity_1 =
-    forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-        sf   = identity
-        pred = (==)
-
-prop_basic_identity_2 =
-    forAll myStream (evalT $ prop_always_equal identity (arr id))
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-
-prop_basic_constant =
-    forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-
-        sf   = constant 42.0
-        pred = const (== 42.0)
-
-prop_basic_initially =
-    forAll myStream $ evalT $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-
-        sf   = initially 42.0
-        pred = const (== 42.0)
-
--- | Starting with an accumulator of -1, it gets the local
---   time and outputs the time and the accumulator, updating
---   the latter with the local time at every iteration.
---   The predicate checks whether the time is always strictly
---   greater than the acc.
-prop_basic_time_increasing =
-    forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-
-        sf   :: SF a (Time, Time)
-        sf   = loopPre (-1 :: Time) sfI
-
-        sfI :: SF (a,Time) ((Time, Time), Time)
-        sfI =  (time *** identity) >>> arr resort
-
-        resort :: (Time, Time) -> ((Time,Time),Time)
-        resort (newT, oldT) = ((newT, oldT), newT)
-
-        pred :: a -> (Time, Time) -> Bool
-        pred _ (t,o) = (t > o)
-
-prop_basic_time_fixed_delay =
-    forAll myStream $ evalT $
-      Always (prop (sf25msec, const (== d)))
-
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = fixedDelayStream d
-
-        sf25msec = time >>> stepDiff (-d)
-
-        d :: Time
-        d = 0.25
-
-prop_basic_localtime_increasing =
-    forAll myStream $ evalT $ Always $ prop (sf, const (uncurry (>)))
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-
-        sf   :: SF a (Time, Time)
-        sf   = loopPre (-1 :: Time) sfI
-
-        sfI :: SF (a,Time) ((Time, Time), Time)
-        sfI =  (localTime *** identity) >>> arr resort
-
-        resort :: (Time, Time) -> ((Time,Time),Time)
-        resort (newT, oldT) = ((newT, oldT), newT)
-
-prop_basic_localtime_fixed_delay =
-    forAll myStream $ evalT $
-      Always (prop (sf25msec, const (== d)))
-
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = fixedDelayStream d
-
-        sf25msec = time >>> stepDiff (-d)
-
-        d :: Time
-        d = 0.25
 
 -- Par with broadcast (collection-oriented combinators)
 -- TODO: Add integral to the list of SFs being tested
