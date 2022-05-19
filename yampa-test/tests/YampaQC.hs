@@ -58,7 +58,6 @@ import FRP.Yampa.LTLFuture
 import qualified TestsAccum        as Regression
 import qualified TestsArr          as Regression
 import qualified TestsComp         as Regression
-import qualified TestsDer          as Regression
 import qualified TestsEmbed        as Regression
 import qualified TestsEvSrc        as Regression
 import qualified TestsFirstSecond  as Regression
@@ -81,6 +80,7 @@ import qualified TestsWFG          as Regression
 import qualified Test.FRP.Yampa.Basic       as NewBasic
 import qualified Test.FRP.Yampa.Conditional as NewConditional
 import qualified Test.FRP.Yampa.Delays      as NewDelays
+import qualified Test.FRP.Yampa.Integration as NewIntegration
 import qualified Test.FRP.Yampa.Switches    as NewSwitches
 import qualified Test.FRP.Yampa.Time        as NewTime
 
@@ -97,8 +97,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Arrows > Composition (3)"               prop_arrow_comp_3
   -- FIXME: (iperez:) delay_t3 is not here because I can't understand it.
   -- Missing: delay t4 and t5
-  , testProperty "Derivatives > Comparison with known derivative (1)" prop_derivative_1
-  , testProperty "Derivatives > Comparison with known derivative (2)" prop_derivative_2
   -- Missing: embed
   , testProperty "Events > No event"                      prop_event_noevent
   , testProperty "Events > Now"                           prop_event_now
@@ -149,7 +147,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > rpswitch"      (property $ and Regression.rpswitch_trs)
   , testProperty "Regression > wfg"           (property $ and Regression.wfg_trs)
   , testProperty "Regression > accum"         (property $ and Regression.accum_trs)
-  , testProperty "Regression > der"           (property $ and Regression.der_trs)
   , testProperty "Regression > loopPre"       (property $ and Regression.loopPre_trs)
   , testProperty "Regression > loopIntegral"  (property $ and Regression.loopIntegral_trs)
   , testProperty "Regression > react"         (property $ and Regression.react_trs)
@@ -159,6 +156,7 @@ tests = testGroup "Yampa QC properties"
   , NewBasic.tests
   , NewConditional.tests
   , NewDelays.tests
+  , NewIntegration.tests
   , NewSwitches.tests
   , NewTime.tests
   ]
@@ -269,41 +267,6 @@ prop_insert =
 
         finalValueG  :: Gen Float
         finalValueG = arbitrary
-
-prop_derivative_1 =
-    forAll myStream $ evalT $
-      Next $ Always $ prop ((sfDer &&& sfDerByHand), const close)
-
-  where myStream :: Gen (SignalSampleStream Double)
-        myStream = fixedDelayStreamWith (\t -> sin(2 * pi * t)) der_step
-
-        sfDer :: SF Time Time
-        sfDer = derivative
-
-        sfDerByHand = localTime >>> arr (\t -> (2 * pi * cos (2 * pi * t)))
-
-        close (x,y) = abs (x-y) < 0.05
-
-prop_derivative_2 =
-    forAll myStream $ evalT $
-      Next $ Always $ prop ( sfDer &&& sfDerByHand
-                           , const close)
-
-  where
-    myStream :: Gen (SignalSampleStream Double)
-    myStream = fixedDelayStream der_step
-
-    sfDer :: SF Time Time
-    sfDer = localTime
-              >>> arr (\t -> sin(2*pi*t))
-                >>> derivative
-
-    sfDerByHand = localTime
-                    >>> arr (\t -> 2*pi*cos (2*pi*t))
-
-    close (x,y) = abs (x-y) < 0.05
-
-der_step = 0.001
 
 stepDiff :: Num a => a -> SF a a
 stepDiff z = loopPre z (arr (\(x,y) -> (x - y, x)))
