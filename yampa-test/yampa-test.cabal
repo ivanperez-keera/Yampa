@@ -114,7 +114,6 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Time
     TestsAccum
     TestsCommon
-    TestsComp
     TestsEvSrc
     TestsFirstSecond
     TestsLaws

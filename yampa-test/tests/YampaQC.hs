@@ -56,7 +56,6 @@ import FRP.Yampa.LTLFuture
 
 -- Local tests
 import qualified TestsAccum        as Regression
-import qualified TestsComp         as Regression
 import qualified TestsEvSrc        as Regression
 import qualified TestsFirstSecond  as Regression
 import qualified TestsLaws         as Regression
@@ -125,7 +124,6 @@ tests = testGroup "Yampa QC properties"
   -- Missing: Utils
   -- Missing: WFG
 
-  , testProperty "Regression > comp"          (property $ and Regression.comp_trs)
   , testProperty "Regression > first"         (property $ and Regression.first_trs)
   , testProperty "Regression > second"        (property $ and Regression.second_trs)
   , testProperty "Regression > laws"          (property $ and Regression.laws_trs)
