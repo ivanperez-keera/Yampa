@@ -56,7 +56,6 @@ import FRP.Yampa.LTLFuture
 
 -- Local tests
 import qualified TestsAccum        as Regression
-import qualified TestsLoopPre      as Regression
 import qualified TestsUtils        as Regression
 
 import qualified Test.FRP.Yampa.Basic        as NewBasic
@@ -121,7 +120,6 @@ tests = testGroup "Yampa QC properties"
   -- Missing: WFG
 
   , testProperty "Regression > accum"         (property $ and Regression.accum_trs)
-  , testProperty "Regression > loopPre"       (property $ and Regression.loopPre_trs)
   , testProperty "Regression > utils"         (property $ and Regression.utils_trs)
   , NewBasic.tests
   , NewConditional.tests
