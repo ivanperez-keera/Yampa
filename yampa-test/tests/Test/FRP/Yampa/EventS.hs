@@ -1,17 +1,77 @@
 -- |
--- Module      : TestsEvSrc
--- Description : Test cases for event sources
+-- Description : Test cases for signal functions working with events
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsEvSrc
-    ( evsrc_trs
-    , evsrc_tr
+
+-- Notes pertaining to regression tests:
+-- - Add test cases for Yampa. There should be at least one test case for each
+--   "non-trivial" entity exported from Yampa.
+--
+-- - Make tests cases for after and repeatedly more robust.  Must not
+--   fail due to small discrepancies in floating point implementation.
+--
+--   01-May-2002:  evsrc_t7 currently fails in hugs.
+module Test.FRP.Yampa.EventS
+    ( tests
     )
   where
 
-import FRP.Yampa
+import Test.QuickCheck hiding (once, sample)
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
+
+import FRP.Yampa as Yampa
+import FRP.Yampa.EventS (snap, sampleWindow, recur, andThen, snapAfter, sample)
+import FRP.Yampa.Stream
+import FRP.Yampa.QuickCheck
+import FRP.Yampa.LTLFuture
 
 import TestsCommon
+
+tests :: TestTree
+tests = testGroup "Regression tests for FRP.Yampa.EventS"
+  [ testProperty "eventS (0, fixed)"       (property $ evsrc_t0 ~= evsrc_t0r)
+  , testProperty "eventS (1, fixed)"       (property $ evsrc_t1 ~= evsrc_t1r)
+  , testProperty "eventS (2, fixed)"       (property $ evsrc_t2 ~= evsrc_t2r)
+  , testProperty "eventS (3, fixed)"       (property $ evsrc_t3 ~= evsrc_t3r)
+  , testProperty "eventS (4, fixed)"       (property $ evsrc_t4 ~= evsrc_t4r)
+  , testProperty "eventS (5, fixed)"       (property $ evsrc_t5 ~= evsrc_t5r)
+  , testProperty "eventS (6, fixed)"       (property $ evsrc_t6 ~= evsrc_t6r)
+  , testProperty "eventS (7, fixed)"       (property $ evsrc_t7 ~= evsrc_t7r)
+  , testProperty "eventS (8, fixed)"       (property $ evsrc_t8 ~= evsrc_t8r)
+  , testProperty "eventS (9, fixed)"       (property $ evsrc_t9 ~= evsrc_t9r)
+  , testProperty "eventS (10, fixed)"      (property $ evsrc_t10 ~= evsrc_t10r)
+  , testProperty "eventS (11, fixed)"      (property $ evsrc_t11 ~= evsrc_t11r)
+  , testProperty "eventS (12, fixed)"      (property $ evsrc_t12 ~= evsrc_t12r)
+  , testProperty "eventS (13, fixed)"      (property $ evsrc_t13 ~= evsrc_t13r)
+  , testProperty "eventS (14, fixed)"      (property $ evsrc_t14 ~= evsrc_t14r)
+  , testProperty "eventS (15, fixed)"      (property $ evsrc_t15 ~= evsrc_t15r)
+  , testProperty "eventS (16, fixed)"      (property $ evsrc_t16 ~= evsrc_t16r)
+  , testProperty "eventS (17, fixed)"      (property $ evsrc_t17 ~= evsrc_t17r)
+  , testProperty "eventS (18, fixed)"      (property $ evsrc_t18 ~= evsrc_t18r)
+  , testProperty "eventS (19, fixed)"      (property $ evsrc_t19 ~= evsrc_t19r)
+  , testProperty "eventS (20, fixed)"      (property $ evsrc_t20 ~= evsrc_t20r)
+  , testProperty "eventS (21, fixed)"      (property $ evsrc_t21 ~= evsrc_t21r)
+  , testProperty "eventS (22, fixed)"      (property $ evsrc_t22 ~= evsrc_t22r)
+  , testProperty "eventS (23, fixed)"      (property $ evsrc_t23 ~= evsrc_t23r)
+  , testProperty "eventS (24, fixed)"      (property $ evsrc_t24 ~= evsrc_t24r)
+  , testProperty "eventS (25, fixed)"      (property $ evsrc_t25 ~= evsrc_t25r)
+  , testProperty "eventS (26, fixed)"      (property $ evsrc_t26 ~= evsrc_t26r)
+  , testProperty "eventS (27, fixed)"      (property $ evsrc_t27 ~= evsrc_t27r)
+  , testProperty "eventS (28, fixed)"      (property $ evsrc_t28 ~= evsrc_t28r)
+  , testProperty "eventS (29, fixed)"      (property $ evsrc_t29 ~= evsrc_t29r)
+  , testProperty "eventS (30, fixed)"      (property $ evsrc_t30 ~= evsrc_t30r)
+  , testProperty "snap (fixed)"            (property $ utils_t10 ~= utils_t10r)
+  , testProperty "snapAfter (fixed)"       (property $ utils_t11 ~= utils_t11r)
+  , testProperty "sample (fixed)"          (property $ utils_t12 ~= utils_t12r)
+  , testProperty "after (0, fixed)"        (property $ utils_t13 ~= utils_t13r)
+  , testProperty "after (1, fixed)"        (property $ utils_t14 ~= utils_t14r)
+  , testProperty "sampleWindow (0, fixed)" (property $ utils_t15 ~= utils_t15r)
+  , testProperty "sampleWindow (1, fixed)" (property $ utils_t16 ~= utils_t16r)
+  , testProperty "Events > No event"       prop_event_noevent
+  , testProperty "Events > Now"            prop_event_now
+  , testProperty "Events > After 0.0"      prop_event_after_0
+  ]
 
 -- * Test cases for basic event sources and stateful event suppression
 
@@ -549,38 +609,186 @@ evsrc_t30r =
   , Event (), NoEvent                    -- 6.0 s
   ]
 
-evsrc_trs =
-  [ evsrc_t0 ~= evsrc_t0r
-  , evsrc_t1 ~= evsrc_t1r
-  , evsrc_t2 ~= evsrc_t2r
-  , evsrc_t3 ~= evsrc_t3r
-  , evsrc_t4 ~= evsrc_t4r
-  , evsrc_t5 ~= evsrc_t5r
-  , evsrc_t6 ~= evsrc_t6r
-  , evsrc_t7 ~= evsrc_t7r
-  , evsrc_t8 ~= evsrc_t8r
-  , evsrc_t9 ~= evsrc_t9r
-  , evsrc_t10 ~= evsrc_t10r
-  , evsrc_t11 ~= evsrc_t11r
-  , evsrc_t12 ~= evsrc_t12r
-  , evsrc_t13 ~= evsrc_t13r
-  , evsrc_t14 ~= evsrc_t14r
-  , evsrc_t15 ~= evsrc_t15r
-  , evsrc_t16 ~= evsrc_t16r
-  , evsrc_t17 ~= evsrc_t17r
-  , evsrc_t18 ~= evsrc_t18r
-  , evsrc_t19 ~= evsrc_t19r
-  , evsrc_t20 ~= evsrc_t20r
-  , evsrc_t21 ~= evsrc_t21r
-  , evsrc_t22 ~= evsrc_t22r
-  , evsrc_t23 ~= evsrc_t23r
-  , evsrc_t24 ~= evsrc_t24r
-  , evsrc_t25 ~= evsrc_t25r
-  , evsrc_t26 ~= evsrc_t26r
-  , evsrc_t27 ~= evsrc_t27r
-  , evsrc_t28 ~= evsrc_t28r
-  , evsrc_t29 ~= evsrc_t29r
-  , evsrc_t30 ~= evsrc_t30r
+-- * Test cases for utilities (Utils)
+
+utils_t10 :: [Event Double]
+utils_t10 = testSF1 snap
+
+utils_t10r =
+  [ Event 0.0, NoEvent, NoEvent, NoEvent  -- 0.0 s
+  , NoEvent,   NoEvent, NoEvent, NoEvent  -- 1.0 s
+  , NoEvent,   NoEvent, NoEvent, NoEvent  -- 2.0 s
+  , NoEvent,   NoEvent, NoEvent, NoEvent  -- 3.0 s
+  , NoEvent,   NoEvent, NoEvent, NoEvent  -- 4.0 s
+  , NoEvent,   NoEvent, NoEvent, NoEvent  -- 5.0 s
+  , NoEvent
   ]
 
-evsrc_tr = and evsrc_trs
+utils_t11 :: [Event Double]
+utils_t11 = testSF1 (snapAfter 2.6)
+
+utils_t11r =
+  [ NoEvent, NoEvent, NoEvent, NoEvent     -- 0.0 s
+  , NoEvent, NoEvent, NoEvent, NoEvent     -- 1.0 s
+  , NoEvent, NoEvent, NoEvent, Event 11.0  -- 2.0 s
+  , NoEvent, NoEvent, NoEvent, NoEvent     -- 3.0 s
+  , NoEvent, NoEvent, NoEvent, NoEvent     -- 4.0 s
+  , NoEvent, NoEvent, NoEvent, NoEvent     -- 5.0 s
+  , NoEvent
+  ]
+
+utils_t12 :: [Event Double]
+utils_t12 = testSF1 (sample 0.99)
+
+utils_t12r =
+  [ NoEvent,    NoEvent, NoEvent, NoEvent  -- 0.0 s
+  , Event 4.0,  NoEvent, NoEvent, NoEvent  -- 1.0 s
+  , Event 8.0,  NoEvent, NoEvent, NoEvent  -- 2.0 s
+  , Event 12.0, NoEvent, NoEvent, NoEvent  -- 3.0 s
+  , Event 16.0, NoEvent, NoEvent, NoEvent  -- 4.0 s
+  , Event 20.0, NoEvent, NoEvent, NoEvent  -- 5.0 s
+  , Event 24.0
+  ]
+
+utils_t13 :: [Event ()]
+utils_t13 = testSF1 (recur (after 0.99 ()))
+
+utils_t13r =
+  [ NoEvent,  NoEvent, NoEvent, NoEvent  -- 0.0 s
+  , Event (), NoEvent, NoEvent, NoEvent  -- 1.0 s
+  , Event (), NoEvent, NoEvent, NoEvent  -- 2.0 s
+  , Event (), NoEvent, NoEvent, NoEvent  -- 3.0 s
+  , Event (), NoEvent, NoEvent, NoEvent  -- 4.0 s
+  , Event (), NoEvent, NoEvent, NoEvent  -- 5.0 s
+  , Event ()
+  ]
+
+utils_t14 :: [Event Int]
+utils_t14 = testSF1 (after 1.0 1 `andThen` now 2 `andThen` after 2.0 3)
+
+utils_t14r =
+  [ NoEvent, NoEvent, NoEvent, NoEvent  -- 0.0 s
+  , Event 1, NoEvent, NoEvent, NoEvent  -- 1.0 s
+  , NoEvent, NoEvent, NoEvent, NoEvent  -- 2.0 s
+  , Event 3, NoEvent, NoEvent, NoEvent  -- 3.0 s
+  , NoEvent, NoEvent, NoEvent, NoEvent  -- 4.0 s
+  , NoEvent, NoEvent, NoEvent, NoEvent  -- 5.0 s
+  , NoEvent
+  ]
+
+utils_t15 = take 50 (embed (time >>> sampleWindow 5 0.5)
+                           (deltaEncode 0.125 (repeat ())))
+
+utils_t15r =
+  [ NoEvent,                     NoEvent, NoEvent, NoEvent  -- 0.0 s
+  , Event [0.5],                 NoEvent, NoEvent, NoEvent  -- 0.5 s
+  , Event [0.5,1.0],             NoEvent, NoEvent, NoEvent  -- 1.0 s
+  , Event [0.5,1.0,1.5],         NoEvent, NoEvent, NoEvent  -- 1.5 s
+  , Event [0.5,1.0,1.5,2.0],     NoEvent, NoEvent, NoEvent  -- 2.0 s
+  , Event [0.5,1.0,1.5,2.0,2.5], NoEvent, NoEvent, NoEvent  -- 2.5 s
+  , Event [1.0,1.5,2.0,2.5,3.0], NoEvent, NoEvent, NoEvent  -- 3.0 s
+  , Event [1.5,2.0,2.5,3.0,3.5], NoEvent, NoEvent, NoEvent  -- 3.5 s
+  , Event [2.0,2.5,3.0,3.5,4.0], NoEvent, NoEvent, NoEvent  -- 4.0 s
+  , Event [2.5,3.0,3.5,4.0,4.5], NoEvent, NoEvent, NoEvent  -- 4.5 s
+  , Event [3.0,3.5,4.0,4.5,5.0], NoEvent, NoEvent, NoEvent  -- 5.0 s
+  , Event [3.5,4.0,4.5,5.0,5.5], NoEvent, NoEvent, NoEvent  -- 5.5 s
+  , Event [4.0,4.5,5.0,5.5,6.0], NoEvent                    -- 6.0 s
+  ]
+
+{-
+-- Not robust
+utils_t16 = take 50 (embed (time >>> sampleWindow 5 0.5) input)
+  where
+    input = ((), [(dt, Just ()) | dt <- dts])
+
+    dts = replicate 15 0.1
+          ++ [1.0, 1.0]
+          ++ replicate 15 0.1
+          ++ [2.0]
+          ++ replicate 10 0.1
+
+utils_t16r =
+  [ NoEvent, NoEvent,          NoEvent, NoEvent, NoEvent             -- 0.0
+  , NoEvent, Event [0.6],      NoEvent, NoEvent, NoEvent             -- 0.5
+  , NoEvent, Event [0.6, 1.1], NoEvent, NoEvent, NoEvent             -- 1.0
+  , NoEvent                                                          -- 1.5
+  , Event [0.6,1.1,2.5,2.5,2.5]                                      -- 2.5
+  , Event [2.5,2.5,2.5,3.5,3.5], NoEvent, NoEvent, NoEvent, NoEvent  -- 3.5
+  , NoEvent, Event [2.5,2.5,3.5,3.5,4.1], NoEvent, NoEvent, NoEvent  -- 4.0
+  , NoEvent, Event [2.5,3.5,3.5,4.1,4.6], NoEvent, NoEvent, NoEvent  -- 4.5
+  , NoEvent                                                          -- 5.0
+  , Event [7.0,7.0,7.0,7.0,7.0], NoEvent, NoEvent, NoEvent, NoEvent  -- 7.0
+  , NoEvent, Event [7.0,7.0,7.0,7.0,7.6], NoEvent, NoEvent, NoEvent  -- 7.5
+  , NoEvent                                                          -- 8.0
+  ]
+-}
+
+utils_t16 = take 50 (embed (time >>> sampleWindow 5 0.4999) input)
+  where
+    input = ((), [(dt, Just ()) | dt <- dts])
+
+    dts = replicate 15 0.1
+          ++ [1.0, 1.0]
+          ++ replicate 15 0.1
+          ++ [2.0]
+          ++ replicate 10 0.1
+
+utils_t16r =
+  [ NoEvent,          NoEvent, NoEvent, NoEvent, NoEvent        -- 0.0
+  , Event [0.5],      NoEvent, NoEvent, NoEvent, NoEvent        -- 0.5
+  , Event [0.5, 1.0], NoEvent, NoEvent, NoEvent, NoEvent        -- 1.0
+  , Event [0.5, 1.0, 1.5]                                       -- 1.5
+  , Event [0.5, 1.0, 1.5, 2.5, 2.5]                             -- 2.5
+  , Event [1.5, 2.5, 2.5, 3.5, 3.5], NoEvent, NoEvent, NoEvent  -- 3.5
+  ,                                                    NoEvent
+  , Event [2.5, 2.5, 3.5, 3.5, 4.0], NoEvent, NoEvent, NoEvent  -- 4.0
+  ,                                                    NoEvent
+  , Event [2.5, 3.5, 3.5, 4.0, 4.5], NoEvent, NoEvent, NoEvent  -- 4.5
+  ,                                                    NoEvent
+  , Event [3.5, 3.5, 4.0, 4.5, 5.0]                             -- 5.0
+  , Event [5.0, 7.0, 7.0, 7.0, 7.0], NoEvent, NoEvent, NoEvent  -- 7.0
+  ,                                                    NoEvent
+  , Event [7.0, 7.0, 7.0, 7.0, 7.5], NoEvent, NoEvent, NoEvent  -- 7.5
+  ,                                                    NoEvent
+  , Event [7.0, 7.0, 7.0, 7.5, 8.0]                             -- 8.0
+  ]
+
+-- Events
+prop_event_noevent =
+    forAll myStream $ evalT $ Always $ prop (sfNever, const (== noEvent))
+
+  where myStream :: Gen (SignalSampleStream Float)
+        myStream = uniDistStream
+        sfNever :: SF Float (Event Float)
+        sfNever = never
+
+prop_event_now =
+    forAll myStream $ evalT $
+      -- (sf, p0) /\ O [] (sf, pn)
+      And (prop (sf, p0))                 -- Initially
+          (Next $ Always $ prop (sf, pn)) -- After first sample
+
+  where sf = Yampa.now 42.0
+
+        p0 x y = y == Event 42.0
+        pn x y = y == noEvent
+
+        myStream :: Gen (SignalSampleStream Float)
+        myStream = uniDistStream
+
+prop_event_after_0 =
+    forAll myStream $ evalT $
+      -- (sf, p0) /\ O [] (sf, pn)
+      And (prop (sf, p0))                 -- Initially
+          (Next $ Always $ prop (sf, pn)) -- After first sample
+
+  where sf = after 0.0 42.0
+
+        p0 x y = y == Event 42.0
+        pn x y = y == noEvent
+
+        myStream :: Gen (SignalSampleStream Float)
+        myStream = uniDistStream
+
+-- prop :: SF a b -> (a -> b ->
+prop (a,b) = SP ((identity &&& a) >>^ uncurry b)

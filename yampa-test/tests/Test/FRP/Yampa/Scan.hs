@@ -1,18 +1,42 @@
 -- |
--- Module      : TestsSscan
--- Description : Test cases for pre sscan
+-- Description : Test cases for signal functions using scan
 -- Copyright   : Yale University, 2003
---               University of Nottingham, 2005
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsSscan
-    ( sscan_tr
-    , sscan_trs
+module Test.FRP.Yampa.Scan
+    ( tests
     )
   where
 
-import FRP.Yampa
+import Test.QuickCheck
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
+
+import FRP.Yampa as Yampa
 
 import TestsCommon
+
+tests :: TestTree
+tests = testGroup "Regression tests for FRP.Yampa.Scan"
+  [ testProperty "scan (0, fixed)"  (property $ sscan_t0 ~= sscan_t0r)
+  , testProperty "scan (1, fixed)"  (property $ sscan_t1 ~= sscan_t1r)
+  , testProperty "scan (2, fixed)"  (property $ sscan_t2 ~= sscan_t2r)
+  , testProperty "scan (3, fixed)"  (property $ sscan_t3 ~= sscan_t3r)
+  , testProperty "scan (4, fixed)"  (property $ sscan_t4 == sscan_t4r)
+  , testProperty "scan (5, fixed)"  (property $ sscan_t5 == sscan_t5r)
+  , testProperty "scan (6, fixed)"  (property $ sscan_t6 == sscan_t6r)
+  , testProperty "scan (7, fixed)"  (property $ sscan_t7 == sscan_t7r)
+  , testProperty "scan (8, fixed)"  (property $ sscan_t8 == sscan_t8r)
+  , testProperty "scan (9, fixed)"  (property $ sscan_t9 == sscan_t9r)
+  , testProperty "scan (10, fixed)" (property $ sscan_t10 == sscan_t10r)
+  , testProperty "scan (11, fixed)" (property $ sscan_t11 == sscan_t11r)
+  , testProperty "scan (12, fixed)" (property $ sscan_t12 == sscan_t12r)
+  , testProperty "scan (13, fixed)" (property $ sscan_t13 ~= sscan_t13r)
+  , testProperty "scan (14, fixed)" (property $ sscan_t14 ~= sscan_t14r)
+  , testProperty "scan (15, fixed)" (property $ sscan_t15 ~= sscan_t15r)
+  , testProperty "scan (16, fixed)" (property $ sscan_t16 ~= sscan_t16r)
+  , testProperty "scan (17, fixed)" (property $ sscan_t17 ~= sscan_t17r)
+  , testProperty "scan (18, fixed)" (property $ sscan_t18 ~= sscan_t18r)
+  ]
 
 -- * Test cases sscan
 
@@ -435,27 +459,3 @@ sscan_t18r =
   , 3,3,3,3,3,3,3,3,3,3
   , 3,3,3,3,3,3,4,4,4,4
   ]
-
-sscan_trs =
-  [ sscan_t0 ~= sscan_t0r
-  , sscan_t1 ~= sscan_t1r
-  , sscan_t2 ~= sscan_t2r
-  , sscan_t3 ~= sscan_t3r
-  , sscan_t4 == sscan_t4r
-  , sscan_t5 == sscan_t5r
-  , sscan_t6 == sscan_t6r
-  , sscan_t7 == sscan_t7r
-  , sscan_t8 == sscan_t8r
-  , sscan_t9 == sscan_t9r
-  , sscan_t10 == sscan_t10r
-  , sscan_t11 == sscan_t11r
-  , sscan_t12 == sscan_t12r
-  , sscan_t13 ~= sscan_t13r
-  , sscan_t14 ~= sscan_t14r
-  , sscan_t15 ~= sscan_t15r
-  , sscan_t16 ~= sscan_t16r
-  , sscan_t17 ~= sscan_t17r
-  , sscan_t18 ~= sscan_t18r
-  ]
-
-sscan_tr = and sscan_trs

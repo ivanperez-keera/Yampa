@@ -1,23 +1,36 @@
 -- |
--- Module      : TestsTask
 -- Description : Test cases for tasks (Task)
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
 -- Very rudimentary testing of Task.
 
-module TestsTask
-    ( task_tr
-    , task_trs
-    )
+module Test.FRP.Yampa.Task
+    ( tests )
   where
 
 import Control.Monad (when, forever)
-import FRP.Yampa
+
+import Test.QuickCheck
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
+
+import FRP.Yampa as Yampa
 import FRP.Yampa.Task
 
 import TestsCommon
 
--- * Test cases for tasks (Task)
+tests :: TestTree
+tests = testGroup "Regression tests for FRP.Yampa.Task"
+  [ testProperty "tasks (fixed)" (property $ task_t0 ~= task_t0r)
+  , testProperty "tasks (fixed)" (property $ task_t1 ~= task_t0r)  -- Intentionally! task_t0 = task_t1!
+  , testProperty "tasks (fixed)" (property $ task_t2 ~= task_t2r)
+  , testProperty "tasks (fixed)" (property $ task_t3 ~= task_t3r)
+  , testProperty "tasks (fixed)" (property $ task_t4 ~= task_t4r)
+  , testProperty "tasks (fixed)" (property $ task_t5 ~= task_t5r)
+  , testProperty "tasks (fixed)" (property $ task_t6 ~= task_t6r)
+  , testProperty "tasks (fixed)" (property $ task_t7 ~= task_t7r)
+  , testProperty "tasks (fixed)" (property $ task_t8 ~= task_t8r)
+  ]
 
 task_t0 = testSF1 (runTask (do
                                mkTask (localTime
@@ -194,21 +207,6 @@ task_t8r =
     , Left 1.0, Left 1.5, Left 2.0, Left 2.5  -- 5.0 s, 20 - 23
     , Right (Left 24.0,24.0)
     ]
-
-task_trs =
-  [ task_t0 ~= task_t0r
-  , task_t1 ~= task_t0r  -- Intentionally! task_t0 = task_t1!
-  , task_t2 ~= task_t2r
-  , task_t3 ~= task_t3r
-  , task_t4 ~= task_t4r
-  , task_t5 ~= task_t5r
-  , task_t6 ~= task_t6r
-  , task_t7 ~= task_t7r
-  , task_t8 ~= task_t8r
-  ]
-
-task_tr = and task_trs
-
 -- | Repeat m until result satisfies the predicate p
 repeatUntil :: Monad m => m a -> (a -> Bool) -> m a
 m `repeatUntil` p = m >>= \x -> if not (p x) then repeatUntil m p else return x
@@ -220,4 +218,3 @@ m `repeatUntil` p = m >>= \x -> if not (p x) then repeatUntil m p else return x
 -- >>> for 0 (+1) (>=10) ...
 for :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
 for i f p m = when (p i) $ m >> for (f i) f p m
-
