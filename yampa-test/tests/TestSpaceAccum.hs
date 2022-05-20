@@ -1,10 +1,10 @@
 -- |
--- Module      : TestsAccum
+-- Module      : TestSpaceAccum
 -- Description : Test cases for accumulators
 -- Copyright   : Yale University, 2003
 --               University of Nottingham, 2005
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsAccum
+module TestSpaceAccum
     ( accum_st0
     , accum_st0r
     , accum_st1

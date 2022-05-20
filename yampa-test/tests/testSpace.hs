@@ -8,12 +8,12 @@ module Main where
 import FRP.Yampa
 
 import TestsCommon
+import TestSpaceAccum
 import TestSpaceArr
 import TestSpaceLoop
 import TestSpacePSwitch
 import TestSpaceRPSwitch
 import TestSpaceRSwitch
-import TestsAccum
 
 main :: IO ()
 main = do
