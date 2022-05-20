@@ -7,8 +7,10 @@ module Main where
 
 import FRP.Yampa
 import Data.List (findIndex)
+import System.IO.Unsafe (unsafePerformIO)
+import Data.IORef (newIORef, writeIORef, readIORef)
 
-import TestsCommon
+import TestsCommon (REq(..))
 
 main :: IO ()
 main = do
@@ -196,3 +198,52 @@ accum_st1 = testSFSpaceLeak 1000000
                  | otherwise      = (c, Nothing)
 
 accum_st1r = 6.249975e10
+
+------------------------------------------------------------------------------
+-- Test harness for space behaviour
+------------------------------------------------------------------------------
+
+{-
+-- Test for space leaks.
+-- Carefully defined in an attempt to defeat fully lazy lambda lifting.
+-- Seems to work, but may be unsafe if the compiler decides to optimize
+-- aggressively.
+testSFSpaceLeak :: Int -> SF Double a -> a
+testSFSpaceLeak n sf = embed sf (deltaEncodeBy (~=) 0.25 [(seq n 0.0)..]) !! n
+-}
+
+-- Using embed/deltaEncode seems to be a bad idea since fully lazy
+-- lambda lifting often results in lifting a big input list to the top
+-- level in the form of a CAF. Using reactimate and avoiding constructing
+-- input/output lists should be more robust.
+
+testSFSpaceLeak :: Int -> SF Double a -> a
+testSFSpaceLeak n sf = unsafePerformIO $ do
+  countr  <- newIORef 0
+  inputr  <- newIORef undefined
+  outputr <- newIORef undefined
+  let init = do
+        let input0 = 0.0
+        writeIORef inputr input0
+        count <- readIORef countr
+        writeIORef countr (count + 1)
+        return input0
+
+      sense _ = do
+        input <- readIORef inputr
+        let input' = input + 0.5
+        writeIORef inputr input'
+        count <- readIORef countr
+        writeIORef countr (count + 1)
+        return (0.25, Just input')
+
+      actuate _ output = do
+        writeIORef outputr output
+        _input <- readIORef inputr
+        count  <- readIORef countr
+        return (count >= n)
+
+  reactimate init sense actuate sf
+
+  -- return output
+  readIORef outputr
