@@ -1,17 +1,27 @@
 -- |
--- Module      : TestsWFG
--- Description : Test cases for wave-form generation
+-- Description : Test cases for hybrid signal functions
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsWFG
-    ( wfg_tr
-    , wfg_trs
+module Test.FRP.Yampa.Hybrid
+    ( tests
     )
   where
 
-import FRP.Yampa
+import Test.QuickCheck
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
+
+import FRP.Yampa as Yampa
 
 import TestsCommon
+
+tests :: TestTree
+tests = testGroup "Regression tests for FRP.Yampa.Hybrid"
+  [ testProperty "hold (0, fixed)"         (property $ wfg_t0 ~= wfg_t0r)
+  , testProperty "hold (1, fixed)"         (property $ wfg_t1 ~= wfg_t1r)
+  , testProperty "trackAndHold (0, fixed)" (property $ wfg_t2 ~= wfg_t2r)
+  , testProperty "trackAndHold (1, fixed)" (property $ wfg_t3 ~= wfg_t3r)
+  ]
 
 -- * Test cases for wave-form generation
 
@@ -87,12 +97,3 @@ wfg_t3r =
   , 2.0, 3.0, 3.0, 3.0, 4.0
   , 4.0, 4.0, 4.0, 4.0, 4.0
   ]
-
-wfg_trs =
-  [ wfg_t0 ~= wfg_t0r
-  , wfg_t1 ~= wfg_t1r
-  , wfg_t2 ~= wfg_t2r
-  , wfg_t3 ~= wfg_t3r
-  ]
-
-wfg_tr = and wfg_trs

@@ -104,6 +104,7 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Basic
     Test.FRP.Yampa.Conditional
     Test.FRP.Yampa.Delays
+    Test.FRP.Yampa.Hybrid
     Test.FRP.Yampa.Integration
     Test.FRP.Yampa.Simulation
     Test.FRP.Yampa.Switches
@@ -122,7 +123,6 @@ test-suite yampa-quicheck
     TestsLoopPre
     TestsSscan
     TestsUtils
-    TestsWFG
 
   build-depends:
       base             < 5
