@@ -1,9 +1,9 @@
 -- |
--- Module      : TestsRPSwitch
+-- Module      : TestSpaceRPSwitch
 -- Description : Test cases for rpSwitchB and drpSwitchB
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsRPSwitch
+module TestSpaceRPSwitch
     ( rpswitch_st0
     , rpswitch_st0r
     )

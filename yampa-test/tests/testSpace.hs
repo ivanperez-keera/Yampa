@@ -12,7 +12,7 @@ import TestsArr
 import TestsLoop
 import TestsRSwitch
 import TestSpacePSwitch
-import TestsRPSwitch
+import TestSpaceRPSwitch
 import TestsAccum
 
 main :: IO ()

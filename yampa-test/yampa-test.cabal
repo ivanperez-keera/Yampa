@@ -155,11 +155,11 @@ test-suite space
 
   other-modules:
     TestSpacePSwitch
+    TestSpaceRPSwitch
     TestsAccum
     TestsArr
     TestsCommon
     TestsLoop
-    TestsRPSwitch
     TestsRSwitch
 
   default-language:
