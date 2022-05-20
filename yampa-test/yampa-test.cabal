@@ -106,6 +106,7 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Delays
     Test.FRP.Yampa.Integration
     Test.FRP.Yampa.Switches
+    Test.FRP.Yampa.Task
     Test.FRP.Yampa.Time
     TestsAccum
     TestsArr
@@ -126,7 +127,6 @@ test-suite yampa-quicheck
     TestsRSwitch
     TestsSscan
     TestsSwitch
-    TestsTask
     TestsUtils
     TestsWFG
 

@@ -73,7 +73,6 @@ import qualified TestsRSwitch      as Regression
 import qualified TestsReact        as Regression
 import qualified TestsSscan        as Regression
 import qualified TestsSwitch       as Regression
-import qualified TestsTask         as Regression
 import qualified TestsUtils        as Regression
 import qualified TestsWFG          as Regression
 
@@ -82,6 +81,7 @@ import qualified Test.FRP.Yampa.Conditional as NewConditional
 import qualified Test.FRP.Yampa.Delays      as NewDelays
 import qualified Test.FRP.Yampa.Integration as NewIntegration
 import qualified Test.FRP.Yampa.Switches    as NewSwitches
+import qualified Test.FRP.Yampa.Task        as NewTask
 import qualified Test.FRP.Yampa.Time        as NewTime
 
 main :: IO ()
@@ -152,11 +152,13 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > react"         (property $ and Regression.react_trs)
   , testProperty "Regression > embed"         (property $ and Regression.embed_trs)
   , testProperty "Regression > utils"         (property $ and Regression.utils_trs)
-  , testProperty "Regression > task"          (property $ and Regression.task_trs)
   , NewBasic.tests
   , NewConditional.tests
   , NewDelays.tests
   , NewIntegration.tests
+  , NewHybrid.tests
+  , NewSimulation.tests
+  , NewTask.tests
   , NewSwitches.tests
   , NewTime.tests
   ]
