@@ -56,7 +56,6 @@ import FRP.Yampa.LTLFuture
 
 -- Local tests
 import qualified TestsAccum        as Regression
-import qualified TestsArr          as Regression
 import qualified TestsComp         as Regression
 import qualified TestsEvSrc        as Regression
 import qualified TestsFirstSecond  as Regression
@@ -67,16 +66,17 @@ import qualified TestsLoopPre      as Regression
 import qualified TestsSscan        as Regression
 import qualified TestsUtils        as Regression
 
-import qualified Test.FRP.Yampa.Basic       as NewBasic
-import qualified Test.FRP.Yampa.Conditional as NewConditional
-import qualified Test.FRP.Yampa.Delays      as NewDelays
-import qualified Test.FRP.Yampa.Hybrid      as NewHybrid
-import qualified Test.FRP.Yampa.Integration as NewIntegration
-import qualified Test.FRP.Yampa.Loop        as NewLoop
-import qualified Test.FRP.Yampa.Simulation  as NewSimulation
-import qualified Test.FRP.Yampa.Switches    as NewSwitches
-import qualified Test.FRP.Yampa.Task        as NewTask
-import qualified Test.FRP.Yampa.Time        as NewTime
+import qualified Test.FRP.Yampa.Basic        as NewBasic
+import qualified Test.FRP.Yampa.Conditional  as NewConditional
+import qualified Test.FRP.Yampa.Delays       as NewDelays
+import qualified Test.FRP.Yampa.Hybrid       as NewHybrid
+import qualified Test.FRP.Yampa.Integration  as NewIntegration
+import qualified Test.FRP.Yampa.InternalCore as NewInternalCore
+import qualified Test.FRP.Yampa.Loop         as NewLoop
+import qualified Test.FRP.Yampa.Simulation   as NewSimulation
+import qualified Test.FRP.Yampa.Switches     as NewSwitches
+import qualified Test.FRP.Yampa.Task         as NewTask
+import qualified Test.FRP.Yampa.Time         as NewTime
 
 main :: IO ()
 main = defaultMain tests
@@ -125,7 +125,6 @@ tests = testGroup "Yampa QC properties"
   -- Missing: Utils
   -- Missing: WFG
 
-  , testProperty "Regression > arr"           (property $ and Regression.arr_trs)
   , testProperty "Regression > comp"          (property $ and Regression.comp_trs)
   , testProperty "Regression > first"         (property $ and Regression.first_trs)
   , testProperty "Regression > second"        (property $ and Regression.second_trs)
@@ -142,6 +141,7 @@ tests = testGroup "Yampa QC properties"
   , NewDelays.tests
   , NewHybrid.tests
   , NewIntegration.tests
+  , NewInternalCore.tests
   , NewLoop.tests
   , NewSimulation.tests
   , NewSwitches.tests

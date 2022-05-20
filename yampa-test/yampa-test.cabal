@@ -106,13 +106,13 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Delays
     Test.FRP.Yampa.Hybrid
     Test.FRP.Yampa.Integration
+    Test.FRP.Yampa.InternalCore
     Test.FRP.Yampa.Loop
     Test.FRP.Yampa.Simulation
     Test.FRP.Yampa.Switches
     Test.FRP.Yampa.Task
     Test.FRP.Yampa.Time
     TestsAccum
-    TestsArr
     TestsCommon
     TestsComp
     TestsEvSrc
