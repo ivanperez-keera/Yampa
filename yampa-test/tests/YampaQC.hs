@@ -57,7 +57,6 @@ import FRP.Yampa.LTLFuture
 -- Local tests
 import qualified TestsAccum        as Regression
 import qualified TestsEvSrc        as Regression
-import qualified TestsLaws         as Regression
 import qualified TestsLoopIntegral as Regression
 import qualified TestsLoopLaws     as Regression
 import qualified TestsLoopPre      as Regression
@@ -123,7 +122,6 @@ tests = testGroup "Yampa QC properties"
   -- Missing: Utils
   -- Missing: WFG
 
-  , testProperty "Regression > laws"          (property $ and Regression.laws_trs)
   , testProperty "Regression > looplaws"      (property $ and Regression.looplaws_trs)
   , testProperty "Regression > sscan"         (property $ and Regression.sscan_trs)
   , testProperty "Regression > evsrc"         (property $ and Regression.evsrc_trs)

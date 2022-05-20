@@ -115,7 +115,6 @@ test-suite yampa-quicheck
     TestsAccum
     TestsCommon
     TestsEvSrc
-    TestsLaws
     TestsLoopIntegral
     TestsLoopLaws
     TestsLoopPre

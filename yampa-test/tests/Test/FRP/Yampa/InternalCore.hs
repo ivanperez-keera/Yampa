@@ -42,6 +42,15 @@ tests = testGroup "Regression tests for FRP.Yampa.InternalCore"
   , testProperty "second (3, fixed)"      (property $ second_t3 ~= first_t3r)
   , testProperty "second (4, fixed)"      (property $ second_t4 ~= first_t4r)
   , testProperty "second (5, fixed)"      (property $ second_t5 ~= first_t5r)
+  , testProperty "arrow laws (0, fixed)"  (property $ laws_t0_lhs ~= laws_t0_rhs)
+  , testProperty "arrow laws (1, fixed)"  (property $ laws_t1_lhs ~= laws_t1_rhs)
+  , testProperty "arrow laws (2, fixed)"  (property $ laws_t2_lhs ~= laws_t2_rhs)
+  , testProperty "arrow laws (3, fixed)"  (property $ laws_t3_lhs ~= laws_t3_rhs)
+  , testProperty "arrow laws (4, fixed)"  (property $ laws_t4_lhs ~= laws_t4_rhs)
+  , testProperty "arrow laws (5, fixed)"  (property $ laws_t5_lhs ~= laws_t5_rhs)
+  , testProperty "arrow laws (6, fixed)"  (property $ laws_t6_lhs ~= laws_t6_rhs)
+  , testProperty "arrow laws (7, fixed)"  (property $ laws_t7_lhs ~= laws_t7_rhs)
+  , testProperty "arrow laws (8, fixed)"  (property $ laws_t8_lhs ~= laws_t8_rhs)
   ]
 
 -- * Test cases for arr
@@ -191,6 +200,60 @@ second_t4 = testSF1 (arr dup >>> second integral >>> arr swap)
 
 second_t5 :: [(Double,Double)]
 second_t5 = testSF2 (arr dup >>> second integral >>> arr swap)
+
+-- * Test cases based on the arrow laws
+
+-- For a description of the laws, see e.g. Ross Paterson: Embedding a Class of
+-- Domain-Specific Languages in a Functional Language.
+-- Only a very rudimentary sanity check. Obviously not intended to "prove"
+-- this implementation indeed do respect the laws.
+
+laws_t0_lhs :: [Double]
+laws_t0_lhs = testSF1 (arr id >>> integral)
+laws_t0_rhs :: [Double]
+laws_t0_rhs = testSF1 (integral)
+
+laws_t1_lhs :: [Double]
+laws_t1_lhs = testSF1 (integral >>> arr id)
+laws_t1_rhs :: [Double]
+laws_t1_rhs = testSF1 (integral)
+
+laws_t2_lhs :: [Double]
+laws_t2_lhs = testSF1 ((integral >>> arr (*0.5)) >>> integral)
+laws_t2_rhs :: [Double]
+laws_t2_rhs = testSF1 (integral >>> (arr (*0.5) >>> integral))
+
+laws_t3_lhs :: [Double]
+laws_t3_lhs = testSF1 (arr ((*2.5) . (+3.0)))
+laws_t3_rhs :: [Double]
+laws_t3_rhs = testSF1 (arr (+3.0) >>> arr (*2.5))
+
+laws_t4_lhs :: [(Double, Double)]
+laws_t4_lhs = testSF1 (arr dup >>> first (arr (*2.5)))
+laws_t4_rhs :: [(Double, Double)]
+laws_t4_rhs = testSF1 (arr dup >>> arr ((*2.5) *** id))
+
+laws_t5_lhs :: [(Double, Double)]
+laws_t5_lhs = testSF1 (arr dup >>> (first (integral >>> arr (+3.0))))
+laws_t5_rhs :: [(Double, Double)]
+laws_t5_rhs = testSF1 (arr dup >>> (first integral >>> first (arr (+3.0))))
+
+laws_t6_lhs :: [(Double, Double)]
+laws_t6_lhs = testSF1 (arr dup >>> (first integral >>> arr (id *** (+3.0))))
+laws_t6_rhs :: [(Double, Double)]
+laws_t6_rhs = testSF1 (arr dup >>> (arr (id *** (+3.0)) >>> first integral))
+
+laws_t7_lhs :: [Double]
+laws_t7_lhs = testSF1 (arr dup >>> (first integral >>> arr fst))
+laws_t7_rhs :: [Double]
+laws_t7_rhs = testSF1 (arr dup >>> (arr fst >>> integral))
+
+laws_t8_lhs :: [(Double, (Double, ()))]
+laws_t8_lhs = testSF1 (arr (\x -> ((x,x),()))
+                       >>> (first (first integral) >>> arr assoc))
+laws_t8_rhs :: [(Double, (Double, ()))]
+laws_t8_rhs = testSF1 (arr (\x -> ((x,x),()))
+                       >>> (arr assoc >>> first integral))
 
 -- prop :: SF a b -> (a -> b ->
 prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
