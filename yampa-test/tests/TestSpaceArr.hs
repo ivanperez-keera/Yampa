@@ -1,9 +1,9 @@
 -- |
--- Module      : TestsArr
+-- Module      : TestSpaceArr
 -- Description : Test cases for arr
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsArr
+module TestSpaceArr
     ( arr_st0
     , arr_st0r
     , arr_st1

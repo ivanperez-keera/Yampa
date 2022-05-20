@@ -152,12 +152,12 @@ test-suite space
     testSpace.hs
 
   other-modules:
+    TestSpaceArr
     TestSpaceLoop
     TestSpacePSwitch
     TestSpaceRPSwitch
     TestSpaceRSwitch
     TestsAccum
-    TestsArr
     TestsCommon
 
   default-language:

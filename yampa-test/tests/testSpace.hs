@@ -8,7 +8,7 @@ module Main where
 import FRP.Yampa
 
 import TestsCommon
-import TestsArr
+import TestSpaceArr
 import TestSpaceLoop
 import TestSpacePSwitch
 import TestSpaceRPSwitch
