@@ -141,7 +141,7 @@ test-suite space
     exitcode-stdio-1.0
 
   main-is:
-    testSpace.hs
+    Space.hs
 
   other-modules:
     TestsCommon

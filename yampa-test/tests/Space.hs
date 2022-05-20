@@ -1,5 +1,5 @@
 -- |
--- Module      : testSpace
+-- Module      : Space
 -- Description : Space tests.
 -- Copyright   : Yale University, 2003
 -- Authors     : Henrik Nilsson and Antony Courtney
