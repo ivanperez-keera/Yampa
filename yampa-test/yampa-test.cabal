@@ -98,7 +98,7 @@ test-suite yampa-quicheck
     exitcode-stdio-1.0
 
   main-is:
-    YampaQC.hs
+    Main.hs
 
   other-modules:
     Test.FRP.Yampa.Basic
