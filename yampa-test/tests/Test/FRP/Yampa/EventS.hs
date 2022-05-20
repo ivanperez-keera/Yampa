@@ -2,6 +2,15 @@
 -- Description : Test cases for signal functions working with events
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
+
+-- Notes pertaining to regression tests:
+-- - Add test cases for Yampa. There should be at least one test case for each
+--   "non-trivial" entity exported from Yampa.
+--
+-- - Make tests cases for after and repeatedly more robust.  Must not
+--   fail due to small discrepancies in floating point implementation.
+--
+--   01-May-2002:  evsrc_t7 currently fails in hugs.
 module Test.FRP.Yampa.EventS
     ( tests
     )
@@ -59,6 +68,9 @@ tests = testGroup "Regression tests for FRP.Yampa.EventS"
   , testProperty "after (1, fixed)"        (property $ utils_t14 ~= utils_t14r)
   , testProperty "sampleWindow (0, fixed)" (property $ utils_t15 ~= utils_t15r)
   , testProperty "sampleWindow (1, fixed)" (property $ utils_t16 ~= utils_t16r)
+  , testProperty "Events > No event"       prop_event_noevent
+  , testProperty "Events > Now"            prop_event_now
+  , testProperty "Events > After 0.0"      prop_event_after_0
   ]
 
 -- * Test cases for basic event sources and stateful event suppression
@@ -740,3 +752,43 @@ utils_t16r =
   ,                                                    NoEvent
   , Event [7.0, 7.0, 7.0, 7.5, 8.0]                             -- 8.0
   ]
+
+-- Events
+prop_event_noevent =
+    forAll myStream $ evalT $ Always $ prop (sfNever, const (== noEvent))
+
+  where myStream :: Gen (SignalSampleStream Float)
+        myStream = uniDistStream
+        sfNever :: SF Float (Event Float)
+        sfNever = never
+
+prop_event_now =
+    forAll myStream $ evalT $
+      -- (sf, p0) /\ O [] (sf, pn)
+      And (prop (sf, p0))                 -- Initially
+          (Next $ Always $ prop (sf, pn)) -- After first sample
+
+  where sf = Yampa.now 42.0
+
+        p0 x y = y == Event 42.0
+        pn x y = y == noEvent
+
+        myStream :: Gen (SignalSampleStream Float)
+        myStream = uniDistStream
+
+prop_event_after_0 =
+    forAll myStream $ evalT $
+      -- (sf, p0) /\ O [] (sf, pn)
+      And (prop (sf, p0))                 -- Initially
+          (Next $ Always $ prop (sf, pn)) -- After first sample
+
+  where sf = after 0.0 42.0
+
+        p0 x y = y == Event 42.0
+        pn x y = y == noEvent
+
+        myStream :: Gen (SignalSampleStream Float)
+        myStream = uniDistStream
+
+-- prop :: SF a b -> (a -> b ->
+prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
