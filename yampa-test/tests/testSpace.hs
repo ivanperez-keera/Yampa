@@ -10,9 +10,9 @@ import FRP.Yampa
 import TestsCommon
 import TestsArr
 import TestsLoop
-import TestsRSwitch
 import TestSpacePSwitch
 import TestSpaceRPSwitch
+import TestSpaceRSwitch
 import TestsAccum
 
 main :: IO ()

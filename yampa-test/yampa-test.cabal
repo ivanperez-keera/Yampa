@@ -155,11 +155,11 @@ test-suite space
   other-modules:
     TestSpacePSwitch
     TestSpaceRPSwitch
+    TestSpaceRSwitch
     TestsAccum
     TestsArr
     TestsCommon
     TestsLoop
-    TestsRSwitch
 
   default-language:
     Haskell2010

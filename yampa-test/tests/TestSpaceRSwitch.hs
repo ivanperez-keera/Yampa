@@ -1,9 +1,9 @@
 -- |
--- Module      : TestsRSwitch
+-- Module      : TestSpaceRSwitch
 -- Description : Test cases for rSwitch and drSwitch
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsRSwitch
+module TestSpaceRSwitch
     ( rswitch_st0
     , rswitch_st0r
     )
