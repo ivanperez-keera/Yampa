@@ -1,17 +1,58 @@
 -- |
--- Module      : TestsEvSrc
--- Description : Test cases for event sources
+-- Description : Test cases for signal functions working with events
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsEvSrc
-    ( evsrc_trs
-    , evsrc_tr
+module Test.FRP.Yampa.EventS
+    ( tests
     )
   where
 
-import FRP.Yampa
+import Test.QuickCheck hiding (once)
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
+
+import FRP.Yampa as Yampa
+import FRP.Yampa.EventS (snap)
+import FRP.Yampa.Stream
+import FRP.Yampa.QuickCheck
+import FRP.Yampa.LTLFuture
 
 import TestsCommon
+
+tests :: TestTree
+tests = testGroup "Regression tests for FRP.Yampa.EventS"
+  [ testProperty "eventS (0, fixed)" (property $ evsrc_t0 ~= evsrc_t0r)
+  , testProperty "eventS (1, fixed)" (property $ evsrc_t1 ~= evsrc_t1r)
+  , testProperty "eventS (2, fixed)" (property $ evsrc_t2 ~= evsrc_t2r)
+  , testProperty "eventS (3, fixed)" (property $ evsrc_t3 ~= evsrc_t3r)
+  , testProperty "eventS (4, fixed)" (property $ evsrc_t4 ~= evsrc_t4r)
+  , testProperty "eventS (5, fixed)" (property $ evsrc_t5 ~= evsrc_t5r)
+  , testProperty "eventS (6, fixed)" (property $ evsrc_t6 ~= evsrc_t6r)
+  , testProperty "eventS (7, fixed)" (property $ evsrc_t7 ~= evsrc_t7r)
+  , testProperty "eventS (8, fixed)" (property $ evsrc_t8 ~= evsrc_t8r)
+  , testProperty "eventS (9, fixed)" (property $ evsrc_t9 ~= evsrc_t9r)
+  , testProperty "eventS (10, fixed)" (property $ evsrc_t10 ~= evsrc_t10r)
+  , testProperty "eventS (11, fixed)" (property $ evsrc_t11 ~= evsrc_t11r)
+  , testProperty "eventS (12, fixed)" (property $ evsrc_t12 ~= evsrc_t12r)
+  , testProperty "eventS (13, fixed)" (property $ evsrc_t13 ~= evsrc_t13r)
+  , testProperty "eventS (14, fixed)" (property $ evsrc_t14 ~= evsrc_t14r)
+  , testProperty "eventS (15, fixed)" (property $ evsrc_t15 ~= evsrc_t15r)
+  , testProperty "eventS (16, fixed)" (property $ evsrc_t16 ~= evsrc_t16r)
+  , testProperty "eventS (17, fixed)" (property $ evsrc_t17 ~= evsrc_t17r)
+  , testProperty "eventS (18, fixed)" (property $ evsrc_t18 ~= evsrc_t18r)
+  , testProperty "eventS (19, fixed)" (property $ evsrc_t19 ~= evsrc_t19r)
+  , testProperty "eventS (20, fixed)" (property $ evsrc_t20 ~= evsrc_t20r)
+  , testProperty "eventS (21, fixed)" (property $ evsrc_t21 ~= evsrc_t21r)
+  , testProperty "eventS (22, fixed)" (property $ evsrc_t22 ~= evsrc_t22r)
+  , testProperty "eventS (23, fixed)" (property $ evsrc_t23 ~= evsrc_t23r)
+  , testProperty "eventS (24, fixed)" (property $ evsrc_t24 ~= evsrc_t24r)
+  , testProperty "eventS (25, fixed)" (property $ evsrc_t25 ~= evsrc_t25r)
+  , testProperty "eventS (26, fixed)" (property $ evsrc_t26 ~= evsrc_t26r)
+  , testProperty "eventS (27, fixed)" (property $ evsrc_t27 ~= evsrc_t27r)
+  , testProperty "eventS (28, fixed)" (property $ evsrc_t28 ~= evsrc_t28r)
+  , testProperty "eventS (29, fixed)" (property $ evsrc_t29 ~= evsrc_t29r)
+  , testProperty "eventS (30, fixed)" (property $ evsrc_t30 ~= evsrc_t30r)
+  ]
 
 -- * Test cases for basic event sources and stateful event suppression
 
@@ -548,39 +589,3 @@ evsrc_t30r =
   , NoEvent,  NoEvent, NoEvent, NoEvent  -- 5.5 s
   , Event (), NoEvent                    -- 6.0 s
   ]
-
-evsrc_trs =
-  [ evsrc_t0 ~= evsrc_t0r
-  , evsrc_t1 ~= evsrc_t1r
-  , evsrc_t2 ~= evsrc_t2r
-  , evsrc_t3 ~= evsrc_t3r
-  , evsrc_t4 ~= evsrc_t4r
-  , evsrc_t5 ~= evsrc_t5r
-  , evsrc_t6 ~= evsrc_t6r
-  , evsrc_t7 ~= evsrc_t7r
-  , evsrc_t8 ~= evsrc_t8r
-  , evsrc_t9 ~= evsrc_t9r
-  , evsrc_t10 ~= evsrc_t10r
-  , evsrc_t11 ~= evsrc_t11r
-  , evsrc_t12 ~= evsrc_t12r
-  , evsrc_t13 ~= evsrc_t13r
-  , evsrc_t14 ~= evsrc_t14r
-  , evsrc_t15 ~= evsrc_t15r
-  , evsrc_t16 ~= evsrc_t16r
-  , evsrc_t17 ~= evsrc_t17r
-  , evsrc_t18 ~= evsrc_t18r
-  , evsrc_t19 ~= evsrc_t19r
-  , evsrc_t20 ~= evsrc_t20r
-  , evsrc_t21 ~= evsrc_t21r
-  , evsrc_t22 ~= evsrc_t22r
-  , evsrc_t23 ~= evsrc_t23r
-  , evsrc_t24 ~= evsrc_t24r
-  , evsrc_t25 ~= evsrc_t25r
-  , evsrc_t26 ~= evsrc_t26r
-  , evsrc_t27 ~= evsrc_t27r
-  , evsrc_t28 ~= evsrc_t28r
-  , evsrc_t29 ~= evsrc_t29r
-  , evsrc_t30 ~= evsrc_t30r
-  ]
-
-evsrc_tr = and evsrc_trs
