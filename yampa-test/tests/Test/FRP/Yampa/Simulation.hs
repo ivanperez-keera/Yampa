@@ -1,20 +1,26 @@
 -- |
--- Module      : TestsReact
--- Description : Test cases for reactimation
+-- Description : Test cases for FRP.Yampa.Simulation
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsReact
-    ( react_tr
-    , react_trs
+module Test.FRP.Yampa.Simulation
+    ( tests
     )
   where
 
+import Test.QuickCheck
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
 import System.IO.Unsafe (unsafePerformIO)
 import Data.IORef (newIORef, writeIORef, readIORef)
 
-import FRP.Yampa
+import FRP.Yampa as Yampa
 
 import TestsCommon
+
+tests :: TestTree
+tests = testGroup "Regression tests for FRP.Yampa.Simulation"
+  [ testProperty "react (fixed)"  (property $ react_t0 ~= react_t0r)
+  ]
 
 -- * Test cases for reactimation
 
@@ -57,7 +63,3 @@ react_t0r =
   , (1.5,0.75), (1.5,0.90), (1.5,1.05), (1.5,1.20), (1.5,1.35)
   , (2.0,1.50), (2.0,1.70), (2.0,1.90), (2.0,2.10), (2.0,2.30)
   ]
-
-react_trs = [ react_t0 ~= react_t0r ]
-
-react_tr = and react_trs

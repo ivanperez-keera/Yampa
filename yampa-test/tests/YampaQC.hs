@@ -66,7 +66,6 @@ import qualified TestsLoop         as Regression
 import qualified TestsLoopIntegral as Regression
 import qualified TestsLoopLaws     as Regression
 import qualified TestsLoopPre      as Regression
-import qualified TestsReact        as Regression
 import qualified TestsSscan        as Regression
 import qualified TestsUtils        as Regression
 import qualified TestsWFG          as Regression
@@ -75,6 +74,7 @@ import qualified Test.FRP.Yampa.Basic       as NewBasic
 import qualified Test.FRP.Yampa.Conditional as NewConditional
 import qualified Test.FRP.Yampa.Delays      as NewDelays
 import qualified Test.FRP.Yampa.Integration as NewIntegration
+import qualified Test.FRP.Yampa.Simulation  as NewSimulation
 import qualified Test.FRP.Yampa.Switches    as NewSwitches
 import qualified Test.FRP.Yampa.Task        as NewTask
 import qualified Test.FRP.Yampa.Time        as NewTime
@@ -139,7 +139,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > accum"         (property $ and Regression.accum_trs)
   , testProperty "Regression > loopPre"       (property $ and Regression.loopPre_trs)
   , testProperty "Regression > loopIntegral"  (property $ and Regression.loopIntegral_trs)
-  , testProperty "Regression > react"         (property $ and Regression.react_trs)
   , testProperty "Regression > embed"         (property $ and Regression.embed_trs)
   , testProperty "Regression > utils"         (property $ and Regression.utils_trs)
   , NewBasic.tests
@@ -148,6 +147,7 @@ tests = testGroup "Yampa QC properties"
   , NewIntegration.tests
   , NewHybrid.tests
   , NewSimulation.tests
+  , NewSwitches.tests
   , NewTask.tests
   , NewSwitches.tests
   , NewTime.tests
