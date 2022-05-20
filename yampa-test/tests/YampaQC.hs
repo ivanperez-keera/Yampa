@@ -58,7 +58,6 @@ import FRP.Yampa.LTLFuture
 import qualified TestsAccum        as Regression
 import qualified TestsArr          as Regression
 import qualified TestsComp         as Regression
-import qualified TestsEmbed        as Regression
 import qualified TestsEvSrc        as Regression
 import qualified TestsFirstSecond  as Regression
 import qualified TestsLaws         as Regression
@@ -139,7 +138,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > accum"         (property $ and Regression.accum_trs)
   , testProperty "Regression > loopPre"       (property $ and Regression.loopPre_trs)
   , testProperty "Regression > loopIntegral"  (property $ and Regression.loopIntegral_trs)
-  , testProperty "Regression > embed"         (property $ and Regression.embed_trs)
   , testProperty "Regression > utils"         (property $ and Regression.utils_trs)
   , NewBasic.tests
   , NewConditional.tests

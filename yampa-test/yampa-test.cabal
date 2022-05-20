@@ -113,7 +113,6 @@ test-suite yampa-quicheck
     TestsArr
     TestsCommon
     TestsComp
-    TestsEmbed
     TestsEvSrc
     TestsFirstSecond
     TestsLaws
