@@ -152,13 +152,13 @@ test-suite space
     testSpace.hs
 
   other-modules:
+    TestSpaceLoop
     TestSpacePSwitch
     TestSpaceRPSwitch
     TestSpaceRSwitch
     TestsAccum
     TestsArr
     TestsCommon
-    TestsLoop
 
   default-language:
     Haskell2010

@@ -9,7 +9,7 @@ import FRP.Yampa
 
 import TestsCommon
 import TestsArr
-import TestsLoop
+import TestSpaceLoop
 import TestSpacePSwitch
 import TestSpaceRPSwitch
 import TestSpaceRSwitch

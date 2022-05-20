@@ -1,9 +1,9 @@
 -- |
--- Module      : TestsLoop
+-- Module      : TestSpaceLoop
 -- Description : Test cases for loop
 -- Copyright   : Yale University, 2003
 -- Authors     : Antony Courtney and Henrik Nilsson
-module TestsLoop
+module TestSpaceLoop
     ( loop_st0
     , loop_st0r
     , loop_st1
