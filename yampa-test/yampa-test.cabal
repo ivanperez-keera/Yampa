@@ -121,7 +121,6 @@ test-suite yampa-quicheck
     TestsLoopIntegral
     TestsLoopLaws
     TestsLoopPre
-    TestsPre
     TestsPSwitch
     TestsReact
     TestsRPSwitch

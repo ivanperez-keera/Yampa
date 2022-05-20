@@ -71,7 +71,6 @@ import qualified TestsLoopIntegral as Regression
 import qualified TestsLoopLaws     as Regression
 import qualified TestsLoopPre      as Regression
 import qualified TestsPSwitch      as Regression
-import qualified TestsPre          as Regression
 import qualified TestsRPSwitch     as Regression
 import qualified TestsRSwitch      as Regression
 import qualified TestsReact        as Regression
@@ -153,7 +152,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > rpswitch"      (property $ and Regression.rpswitch_trs)
   , testProperty "Regression > wfg"           (property $ and Regression.wfg_trs)
   , testProperty "Regression > accum"         (property $ and Regression.accum_trs)
-  , testProperty "Regression > pre"           (property $ and Regression.pre_trs)
   , testProperty "Regression > delay"         (property $ and Regression.delay_trs)
   , testProperty "Regression > der"           (property $ and Regression.der_trs)
   , testProperty "Regression > loopPre"       (property $ and Regression.loopPre_trs)
