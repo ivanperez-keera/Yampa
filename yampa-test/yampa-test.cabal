@@ -114,7 +114,6 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Switches
     Test.FRP.Yampa.Task
     Test.FRP.Yampa.Time
-    TestsAccum
     TestsCommon
     TestsUtils
 
