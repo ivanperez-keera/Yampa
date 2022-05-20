@@ -109,6 +109,7 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Integration
     Test.FRP.Yampa.InternalCore
     Test.FRP.Yampa.Loop
+    Test.FRP.Yampa.Scan
     Test.FRP.Yampa.Simulation
     Test.FRP.Yampa.Switches
     Test.FRP.Yampa.Task
@@ -118,7 +119,6 @@ test-suite yampa-quicheck
     TestsLoopIntegral
     TestsLoopLaws
     TestsLoopPre
-    TestsSscan
     TestsUtils
 
   build-depends:
