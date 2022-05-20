@@ -103,6 +103,7 @@ test-suite yampa-quicheck
   other-modules:
     Test.FRP.Yampa.Basic
     Test.FRP.Yampa.Conditional
+    Test.FRP.Yampa.Delays
     Test.FRP.Yampa.Time
     TestsAccum
     TestsArr

@@ -83,6 +83,7 @@ import qualified TestsWFG          as Regression
 
 import qualified Test.FRP.Yampa.Basic       as NewBasic
 import qualified Test.FRP.Yampa.Conditional as NewConditional
+import qualified Test.FRP.Yampa.Delays      as NewDelays
 import qualified Test.FRP.Yampa.Time        as NewTime
 
 main :: IO ()
@@ -97,8 +98,6 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Arrows > Composition (1)"               prop_arrow_comp_1
   , testProperty "Arrows > Composition (2)"               prop_arrow_comp_2
   , testProperty "Arrows > Composition (3)"               prop_arrow_comp_3
-  , testProperty "Delays > Zero delay"                    prop_delay_1
-  , testProperty "Delays > Small delay"                   prop_delay_2
   -- FIXME: (iperez:) delay_t3 is not here because I can't understand it.
   -- Missing: delay t4 and t5
   , testProperty "Derivatives > Comparison with known derivative (1)" prop_derivative_1
@@ -165,6 +164,7 @@ tests = testGroup "Yampa QC properties"
   , testProperty "Regression > task"          (property $ and Regression.task_trs)
   , NewBasic.tests
   , NewConditional.tests
+  , NewDelays.tests
   , NewTime.tests
   ]
 
@@ -265,30 +265,6 @@ prop_arrow_comp_3 =
         sf = constant 2.0 >>> integral >>> stepDiff (-0.5)
 
         pred = const (== 0.5)
-
--- Delaying
-
--- | Delaying by 0.0 has no effect
-prop_delay_1 =
-    forAll myStream $ evalT $ prop_always_equal sfDelayed sf
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-
-        sfDelayed = delay 0.0 undefined >>> sf
-        sf = arr (+1)
-
--- | Delaying input signal by a small amount will fill in the "blank" signal
---   with the given value, which will become also the sample at the initial
---   time.
-prop_delay_2 =
-    forAll myStream $ evalT $
-      (prop (sfDelayed, (\x y -> y == initialValue)))
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-
-        sfDelayed = delay 0.0001 initialValue
-
-        initialValue = 17
 
 prop_insert =
     forAll initialValueG $ \initialValue ->
