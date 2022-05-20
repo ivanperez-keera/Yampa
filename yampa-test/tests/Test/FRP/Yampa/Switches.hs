@@ -17,6 +17,7 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
+import FRP.Yampa.Switches (rpSwitchZ)
 import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Stream
 import FRP.Yampa.QuickCheck
@@ -26,35 +27,36 @@ import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Switches"
-  [ testProperty "parB (fixed)"        (property $ coc_t0 ~= coc_t0r)
-  , testProperty "parB (qc)"           prop_broadcast
-  , testProperty "switch (0, fixed)"   (property $ switch_t0 ~= switch_t0r)
-  , testProperty "switch (1, fixed)"   (property $ switch_t1 ~= switch_t1r)
-  , testProperty "switch (2, fixed)"   (property $ switch_t2 ~= switch_t2r)
-  , testProperty "switch (3, fixed)"   (property $ switch_t3 ~= switch_t3r)
-  , testProperty "switch (4, fixed)"   (property $ switch_t4 ~= switch_t4r)
-  , testProperty "switch (5, fixed)"   (property $ switch_t5 ~= switch_t5r)
-  , testProperty "kswitch (0, fixed)"  (property $ kswitch_t0 ~= kswitch_t0r)
-  , testProperty "kswitch (1, fixed)"  (property $ kswitch_t1 ~= kswitch_t1r)
-  , testProperty "kswitch (2, fixed)"  (property $ kswitch_t2 ~= kswitch_t2r)
-  , testProperty "kswitch (3, fixed)"  (property $ kswitch_t3 ~= kswitch_t3r)
-  , testProperty "kswitch (4, fixed)"  (property $ kswitch_t4 ~= kswitch_t4r)
-  , testProperty "pswitch (0, fixed)"  (property $ pswitch_t0 ~= pswitch_t0r)
-  , testProperty "pswitch (1, fixed)"  (property $ pswitch_t1 ~= pswitch_t1r)
-  , testProperty "pswitch (2, fixed)"  (property $ pswitch_t2 ~= pswitch_t2r)
-  , testProperty "pswitch (3, fixed)"  (property $ pswitch_t3 ~= pswitch_t3r)
-  , testProperty "pswitch (4, fixed)"  (property $ pswitch_t4 ~= pswitch_t4r)
-  , testProperty "pswitch (5, fixed)"  (property $ pswitch_t5 ~= pswitch_t5r)
-  , testProperty "rpswitch (0, fixed)" (property $ rpswitch_t0 ~= rpswitch_t0r)
-  , testProperty "rpswitch (1, fixed)" (property $ rpswitch_t1 ~= rpswitch_t1r)
-  , testProperty "rpswitch (2, fixed)" (property $ rpswitch_t2 ~= rpswitch_t2r)
-  , testProperty "rpswitch (3, fixed)" (property $ rpswitch_t3 ~= rpswitch_t3r)
-  , testProperty "rpswitch (4, fixed)" (property $ rpswitch_t4 ~= rpswitch_t4r)
-  , testProperty "rswitch (0, fixed)"  (property $ rswitch_t0 ~= rswitch_t0r)
-  , testProperty "rswitch (1, fixed)"  (property $ rswitch_t1 ~= rswitch_t1r)
-  , testProperty "rswitch (2, fixed)"  (property $ rswitch_t2 ~= rswitch_t2r)
-  , testProperty "rswitch (3, fixed)"  (property $ rswitch_t3 ~= rswitch_t3r)
-  , testProperty "rswitch (4, fixed)"  (property $ rswitch_t4 ~= rswitch_t4r)
+  [ testProperty "parB (fixed)"         (property $ coc_t0 ~= coc_t0r)
+  , testProperty "parB (qc)"            prop_broadcast
+  , testProperty "switch (0, fixed)"    (property $ switch_t0 ~= switch_t0r)
+  , testProperty "switch (1, fixed)"    (property $ switch_t1 ~= switch_t1r)
+  , testProperty "switch (2, fixed)"    (property $ switch_t2 ~= switch_t2r)
+  , testProperty "switch (3, fixed)"    (property $ switch_t3 ~= switch_t3r)
+  , testProperty "switch (4, fixed)"    (property $ switch_t4 ~= switch_t4r)
+  , testProperty "switch (5, fixed)"    (property $ switch_t5 ~= switch_t5r)
+  , testProperty "kswitch (0, fixed)"   (property $ kswitch_t0 ~= kswitch_t0r)
+  , testProperty "kswitch (1, fixed)"   (property $ kswitch_t1 ~= kswitch_t1r)
+  , testProperty "kswitch (2, fixed)"   (property $ kswitch_t2 ~= kswitch_t2r)
+  , testProperty "kswitch (3, fixed)"   (property $ kswitch_t3 ~= kswitch_t3r)
+  , testProperty "kswitch (4, fixed)"   (property $ kswitch_t4 ~= kswitch_t4r)
+  , testProperty "pswitch (0, fixed)"   (property $ pswitch_t0 ~= pswitch_t0r)
+  , testProperty "pswitch (1, fixed)"   (property $ pswitch_t1 ~= pswitch_t1r)
+  , testProperty "pswitch (2, fixed)"   (property $ pswitch_t2 ~= pswitch_t2r)
+  , testProperty "pswitch (3, fixed)"   (property $ pswitch_t3 ~= pswitch_t3r)
+  , testProperty "pswitch (4, fixed)"   (property $ pswitch_t4 ~= pswitch_t4r)
+  , testProperty "pswitch (5, fixed)"   (property $ pswitch_t5 ~= pswitch_t5r)
+  , testProperty "rpswitch (0, fixed)"  (property $ rpswitch_t0 ~= rpswitch_t0r)
+  , testProperty "rpswitch (1, fixed)"  (property $ rpswitch_t1 ~= rpswitch_t1r)
+  , testProperty "rpswitch (2, fixed)"  (property $ rpswitch_t2 ~= rpswitch_t2r)
+  , testProperty "rpswitch (3, fixed)"  (property $ rpswitch_t3 ~= rpswitch_t3r)
+  , testProperty "rpswitch (4, fixed)"  (property $ rpswitch_t4 ~= rpswitch_t4r)
+  , testProperty "rswitch (0, fixed)"   (property $ rswitch_t0 ~= rswitch_t0r)
+  , testProperty "rswitch (1, fixed)"   (property $ rswitch_t1 ~= rswitch_t1r)
+  , testProperty "rswitch (2, fixed)"   (property $ rswitch_t2 ~= rswitch_t2r)
+  , testProperty "rswitch (3, fixed)"   (property $ rswitch_t3 ~= rswitch_t3r)
+  , testProperty "rswitch (4, fixed)"   (property $ rswitch_t4 ~= rswitch_t4r)
+  , testProperty "rpSwitchZ (0, fixed)" (property $ utils_t6 ~= utils_t6r)
   ]
 
 -- * Test cases for collection-oriented combinators
@@ -964,6 +966,38 @@ rswitch_t4r =
   , 2.5, 3.0, 3.5, 4.0, 4.5
   , 5.0, 0.5, 1.0, 1.5, 2.0
   , 2.5, 3.0, 3.5, 4.0, 4.5
+  ]
+
+dynDelayLine :: a -> SF (a, Event Bool) a
+dynDelayLine a0 =
+    second (arr (fmap (\p -> if p then addDelay else delDelay)))
+    >>> loop (arr (\((a, e), as) -> (a:as, e))
+              >>> rpSwitchZ [iPre a0]
+              >>> arr (\as -> (last as, init as)))
+  where
+    addDelay ds = ds ++ [last ds]
+
+    delDelay [d] = [d]
+    delDelay ds  = init ds
+
+utils_t6 :: [Int]
+utils_t6 = take 200 $ embed (dynDelayLine 0)
+                            (deltaEncode 0.1 (zip [1..] evSeq))
+  where
+    evSeq = NoEvent : Event True : NoEvent : NoEvent : Event True :
+            NoEvent : NoEvent : Event False : evSeq
+
+utils_t6r =
+  [ 0,1,1,2,3,3,4,6,7,8,8,9,10,10,11,13,14,15,15,16,17,17,18,20,21,22,22,23
+  , 24,24,25,27,28,29,29,30,31,31,32,34,35,36,36,37,38,38,39,41,42,43,43,44
+  , 45,45,46,48,49,50,50,51,52,52,53,55,56,57,57,58,59,59,60,62,63,64,64,65
+  , 66,66,67,69,70,71,71,72,73,73,74,76,77,78,78,79,80,80,81,83,84,85,85,86
+  , 87,87,88,90,91,92,92,93,94,94,95,97,98,99,99,100,101,101,102,104,105,106
+  , 106,107,108,108,109,111,112,113,113,114,115,115,116,118,119,120,120,121
+  , 122,122,123,125,126,127,127,128,129,129,130,132,133,134,134,135,136,136
+  , 137,139,140,141,141,142,143,143,144,146,147,148,148,149,150,150,151,153
+  , 154,155,155,156,157,157,158,160,161,162,162,163,164,164,165,167,168,169
+  , 169,170,171,171,172,174
   ]
 
 -- prop :: SF a b -> (a -> b ->

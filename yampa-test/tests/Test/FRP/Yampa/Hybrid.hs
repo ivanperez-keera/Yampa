@@ -14,33 +14,38 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
+import FRP.Yampa.Hybrid as Yampa
 
 import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Hybrid"
-  [ testProperty "hold (0, fixed)"         (property $ wfg_t0 ~= wfg_t0r)
-  , testProperty "hold (1, fixed)"         (property $ wfg_t1 ~= wfg_t1r)
-  , testProperty "trackAndHold (0, fixed)" (property $ wfg_t2 ~= wfg_t2r)
-  , testProperty "trackAndHold (1, fixed)" (property $ wfg_t3 ~= wfg_t3r)
-  , testProperty "accum (0, fixed)"        (property $ accum_t0  == accum_t0r)
-  , testProperty "accum (1, fixed)"        (property $ accum_t1  == accum_t1r)
-  , testProperty "accum (2, fixed)"        (property $ accum_t2  == accum_t2r)
-  , testProperty "accum (3, fixed)"        (property $ accum_t3  == accum_t3r)
-  , testProperty "accum (4, fixed)"        (property $ accum_t4  == accum_t4r)
-  , testProperty "accum (5, fixed)"        (property $ accum_t5  == accum_t5r)
-  , testProperty "accum (6, fixed)"        (property $ accum_t6  == accum_t6r)
-  , testProperty "accum (7, fixed)"        (property $ accum_t7  == accum_t7r)
-  , testProperty "accum (8, fixed)"        (property $ accum_t8  == accum_t8r)
-  , testProperty "accum (9, fixed)"        (property $ accum_t9  == accum_t9r)
-  , testProperty "accum (10, fixed)"       (property $ accum_t10 == accum_t10r)
-  , testProperty "accum (11, fixed)"       (property $ accum_t11 == accum_t11r)
-  , testProperty "accum (12, fixed)"       (property $ accum_t12 == accum_t12r)
-  , testProperty "accum (13, fixed)"       (property $ accum_t13 == accum_t13r)
-  , testProperty "accum (14, fixed)"       (property $ accum_t14 == accum_t14r)
-  , testProperty "accum (15, fixed)"       (property $ accum_t15 == accum_t15r)
-  , testProperty "accum (16, fixed)"       (property $ accum_t16 == accum_t16r)
-  , testProperty "accum (17, fixed)"       (property $ accum_t17 == accum_t17r)
+  [ testProperty "hold (0, fixed)"          (property $ wfg_t0 ~= wfg_t0r)
+  , testProperty "hold (1, fixed)"          (property $ wfg_t1 ~= wfg_t1r)
+  , testProperty "trackAndHold (0, fixed)"  (property $ wfg_t2 ~= wfg_t2r)
+  , testProperty "trackAndHold (1, fixed)"  (property $ wfg_t3 ~= wfg_t3r)
+  , testProperty "accum (0, fixed)"         (property $ accum_t0  == accum_t0r)
+  , testProperty "accum (1, fixed)"         (property $ accum_t1  == accum_t1r)
+  , testProperty "accum (2, fixed)"         (property $ accum_t2  == accum_t2r)
+  , testProperty "accum (3, fixed)"         (property $ accum_t3  == accum_t3r)
+  , testProperty "accum (4, fixed)"         (property $ accum_t4  == accum_t4r)
+  , testProperty "accum (5, fixed)"         (property $ accum_t5  == accum_t5r)
+  , testProperty "accum (6, fixed)"         (property $ accum_t6  == accum_t6r)
+  , testProperty "accum (7, fixed)"         (property $ accum_t7  == accum_t7r)
+  , testProperty "accum (8, fixed)"         (property $ accum_t8  == accum_t8r)
+  , testProperty "accum (9, fixed)"         (property $ accum_t9  == accum_t9r)
+  , testProperty "accum (10, fixed)"        (property $ accum_t10 == accum_t10r)
+  , testProperty "accum (11, fixed)"        (property $ accum_t11 == accum_t11r)
+  , testProperty "accum (12, fixed)"        (property $ accum_t12 == accum_t12r)
+  , testProperty "accum (13, fixed)"        (property $ accum_t13 == accum_t13r)
+  , testProperty "accum (14, fixed)"        (property $ accum_t14 == accum_t14r)
+  , testProperty "accum (15, fixed)"        (property $ accum_t15 == accum_t15r)
+  , testProperty "accum (16, fixed)"        (property $ accum_t16 == accum_t16r)
+  , testProperty "accum (17, fixed)"        (property $ accum_t17 == accum_t17r)
+  , testProperty "dHold (0, fixed)"         (property $ utils_t0 ~= utils_t0r)
+  , testProperty "dHold (1, fixed)"         (property $ utils_t1 ~= utils_t1r)
+  , testProperty "dTrackAndHold (0, fixed)" (property $ utils_t2 ~= utils_t2r)
+  , testProperty "dTrackAndHold (1, fixed)" (property $ utils_t3 ~= utils_t3r)
   ]
 
 -- * Test cases for wave-form generation
@@ -390,3 +395,82 @@ accum_t17 = take 40 $ embed (repeatedly 1.0 1
 
 accum_t17r :: [Int]
 accum_t17r = accum_t16 -- Should agree!
+
+-- * Test cases for utilities (Utils)
+
+-- Should re-order these test cases to reflect the order in Utils
+-- at some point.
+
+utils_inp1 = deltaEncode 1.0 $
+  [ NoEvent,   NoEvent,   Event 1.0, NoEvent
+  , Event 2.0, NoEvent,   NoEvent,   NoEvent
+  , Event 3.0, Event 4.0, Event 4.0, NoEvent
+  , Event 0.0, NoEvent,   NoEvent,   NoEvent
+  ]
+  ++ repeat NoEvent
+
+utils_inp2 = deltaEncode 1.0 $
+  [ Event 1.0, NoEvent,   NoEvent,   NoEvent
+  , Event 2.0, NoEvent,   NoEvent,   NoEvent
+  , Event 3.0, Event 4.0, Event 4.0, NoEvent
+  , Event 0.0, NoEvent,   NoEvent,   NoEvent
+  ]
+  ++ repeat NoEvent
+
+utils_t0 :: [Double]
+utils_t0 = take 16 $ embed (dHold 99.99) utils_inp1
+
+utils_t0r =
+  [ 99.99, 99.99, 99.99, 1.0
+  , 1.0,   2.0,   2.0,   2.0
+  , 2.0,   3.0,   4.0,   4.0
+  , 4.0,   0.0,   0.0,   0.0
+  ]
+
+utils_t1 :: [Double]
+utils_t1 = take 16 $ embed (dHold 99.99) utils_inp2
+
+utils_t1r =
+  [ 99.99, 1.0, 1.0, 1.0
+  , 1.0,   2.0, 2.0, 2.0
+  , 2.0,   3.0, 4.0, 4.0
+  , 4.0,   0.0, 0.0, 0.0
+  ]
+
+utils_inp3 = deltaEncode 1.0 $
+  [ Nothing,  Nothing,  Just 1.0, Just 2.0, Just 3.0
+  , Just 4.0, Nothing,  Nothing,  Nothing,  Just 3.0
+  , Just 2.0, Nothing,  Just 1.0, Just 0.0, Just 1.0
+  , Just 2.0, Just 3.0, Nothing,  Nothing,  Just 4.0
+  ]
+  ++ repeat Nothing
+
+utils_inp4 = deltaEncode 1.0 $
+  [ Just 0.0, Nothing,  Just 1.0, Just 2.0, Just 3.0
+  , Just 4.0, Nothing,  Nothing,  Nothing,  Just 3.0
+  , Just 2.0, Nothing,  Just 1.0, Just 0.0, Just 1.0
+  , Just 2.0, Just 3.0, Nothing,  Nothing,  Just 4.0
+  ]
+  ++ repeat Nothing
+
+utils_t2 :: [Double]
+utils_t2 = take 25 $ embed (dTrackAndHold 99.99) utils_inp3
+
+utils_t2r =
+  [ 99.99, 99.99, 99.99, 1.0, 2.0
+  , 3.0,   4.0,   4.0,   4.0, 4.0
+  , 3.0,   2.0,   2.0,   1.0, 0.0
+  , 1.0,   2.0,   3.0,   3.0, 3.0
+  , 4.0,   4.0,   4.0,   4.0, 4.0
+  ]
+
+utils_t3 :: [Double]
+utils_t3 = take 25 $ embed (dTrackAndHold 99.99) utils_inp4
+
+utils_t3r =
+  [ 99.99, 0.0, 0.0, 1.0, 2.0
+  , 3.0,   4.0, 4.0, 4.0, 4.0
+  , 3.0,   2.0, 2.0, 1.0, 0.0
+  , 1.0,   2.0, 3.0, 3.0, 3.0
+  , 4.0,   4.0, 4.0, 4.0, 4.0
+  ]

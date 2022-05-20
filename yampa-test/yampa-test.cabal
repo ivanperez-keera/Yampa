@@ -115,7 +115,6 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Task
     Test.FRP.Yampa.Time
     TestsCommon
-    TestsUtils
 
   build-depends:
       base             < 5

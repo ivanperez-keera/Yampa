@@ -55,7 +55,6 @@ import FRP.Yampa.QuickCheck
 import FRP.Yampa.LTLFuture
 
 -- Local tests
-import qualified TestsUtils        as Regression
 
 import qualified Test.FRP.Yampa.Basic        as NewBasic
 import qualified Test.FRP.Yampa.Conditional  as NewConditional
@@ -118,7 +117,6 @@ tests = testGroup "Yampa QC properties"
   -- Missing: Utils
   -- Missing: WFG
 
-  , testProperty "Regression > utils"         (property $ and Regression.utils_trs)
   , NewBasic.tests
   , NewConditional.tests
   , NewDelays.tests
