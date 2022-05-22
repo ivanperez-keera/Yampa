@@ -17,10 +17,10 @@ import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Scan"
-  [ testProperty "scan (0, fixed)"  (property $ sscan_t0 ~= sscan_t0r)
+  [ testProperty "scan (3, fixed)"  (property $ sscan_t3 ~= sscan_t3r)
+  , testProperty "scan (0, fixed)"  (property $ sscan_t0 ~= sscan_t0r)
   , testProperty "scan (1, fixed)"  (property $ sscan_t1 ~= sscan_t1r)
   , testProperty "scan (2, fixed)"  (property $ sscan_t2 ~= sscan_t2r)
-  , testProperty "scan (3, fixed)"  (property $ sscan_t3 ~= sscan_t3r)
   , testProperty "scan (4, fixed)"  (property $ sscan_t4 == sscan_t4r)
   , testProperty "scan (5, fixed)"  (property $ sscan_t5 == sscan_t5r)
   , testProperty "scan (6, fixed)"  (property $ sscan_t6 == sscan_t6r)
@@ -38,7 +38,17 @@ tests = testGroup "Regression tests for FRP.Yampa.Scan"
   , testProperty "scan (18, fixed)" (property $ sscan_t18 ~= sscan_t18r)
   ]
 
--- * Test cases sscan
+-- ** Simple, stateful signal processing
+
+sscan_t3, sscan_t3r :: [Double]
+sscan_t3 = testSF1 (time
+                    >>> arr (\t -> sin (0.5 * t * pi + pi))
+                    >>> sscan max 0.0)
+
+sscan_t3r =
+  take 25
+       (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
+        in tail (scanl max 0 xs))
 
 -- pre and iPre in terms of sscan
 pre_sscan :: SF a a
@@ -70,16 +80,6 @@ sscan_t2 = testSF1 (time
                     >>> loop (arr (\(x1,x2) -> let x' = max x1 x2 in (x',x'))
                               >>> second (iPre_sscan 0.0)))
 sscan_t2r =
-  take 25
-       (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
-        in tail (scanl max 0 xs))
-
-sscan_t3, sscan_t3r :: [Double]
-sscan_t3 = testSF1 (time
-                    >>> arr (\t -> sin (0.5 * t * pi + pi))
-                    >>> sscan max 0.0)
-
-sscan_t3r =
   take 25
        (let xs = [ sin (0.5 * t * pi + pi) | t <- [0.0, 0.25 ..] ]
         in tail (scanl max 0 xs))
