@@ -22,6 +22,8 @@ tests = testGroup "Regression tests for FRP.Yampa.Conditional"
   , testProperty "provided (2, fixed)" (property $ utils_t9 ~= utils_t9r)
   ]
 
+-- * Guards and automata-oriented combinators
+
 utils_t8 :: [Double]
 utils_t8 = take 50 $ embed (provided (even . floor) integral (constant (-1)))
                            (deltaEncode 0.1 input)
