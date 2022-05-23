@@ -32,6 +32,8 @@ tests = testGroup "Regression tests for FRP.Yampa.Task"
   , testProperty "tasks (fixed)" (property $ task_t8 ~= task_t8r)
   ]
 
+-- * The Task type
+
 task_t0 = testSF1 (runTask (do
                                mkTask (localTime
                                        &&&(localTime >>> arr (>=5.0) >>> edge))
@@ -207,6 +209,9 @@ task_t8r =
     , Left 1.0, Left 1.5, Left 2.0, Left 2.5  -- 5.0 s, 20 - 23
     , Right (Left 24.0,24.0)
     ]
+
+-- * Auxiliary
+
 -- | Repeat m until result satisfies the predicate p
 repeatUntil :: Monad m => m a -> (a -> Bool) -> m a
 m `repeatUntil` p = m >>= \x -> if not (p x) then repeatUntil m p else return x

@@ -43,13 +43,13 @@ tests = testGroup "Regression tests for FRP.Yampa.Loop"
   , testProperty "loop laws (3, fixed)"    (property $ looplaws_t3_lhs  ~= looplaws_t3_rhs)
   , testProperty "loop laws (4, fixed)"    (property $ looplaws_t4_lhs  ~= looplaws_t4_rhs)
   , testProperty "loop laws (5, fixed)"    (property $ looplaws_t5_lhs  ~= looplaws_t5_rhs)
-  , testProperty "loopIntegral (0, fixed)" (property $ loopIntegral_t0 ~= loopIntegral_t0r)
-  , testProperty "loopIntegral (1, fixed)" (property $ loopIntegral_t1 ~= loopIntegral_t1r)
   , testProperty "loopPre (0, fixed)"      (property $ loopPre_t0 ~= loopPre_t0r)
   , testProperty "loopPre (1, fixed)"      (property $ loopPre_t1 ~= loopPre_t1r)
   , testProperty "loopPre (2, fixed)"      (property $ loopPre_t2 ~= loopPre_t2r)
   , testProperty "loopPre (3, fixed)"      (property $ loopPre_t3 ~= loopPre_t3r)
   , testProperty "loopPre (4, fixed)"      (property $ loopPre_t4 ~= loopPre_t4r)
+  , testProperty "loopIntegral (0, fixed)" (property $ loopIntegral_t0 ~= loopIntegral_t0r)
+  , testProperty "loopIntegral (1, fixed)" (property $ loopIntegral_t1 ~= loopIntegral_t1r)
   ]
 
 -- * Test cases for loop
@@ -206,8 +206,6 @@ loop_t17r =
   , 16.0,17.0,18.0,19.0,20.0,21.0,22.0,23.0,24.0
   ]
 
--- * Test cases based on the arrow laws for loop
-
 -- For a description of the laws, see Ross Paterson: Embedding a Class of
 -- Domain-Specific Languages in a Functional Language.
 -- Only a very rudimentary sanity check. Obviously not intended to "prove"
@@ -275,7 +273,39 @@ looplaws_t5_lhs = testSF1 (loop (arr looplaws_t5_f))
 looplaws_t5_rhs :: [[Double]]
 looplaws_t5_rhs = testSF1 (arr (simple_loop looplaws_t5_f))
 
--- * Test cases for loopIntegral
+-- * Loops with guaranteed well-defined feedback
+
+-- This kind of test will fail for infinitesimal delay!
+loopPre_t0 = testSF1 (loopPre 0 loop_acc)
+loopPre_t0r =
+  [ 0.0,1.0,3.0,6.0,10.0,15.0,21.0,28.0,36.0,45.0,55.0,66.0,78.0,91.0
+  , 105.0,120.0,136.0,153.0,171.0,190.0,210.0,231.0,253.0,276.0,300.0
+  ]
+
+loopPre_t1 = testSF2 (loopPre 0 loop_acc)
+loopPre_t1r =
+  [ 0.0,0.0,0.0,0.0,0.0,1.0,2.0,3.0,4.0,5.0,7.0,9.0,11.0,13.0,15.0,18.0
+  , 21.0,24.0,27.0,30.0,34.0,38.0,42.0,46.0,50.0
+  ]
+
+-- This kind of test will fail for infinitesimal delay!
+loopPre_t2 = testSF1 (loopPre False (arr (dup . not . snd)))
+loopPre_t2r =
+  [ True,False,True,False,True,False,True,False,True,False,True,False
+  , True,False,True,False,True,False,True,False,True,False,True,False,True
+  ]
+
+loopPre_t3 = testSF1 (loopPre 0 (first localTime))
+loopPre_t3r =
+  [ 0.0,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75
+  , 4.0,4.25,4.5,4.75,5.0,5.25,5.5,5.75,6.0
+  ]
+
+loopPre_t4 = testSF1 (loopPre 0 (first localTime >>> loop_acc))
+loopPre_t4r =
+  [ 0.0,0.25,0.75,1.5,2.5,3.75,5.25,7.0,9.0,11.25,13.75,16.5,19.5,22.75
+  , 26.25,30.0,34.0,38.25,42.75,47.5,52.5,57.75,63.25,69.0,75.0
+  ]
 
 -- Computation of approximation to exp 0, exp 1, ..., exp 5 by integration.
 -- Values as given by using exp directly:
@@ -346,38 +376,4 @@ loopIntegral_t1r =
   , 2.21,1.81,1.4,0.98,0.55,0.11,-0.34,-0.80,-1.25,-1.69,-2.12,-2.54,-2.95
   , -3.35,-3.74,-4.12,-4.49,-4.85,-5.2,-5.54,-5.87,-6.19,-6.5,-6.8,-7.09
   , -7.37,-7.64,-7.9
-  ]
-
--- * Test cases for loopPre
-
--- This kind of test will fail for infinitesimal delay!
-loopPre_t0 = testSF1 (loopPre 0 loop_acc)
-loopPre_t0r =
-  [ 0.0,1.0,3.0,6.0,10.0,15.0,21.0,28.0,36.0,45.0,55.0,66.0,78.0,91.0
-  , 105.0,120.0,136.0,153.0,171.0,190.0,210.0,231.0,253.0,276.0,300.0
-  ]
-
-loopPre_t1 = testSF2 (loopPre 0 loop_acc)
-loopPre_t1r =
-  [ 0.0,0.0,0.0,0.0,0.0,1.0,2.0,3.0,4.0,5.0,7.0,9.0,11.0,13.0,15.0,18.0
-  , 21.0,24.0,27.0,30.0,34.0,38.0,42.0,46.0,50.0
-  ]
-
--- This kind of test will fail for infinitesimal delay!
-loopPre_t2 = testSF1 (loopPre False (arr (dup . not . snd)))
-loopPre_t2r =
-  [ True,False,True,False,True,False,True,False,True,False,True,False
-  , True,False,True,False,True,False,True,False,True,False,True,False,True
-  ]
-
-loopPre_t3 = testSF1 (loopPre 0 (first localTime))
-loopPre_t3r =
-  [ 0.0,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0,3.25,3.5,3.75
-  , 4.0,4.25,4.5,4.75,5.0,5.25,5.5,5.75,6.0
-  ]
-
-loopPre_t4 = testSF1 (loopPre 0 (first localTime >>> loop_acc))
-loopPre_t4r =
-  [ 0.0,0.25,0.75,1.5,2.5,3.75,5.25,7.0,9.0,11.25,13.75,16.5,19.5,22.75
-  , 26.25,30.0,34.0,38.25,42.75,47.5,52.5,57.75,63.25,69.0,75.0
   ]

@@ -39,7 +39,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Delays"
   , testProperty "delay (small delay, qc)" prop_delay_2
   ]
 
--- * Test cases for pre and related combinators
+-- * Delays
 
 pre_t0 = testSF1 (iPre 17)
 pre_t0r =
@@ -212,6 +212,8 @@ pre_t8r = [ 0,1,1,1      -- 0s
           , 10,10        -- 12s
           ]
 
+-- * Timed delays
+
 delay_t0 = testSF1 (delay 0.0 undefined)
 delay_t0r =
   [ 0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0
@@ -268,8 +270,6 @@ delay_t5r = take 100 (drop 6 (embed sf (deltaEncode 0.1 (repeat ()))))
   where
     sf = time >>> arr (\t -> sin (2*pi*(t-0.6)))
 
--- Delaying
-
 -- | Delaying by 0.0 has no effect
 prop_delay_1 =
     forAll myStream $ evalT $ prop_always_equal sfDelayed sf
@@ -291,6 +291,8 @@ prop_delay_2 =
         sfDelayed = delay 0.0001 initialValue
 
         initialValue = 17
+
+-- * Auxiliary
 
 -- prop :: SF a b -> (a -> b ->
 prop (a,b) = SP ((identity &&& a) >>^ uncurry b)

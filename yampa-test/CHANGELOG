@@ -10,7 +10,8 @@
           format of export lists (#212), align lists, tuples, records by
           leading comma (#213), compress multiple empty lines (#214), adjust
           indentation to two spaces (#215), reorganize tests to match Yampa's
-          module hierarchy (#216).
+          module hierarchy (#216), reorganize declarations and tests within
+          modules to match Yampa (#217).
         * yampa-test.cabal: Fix broken link in description (#204), enable all
           warnings (#206), rename flag (#208), rename test (#208), adjust
           modules to run regression tests with QuickCheck testing module
