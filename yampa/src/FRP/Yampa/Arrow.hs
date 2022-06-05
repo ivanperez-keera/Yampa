@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -- |
 -- Module      :  FRP.Yampa.Arrow
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -21,10 +20,6 @@ module FRP.Yampa.Arrow
     , arr5
     )
   where
-
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative (Applicative(..))
-#endif
 
 import Control.Arrow
 
