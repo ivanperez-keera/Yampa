@@ -4,7 +4,8 @@
           separators (#211), adjust format of export lists (#212), align
           lists, tuples, records by leading comma (#213), compress multiple
           empty lines (#214), adjust indentation to two spaces (#215), make
-          arrows less prominent in descriptions (#183).
+          arrows less prominent in descriptions (#183), remove unnecessary
+          import (#222).
         * examples/: Replace tabs with spaces (#205), format module header to
           conform to style guide (#207), style consistency of separators
           (#211), adjust format of export lists (#212), align lists, tuples,
