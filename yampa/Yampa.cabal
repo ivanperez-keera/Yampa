@@ -42,8 +42,7 @@ synopsis:
 description:
   Domain-specific language embedded in Haskell for programming hybrid (mixed
   discrete-time and continuous-time) systems. Yampa is based on the concepts of
-  Functional Reactive Programming (FRP) and is structured using arrow
-  combinators.
+  Functional Reactive Programming (FRP).
 
 extra-source-files:
   CHANGELOG,
