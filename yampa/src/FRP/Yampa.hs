@@ -9,8 +9,7 @@
 --
 -- Domain-specific language embedded in Haskell for programming deterministic
 -- hybrid (mixed discrete-time and continuous-time) systems. Yampa is based on
--- the concepts of Functional Reactive Programming (FRP) and is structured
--- using arrow combinators.
+-- the concepts of Functional Reactive Programming (FRP).
 --
 -- Yampa has been used to write professional Haskell cross-platform games for
 -- iOS, Android, desktop and web. There is a library for testing Yampa
