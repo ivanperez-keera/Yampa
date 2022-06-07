@@ -7,7 +7,7 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- Standarized error-reporting for Yampa
+-- Standardized error-reporting for Yampa
 module FRP.Yampa.Diagnostics where
 
 -- | Reports an error due to a violation of Yampa's preconditions/requirements.

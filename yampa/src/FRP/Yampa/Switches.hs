@@ -30,7 +30,7 @@
 -- that originally provoked the switch, you are very likely to fall into an
 -- infinite loop. In those cases, the use of 'dSwitch' or '-->' may help.
 --
--- Switches vary depending on a number of criterions:
+-- Switches vary depending on a number of criteria:
 --
 -- - /Decoupled/ vs normal switching /(d)/: when an SF is being applied and a
 -- different SF needs to be applied next, one question is which one is used

@@ -224,7 +224,7 @@ mergeEvents = foldr lMerge NoEvent
 --
 -- Traverable-based definition:
 -- catEvents :: Foldable t => t (Event a) -> Event (t a)
--- carEvents e  = if (null e) then NoEvent else (sequenceA e)
+-- catEvents e  = if (null e) then NoEvent else (sequenceA e)
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
                   [] -> NoEvent
@@ -260,7 +260,7 @@ mapFilterE f (Event a) = case f a of
                            Nothing -> NoEvent
                            Just b  -> Event b
 
--- | Enable/disable event occurences based on an external condition.
+-- | Enable/disable event occurrences based on an external condition.
 gate :: Event a -> Bool -> Event a
 _ `gate` False = NoEvent
 e `gate` True  = e

@@ -215,14 +215,14 @@ delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
                                              (x' : rxs)
 
 -- | A rising edge detector. Useful for things like detecting key presses.
--- It is initialised as /up/, meaning that events occuring at time 0 will
+-- It is initialised as /up/, meaning that events occurring at time 0 will
 -- not be detected.
 edge :: SF Bool (Event ())
 edge = iEdge True
 
 -- | A rising edge detector that can be initialized as up ('True', meaning
 --   that events occurring at time 0 will not be detected) or down
---   ('False', meaning that events ocurring at time 0 will be detected).
+--   ('False', meaning that events occurring at time 0 will be detected).
 iEdge :: Bool -> SF Bool (Event ())
 iEdge b = sscanPrim f (if b then 2 else 0) NoEvent
   where
@@ -239,7 +239,7 @@ iEdge b = sscanPrim f (if b then 2 else 0) NoEvent
 edgeTag :: a -> SF Bool (Event a)
 edgeTag a = edge >>> arr (`tag` a)
 
--- | Edge detector particularized for detecting transtitions
+-- | Edge detector particularized for detecting transitions
 --   on a 'Maybe' signal from 'Nothing' to 'Just'.
 edgeJust :: SF (Maybe a) (Event a)
 edgeJust = edgeBy isJustEdge (Just undefined)

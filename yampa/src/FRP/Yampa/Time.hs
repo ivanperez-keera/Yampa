@@ -16,9 +16,9 @@
 -- will count using the time of switching as the start time.
 --
 -- Take also into account that, because 'FRP.Yampa.Integration.derivative' is
--- the derivative of a signal /over time/, derivating 'localTime' will always
--- produce the value one (@1@). If you really, really, really need to know the
--- time delta, and need to abandon the hybrid\/FRP abstraction, see
+-- the derivative of a signal /over time/, differentiating 'localTime' will
+-- always produce the value one (@1@). If you really, really, really need to
+-- know the time delta, and need to abandon the hybrid\/FRP abstraction, see
 -- 'FRP.Yampa.Integration.iterFrom'.
 module FRP.Yampa.Time
     ( localTime
