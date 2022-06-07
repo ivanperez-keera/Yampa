@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -- |
 -- Module      :  FRP.Yampa.Arrow
 -- Copyright   :  (c) Antony Courtney and Henrik Nilsson, Yale University, 2003
@@ -9,20 +8,18 @@
 -- Portability :  portable
 --
 -- Arrow helper functions.
-module FRP.Yampa.Arrow (
-    -- * Arrow plumbing aids
-    dup,        -- :: a -> (a,a)
+module FRP.Yampa.Arrow
+    (
+      -- * Arrow plumbing aids
+      dup
 
-    -- * Liftings
-    arr2,       -- :: Arrow a => (b->c->d) -> a (b,c) d
-    arr3,       -- :: Arrow a => (b->c->d->e) -> a (b,c,d) e
-    arr4,       -- :: Arrow a => (b->c->d->e->f) -> a (b,c,d,e) f
-    arr5,       -- :: Arrow a => (b->c->d->e->f->g) -> a (b,c,d,e,f) g
-) where
-
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative (Applicative(..))
-#endif
+      -- * Liftings
+    , arr2
+    , arr3
+    , arr4
+    , arr5
+    )
+  where
 
 import Control.Arrow
 

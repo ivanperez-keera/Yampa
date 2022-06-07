@@ -1,3 +1,20 @@
+2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
+        * Yampa.cabal: Version bump (0.13.5) (#220).
+        * src/: Remove vim modeline settings (#209), remove unnecessary
+          comments from module export lists (#210),  style consistency of
+          separators (#211), adjust format of export lists (#212), align
+          lists, tuples, records by leading comma (#213), compress multiple
+          empty lines (#214), adjust indentation to two spaces (#215), make
+          arrows less prominent in descriptions (#183), remove unnecessary
+          import (#222).
+        * examples/: Replace tabs with spaces (#205), format module header to
+          conform to style guide (#207), style consistency of separators
+          (#211), adjust format of export lists (#212), align lists, tuples,
+          records by leading comma (#213), compress multiple empty lines
+          (#214), adjust indentation to two spaces (#215).
+        * tests/: Style consistency of separators (#211).
+        * README: make arrows less prominent in descriptions (#183).
+
 2022-04-07 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Version bump (0.13.4) (#203), syntax rules (#196),
           remove regression tests (#201).

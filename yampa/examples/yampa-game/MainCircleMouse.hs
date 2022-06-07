@@ -20,7 +20,7 @@ height = 480
 -- The first two arguments to reactimate are the value of the input signal
 -- at time zero and at subsequent times, together with the times between
 -- samples.
--- 
+--
 -- The third argument to reactimate is the output consumer that renders
 -- the signal.
 --
@@ -60,8 +60,8 @@ inCircles = proc (centerX, centerY) -> do
 
 -- | Input controller
 data Controller = Controller
- { controllerPos   :: (Double, Double)
- }
+  { controllerPos   :: (Double, Double)
+  }
 
 -- | Give a controller, refresh its state and return the latest value.
 -- We need a non-blocking controller-polling function.

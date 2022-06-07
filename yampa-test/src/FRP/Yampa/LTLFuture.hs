@@ -14,9 +14,9 @@
 -- see what is going on there... :(
 
 module FRP.Yampa.LTLFuture
-  ( TPred(..)
-  , evalT
-  )
+    ( TPred(..)
+    , evalT
+    )
   where
 
 import FRP.Yampa
@@ -51,11 +51,11 @@ evalT (Eventually t1) = \stream -> case stream of
 evalT (Until t1 t2)   = \stream -> (evalT t1 stream && evalT (Next (Until t1 t2)) stream)
                                    || evalT t2 stream
 evalT (Next t1)       = \stream -> case stream of
-                                    (a,[]) -> True   -- This is important. It determines how
-                                                     -- always and next behave at the
-                                                     -- end of the stream, which affects that is and isn't
-                                                     -- a tautology. It should be reviewed very carefully.
-                                    (a1,(dt, a2):as) -> evalT (tauApp t1 a1 dt) (a2, as)
+                                     (a,[]) -> True   -- This is important. It determines how
+                                                      -- always and next behave at the
+                                                      -- end of the stream, which affects that is and isn't
+                                                      -- a tautology. It should be reviewed very carefully.
+                                     (a1,(dt, a2):as) -> evalT (tauApp t1 a1 dt) (a2, as)
 
 -- | Tau-application (transportation to the future)
 tauApp :: TPred a -> a -> DTime -> TPred a

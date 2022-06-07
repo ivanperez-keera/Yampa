@@ -17,22 +17,22 @@
 -- paper was: uniDistStream. This has been fixed.
 
 module FRP.Yampa.QuickCheck
-  (
-    -- * Random stream generation
-    generateStream
-  , generateStreamWith
+    (
+      -- * Random stream generation
+      generateStream
+    , generateStreamWith
 
-    -- ** Parameters used to generate random input streams
-  , Distribution(..)
-  , Range
-  , Length
+      -- ** Parameters used to generate random input streams
+    , Distribution(..)
+    , Range
+    , Length
 
-    -- ** Helpers for common cases
-  , uniDistStream
-  , uniDistStreamMaxDT
-  , fixedDelayStream
-  , fixedDelayStreamWith
-  )
+      -- ** Helpers for common cases
+    , uniDistStream
+    , uniDistStreamMaxDT
+    , fixedDelayStream
+    , fixedDelayStreamWith
+    )
   where
 
 import Control.Applicative ((<$>), pure)
@@ -55,7 +55,6 @@ type Range = (Maybe DTime, Maybe DTime)
 -- | Optional maximum length for a stream, given as a time, or a number of
 -- samples.
 type Length = Maybe (Either Int DTime)
-
 
 -- | Generate a random delta according to some required specifications.
 generateDeltas :: Distribution -> Range -> Length -> Gen DTime
@@ -179,7 +178,6 @@ generateStreamLenDT range len = do
 -- generateStreamLenDT (Nothing, Nothing) (Just (Right ds)) = f2  <$> arbitrary
 --   where
 --     f2 l = (ds / fromIntegral l, l)
-
 
 -- | Generate a stream of values with uniformly distributed time deltas.
 uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)

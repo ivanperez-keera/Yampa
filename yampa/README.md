@@ -6,8 +6,7 @@
 
 Domain-specific language embedded in Haskell for programming hybrid (mixed
 discrete-time and continuous-time) systems. Yampa is based on the concepts of
-Functional Reactive Programming (FRP) and is structured using arrow
-combinators.
+Functional Reactive Programming (FRP).
 
 ## Installation
 
@@ -22,7 +21,14 @@ $ cabal install --lib Yampa
 
 Getting Yampa to run is trivial. FRP is about values that change over time. In
 Yampa, a system is defined by a signal function (SF), which determines how the
-varying input and the varying output relate. For example:
+varying input and the varying output relate.
+
+Code can be written in multiple styles: _applicative style_, _arrowized style_,
+and just plain _arrow combinators_. All three are compatible and
+interchangeable.
+
+For example, the following signal function takes a value, integrates it, and
+then divides that value by the current time:
 
 ```haskell
 {-# LANGUAGE Arrows #-}
@@ -36,20 +42,28 @@ signalFunction = proc x -> do
 ```
 
 This signal function says that the output signal is the integral `y` of the
-input signal `x`, divided by the time `t`. The above syntax uses a Haskell
-extension called Arrows. If you are unhappy using arrow syntax, you can also
-write that code using applicative style and/or arrow combinators:
+input signal `x`, divided by the time `t`. The elements between `<-` and `-<`
+are always signal functions (in this case, `integral` and `time` are signal
+functions used to define another signal function).
+
+The example above is written in arrow syntax and uses a Haskell extension
+called Arrows. If you are unhappy using arrow syntax, you can implement the
+same behavior using applicative style and/or arrow combinators:
 
 ```haskell
+-- Applicative style
 signalFunction1 :: SF Double Double
 signalFunction1 = (/) <$> integral <*> time
 
+-- Functional style with arrow combinators
 signalFunction2 :: SF Double Double
 signalFunction2 = (integral &&& time) >>^ (/)
 ```
 
-All three are equivalent, and it's a matter of which one you like best. To run
-this example, we need to provide the inputs, the times, and consume the output:
+All three are equivalent, and it's a matter of which one you like best.
+
+To run this example, we need to provide the inputs, the times, and consume the
+output:
 ```haskell
 firstSample :: IO Double   -- sample at time zero
 firstSample =

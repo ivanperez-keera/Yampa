@@ -1,3 +1,24 @@
+2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
+        * yampa-test.cabal: Version bump (0.13.5) (#220), fix broken link in
+          description (#204), enable all warnings (#206), rename flag (#208),
+          rename test (#208), adjust modules to run regression tests with
+          QuickCheck testing module (#208), reorganize tests to match Yampa's
+          module hierarchy (#216).
+        * src/: Style consistency of separators (#211), adjust format of export
+          lists (#212), compress multiple empty lines (#214), adjust
+          indentation to two spaces (#215).
+        * tests/: Replace tabs with spaces (#205), remove local option disable
+          warning on tabs (#206), format module header to conform to style
+          guide (#207), adjust modules to run regression tests with QuickCheck
+          testing module (#208), rename space usage test to reflect module's
+          new purpose (#208), style consistency of separators (#211), adjust
+          format of export lists (#212), align lists, tuples, records by
+          leading comma (#213), compress multiple empty lines (#214), adjust
+          indentation to two spaces (#215), reorganize tests to match Yampa's
+          module hierarchy (#216), reorganize declarations and tests within
+          modules to match Yampa (#217), move ArrowLoop tests into InternalCore
+          test module (#218).
+
 2022-04-07 Ivan Perez <ivan.perez@haskell.sexy>
         * yampa-test.cabal: Version bump (0.13.4) (#203), syntax rules (#196),
           add regression tests (#201).

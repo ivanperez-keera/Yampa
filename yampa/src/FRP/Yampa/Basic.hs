@@ -15,29 +15,27 @@
 --
 -- It also defines ways of altering the input and the output signal only
 -- by inserting one value in the signal, or by transforming it.
-module FRP.Yampa.Basic (
+module FRP.Yampa.Basic
+    (
+      -- * Basic signal functions
+      identity
+    , constant
 
-    -- * Basic signal functions
-    identity,           -- :: SF a a
-    constant,           -- :: b -> SF a b
-
-    -- ** Initialization
-    (-->),              -- :: b -> SF a b -> SF a b,            infixr 0
-    (-:>),              -- :: b -> SF a b -> SF a b,            infixr 0
-    (>--),              -- :: a -> SF a b -> SF a b,            infixr 0
-    (-=>),              -- :: (b -> b) -> SF a b -> SF a b      infixr 0
-    (>=-),              -- :: (a -> a) -> SF a b -> SF a b      infixr 0
-    initially           -- :: a -> SF a a
-
-  ) where
+      -- ** Initialization
+    , (-->)
+    , (-:>)
+    , (>--)
+    , (-=>)
+    , (>=-)
+    , initially
+    )
+  where
 
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfConst, sfId)
 
 infixr 0 -->, -:>, >--, -=>, >=-
 
-------------------------------------------------------------------------------
--- Basic signal functions
-------------------------------------------------------------------------------
+-- * Basic signal functions
 
 -- | Identity: identity = arr id
 --
@@ -56,9 +54,7 @@ identity = SF {sfTF = \a -> (sfId, a)}
 constant :: b -> SF a b
 constant b = SF {sfTF = \_ -> (sfConst b, b)}
 
-------------------------------------------------------------------------------
--- Initialization
-------------------------------------------------------------------------------
+-- * Initialization
 
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --
@@ -74,7 +70,7 @@ b0 --> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (fst (tf10 a0), b0)}
 -- like the given sf.
 (-:>) :: b -> SF a b -> SF a b
 b0 -:> (SF {sfTF = tf10}) = SF {sfTF = \_a0 -> (ct, b0)}
- where ct = SF' $ \_dt a0 -> tf10 a0
+  where ct = SF' $ \_dt a0 -> tf10 a0
 
 -- | Input initialization operator.
 --
@@ -84,15 +80,13 @@ b0 -:> (SF {sfTF = tf10}) = SF {sfTF = \_a0 -> (ct, b0)}
 (>--) :: a -> SF a b -> SF a b
 a0 >-- (SF {sfTF = tf10}) = SF {sfTF = \_ -> tf10 a0}
 
-
 -- | Transform initial output value.
 --
 -- Applies a transformation 'f' only to the first output value at
 -- time zero.
 (-=>) :: (b -> b) -> SF a b -> SF a b
 f -=> (SF {sfTF = tf10}) =
-    SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
-
+  SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
 
 -- | Transform initial input value.
 --

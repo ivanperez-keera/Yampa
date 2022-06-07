@@ -10,7 +10,6 @@
 
 module FRP.Yampa.LTLPast where
 
-------------------------------------------------------------------------------
 import FRP.Yampa
 
 -- | True if both inputs are True.

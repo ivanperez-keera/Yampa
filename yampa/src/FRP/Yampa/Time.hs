@@ -20,10 +20,11 @@
 -- produce the value one (@1@). If you really, really, really need to know the
 -- time delta, and need to abandon the hybrid\/FRP abstraction, see
 -- 'FRP.Yampa.Integration.iterFrom'.
-module FRP.Yampa.Time (
-    localTime,          -- :: SF a Time
-    time,               -- :: SF a Time,        Other name for localTime.
-) where
+module FRP.Yampa.Time
+    ( localTime
+    , time
+    )
+  where
 
 import Control.Arrow
 
@@ -38,6 +39,3 @@ localTime = constant 1.0 >>> integral
 -- | Alternative name for localTime.
 time :: SF a Time
 time = localTime
-
--- Vim modeline
--- vim:set tabstop=8 expandtab:

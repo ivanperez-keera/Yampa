@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          Yampa
-version:       0.13.4
+version:       0.13.5
 author:        Henrik Nilsson, Antony Courtney
 maintainer:    Ivan Perez (ivan.perez@keera.co.uk)
 homepage:      https://github.com/ivanperez-keera/Yampa/
@@ -42,8 +42,7 @@ synopsis:
 description:
   Domain-specific language embedded in Haskell for programming hybrid (mixed
   discrete-time and continuous-time) systems. Yampa is based on the concepts of
-  Functional Reactive Programming (FRP) and is structured using arrow
-  combinators.
+  Functional Reactive Programming (FRP).
 
 extra-source-files:
   CHANGELOG,
