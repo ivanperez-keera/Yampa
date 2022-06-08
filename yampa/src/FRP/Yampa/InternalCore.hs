@@ -461,7 +461,7 @@ cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
     -- the last event-processing function in the chain, it has to be
     -- remembered. Since the composite event-processing function remains
     -- constant/unchanged, the NoEvent output has to be part of the state.
-    -- An alternarive would be to make the event-processing function take
+    -- An alternative would be to make the event-processing function take
     -- an extra argument. But that is likely to make the simple case more
     -- expensive. See note at sfEP.
     f (s1, s2, cne) a =

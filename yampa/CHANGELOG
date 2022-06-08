@@ -1,4 +1,8 @@
 2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
+        * src/: Fix typos in documentation (#224).
+        * Thanks to @architsinghal-mriirs.
+
+2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Version bump (0.13.5) (#220).
         * src/: Remove vim modeline settings (#209), remove unnecessary
           comments from module export lists (#210),  style consistency of
