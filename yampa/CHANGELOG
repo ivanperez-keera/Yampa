@@ -1,5 +1,6 @@
-2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
-        * src/: Fix typos in documentation (#224).
+2022-06-11 Ivan Perez <ivan.perez@haskell.sexy>
+        * src/: Fix typos in documentation (#224), replace AFRP with Yampa
+          (#223).
         * Thanks to @architsinghal-mriirs.
 
 2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
