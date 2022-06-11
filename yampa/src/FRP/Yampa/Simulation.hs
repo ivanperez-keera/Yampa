@@ -185,11 +185,11 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
 
     tf0 _ = (esAux 0 (zip tts bbs), b)
 
-    esAux _       []    = intErr "AFRP" "embedSynch" "Empty list!"
+    esAux _       []    = intErr "Yampa" "embedSynch" "Empty list!"
     -- Invarying below since esAux [] is an error.
     esAux tp_prev tbtbs = SF' tf -- True
       where
-        tf dt r | r < 0     = usrErr "AFRP" "embedSynch" "Negative ratio."
+        tf dt r | r < 0     = usrErr "Yampa" "embedSynch" "Negative ratio."
                 | otherwise = let tp = tp_prev + dt * r
                                   (b, tbtbs') = advance tp tbtbs
                               in (esAux tp tbtbs', b)
@@ -208,12 +208,12 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
 --   unnecessary samples when the input has not changed since
 --   the last sample.
 deltaEncode :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
-deltaEncode _  []        = usrErr "AFRP" "deltaEncode" "Empty input list."
+deltaEncode _  []        = usrErr "Yampa" "deltaEncode" "Empty input list."
 deltaEncode dt aas@(_:_) = deltaEncodeBy (==) dt aas
 
 -- | 'deltaEncode' parameterized by the equality test.
 deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
-deltaEncodeBy _  _  []      = usrErr "AFRP" "deltaEncodeBy" "Empty input list."
+deltaEncodeBy _  _  []      = usrErr "Yampa" "deltaEncodeBy" "Empty input list."
 deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
   where
     debAux _      []                     = []

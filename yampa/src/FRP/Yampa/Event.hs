@@ -124,7 +124,7 @@ instance NFData a => NFData (Event a) where
 
 -- * Internal utilities for event construction
 
--- These utilities are to be considered strictly internal to AFRP for the
+-- These utilities are to be considered strictly internal to Yampa for the
 -- time being.
 
 -- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
@@ -142,7 +142,7 @@ event _ f (Event b) = f b
 -- | Extract the value from an event. Fails if there is no event.
 fromEvent :: Event a -> a
 fromEvent (Event a) = a
-fromEvent NoEvent   = usrErr "AFRP" "fromEvent" "Not an event."
+fromEvent NoEvent   = usrErr "Yampa" "fromEvent" "Not an event."
 
 -- | Tests whether the input represents an actual event.
 isEvent :: Event a -> Bool
@@ -186,7 +186,7 @@ rMerge = flip (<|>)
 
 -- | Unbiased event merge: simultaneous occurrence is an error.
 merge :: Event a -> Event a -> Event a
-merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
+merge = mergeBy (usrErr "Yampa" "merge" "Simultaneous event occurrence.")
 
 -- | Event merge parameterized by a conflict resolution function.
 --
