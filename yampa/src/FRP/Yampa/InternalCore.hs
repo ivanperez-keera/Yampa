@@ -286,7 +286,7 @@ vfyNoEv :: Event a -> b -> b
 vfyNoEv NoEvent b = b
 vfyNoEv _       _  =
   usrErr
-    "AFRP"
+    "Yampa"
     "vfyNoEv"
     "Assertion failed: Functions on events must not map NoEvent to Event."
 
@@ -469,7 +469,7 @@ cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
         (s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
         (s1', Event b, NoEvent) ->
           let (s2', c, cne') = f2 s2 b in ((s1', s2', cne'), c, cne')
-        _ -> usrErr "AFRP" "cpXX" $
+        _ -> usrErr "Yampa" "cpXX" $
                "Assertion failed: Functions on events must not map "
                ++ "NoEvent to Event."
 cpXX sf1@(SFEP{}) (SFCpAXA _ (FDE f21 f21ne) sf22 fd23) =
@@ -660,7 +660,7 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
           case f1 s a of
             (s', NoEvent, NoEvent) -> (s', f2ne,  f2ne)
             (s', eb,      NoEvent) -> (s', f2 eb, f2ne)
-            _ -> usrErr "AFRP" "cpXEAux" $
+            _ -> usrErr "Yampa" "cpXEAux" $
                    "Assertion failed: Functions on events must not "
                    ++ "map NoEvent to Event."
     cpXEAux fd2 _ _ (SFCpAXA _ fd11 sf12 fd13) =

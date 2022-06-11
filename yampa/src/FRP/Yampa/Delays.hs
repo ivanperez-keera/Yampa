@@ -40,7 +40,7 @@ pre :: SF a a
 pre = sscanPrim f uninit uninit
   where
     f c a = Just (a, c)
-    uninit = usrErr "AFRP" "pre" "Uninitialized pre operator."
+    uninit = usrErr "Yampa" "pre" "Uninitialized pre operator."
 
 -- | Initialized delay operator.
 --
@@ -66,7 +66,7 @@ b0 `fby` sf = b0 --> sf >>> pre
 -- | Delay a signal by a fixed time 't', using the second parameter
 -- to fill in the initial 't' seconds.
 delay :: Time -> a -> SF a a
-delay q a_init | q < 0     = usrErr "AFRP" "delay" "Negative delay."
+delay q a_init | q < 0     = usrErr "Yampa" "delay" "Negative delay."
                | q == 0    = identity
                | otherwise = SF {sfTF = tf0}
   where

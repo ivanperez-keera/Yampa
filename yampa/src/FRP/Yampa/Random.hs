@@ -41,12 +41,12 @@ noiseR :: (RandomGen g, Random b) => (b,b) -> g -> SF a b
 noiseR range g0 = streamToSF (randomRs range g0)
 
 streamToSF :: [b] -> SF a b
-streamToSF []     = intErr "AFRP" "streamToSF" "Empty list!"
+streamToSF []     = intErr "Yampa" "streamToSF" "Empty list!"
 streamToSF (b:bs) = SF {sfTF = tf0}
   where
     tf0 _ = (stsfAux bs, b)
 
-    stsfAux []     = intErr "AFRP" "streamToSF" "Empty list!"
+    stsfAux []     = intErr "Yampa" "streamToSF" "Empty list!"
     -- Invarying since stsfAux [] is an error.
     stsfAux (b:bs) = SF' tf -- True
       where
@@ -60,7 +60,7 @@ streamToSF (b:bs) = SF {sfTF = tf0}
 
 occasionally :: RandomGen g => g -> Time -> b -> SF a (Event b)
 occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
-                       | otherwise = usrErr "AFRP" "occasionally"
+                       | otherwise = usrErr "Yampa" "occasionally"
                                             "Non-positive average interval."
   where
     -- Generally, if events occur with an average frequency of f, the
