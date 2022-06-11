@@ -74,14 +74,14 @@ runTask tk = (unTask tk) (constant . Right)
 -- Convenience function for tasks which are known not to terminate.
 runTask_ :: Task a b c -> SF a b
 runTask_ tk = runTask tk
-              >>> arr (either id (usrErr "AFRPTask" "runTask_"
+              >>> arr (either id (usrErr "YampaTask" "runTask_"
                                          "Task terminated!"))
 
 -- | Creates an SF that represents an SF and produces an event
 -- when the task terminates, and otherwise produces just an output.
 taskToSF :: Task a b c -> SF a (b, Event c)
 taskToSF tk = runTask tk
-              >>> (arr (either id (usrErr "AFRPTask" "runTask_"
+              >>> (arr (either id (usrErr "YampaTask" "runTask_"
                                           "Task terminated!"))
                    &&& edgeBy isEdge (Left undefined))
   where
@@ -152,7 +152,7 @@ sleepT t b = mkTask (constant b &&& after t ())
 -- @snapT >> snapT = snapT@
 
 snapT :: Task a b a
-snapT = mkTask (constant (intErr "AFRPTask" "snapT" "Bad switch?") &&& snap)
+snapT = mkTask (constant (intErr "YampaTask" "snapT" "Bad switch?") &&& snap)
 
 -- * Basic tasks combinators
 

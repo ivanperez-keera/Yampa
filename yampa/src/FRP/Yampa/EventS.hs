@@ -94,7 +94,7 @@ after q x = afterEach [(q,x)]
 -- point in time.
 repeatedly :: Time -> b -> SF a (Event b)
 repeatedly q x | q > 0 = afterEach qxs
-               | otherwise = usrErr "AFRP" "repeatedly" "Non-positive period."
+               | otherwise = usrErr "Yampa" "repeatedly" "Non-positive period."
   where
     qxs = (q,x):qxs
 
@@ -110,7 +110,7 @@ afterEach qxs = afterEachCat qxs >>> arr (fmap head)
 afterEachCat :: [(Time,b)] -> SF a (Event [b])
 afterEachCat [] = never
 afterEachCat ((q,x):qxs)
-    | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
+    | q < 0     = usrErr "Yampa" "afterEachCat" "Negative period."
     | otherwise = SF {sfTF = tf0}
   where
     tf0 _ = if q <= 0
@@ -119,7 +119,7 @@ afterEachCat ((q,x):qxs)
 
     emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
     emitEventsScheduleNext t xs ((q,x):qxs)
-        | q < 0     = usrErr "AFRP" "afterEachCat" "Negative period."
+        | q < 0     = usrErr "Yampa" "afterEachCat" "Negative period."
         | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
         | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
       where
@@ -133,14 +133,14 @@ afterEachCat ((q,x):qxs)
 
 -- | Delay for events. (Consider it a triggered after, hence /basic/.)
 delayEvent :: Time -> SF (Event a) (Event a)
-delayEvent q | q < 0     = usrErr "AFRP" "delayEvent" "Negative delay."
+delayEvent q | q < 0     = usrErr "Yampa" "delayEvent" "Negative delay."
              | q == 0    = identity
              | otherwise = delayEventCat q >>> arr (fmap head)
 
 -- | Delay an event by a given delta and catenate events that occur so closely
 -- so as to be /inseparable/.
 delayEventCat :: Time -> SF (Event a) (Event [a])
-delayEventCat q | q < 0     = usrErr "AFRP" "delayEventCat" "Negative delay."
+delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
                 | q == 0    = arr (fmap (:[]))
                 | otherwise = SF {sfTF = tf0}
   where
