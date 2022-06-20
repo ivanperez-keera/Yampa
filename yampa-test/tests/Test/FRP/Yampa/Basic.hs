@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Description : Test cases for basic signal functions
 -- Copyright   : Yale University, 2003
@@ -7,6 +8,10 @@ module Test.FRP.Yampa.Basic
     )
   where
 
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative ((<*>))
+import Data.Functor        ((<$>))
+#endif
 import Test.QuickCheck
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
@@ -25,11 +30,18 @@ tests = testGroup "Regression tests for FRP.Yampa.Basic"
   , testProperty "identity (qc)"     prop_basic_identity_2
   , testProperty "constant (fixed)"  (property $ basicsf_t1 ~= basicsf_t1r)
   , testProperty "constant (qc)"     prop_basic_constant
+  , testProperty "--> (qc)"          propInsert
+  , testProperty "-:> (qc)"          propAlterFirstOutput
+  , testProperty ">-- (qc)"          propInputInit
+  , testProperty "-=> (qc)"          propModFirstOutput
+  , testProperty ">=- (qc)"          propModFirstInput
   , testProperty "initially (fixed)" (property $ basicsf_t4 ~= basicsf_t4r)
   , testProperty "initially (qc)"    prop_basic_initially
   ]
 
 -- * Basic signal functions
+
+-- ** identity
 
 basicsf_t0 :: [Double]
 basicsf_t0 = testSF1 identity
@@ -52,6 +64,8 @@ prop_basic_identity_2 =
   where myStream :: Gen (SignalSampleStream Float)
         myStream = uniDistStream
 
+-- ** constant
+
 basicsf_t1 :: [Double]
 basicsf_t1 = testSF1 (constant 42.0)
 basicsf_t1r =
@@ -70,24 +84,175 @@ prop_basic_constant =
 
 -- * Initialization
 
-prop_insert =
+-- ** @(-->)@
+
+-- | Test that @initialValue --> integral@, when applied to any signal, is
+-- initially equal to @constant initialValue@, and, in the future, always equal
+-- to @integral@.
+--
+-- Note that it is important to understand that integral is "turned on" at time
+-- zero, and its value discarded. This is not the same as using the constant SF
+-- at time zero and turning @integral@ on at the next time (e.g., with
+-- @switch@).
+propInsert :: Property
+propInsert =
     forAll initialValueG $ \initialValue ->
-    forAll finalValueG $ \finalValue ->
     forAll myStream $ evalT $
-      let sfStep = initialValue --> constant finalValue
 
-      in And (prop (sfStep, const (== initialValue)))
-             (Next $ Always $
-                       (prop (sfStep, const (== finalValue))))
+      -- SF that uses the actual function being tested
+      let sfStep :: SF Float Float
+          sfStep = initialValue --> integral
 
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+      -- Expected behavior
+      in And
+           -- Currently equal to initialValue
+           (SP $ (==) <$> sfStep <*> constant initialValue)
 
-        initialValueG :: Gen Float
-        initialValueG = arbitrary
+           -- In the future, always equal to integral
+           (Next $ Always $ SP $ (==) <$> sfStep <*> integral)
 
-        finalValueG  :: Gen Float
-        finalValueG = arbitrary
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    initialValueG :: Gen Float
+    initialValueG = arbitrary
+
+-- ** @(-:>)@
+
+-- | Test that @initialValue -:> sf@, when applied to any signal, is initially
+-- equal to @constant initialValue@, and, after that, the output is the same as
+-- @sf@ (starting from that point).
+propAlterFirstOutput :: Property
+propAlterFirstOutput =
+    forAll initialValueG $ \initialValue ->
+    forAll myStream $ evalT $
+
+      -- SF that uses the actual function being tested.
+      --
+      -- We pick a point-wise function for the test because we have no (easy)
+      -- way of dropping a sample when we "turn of" the second sf in the
+      -- comparison for future samples. For example, if we had picked integral,
+      -- then the integral would start from the second sample (with the delay
+      -- applied), but the temporal Next operator starts the SF now and waits
+      -- until the next sample to check the property.
+      let sfStep :: SF Float Float
+          sfStep = (initialValue -:> arr (* 2)) >>> arr (^ 2)
+
+      -- Expected behavior
+      in And
+           -- Currently equal to initialValue. In tis case it is safe to
+           -- compare floating point numbers with (==) because the output HAS
+           -- to be exactly the same. Note that, in the efinition of sfStep,
+           -- the number initialValue should reach (arr (^ 2)) unchanged, and
+           -- arr is just function application.
+           (SP $ (==) <$> sfStep <*> constant (initialValue ^ 2))
+
+           -- In the future, always equal to (arr ((^ 2) . (* 2)))). Note that
+           -- we ignore initialValue completely.
+           (Next $ Always $ SP $ (==) <$> sfStep <*> arr ((^ 2) . (* 2)))
+
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    initialValueG :: Gen Float
+    initialValueG = arbitrary
+
+-- ** @(>--)@
+
+-- | Test that @initialValue >-- sf@, when applied to any signal, is initially
+-- equal to @initialValue@, and, in the future, always equal to @sf@.
+propInputInit :: Property
+propInputInit =
+    forAll initialValueG $ \initialValue ->
+    forAll myStream $ evalT $
+
+      -- SF that uses the actual function being tested
+      let sfStep :: SF Float Float
+          sfStep = initialValue --> arr (* 2)
+
+      -- Expected behavior
+      in And
+           -- Currently equal to initialValue
+           (SP $ (==) <$> sfStep <*> constant initialValue)
+
+           -- In the future, always equal to arr (* 2)
+           (Next $ Always $ SP $ (==) <$> sfStep <*> arr (* 2))
+
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    initialValueG :: Gen Float
+    initialValueG = arbitrary
+
+-- ** (-=>)
+
+-- | Test that @(-=>)@ applies a transformation to the first output.
+--
+-- We test with the specific function @(* 4) -=> arr (^ 2)@.
+propModFirstOutput :: Property
+propModFirstOutput =
+    forAll myStream $ evalT $
+
+      -- SF that uses the actual function being tested.
+      --
+      -- We specifically pick transformations that do not commute, so that we
+      -- test that transformations are applied in the expected order.
+      let sfStep :: SF Float Float
+          sfStep = (* 4) -=> arr (^ 2)
+
+      -- Expected behavior
+      in And
+           -- Initially, both transformations are applied. Note that the
+           -- difference between this comparison and the one for (>=-) is the
+           -- order in which the two transformations are applied.
+           (SP $ (==) <$> sfStep <*> arr ((* 4) . (^ 2)))
+
+           -- In the future, only the second transformation is applied
+           (Next $ Always $ SP $ (==) <$> sfStep <*> arr (^ 2))
+
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    initialValueG :: Gen Float
+    initialValueG = arbitrary
+
+-- ** @(>=-)@
+
+-- | Test that @f -=> arr (^ 2)@, when applied to any signal, is initially
+-- equal to initialValue, and, in the future, always equal to @arr (^ 2)@.
+propModFirstInput :: Property
+propModFirstInput =
+    forAll myStream $ evalT $
+
+      -- SF that uses the actual function being tested.
+      --
+      -- We specifically pick transformations that do not commute, so that we
+      -- test that transformations are applied in the expected order.
+      let sfStep :: SF Float Float
+          sfStep = (* 2) >=- arr (^ 2)
+
+      -- Expected behavior
+      in And
+           -- Initially, both transformations are applied. Note that the
+           -- difference between this comparison and the one for (-=>) is the
+           -- order in which the two transformations are applied.
+           (SP $ (==) <$> sfStep <*> arr ((^ 2) . (* 2)))
+
+           -- In the future, only the second transformation is applied
+           (Next $ Always $ SP $ (==) <$> sfStep <*> arr (^ 2))
+
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    initialValueG :: Gen Float
+    initialValueG = arbitrary
+
+-- ** initially
 
 basicsf_t4 :: [Double]
 basicsf_t4 = testSF1 (initially 42.0)
