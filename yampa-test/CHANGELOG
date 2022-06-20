@@ -1,3 +1,6 @@
+2022-06-20 Ivan Perez <ivan.perez@haskell.sexy>
+        * tests/: Complete unit tests for FRP.Yampa.Basic (#219).
+
 2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
         * yampa-test.cabal: Version bump (0.13.5) (#220), fix broken link in
           description (#204), enable all warnings (#206), rename flag (#208),
