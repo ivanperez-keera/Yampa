@@ -255,10 +255,7 @@ filterE _ NoEvent     = NoEvent
 -- | Combined event mapping and filtering. Note: since 'Event' is a 'Functor',
 -- see 'fmap' for a simpler version of this function with no filtering.
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
-mapFilterE _ NoEvent   = NoEvent
-mapFilterE f (Event a) = case f a of
-                           Nothing -> NoEvent
-                           Just b  -> Event b
+mapFilterE f e = e >>= (maybeToEvent . f)
 
 -- | Enable/disable event occurrences based on an external condition.
 gate :: Event a -> Bool -> Event a
