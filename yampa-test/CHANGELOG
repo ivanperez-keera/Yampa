@@ -1,6 +1,7 @@
 2022-06-30 Ivan Perez <ivan.perez@haskell.sexy>
         * tests/: Complete unit tests for FRP.Yampa.Basic (#219), complete unit
-          tests for FRP.Yampa.Conditional (#225).
+          tests for FRP.Yampa.Conditional (#225), complete unit tests for
+          FRP.Yampa.Delays (#226).
 
 2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
         * yampa-test.cabal: Version bump (0.13.5) (#220), fix broken link in
