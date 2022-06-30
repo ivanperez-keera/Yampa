@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Description : Test cases for FRP.Yampa.Delays
 -- Copyright   : Yale University, 2003
@@ -7,11 +8,16 @@ module Test.FRP.Yampa.Delays
     )
   where
 
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative ((<*>))
+import Data.Functor        ((<$>))
+#endif
 import Test.QuickCheck
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
+import FRP.Yampa.Delays (fby)
 import FRP.Yampa.Stream
 import FRP.Yampa.QuickCheck
 import FRP.Yampa.LTLFuture
@@ -20,7 +26,8 @@ import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Delays"
-  [ testProperty "iPre (0, fixed)"         (property $ pre_t0 ~= pre_t0r)
+  [ testProperty "pre (qc)"                propPre
+  , testProperty "iPre (0, fixed)"         (property $ pre_t0 ~= pre_t0r)
   , testProperty "iPre (1, fixed)"         (property $ pre_t1 ~= pre_t1r)
   , testProperty "iPre (2, fixed)"         (property $ pre_t2 ~= pre_t2r)
   , testProperty "iPre (3, fixed)"         (property $ pre_t3 == pre_t3r)
@@ -29,6 +36,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Delays"
   , testProperty "iPre (6, fixed)"         (property $ pre_t6 == pre_t6r)
   , testProperty "iPre (7, fixed)"         (property $ pre_t7 == pre_t7r)
   , testProperty "iPre (8, fixed)"         (property $ pre_t8 == pre_t8r)
+  , testProperty "fby (qc)"                propFby
   , testProperty "delay (0, fixed)"        (property $ delay_t0 ~= delay_t0r)
   , testProperty "delay (1, fixed)"        (property $ delay_t1 ~= delay_t1r)
   , testProperty "delay (2, fixed)"        (property $ delay_t2 ~= delay_t2r)
@@ -39,7 +47,21 @@ tests = testGroup "Regression tests for FRP.Yampa.Delays"
   , testProperty "delay (small delay, qc)" prop_delay_2
   ]
 
--- * Delays
+-- * Basic delays
+
+propPre :: Property
+propPre =
+    forAll initialValueG $ \initialValue ->
+    forAll myStream $ evalT $
+      -- The behavior of pre is always the same as iPre after the first sample.
+      -- The value at time zero is undefined, so we don't need to test it.
+      Next $ Always $ SP $ (==) <$> pre <*> iPre initialValue
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    initialValueG :: Gen Float
+    initialValueG = arbitrary
 
 pre_t0 = testSF1 (iPre 17)
 pre_t0r =
@@ -211,6 +233,25 @@ pre_t8r = [ 0,1,1,1      -- 0s
           , 10,10,10,10  -- 11s
           , 10,10        -- 12s
           ]
+
+propFby :: Property
+propFby =
+    forAll initialValueG $ \initialValue ->
+    forAll myStream $ evalT $
+      -- fby is just a convenience function for iPre with composition
+      Always $ SP $ (==) <$> fby initialValue sf <*> (sf >>> iPre initialValue)
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    initialValueG :: Gen Float
+    initialValueG = arbitrary
+
+    -- We pick the integral because it exploits the case where the SF has to be
+    -- turned off sooner or later (it would produce different results if turned
+    -- on at inconsistent times between fby and >>> iPre).
+    sf :: SF Float Float
+    sf = integral
 
 -- * Timed delays
 
