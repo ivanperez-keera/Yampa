@@ -1,7 +1,8 @@
-2022-07-04 Ivan Perez <ivan.perez@haskell.sexy>
+2022-07-06 Ivan Perez <ivan.perez@haskell.sexy>
         * src/: Fix typos in documentation (#224), replace AFRP with Yampa
           (#223), simplify implementation of mapFilterE (#221).
-        * README: Re-structure README, add content, TOC (#227).
+        * README: Re-structure README, add content, TOC (#227), fix typo
+          (#230).
         * Thanks to @architsinghal-mriirs.
 
 2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>

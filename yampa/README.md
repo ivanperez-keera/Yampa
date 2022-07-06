@@ -396,7 +396,7 @@ Yampa's unit tests are mostly implemented as tests inside the yampa-test
 library. The module hierarchy of `yampa-test/tests/Test` mirrors that of Yampa.
 
 A directory `yampa/examples` contains a number of examples of Yampa programs,
-some of which can be installed with the flat `-fexamples`.
+some of which can be installed with the flag `-fexamples`.
 
 ## Style
 <sup>[(Back to top)](#table-of-contents)</sup>
