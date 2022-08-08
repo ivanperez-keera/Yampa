@@ -124,7 +124,7 @@ instance NFData a => NFData (Event a) where
 
 -- * Internal utilities for event construction
 
--- These utilities are to be considered strictly internal to AFRP for the
+-- These utilities are to be considered strictly internal to Yampa for the
 -- time being.
 
 -- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
@@ -142,7 +142,7 @@ event _ f (Event b) = f b
 -- | Extract the value from an event. Fails if there is no event.
 fromEvent :: Event a -> a
 fromEvent (Event a) = a
-fromEvent NoEvent   = usrErr "AFRP" "fromEvent" "Not an event."
+fromEvent NoEvent   = usrErr "Yampa" "fromEvent" "Not an event."
 
 -- | Tests whether the input represents an actual event.
 isEvent :: Event a -> Bool
@@ -186,7 +186,7 @@ rMerge = flip (<|>)
 
 -- | Unbiased event merge: simultaneous occurrence is an error.
 merge :: Event a -> Event a -> Event a
-merge = mergeBy (usrErr "AFRP" "merge" "Simultaneous event occurrence.")
+merge = mergeBy (usrErr "Yampa" "merge" "Simultaneous event occurrence.")
 
 -- | Event merge parameterized by a conflict resolution function.
 --
@@ -224,7 +224,7 @@ mergeEvents = foldr lMerge NoEvent
 --
 -- Traverable-based definition:
 -- catEvents :: Foldable t => t (Event a) -> Event (t a)
--- carEvents e  = if (null e) then NoEvent else (sequenceA e)
+-- catEvents e  = if (null e) then NoEvent else (sequenceA e)
 catEvents :: [Event a] -> Event [a]
 catEvents eas = case [ a | Event a <- eas ] of
                   [] -> NoEvent
@@ -255,12 +255,9 @@ filterE _ NoEvent     = NoEvent
 -- | Combined event mapping and filtering. Note: since 'Event' is a 'Functor',
 -- see 'fmap' for a simpler version of this function with no filtering.
 mapFilterE :: (a -> Maybe b) -> Event a -> Event b
-mapFilterE _ NoEvent   = NoEvent
-mapFilterE f (Event a) = case f a of
-                           Nothing -> NoEvent
-                           Just b  -> Event b
+mapFilterE f e = e >>= (maybeToEvent . f)
 
--- | Enable/disable event occurences based on an external condition.
+-- | Enable/disable event occurrences based on an external condition.
 gate :: Event a -> Bool -> Event a
 _ `gate` False = NoEvent
 e `gate` True  = e
