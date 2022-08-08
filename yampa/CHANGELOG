@@ -1,4 +1,5 @@
-2022-07-14 Ivan Perez <ivan.perez@haskell.sexy>
+2022-08-07 Ivan Perez <ivan.perez@haskell.sexy>
+        * Yampa.cabal: Version bump (0.13.6) (#232).
         * src/: Fix typos in documentation (#224), replace AFRP with Yampa
           (#223), simplify implementation of mapFilterE (#221).
         * README: Re-structure README, add content, TOC (#227), fix typo
