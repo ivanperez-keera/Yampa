@@ -17,6 +17,7 @@ import Test.Tasty (TestTree, defaultMain, testGroup)
 import qualified Test.FRP.Yampa.Basic        as Basic
 import qualified Test.FRP.Yampa.Conditional  as Conditional
 import qualified Test.FRP.Yampa.Delays       as Delays
+import qualified Test.FRP.Yampa.Event        as Event
 import qualified Test.FRP.Yampa.EventS       as EventS
 import qualified Test.FRP.Yampa.Hybrid       as Hybrid
 import qualified Test.FRP.Yampa.Integration  as Integration
@@ -36,6 +37,7 @@ tests = testGroup "Yampa QC properties"
   [ Basic.tests
   , Conditional.tests
   , Delays.tests
+  , Event.tests
   , EventS.tests
   , Hybrid.tests
   , Integration.tests
