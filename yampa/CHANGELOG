@@ -1,4 +1,6 @@
 2022-10-03 Ivan Perez <ivan.perez@keera.co.uk>
+        * LICENSE: Update years, copyright holders (#235).
+        * src/: Update years, copyright holders (#235).
         * .travis.yml: Update distribution to bionic (#236).
 
 2022-08-07 Ivan Perez <ivan.perez@haskell.sexy>
