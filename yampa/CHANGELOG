@@ -1,4 +1,5 @@
 2022-10-03 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Add version bounds to dependencies (#233).
         * LICENSE: Update years, copyright holders (#235).
         * src/: Update years, copyright holders (#235).
         * .travis.yml: Update distribution to bionic (#236).
