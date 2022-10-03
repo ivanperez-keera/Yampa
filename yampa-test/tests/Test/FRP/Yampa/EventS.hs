@@ -1,7 +1,7 @@
 -- |
 -- Description : Test cases for signal functions working with events
--- Copyright   : Yale University, 2003
--- Authors     : Antony Courtney and Henrik Nilsson
+-- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- Authors     : Antony Courtney, Henrik Nilsson
 
 -- Notes pertaining to regression tests:
 -- - Add test cases for Yampa. There should be at least one test case for each

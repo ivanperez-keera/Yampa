@@ -1,6 +1,6 @@
 -- |
 -- Description : Test cases for hybrid signal functions
--- Copyright   : Yale University, 2003
+-- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
 -- Authors     : Antony Courtney and Henrik Nilsson
 module Test.FRP.Yampa.Hybrid
     ( tests
