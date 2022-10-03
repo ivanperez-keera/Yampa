@@ -1,3 +1,7 @@
+2022-10-03 Ivan Perez <ivan.perez@keera.co.uk>
+        * LICENSE: Update years, copyright holders (#235).
+        * tests/: Update years, copyright holders (#235).
+
 2022-08-07 Ivan Perez <ivan.perez@haskell.sexy>
         * yampa-test.cabal: Version bump (0.13.6) (#232).
         * tests/: Complete unit tests for FRP.Yampa.Basic (#219), complete unit
