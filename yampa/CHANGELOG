@@ -1,3 +1,10 @@
+2022-10-07 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.13.7) (#238), add version bounds to
+          dependencies (#233).
+        * LICENSE: Update years, copyright holders (#235).
+        * src/: Update years, copyright holders (#235).
+        * .travis.yml: Update distribution to bionic (#236).
+
 2022-08-07 Ivan Perez <ivan.perez@haskell.sexy>
         * Yampa.cabal: Version bump (0.13.6) (#232).
         * src/: Fix typos in documentation (#224), replace AFRP with Yampa

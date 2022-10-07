@@ -1,8 +1,9 @@
 {-# LANGUAGE CPP #-}
 -- |
 -- Description : Test cases for basic signal functions
--- Copyright   : Yale University, 2003
--- Authors     : Antony Courtney and Henrik Nilsson
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- Authors     : Antony Courtney, Henrik Nilsson, Ivan Perez
 module Test.FRP.Yampa.Basic
     ( tests
     )

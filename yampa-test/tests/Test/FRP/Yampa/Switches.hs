@@ -1,8 +1,9 @@
 {-# LANGUAGE Arrows #-}
 -- |
 -- Description : Test cases for FRP.Yampa.Switches
--- Copyright   : Yale University, 2003
--- Authors     : Antony Courtney and Henrik Nilsson
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- Authors     : Antony Courtney, Henrik Nilsson, Ivan Perez
 
 -- - Restructure test cases for papallel composition and switches to reflect
 --   Yampa structure better. Separate test cases for the generic definitions?
