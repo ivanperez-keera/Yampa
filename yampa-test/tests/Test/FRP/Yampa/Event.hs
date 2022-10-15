@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Description : Test cases for events
 -- Copyright   : Ivan Perez, 2022
@@ -9,6 +10,11 @@ module Test.FRP.Yampa.Event
 
 import Control.Applicative ((<|>))
 import Control.Monad       (guard, join)
+
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative (pure, (<*>))
+import Data.Functor        ((<$>))
+#endif
 
 import Test.QuickCheck       hiding (once, sample)
 import Test.Tasty            (TestTree, testGroup)
