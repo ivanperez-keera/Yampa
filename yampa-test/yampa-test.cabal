@@ -104,6 +104,7 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Basic
     Test.FRP.Yampa.Conditional
     Test.FRP.Yampa.Delays
+    Test.FRP.Yampa.Event
     Test.FRP.Yampa.EventS
     Test.FRP.Yampa.Hybrid
     Test.FRP.Yampa.Integration
