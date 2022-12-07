@@ -21,16 +21,134 @@ import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Integration"
-  [ testProperty "impulseIntegral (0, fixed)" (property $ utils_t7 ~= utils_t7r)
+  [ testProperty "integral (0, qc)"           testIntegral0
+  , testProperty "integral (1, qc)"           testIntegral1
+  , testProperty "integral (2, qc)"           testIntegral2
+  , testProperty "imIntegral (0, qc)"         testImIntegral0
+  , testProperty "imIntegral (1, qc)"         testImIntegral1
+  , testProperty "imIntegral (2, qc)"         testImIntegral2
+  , testProperty "impulseIntegral (0, fixed)" (property $ utils_t7 ~= utils_t7r)
   , testProperty "count (0, fixed)"           (property $ utils_t4 ~= utils_t4r)
   , testProperty "count (1, fixed)"           (property $ utils_t5 ~= utils_t5r)
   , testProperty "derivative (fixed)"         (property $ der_t0_max_diff < 0.05)
   , testProperty "derivative (1, qc)"         prop_derivative_1
   , testProperty "derivative (2, qc)"         prop_derivative_2
+  , testProperty "iterFrom (0, qc)"           testIterFrom0
+  , testProperty "iterFrom (1, qc)"           testIterFrom1
+  , testProperty "iterFrom (2, qc)"           testIterFrom2
   ]
 
 -- * Integration
---
+
+testIntegral0 :: Property
+testIntegral0 =
+    forAll myStream $ \s ->
+      forAll number $ \n ->
+        evalT (Next $ Always $ prop ((sf n &&& sfByHand n), const close)) s
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    number :: Gen Double
+    number = arbitrary
+
+    sf :: Double -> SF Time Time
+    sf n = constant n >>> integral
+
+    sfByHand :: Double -> SF Time Time
+    sfByHand n = localTime >>> arr (* n)
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIntegral1 :: Property
+testIntegral1 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = integral >>> derivative
+
+    -- Delay stream by one sample
+    sfByHand = loopPre 0 (arr $ \(x, y) -> (y, x))
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIntegral2 :: Property
+testIntegral2 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = arr (*2) >>> integral
+
+    sfByHand :: SF Double Double
+    sfByHand = integral >>> arr (*2)
+
+    close (x,y) = abs (x-y) < 0.05
+
+testImIntegral0 :: Property
+testImIntegral0 =
+    forAll myStream $ \s ->
+      forAll number $ \n ->
+        evalT (Next $ Always $ prop ((sf n &&& sfByHand n), const close)) s
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    number :: Gen Double
+    number = arbitrary
+
+    sf :: Double -> SF Time Time
+    sf n = constant n >>> imIntegral 0
+
+    sfByHand :: Double -> SF Time Time
+    sfByHand n = localTime >>> arr (* n)
+
+    close (x,y) = abs (x-y) < 0.05
+
+testImIntegral1 :: Property
+testImIntegral1 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = imIntegral 0 >>> derivative
+
+    sfByHand = identity
+
+    close (x,y) = abs (x-y) < 0.05
+
+testImIntegral2 :: Property
+testImIntegral2 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = arr (*2) >>> imIntegral 0
+
+    sfByHand :: SF Double Double
+    sfByHand = imIntegral 0 >>> arr (*2)
+
+    close (x,y) = abs (x-y) < 0.05
+
 utils_t7 :: [Double]
 utils_t7 = take 50 $ embed impulseIntegral
                            (deltaEncode 0.1 (zip (repeat 1.0) evSeq))
@@ -145,6 +263,57 @@ prop_derivative_2 =
 
     sfDerByHand = localTime
                     >>> arr (\t -> 2*pi*cos (2*pi*t))
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIterFrom0 :: Property
+testIterFrom0 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = iterFrom (\_ _ _ _ -> 0) 0
+
+    sfByHand :: SF Double Double
+    sfByHand = constant 0
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIterFrom1 :: Property
+testIterFrom1 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = iterFrom (\a0 _a1 dt b -> a0 * dt + b) 0
+
+    sfByHand :: SF Double Double
+    sfByHand = integral
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIterFrom2 :: Property
+testIterFrom2 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = iterFrom (\a0 a1 dt _b -> (a1 - a0) / dt) 0
+
+    sfByHand :: SF Double Double
+    sfByHand = derivative
 
     close (x,y) = abs (x-y) < 0.05
 
