@@ -24,6 +24,9 @@ tests = testGroup "Regression tests for FRP.Yampa.Integration"
   [ testProperty "integral (0, qc)"           testIntegral0
   , testProperty "integral (1, qc)"           testIntegral1
   , testProperty "integral (2, qc)"           testIntegral2
+  , testProperty "imIntegral (0, qc)"         testImIntegral0
+  , testProperty "imIntegral (1, qc)"         testImIntegral1
+  , testProperty "imIntegral (2, qc)"         testImIntegral2
   , testProperty "impulseIntegral (0, fixed)" (property $ utils_t7 ~= utils_t7r)
   , testProperty "count (0, fixed)"           (property $ utils_t4 ~= utils_t4r)
   , testProperty "count (1, fixed)"           (property $ utils_t5 ~= utils_t5r)
@@ -86,6 +89,60 @@ testIntegral2 =
 
     sfByHand :: SF Double Double
     sfByHand = integral >>> arr (*2)
+
+    close (x,y) = abs (x-y) < 0.05
+
+testImIntegral0 :: Property
+testImIntegral0 =
+    forAll myStream $ \s ->
+      forAll number $ \n ->
+        evalT (Next $ Always $ prop ((sf n &&& sfByHand n), const close)) s
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    number :: Gen Double
+    number = arbitrary
+
+    sf :: Double -> SF Time Time
+    sf n = constant n >>> imIntegral 0
+
+    sfByHand :: Double -> SF Time Time
+    sfByHand n = localTime >>> arr (* n)
+
+    close (x,y) = abs (x-y) < 0.05
+
+testImIntegral1 :: Property
+testImIntegral1 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = imIntegral 0 >>> derivative
+
+    sfByHand = identity
+
+    close (x,y) = abs (x-y) < 0.05
+
+testImIntegral2 :: Property
+testImIntegral2 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = arr (*2) >>> imIntegral 0
+
+    sfByHand :: SF Double Double
+    sfByHand = imIntegral 0 >>> arr (*2)
 
     close (x,y) = abs (x-y) < 0.05
 
