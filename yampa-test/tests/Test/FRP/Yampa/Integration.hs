@@ -33,6 +33,9 @@ tests = testGroup "Regression tests for FRP.Yampa.Integration"
   , testProperty "derivative (fixed)"         (property $ der_t0_max_diff < 0.05)
   , testProperty "derivative (1, qc)"         prop_derivative_1
   , testProperty "derivative (2, qc)"         prop_derivative_2
+  , testProperty "iterFrom (0, qc)"           testIterFrom0
+  , testProperty "iterFrom (1, qc)"           testIterFrom1
+  , testProperty "iterFrom (2, qc)"           testIterFrom2
   ]
 
 -- * Integration
@@ -260,6 +263,57 @@ prop_derivative_2 =
 
     sfDerByHand = localTime
                     >>> arr (\t -> 2*pi*cos (2*pi*t))
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIterFrom0 :: Property
+testIterFrom0 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = iterFrom (\_ _ _ _ -> 0) 0
+
+    sfByHand :: SF Double Double
+    sfByHand = constant 0
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIterFrom1 :: Property
+testIterFrom1 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = iterFrom (\a0 _a1 dt b -> a0 * dt + b) 0
+
+    sfByHand :: SF Double Double
+    sfByHand = integral
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIterFrom2 :: Property
+testIterFrom2 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = iterFrom (\a0 a1 dt _b -> (a1 - a0) / dt) 0
+
+    sfByHand :: SF Double Double
+    sfByHand = derivative
 
     close (x,y) = abs (x-y) < 0.05
 
