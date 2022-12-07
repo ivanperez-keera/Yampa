@@ -184,12 +184,13 @@ switch_tr = proc (a) -> do
              _ -> 9.0
   returnA -< (a, mt, v)
 
-impulseIntegral2 :: VectorSpace a s => SF (a, Event a) a
+impulseIntegral2 :: (Fractional s, VectorSpace a s) => SF (a, Event a) a
 impulseIntegral2 =
    switch (first integral >>> arr (\(a, ea) -> (a, fmap (^+^ a) ea)))
           impulseIntegral2'
  where
-   impulseIntegral2' :: VectorSpace a s => a -> SF (a, Event a) a
+   impulseIntegral2' :: (Fractional s, VectorSpace a s)
+                     => a -> SF (a, Event a) a
    impulseIntegral2' a =
      switch ((integral >>> arr (^+^ a)) *** notYet
              >>> arr (\(a, ea) -> (a, fmap (^+^ a) ea)))
