@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          Yampa
-version:       0.13.7
+version:       0.14
 author:        Henrik Nilsson, Antony Courtney
 maintainer:    Ivan Perez (ivan.perez@keera.co.uk)
 homepage:      https://github.com/ivanperez-keera/Yampa/
@@ -72,7 +72,6 @@ flag examples
   default:     False
   manual:      True
 
-
 library
   exposed-modules:
     FRP.Yampa
@@ -102,7 +101,7 @@ library
 
     , deepseq             >= 1.3.0.1 && < 1.5
     , random              >= 1.1     && < 1.3
-    , simple-affine-space >= 0.1     && < 0.2
+    , simple-affine-space >= 0.1     && < 0.3
 
   default-language:
     Haskell2010

@@ -1,3 +1,8 @@
+2022-12-07 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.14) (#242), bump version bounds of
+          dependency (#241).
+        * src/: Adjust to work with simple-affine-space-0.2 (#241).
+
 2022-10-07 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.13.7) (#238), add version bounds to
           dependencies (#233).

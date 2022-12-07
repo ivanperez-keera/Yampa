@@ -36,5 +36,5 @@ loopPre c_init sf = loop (second (iPre c_init) >>> sf)
 -- | Loop by integrating the second value in the pair and feeding the
 -- result back. Because the integral at time 0 is zero, this is always
 -- well defined.
-loopIntegral :: VectorSpace c s => SF (a,c) (b,c) -> SF a b
+loopIntegral :: (Fractional s, VectorSpace c s) => SF (a,c) (b,c) -> SF a b
 loopIntegral sf = loop (second integral >>> sf)
