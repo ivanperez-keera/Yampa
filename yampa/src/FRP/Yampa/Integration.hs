@@ -52,7 +52,7 @@ import FRP.Yampa.InternalCore (SF(..), SF'(..), DTime)
 
 -- | Integration using the rectangle rule.
 {-# INLINE integral #-}
-integral :: VectorSpace a s => SF a a
+integral :: (Fractional s, VectorSpace a s) => SF a a
 integral = SF {sfTF = tf0}
   where
     tf0 a0 = (integralAux igrl0 a0, igrl0)
@@ -66,7 +66,7 @@ integral = SF {sfTF = tf0}
             igrl' = igrl ^+^ realToFrac dt *^ a_prev
 
 -- | \"Immediate\" integration (using the function's value at the current time)
-imIntegral :: VectorSpace a s => a -> SF a a
+imIntegral :: (Fractional s, VectorSpace a s) => a -> SF a a
 imIntegral = ((\ _ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
 
 -- | Integrate using an auxiliary function that takes the current and the last
@@ -79,7 +79,7 @@ f `iterFrom` b = SF (iterAux b)
 
 -- | A very crude version of a derivative. It simply divides the
 --   value difference by the time difference. Use at your own risk.
-derivative :: VectorSpace a s => SF a a
+derivative :: (Fractional s, VectorSpace a s) => SF a a
 derivative = SF {sfTF = tf0}
   where
     tf0 a0 = (derivativeAux a0, zeroVector)
@@ -90,7 +90,7 @@ derivative = SF {sfTF = tf0}
 
 -- | Integrate the first input signal and add the /discrete/ accumulation (sum)
 --   of the second, discrete, input signal.
-impulseIntegral :: VectorSpace a k => SF (a, Event a) a
+impulseIntegral :: (Fractional k, VectorSpace a k) => SF (a, Event a) a
 impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
 
 -- | Count the occurrences of input events.
