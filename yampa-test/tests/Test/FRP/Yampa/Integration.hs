@@ -21,7 +21,10 @@ import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Integration"
-  [ testProperty "impulseIntegral (0, fixed)" (property $ utils_t7 ~= utils_t7r)
+  [ testProperty "integral (0, qc)"           testIntegral0
+  , testProperty "integral (1, qc)"           testIntegral1
+  , testProperty "integral (2, qc)"           testIntegral2
+  , testProperty "impulseIntegral (0, fixed)" (property $ utils_t7 ~= utils_t7r)
   , testProperty "count (0, fixed)"           (property $ utils_t4 ~= utils_t4r)
   , testProperty "count (1, fixed)"           (property $ utils_t5 ~= utils_t5r)
   , testProperty "derivative (fixed)"         (property $ der_t0_max_diff < 0.05)
@@ -30,7 +33,62 @@ tests = testGroup "Regression tests for FRP.Yampa.Integration"
   ]
 
 -- * Integration
---
+
+testIntegral0 :: Property
+testIntegral0 =
+    forAll myStream $ \s ->
+      forAll number $ \n ->
+        evalT (Next $ Always $ prop ((sf n &&& sfByHand n), const close)) s
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    number :: Gen Double
+    number = arbitrary
+
+    sf :: Double -> SF Time Time
+    sf n = constant n >>> integral
+
+    sfByHand :: Double -> SF Time Time
+    sfByHand n = localTime >>> arr (* n)
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIntegral1 :: Property
+testIntegral1 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = integral >>> derivative
+
+    -- Delay stream by one sample
+    sfByHand = loopPre 0 (arr $ \(x, y) -> (y, x))
+
+    close (x,y) = abs (x-y) < 0.05
+
+testIntegral2 :: Property
+testIntegral2 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = arr (*2) >>> integral
+
+    sfByHand :: SF Double Double
+    sfByHand = integral >>> arr (*2)
+
+    close (x,y) = abs (x-y) < 0.05
+
 utils_t7 :: [Double]
 utils_t7 = take 50 $ embed impulseIntegral
                            (deltaEncode 0.1 (zip (repeat 1.0) evSeq))
