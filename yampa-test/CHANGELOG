@@ -1,7 +1,8 @@
-2022-10-15 Ivan Perez <ivan.perez@keera.co.uk>
+2022-12-07 Ivan Perez <ivan.perez@keera.co.uk>
         * yampa-test.cabal: add tests for module FRP.Yampa.Event (#237).
         * tests/: add tests for module FRP.Yampa.Event (#237), explicit import
-          from Control.Applicative with old versions of base (#239).
+          from Control.Applicative with old versions of base (#239), complete
+          unit tests for FRP.Yampa.Integration (#240).
 
 2022-10-07 Ivan Perez <ivan.perez@keera.co.uk>
         * yampa-test.cabal: Version bump (0.13.7) (#238).
