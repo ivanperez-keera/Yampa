@@ -8,13 +8,19 @@ module Test.FRP.Yampa.Hybrid
   where
 
 import Data.Maybe (fromJust)
+import Data.Tuple (swap)
 
 import Test.QuickCheck
+import Test.QuickCheck.Function
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
 import FRP.Yampa.Hybrid as Yampa
+
+import FRP.Yampa.LTLFuture (evalT, TPred (Next, Always, SP))
+import FRP.Yampa.QuickCheck (uniDistStream, uniDistStreamMaxDT)
+import FRP.Yampa.Stream
 
 import TestsCommon
 
@@ -46,6 +52,10 @@ tests = testGroup "Regression tests for FRP.Yampa.Hybrid"
   , testProperty "accum (15, fixed)"        (property $ accum_t15 == accum_t15r)
   , testProperty "accum (16, fixed)"        (property $ accum_t16 == accum_t16r)
   , testProperty "accum (17, fixed)"        (property $ accum_t17 == accum_t17r)
+  , testProperty "accumHold (0, qc)"        testAccumHold1
+  , testProperty "accumHold (1, qc)"        testAccumHold2
+  , testProperty "dAccumHold (0, qc)"       testDAccumHold1
+  , testProperty "dAccumHold (1, qc)"       testDAccumHold2
   ]
 
 -- * Wave-form generation
@@ -470,3 +480,99 @@ accum_t17 = take 40 $ embed (repeatedly 1.0 1
 
 accum_t17r :: [Int]
 accum_t17r = accum_t16 -- Should agree!
+
+testAccumHold1 :: Property
+testAccumHold1 =
+    forAll arbitrary $ \x ->
+    forAll myStream  $
+      evalT $
+        Always $ prop ((sf x &&& sfByHand x), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream ())
+    myStream = uniDistStream
+
+    sf :: Double -> SF () Double
+    sf x = never >>> accumHold x
+
+    sfByHand :: Double -> SF () Double
+    sfByHand x = constant x
+
+    close (x, y) = abs (x - y) < 0.05
+
+testAccumHold2 :: Property
+testAccumHold2 =
+    forAll myStream  $ evalT $
+      Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream ())
+    myStream = uniDistStreamMaxDT maxSamplingDelay
+
+    sf :: SF () Double
+    sf = repeatedly eventUpdateDelay (+1) >>> accumHold 0
+
+    sfByHand :: SF () Double
+    sfByHand = time >>> arr floorDouble
+
+    floorDouble :: Double -> Double
+    floorDouble x = fromIntegral ((floor x) :: Integer)
+
+    -- Important that this number be smaller than eventUpdateDelay below.
+    maxSamplingDelay :: DTime
+    maxSamplingDelay = 0.9
+
+    -- Important that this delay be greater than maxSamplingDelay above.
+    eventUpdateDelay :: DTime
+    eventUpdateDelay = 1.0
+
+    close (x, y) = abs (x - y) < 0.05
+
+-- Test that dAccumHold is like constant for the first sample
+testDAccumHold1 :: Property
+testDAccumHold1 =
+    forAll arbitrary $ \x ->
+    forAll myStream  $
+      evalT $
+        prop (arr (fmap apply) >>> (sf x &&& sfByHand x), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream (Event (Fun Double Double)))
+    myStream = uniDistStream
+
+    sf :: Double -> SF (Event (Double -> Double)) Double
+    sf x = dAccumHold x
+
+    sfByHand :: Double -> SF (Event (Double -> Double)) Double
+    sfByHand x = constant x
+
+    close (x, y) = abs (x - y) < 0.05
+
+-- Test that dAccumHold is like accumHold delayed
+testDAccumHold2 :: Property
+testDAccumHold2 =
+    forAll arbitrary $ \x ->
+    forAll myStream  $
+      evalT $
+        Next $ Always $
+          prop (arr (fmap apply) >>> (sf x &&& sfByHand x), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream (Event (Fun Double Double)))
+    myStream = uniDistStream
+
+    sf :: Double -> SF (Event (Double -> Double)) Double
+    sf x = dAccumHold x
+
+    sfByHand :: Double -> SF (Event (Double -> Double)) Double
+    sfByHand x = accumHold x >>> loopPre x (arr swap)
+
+    close (x, y) = abs (x - y) < 0.05
+
+-- * Auxiliary
+-- prop :: SF a b -> (a -> b ->
+prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
+
+-- ** Arbitrary value generation
+instance Arbitrary x => Arbitrary (Event x) where
+  arbitrary = oneof [ return NoEvent, fmap Event $ arbitrary ]
