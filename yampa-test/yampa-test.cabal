@@ -101,6 +101,7 @@ test-suite yampa-quicheck
     Main.hs
 
   other-modules:
+    Test.FRP.Yampa.Arrow
     Test.FRP.Yampa.Basic
     Test.FRP.Yampa.Conditional
     Test.FRP.Yampa.Delays
