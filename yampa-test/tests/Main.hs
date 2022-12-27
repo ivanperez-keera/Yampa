@@ -14,6 +14,7 @@ module Main where
 
 import Test.Tasty (TestTree, defaultMain, testGroup)
 
+import qualified Test.FRP.Yampa.Arrow        as Arrow
 import qualified Test.FRP.Yampa.Basic        as Basic
 import qualified Test.FRP.Yampa.Conditional  as Conditional
 import qualified Test.FRP.Yampa.Delays       as Delays
@@ -34,7 +35,8 @@ main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Yampa QC properties"
-  [ Basic.tests
+  [ Arrow.tests
+  , Basic.tests
   , Conditional.tests
   , Delays.tests
   , Event.tests
