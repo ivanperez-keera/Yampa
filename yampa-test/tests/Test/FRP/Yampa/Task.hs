@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Description : Test cases for tasks (Task)
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
@@ -8,6 +9,9 @@ module Test.FRP.Yampa.Task
     ( tests )
   where
 
+#if __GLASGOW_HASKELL__ < 710
+import Data.Functor ((<$>))
+#endif
 import Control.Monad (when, forever)
 
 import Test.QuickCheck
@@ -35,6 +39,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Task"
   , testProperty "tasks (fixed)" (property $ task_t7 ~= task_t7r)
   , testProperty "tasks (fixed)" (property $ task_t8 ~= task_t8r)
   , testProperty "runTask_ (qc)" testRunTask_
+  , testProperty "taskToSF (qc)" testTaskToSF
   ]
 
 -- * The Task type
@@ -229,6 +234,39 @@ testRunTask_ =
 
     sfModel :: Double -> SF Float Double
     sfModel x = constant x
+
+    -- Both the SF under test and the model should behave the same way,
+    -- that is, output the same result.
+    pred _ = uncurry (==)
+
+testTaskToSF :: Property
+testTaskToSF =
+    forAll positive $ \t ->
+    forAll arbitrary $ \i ->
+    forAll arbitrary $ \j ->
+    forAll myStream $
+      evalT (Always $ prop (sf t i j &&& sfModel t i j, pred))
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    positive :: Gen Double
+    positive = getPositive <$> arbitrary
+
+    -- Note that we use switch to abandon the Task after it terminates. Tasks
+    -- do not produce correct output once they finish, they just throw an
+    -- error.
+    sf :: Time -> Double -> Double -> SF Float Double
+    sf t x y = switch (taskToSF (sleepT t x)) (\_ -> constant y)
+
+    -- Note that we use switch to abandon the Task after it terminates. Tasks
+    -- do not produce correct output once they finish, they just throw an
+    -- error.
+    sfModel :: Time -> Double -> Double -> SF Float Double
+    sfModel t x y = switch
+      -- Output x, and indicate when time t is exceeded for the first time
+      (constant x &&& (time >>> arr (>= t) >>> edge))
+      (\_ -> constant y)
 
     -- Both the SF under test and the model should behave the same way,
     -- that is, output the same result.
