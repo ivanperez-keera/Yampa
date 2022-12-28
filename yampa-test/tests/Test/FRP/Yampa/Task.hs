@@ -17,6 +17,10 @@ import Test.Tasty.QuickCheck (testProperty)
 import FRP.Yampa as Yampa
 import FRP.Yampa.Task
 
+import FRP.Yampa.LTLFuture  (TPred (Always, SP), evalT)
+import FRP.Yampa.QuickCheck (uniDistStream)
+import FRP.Yampa.Stream     (SignalSampleStream)
+
 import TestsCommon
 
 tests :: TestTree
@@ -30,6 +34,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Task"
   , testProperty "tasks (fixed)" (property $ task_t6 ~= task_t6r)
   , testProperty "tasks (fixed)" (property $ task_t7 ~= task_t7r)
   , testProperty "tasks (fixed)" (property $ task_t8 ~= task_t8r)
+  , testProperty "runTask_ (qc)" testRunTask_
   ]
 
 -- * The Task type
@@ -210,6 +215,25 @@ task_t8r =
     , Right (Left 24.0,24.0)
     ]
 
+testRunTask_ :: Property
+testRunTask_ =
+    forAll arbitrary $ \i ->
+    forAll myStream $
+      evalT $ Always $ prop (sf i &&& sfModel i, pred)
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    sf :: Double -> SF Float Double
+    sf x = runTask_ $ constT x
+
+    sfModel :: Double -> SF Float Double
+    sfModel x = constant x
+
+    -- Both the SF under test and the model should behave the same way,
+    -- that is, output the same result.
+    pred _ = uncurry (==)
+
 -- * Auxiliary
 
 -- | Repeat m until result satisfies the predicate p
@@ -223,3 +247,6 @@ m `repeatUntil` p = m >>= \x -> if not (p x) then repeatUntil m p else return x
 -- >>> for 0 (+1) (>=10) ...
 for :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
 for i f p m = when (p i) $ m >> for (f i) f p m
+
+prop :: (SF a b, a -> b -> Bool) -> TPred a
+prop (a, b) = SP ((identity &&& a) >>^ uncurry b)
