@@ -40,6 +40,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Task"
   , testProperty "tasks (fixed)" (property $ task_t8 ~= task_t8r)
   , testProperty "runTask_ (qc)" testRunTask_
   , testProperty "taskToSF (qc)" testTaskToSF
+  , testProperty "constT (qc)"   testConstT
   ]
 
 -- * The Task type
@@ -267,6 +268,28 @@ testTaskToSF =
       -- Output x, and indicate when time t is exceeded for the first time
       (constant x &&& (time >>> arr (>= t) >>> edge))
       (\_ -> constant y)
+
+    -- Both the SF under test and the model should behave the same way,
+    -- that is, output the same result.
+    pred _ = uncurry (==)
+
+testConstT :: Property
+testConstT =
+    forAll arbitrary $ \i ->
+    forAll myStream $
+      evalT $ Always $ prop (sf i &&& sfModel i, pred)
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    -- Task that constantly outputs a value. If it finishes (which it
+    -- shouldn't), then return the negated value.
+    sf :: Double -> SF Float (Either Double ())
+    sf x = runTask (constT x)
+
+    -- SF that constantly outputs a value on the Left side of an Either.
+    sfModel :: Double -> SF Float (Either Double ())
+    sfModel x = constant $ Left x
 
     -- Both the SF under test and the model should behave the same way,
     -- that is, output the same result.
