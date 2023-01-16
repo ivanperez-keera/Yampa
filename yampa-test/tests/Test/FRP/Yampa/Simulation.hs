@@ -40,6 +40,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Simulation"
   , testProperty "deltaEncodeBy (0, qc)" testDeltaEncodeBy
   , testProperty "evalAtZero (0, qc)"    testEvalAtZero
   , testProperty "evalAt (0, qc)"        testEvalAt
+  , testProperty "evalFuture (0, qc)"    testEvalFuture
   ]
 
 -- * Reactimation
@@ -334,6 +335,41 @@ testEvalAt = testEvalAt1
           embed1Val = (embed sf (x1, [(t, Just x2)])) !! 1
 
         in eval1Val == embed1Val
+
+testEvalFuture :: Property
+testEvalFuture = testEvalFuture1
+            .&&. testEvalFuture2
+
+  where
+
+    testEvalFuture1 :: Property
+    testEvalFuture1 =
+        forAllBlind randomSF $ \sf ->
+        forAll myStream1 $ \s ->
+          unroll sf s == embed sf (structure s)
+      where
+        myStream1 :: Gen (SignalSampleStream Integer)
+        myStream1 = uniDistStream
+
+    testEvalFuture2 :: Property
+    testEvalFuture2 =
+        forAllBlind randomSF2 $ \sf ->
+        forAll myStream2 $ \s ->
+          unroll sf s == embed sf (structure s)
+      where
+        myStream2 :: Gen (SignalSampleStream (Integer, Integer))
+        myStream2 = uniDistStream
+
+    -- Apply an SF to a stream of inputs manually, using evalAtZero and
+    -- evalFuture, and collect the outputs
+    unroll :: SF a b -> (a, [(DTime, a)]) -> [b]
+    unroll sf (s1, [])          = [ fst $ evalAtZero sf s1 ]
+    unroll sf (s1, (dt, s2):ss) = o1 : unroll sf' (s2, ss)
+      where
+        (o1, sf') = evalFuture sf s1 dt
+
+    structure :: (a, [(b, a)]) -> (a, [(b, Maybe a)])
+    structure (x, xs) = (x, map (second Just) xs)
 
 -- * Auxiliary
 
