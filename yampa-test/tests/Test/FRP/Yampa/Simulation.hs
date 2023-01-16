@@ -39,6 +39,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Simulation"
   , testProperty "deltaEncode (0, qc)"   testDeltaEncode
   , testProperty "deltaEncodeBy (0, qc)" testDeltaEncodeBy
   , testProperty "evalAtZero (0, qc)"    testEvalAtZero
+  , testProperty "evalAt (0, qc)"        testEvalAt
   ]
 
 -- * Reactimation
@@ -293,6 +294,46 @@ testEvalAtZero = testEvalAtZero1
       forAllBlind randomSF2 $ \sf ->
       forAll arbitrary $ \x ->
         fst (evalAtZero sf x) == head (embed sf (x, []))
+
+testEvalAt :: Property
+testEvalAt = testEvalAt1
+        .&&. testEvalAt2
+
+  where
+
+    testEvalAt1 :: Property
+    testEvalAt1 =
+      forAllBlind randomSF $ \sf ->
+      forAll arbitrary $ \x1 ->
+      forAll arbitrary $ \x2 ->
+      forAll randomTime $ \t ->
+        let
+          -- Value (fst) of simulation after one step with evalAtZero, and
+          -- another step with evalAt
+          eval1Val = fst $ evalAt (snd (evalAtZero sf x1)) t x2
+
+          -- Second sample (!!1) of result of embedding with stream with two
+          -- samples
+          embed1Val = (embed sf (x1, [(t, Just x2)])) !! 1
+
+        in eval1Val == embed1Val
+
+    testEvalAt2 :: Property
+    testEvalAt2 =
+      forAllBlind randomSF2 $ \sf ->
+      forAll arbitrary $ \x1 ->
+      forAll arbitrary $ \x2 ->
+      forAll randomTime $ \t ->
+        let
+          -- Value (fst) of simulation after one step with evalAtZero, and
+          -- another step with evalAt
+          eval1Val = fst $ evalAt (snd (evalAtZero sf x1)) t x2
+
+          -- Second sample (!!1) of result of embedding with stream with two
+          -- samples
+          embed1Val = (embed sf (x1, [(t, Just x2)])) !! 1
+
+        in eval1Val == embed1Val
 
 -- * Auxiliary
 
