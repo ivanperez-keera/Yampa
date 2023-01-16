@@ -38,6 +38,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Simulation"
   , testProperty "embedSynch (1, fixed)" (property $ embed_t1 ~= embed_t1r)
   , testProperty "deltaEncode (0, qc)"   testDeltaEncode
   , testProperty "deltaEncodeBy (0, qc)" testDeltaEncodeBy
+  , testProperty "evalAtZero (0, qc)"    testEvalAtZero
   ]
 
 -- * Reactimation
@@ -272,6 +273,26 @@ testDeltaEncodeBy = testDeltaEncodeBySamples
     -- Predicate on two integer arguments
     randomPredicate :: Gen (Integer -> Integer -> Bool)
     randomPredicate = arbitrary
+
+-- * Debugging / Step by step simulation
+
+testEvalAtZero :: Property
+testEvalAtZero = testEvalAtZero1
+            .&&. testEvalAtZero2
+
+  where
+
+    testEvalAtZero1 :: Property
+    testEvalAtZero1 =
+      forAllBlind randomSF $ \sf ->
+      forAll arbitrary $ \x ->
+        fst (evalAtZero sf x) == head (embed sf (x, []))
+
+    testEvalAtZero2 :: Property
+    testEvalAtZero2 =
+      forAllBlind randomSF2 $ \sf ->
+      forAll arbitrary $ \x ->
+        fst (evalAtZero sf x) == head (embed sf (x, []))
 
 -- * Auxiliary
 
