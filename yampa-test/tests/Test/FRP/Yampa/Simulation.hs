@@ -98,23 +98,6 @@ testReact =
     myStream :: Gen (SignalSampleStream Integer)
     myStream = uniDistStream
 
-    randomSF :: Gen (SF Integer Integer)
-    randomSF = oneof [ return identity
-                     , pointwiseSF
-                     , loopPre <$> arbitrary <*> randomSF2
-                     ]
-
-    randomSF2 :: Gen (SF (Integer, Integer) (Integer, Integer))
-    randomSF2 = oneof [ return identity
-                      , pointwiseSF2
-                      ]
-
-    pointwiseSF :: Gen (SF Integer Integer)
-    pointwiseSF = arr <$> arbitrary
-
-    pointwiseSF2 :: Gen (SF (Integer, Integer) (Integer, Integer))
-    pointwiseSF2 = arr <$> arbitrary
-
     reactEmbed :: SF a b -> SignalSampleStream a -> IO [b]
     reactEmbed sf s@(s0, ss) = do
         outsRef <- newIORef []
@@ -299,6 +282,27 @@ randomTime = getPositive <$> arbitrary
 -- | Generate multiple random integer samples.
 randomSamples :: Gen [Integer]
 randomSamples = getNonEmpty <$> arbitrary
+
+-- | Generator of random signal functions on integers.
+randomSF :: Gen (SF Integer Integer)
+randomSF = oneof [ return identity
+                 , pointwiseSF
+                 , loopPre <$> arbitrary <*> randomSF2
+                 ]
+
+-- | Generator of random signal functions on integer pairs.
+randomSF2 :: Gen (SF (Integer, Integer) (Integer, Integer))
+randomSF2 = oneof [ return identity
+                  , pointwiseSF2
+                  ]
+
+-- | Generator of random pointwise signal functions on integers.
+pointwiseSF :: Gen (SF Integer Integer)
+pointwiseSF = arr <$> arbitrary
+
+-- | Generator of random pointwise signal functions on integer pairs.
+pointwiseSF2 :: Gen (SF (Integer, Integer) (Integer, Integer))
+pointwiseSF2 = arr <$> arbitrary
 
 -- | Extract the samples from an "optimized" stream.
 streamSamples :: (a, [(DTime, Maybe a)]) -> [a]
