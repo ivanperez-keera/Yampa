@@ -13,6 +13,8 @@ import Control.Applicative ((<*>))
 import Data.Functor        ((<$>))
 #endif
 
+import Data.Traversable (mapAccumL)
+
 import Test.QuickCheck
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
@@ -30,6 +32,7 @@ tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Simulation"
   [ testProperty "reactimate (fixed)"    (property $ react_t0 ~= react_t0r)
   , testProperty "react, reactInit (qc)" testReact
+  , testProperty "embed (0, qc)"         testEmbed
   , testProperty "embedSynch (0, fixed)" (property $ embed_t0 ~= embed_t0r)
   , testProperty "embedSynch (1, fixed)" (property $ embed_t1 ~= embed_t1r)
   ]
@@ -131,6 +134,53 @@ testReact =
     structure (x, xs) = (x, map (second Just) xs)
 
 -- * Embedding
+
+testEmbed :: Property
+testEmbed = testEmbedPointwise
+       .&&. testEmbedSum
+
+  where
+
+    testEmbedPointwise :: Property
+    testEmbedPointwise =
+      forAllBlind function $ \f ->
+      forAll myStream $ \stream ->
+        property $
+          embed (arr f) (structure stream) == fmap f (plain stream)
+
+    testEmbedSum :: Property
+    testEmbedSum =
+      forAll myStream $ \stream ->
+        property $
+          let left :: [Integer]
+              left = embed sf (structure stream)
+
+              sf :: SF Integer Integer
+              sf = loopPre 0 (arr (dup . uncurry (+)))
+
+              right :: [Integer]
+              right = summation (plain stream)
+
+          in left == right
+
+    myStream :: Gen (SignalSampleStream Integer)
+    myStream = uniDistStream
+
+    function :: Gen (Integer -> Integer)
+    function = arbitrary
+
+    -- Make each element the sum of all elements up to that point.
+    summation :: [Integer] -> [Integer]
+    summation =
+      -- We add the accumulator to the current value (+), and make that the new
+      -- value AND the new accumulator (dup).
+       snd . mapAccumL ((dup .) . (+)) 0
+
+    plain :: SignalSampleStream a -> [a]
+    plain (x, xs) = x : fmap snd xs
+
+    structure :: (a, [(b, a)]) -> (a, [(b, Maybe a)])
+    structure (x, xs) = (x, map (second Just) xs)
 
 embed_ratio :: SF a Double
 embed_ratio = switch (constant 1.0 &&& after 5.0 ()) $ \_ ->
