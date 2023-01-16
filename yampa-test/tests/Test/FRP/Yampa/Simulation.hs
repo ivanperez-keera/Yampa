@@ -37,6 +37,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Simulation"
   , testProperty "embedSynch (0, fixed)" (property $ embed_t0 ~= embed_t0r)
   , testProperty "embedSynch (1, fixed)" (property $ embed_t1 ~= embed_t1r)
   , testProperty "deltaEncode (0, qc)"   testDeltaEncode
+  , testProperty "deltaEncodeBy (0, qc)" testDeltaEncodeBy
   ]
 
 -- * Reactimation
@@ -235,6 +236,59 @@ testDeltaEncode = testDeltaEncodeSamples
       forAll randomTime $ \t ->
       forAll randomSamples $ \s ->
         property $ all (== t) $ streamTimes (deltaEncode t s)
+
+testDeltaEncodeBy :: Property
+testDeltaEncodeBy = testDeltaEncodeBySamples
+               .&&. testDeltaEncodeByTimes
+
+  where
+
+    -- True if the samples produced by deltaEncodeBy are not altered
+    testDeltaEncodeBySamples :: Property
+    testDeltaEncodeBySamples =
+        forAll randomTime $ \t ->
+        forAll randomSamples $ \s ->
+        forAllBlind randomPredicate $ \f ->
+          -- Compare all samples, pair-wise, between the list encoded (s) and
+          -- the resulting signal samples, using the predicate (f).
+          property $ simplifyBy f s == streamSamples (deltaEncodeBy f t s)
+
+      where
+
+        -- Simplify a stream by using an equality predicate function.
+        --
+        -- The function simplifyBy models the behavior of deltaEncodeBy, which
+        -- uses the equality function to compare values. Note that
+        -- deltaEncodeBy carries the last value forward even if the equality
+        -- was successful (i.e., even if the output for that step is Nothing).
+        -- Consequently, when the current value is compared with the last value
+        -- to determine if the output must be a Nothing or a Just, the current
+        -- value is not compared to the last value for which the equality test
+        -- failed, but rather, to the very last value.
+        --
+        -- The behavior of deltaEncodeBy may appear unsual when the equality
+        -- predicate function provided is not transitive.
+        simplifyBy :: (a -> a -> Bool) -> [a] -> [a]
+        simplifyBy f []     = []
+        simplifyBy f (x:xs) = x : simplifyBy' f x x xs
+          where
+            simplifyBy' :: (a -> a -> Bool) -> a -> a -> [a] -> [a]
+            simplifyBy' f _acc _cmp [] = []
+            simplifyBy' f acc  cmp  (x:xs)
+              | f x cmp   = acc : simplifyBy' f acc x xs
+              | otherwise = x : simplifyBy' f x x xs
+
+    -- True if the times produced by deltaEncodeBy are not altered
+    testDeltaEncodeByTimes :: Property
+    testDeltaEncodeByTimes =
+      forAll randomTime $ \t ->
+      forAll randomSamples $ \s ->
+      forAllBlind randomPredicate $ \f ->
+        property $ all (== t) $ streamTimes (deltaEncodeBy f t s)
+
+    -- Predicate on two integer arguments
+    randomPredicate :: Gen (Integer -> Integer -> Bool)
+    randomPredicate = arbitrary
 
 -- * Auxiliary
 
