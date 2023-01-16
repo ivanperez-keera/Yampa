@@ -19,9 +19,9 @@ import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Simulation"
-  [ testProperty "react (fixed)"    (property $ react_t0 ~= react_t0r)
-  , testProperty "embed (0, fixed)" (property $ embed_t0 ~= embed_t0r)
-  , testProperty "embed (1, fixed)" (property $ embed_t1 ~= embed_t1r)
+  [ testProperty "reactimate (fixed)"    (property $ react_t0 ~= react_t0r)
+  , testProperty "embedSynch (0, fixed)" (property $ embed_t0 ~= embed_t0r)
+  , testProperty "embedSynch (1, fixed)" (property $ embed_t1 ~= embed_t1r)
   ]
 
 -- * Reactimation
