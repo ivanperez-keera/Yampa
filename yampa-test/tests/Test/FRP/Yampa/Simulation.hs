@@ -225,40 +225,38 @@ testDeltaEncode = testDeltaEncodeSamples
     -- True if the samples produced by deltaEncode are not altered
     testDeltaEncodeSamples :: Property
     testDeltaEncodeSamples =
-        forAll randomTime $ \t ->
-        forAll randomSamples $ \s ->
-          property $ s == streamSamples (deltaEncode t s)
-
-      where
-
-        -- Extract the samples from an "optimized" stream.
-        streamSamples :: (a, [(DTime, Maybe a)]) -> [a]
-        streamSamples (a, as) = a : streamSamples' a (fmap snd as)
-          where
-            streamSamples' :: a -> [Maybe a] -> [a]
-            streamSamples' acc =
-              -- We pick one between the accumulator to the current value
-              -- if available (fromMaybe), and make that the new value AND the
-              -- new accumulator (dup).
-              snd . mapAccumL ((dup .) . fromMaybe) acc
+      forAll randomTime $ \t ->
+      forAll randomSamples $ \s ->
+        property $ s == streamSamples (deltaEncode t s)
 
     -- True if the times produced by deltaEncode are not altered
     testDeltaEncodeTimes :: Property
     testDeltaEncodeTimes =
-        forAll randomTime $ \t ->
-        forAll randomSamples $ \s ->
-          property $ all (== t) $ streamTimes (deltaEncode t s)
+      forAll randomTime $ \t ->
+      forAll randomSamples $ \s ->
+        property $ all (== t) $ streamTimes (deltaEncode t s)
 
-      where
+-- * Auxiliary
 
-        -- Extract the times from an "optimized" stream.
-        streamTimes :: (a, [(DTime, Maybe a)]) -> [DTime]
-        streamTimes = map fst . snd
+-- | Generate a random positive time delta.
+randomTime :: Gen Double
+randomTime = getPositive <$> arbitrary
 
-    -- Generate a random positive time delta
-    randomTime :: Gen Double
-    randomTime = getPositive <$> arbitrary
+-- | Generate multiple random integer samples.
+randomSamples :: Gen [Integer]
+randomSamples = getNonEmpty <$> arbitrary
 
-    -- Generate multiple random integer samples
-    randomSamples :: Gen [Integer]
-    randomSamples = getNonEmpty <$> arbitrary
+-- | Extract the samples from an "optimized" stream.
+streamSamples :: (a, [(DTime, Maybe a)]) -> [a]
+streamSamples (a, as) = a : streamSamples' a (fmap snd as)
+  where
+    streamSamples' :: a -> [Maybe a] -> [a]
+    streamSamples' acc =
+      -- We pick one between the accumulator to the current value
+      -- if available (fromMaybe), and make that the new value AND the
+      -- new accumulator (dup).
+      snd . mapAccumL ((dup .) . fromMaybe) acc
+
+-- | Extract the times from an "optimized" stream.
+streamTimes :: (a, [(DTime, Maybe a)]) -> [DTime]
+streamTimes = map fst . snd
