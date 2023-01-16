@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Description : Test cases for FRP.Yampa.Simulation
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
@@ -7,19 +8,28 @@ module Test.FRP.Yampa.Simulation
     )
   where
 
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative ((<*>))
+import Data.Functor        ((<$>))
+#endif
+
 import Test.QuickCheck
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 import System.IO.Unsafe (unsafePerformIO)
-import Data.IORef (newIORef, writeIORef, readIORef)
+import Data.IORef (modifyIORef, newIORef, readIORef, writeIORef)
 
 import FRP.Yampa as Yampa
+
+import FRP.Yampa.QuickCheck (uniDistStream)
+import FRP.Yampa.Stream     (FutureSampleStream, SignalSampleStream)
 
 import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Simulation"
   [ testProperty "reactimate (fixed)"    (property $ react_t0 ~= react_t0r)
+  , testProperty "react, reactInit (qc)" testReact
   , testProperty "embedSynch (0, fixed)" (property $ embed_t0 ~= embed_t0r)
   , testProperty "embedSynch (1, fixed)" (property $ embed_t1 ~= embed_t1r)
   ]
@@ -65,6 +75,60 @@ react_t0r =
   , (1.5,0.75), (1.5,0.90), (1.5,1.05), (1.5,1.20), (1.5,1.35)
   , (2.0,1.50), (2.0,1.70), (2.0,1.90), (2.0,2.10), (2.0,2.30)
   ]
+
+-- ** Low-level reactimation interface
+
+testReact :: Property
+testReact =
+    forAll myStream $ \s ->
+    forAllBlind randomSF $ \sf ->
+      ioProperty $ do
+        outs <- reactEmbed sf s
+        let outsE = embed sf (structure s)
+        return $ outs == outsE
+
+  where
+
+    myStream :: Gen (SignalSampleStream Integer)
+    myStream = uniDistStream
+
+    randomSF :: Gen (SF Integer Integer)
+    randomSF = oneof [ return identity
+                     , pointwiseSF
+                     , loopPre <$> arbitrary <*> randomSF2
+                     ]
+
+    randomSF2 :: Gen (SF (Integer, Integer) (Integer, Integer))
+    randomSF2 = oneof [ return identity
+                      , pointwiseSF2
+                      ]
+
+    pointwiseSF :: Gen (SF Integer Integer)
+    pointwiseSF = arr <$> arbitrary
+
+    pointwiseSF2 :: Gen (SF (Integer, Integer) (Integer, Integer))
+    pointwiseSF2 = arr <$> arbitrary
+
+    reactEmbed :: SF a b -> SignalSampleStream a -> IO [b]
+    reactEmbed sf s@(s0, ss) = do
+        outsRef <- newIORef []
+
+        let init = return s0
+
+            actuate _ _ b = modifyIORef outsRef (++ [b]) >> return False
+
+            -- For each sample, add a Just to the value of the sample make the
+            -- input compatible with what 'react' expects, and use 'react' to
+            -- run one step of the simulation.
+            reactEmbed' :: ReactHandle a b -> FutureSampleStream a -> IO ()
+            reactEmbed' rh = mapM_ (react rh . second Just)
+
+        reactHandle <- reactInit init actuate sf
+        reactEmbed' reactHandle ss
+        readIORef outsRef
+
+    structure :: (a, [(b, a)]) -> (a, [(b, Maybe a)])
+    structure (x, xs) = (x, map (second Just) xs)
 
 -- * Embedding
 
