@@ -59,6 +59,7 @@ tests = testGroup "Regression tests for FRP.Yampa.EventS"
   , testProperty "eventS (13, fixed)"       (property $ evsrc_t13 ~= evsrc_t13r)
   , testProperty "iEdge (0, qc)"            propIEdge
   , testProperty "edgeTag (0, qc)"          propEdgeTag
+  , testProperty "edgeJust (0, qc)"         propEdgeJust
   , testProperty "eventS (14, fixed)"       (property $ evsrc_t14 ~= evsrc_t14r)
   , testProperty "eventS (15, fixed)"       (property $ evsrc_t15 ~= evsrc_t15r)
   , testProperty "eventS (16, fixed)"       (property $ evsrc_t16 ~= evsrc_t16r)
@@ -531,6 +532,26 @@ propEdgeTag =
 
     -- Generator: Random input stream.
     myStream :: Gen (SignalSampleStream Bool)
+    myStream = uniDistStream
+
+propEdgeJust :: Property
+propEdgeJust =
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF <*> modelSF
+  where
+    -- SF under test
+    originalSF :: SF (Maybe Int) (Event Int)
+    originalSF = edgeJust
+
+    -- Model SF
+    modelSF :: SF (Maybe Int) (Event Int)
+    modelSF = loopPre (Just 0) $ arr $ \v@(n, _) ->
+      case v of
+        (Just x, Nothing) -> (Event x, n)
+        _                 -> (NoEvent, n)
+
+    -- Generator: Random input stream.
+    myStream :: Gen (SignalSampleStream (Maybe Int))
     myStream = uniDistStream
 
 -- Raising edge detector.
