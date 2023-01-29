@@ -1,3 +1,5 @@
+{-# LANGUAGE Arrows #-}
+{-# LANGUAGE CPP    #-}
 -- |
 -- Description : Test cases for signal functions working with events
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
@@ -16,6 +18,10 @@ module Test.FRP.Yampa.EventS
     )
   where
 
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative ((<*>))
+import Data.Functor        ((<$>))
+#endif
 import Test.QuickCheck hiding (once, sample)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
@@ -30,47 +36,52 @@ import TestsCommon
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.EventS"
-  [ testProperty "never (0, fixed)"        (property $ evsrc_t0 ~= evsrc_t0r)
-  , testProperty "Events > No event"       prop_event_noevent
-  , testProperty "eventS (1, fixed)"       (property $ evsrc_t1 ~= evsrc_t1r)
-  , testProperty "Events > Now"            prop_event_now
-  , testProperty "eventS (2, fixed)"       (property $ evsrc_t2 ~= evsrc_t2r)
-  , testProperty "Events > After 0.0"      prop_event_after_0
-  , testProperty "eventS (3, fixed)"       (property $ evsrc_t3 ~= evsrc_t3r)
-  , testProperty "eventS (4, fixed)"       (property $ evsrc_t4 ~= evsrc_t4r)
-  , testProperty "eventS (5, fixed)"       (property $ evsrc_t5 ~= evsrc_t5r)
-  , testProperty "eventS (6, fixed)"       (property $ evsrc_t6 ~= evsrc_t6r)
-  , testProperty "eventS (7, fixed)"       (property $ evsrc_t7 ~= evsrc_t7r)
-  , testProperty "eventS (8, fixed)"       (property $ evsrc_t8 ~= evsrc_t8r)
-  , testProperty "eventS (9, fixed)"       (property $ evsrc_t9 ~= evsrc_t9r)
-  , testProperty "eventS (10, fixed)"      (property $ evsrc_t10 ~= evsrc_t10r)
-  , testProperty "eventS (11, fixed)"      (property $ evsrc_t11 ~= evsrc_t11r)
-  , testProperty "eventS (28, fixed)"      (property $ evsrc_t28 ~= evsrc_t28r)
-  , testProperty "eventS (30, fixed)"      (property $ evsrc_t30 ~= evsrc_t30r)
-  , testProperty "eventS (29, fixed)"      (property $ evsrc_t29 ~= evsrc_t29r)
-  , testProperty "eventS (12, fixed)"      (property $ evsrc_t12 ~= evsrc_t12r)
-  , testProperty "eventS (13, fixed)"      (property $ evsrc_t13 ~= evsrc_t13r)
-  , testProperty "eventS (14, fixed)"      (property $ evsrc_t14 ~= evsrc_t14r)
-  , testProperty "eventS (15, fixed)"      (property $ evsrc_t15 ~= evsrc_t15r)
-  , testProperty "eventS (16, fixed)"      (property $ evsrc_t16 ~= evsrc_t16r)
-  , testProperty "eventS (17, fixed)"      (property $ evsrc_t17 ~= evsrc_t17r)
-  , testProperty "eventS (18, fixed)"      (property $ evsrc_t18 ~= evsrc_t18r)
-  , testProperty "eventS (19, fixed)"      (property $ evsrc_t19 ~= evsrc_t19r)
-  , testProperty "eventS (20, fixed)"      (property $ evsrc_t20 ~= evsrc_t20r)
-  , testProperty "eventS (21, fixed)"      (property $ evsrc_t21 ~= evsrc_t21r)
-  , testProperty "eventS (22, fixed)"      (property $ evsrc_t22 ~= evsrc_t22r)
-  , testProperty "eventS (23, fixed)"      (property $ evsrc_t23 ~= evsrc_t23r)
-  , testProperty "eventS (24, fixed)"      (property $ evsrc_t24 ~= evsrc_t24r)
-  , testProperty "eventS (25, fixed)"      (property $ evsrc_t25 ~= evsrc_t25r)
-  , testProperty "eventS (26, fixed)"      (property $ evsrc_t26 ~= evsrc_t26r)
-  , testProperty "eventS (27, fixed)"      (property $ evsrc_t27 ~= evsrc_t27r)
-  , testProperty "snap (fixed)"            (property $ utils_t10 ~= utils_t10r)
-  , testProperty "snapAfter (fixed)"       (property $ utils_t11 ~= utils_t11r)
-  , testProperty "sample (fixed)"          (property $ utils_t12 ~= utils_t12r)
-  , testProperty "sampleWindow (0, fixed)" (property $ utils_t15 ~= utils_t15r)
-  , testProperty "sampleWindow (1, fixed)" (property $ utils_t16 ~= utils_t16r)
-  , testProperty "after (0, fixed)"        (property $ utils_t13 ~= utils_t13r)
-  , testProperty "after (1, fixed)"        (property $ utils_t14 ~= utils_t14r)
+  [ testProperty "never (0, fixed)"         (property $ evsrc_t0 ~= evsrc_t0r)
+  , testProperty "Events > No event"        prop_event_noevent
+  , testProperty "eventS (1, fixed)"        (property $ evsrc_t1 ~= evsrc_t1r)
+  , testProperty "Events > Now"             prop_event_now
+  , testProperty "eventS (2, fixed)"        (property $ evsrc_t2 ~= evsrc_t2r)
+  , testProperty "Events > After 0.0"       prop_event_after_0
+  , testProperty "eventS (3, fixed)"        (property $ evsrc_t3 ~= evsrc_t3r)
+  , testProperty "eventS (4, fixed)"        (property $ evsrc_t4 ~= evsrc_t4r)
+  , testProperty "eventS (5, fixed)"        (property $ evsrc_t5 ~= evsrc_t5r)
+  , testProperty "eventS (6, fixed)"        (property $ evsrc_t6 ~= evsrc_t6r)
+  , testProperty "eventS (7, fixed)"        (property $ evsrc_t7 ~= evsrc_t7r)
+  , testProperty "eventS (8, fixed)"        (property $ evsrc_t8 ~= evsrc_t8r)
+  , testProperty "eventS (9, fixed)"        (property $ evsrc_t9 ~= evsrc_t9r)
+  , testProperty "eventS (10, fixed)"       (property $ evsrc_t10 ~= evsrc_t10r)
+  , testProperty "eventS (11, fixed)"       (property $ evsrc_t11 ~= evsrc_t11r)
+  , testProperty "eventS (28, fixed)"       (property $ evsrc_t28 ~= evsrc_t28r)
+  , testProperty "delayEvent (0, fixed)"    (property $ evsrc_t30 ~= evsrc_t30r)
+  , testProperty "delayEvent (1, qc)"       propDelayEvent
+  , testProperty "delayEventCat (0, fixed)" (property $ evsrc_t29 ~= evsrc_t29r)
+  , testProperty "eventS (12, fixed)"       (property $ evsrc_t12 ~= evsrc_t12r)
+  , testProperty "eventS (13, fixed)"       (property $ evsrc_t13 ~= evsrc_t13r)
+  , testProperty "iEdge (0, qc)"            propIEdge
+  , testProperty "edgeTag (0, qc)"          propEdgeTag
+  , testProperty "edgeJust (0, qc)"         propEdgeJust
+  , testProperty "eventS (14, fixed)"       (property $ evsrc_t14 ~= evsrc_t14r)
+  , testProperty "eventS (15, fixed)"       (property $ evsrc_t15 ~= evsrc_t15r)
+  , testProperty "eventS (16, fixed)"       (property $ evsrc_t16 ~= evsrc_t16r)
+  , testProperty "notYet (0, qc)"           propNotYet
+  , testProperty "eventS (17, fixed)"       (property $ evsrc_t17 ~= evsrc_t17r)
+  , testProperty "eventS (18, fixed)"       (property $ evsrc_t18 ~= evsrc_t18r)
+  , testProperty "eventS (19, fixed)"       (property $ evsrc_t19 ~= evsrc_t19r)
+  , testProperty "eventS (20, fixed)"       (property $ evsrc_t20 ~= evsrc_t20r)
+  , testProperty "eventS (21, fixed)"       (property $ evsrc_t21 ~= evsrc_t21r)
+  , testProperty "eventS (22, fixed)"       (property $ evsrc_t22 ~= evsrc_t22r)
+  , testProperty "eventS (23, fixed)"       (property $ evsrc_t23 ~= evsrc_t23r)
+  , testProperty "eventS (24, fixed)"       (property $ evsrc_t24 ~= evsrc_t24r)
+  , testProperty "eventS (25, fixed)"       (property $ evsrc_t25 ~= evsrc_t25r)
+  , testProperty "eventS (26, fixed)"       (property $ evsrc_t26 ~= evsrc_t26r)
+  , testProperty "eventS (27, fixed)"       (property $ evsrc_t27 ~= evsrc_t27r)
+  , testProperty "snap (fixed)"             (property $ utils_t10 ~= utils_t10r)
+  , testProperty "snapAfter (fixed)"        (property $ utils_t11 ~= utils_t11r)
+  , testProperty "sample (fixed)"           (property $ utils_t12 ~= utils_t12r)
+  , testProperty "sampleWindow (0, fixed)"  (property $ utils_t15 ~= utils_t15r)
+  , testProperty "sampleWindow (1, fixed)"  (property $ utils_t16 ~= utils_t16r)
+  , testProperty "after (0, fixed)"         (property $ utils_t13 ~= utils_t13r)
+  , testProperty "after (1, fixed)"         (property $ utils_t14 ~= utils_t14r)
   ]
 
 -- * Basic event sources
@@ -295,6 +306,44 @@ evsrc_t11r =
   , NoEvent
   ]
 
+propDelayEvent :: Property
+propDelayEvent =
+    forAll delayFactorG $ \delayFactor ->
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF delayFactor
+                         <*> sfModelDelayEvent delayFactor
+  where
+    -- SF under test
+    originalSF :: Int -> SF () (Event ())
+    originalSF factor =
+      time
+        >>> arr cos
+        >>> arr (< 0)
+        >>> edge
+        >>> delayEvent (fromIntegral factor * delay)
+
+    -- Model SF that applies the delay internally
+    sfModelDelayEvent :: Int -> SF () (Event ())
+    sfModelDelayEvent factor =
+      time
+        >>> arr (\x -> x - (fromIntegral factor * delay))
+        >>> arr cos
+        >>> arr (< 0)
+        >>> edge
+
+    -- Generator: Factor by which the signal is delayed
+    delayFactorG :: Gen Int
+    delayFactorG = getPositive <$> arbitrary
+
+    -- Generator: Random input stream. Delays and values are fixed but the
+    -- length is not.
+    myStream :: Gen (SignalSampleStream ())
+    myStream = fixedDelayStream delay
+
+    -- Constant: Max delay
+    delay :: DTime
+    delay = 0.01
+
 evsrc_t28 :: [(Event Int, Event Int)]
 evsrc_t28 = embed (repeatedly 0.5 ()
                    >>> accumBy (\n _ -> n + 1) 0
@@ -434,6 +483,78 @@ evsrc_t13r =
   , NoEvent
   ]
 
+propIEdge :: Property
+propIEdge =
+    forAll initialValG $ \initialVal ->
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF initialVal <*> modelSF initialVal
+  where
+    -- SF under test
+    originalSF :: Bool -> SF Bool (Event ())
+    originalSF = iEdge
+
+    -- Model SF that behaves like edge except for the initial sample
+    modelSF :: Bool -> SF Bool (Event ())
+    modelSF k = proc (x) -> do
+      t <- time -< ()
+      e <- edge -< x
+
+      let result | t == 0 && not k && x = Event ()
+                 | t == 0 && k          = NoEvent
+                 | otherwise            = e
+
+      returnA -< result
+
+    -- Generator: Initialization value for iEdge
+    initialValG :: Gen Bool
+    initialValG = arbitrary
+
+    -- Generator: Random input stream.
+    myStream :: Gen (SignalSampleStream Bool)
+    myStream = uniDistStream
+
+propEdgeTag :: Property
+propEdgeTag =
+    forAll paramValG $ \paramVal ->
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF paramVal <*> modelSF paramVal
+  where
+    -- SF under test
+    originalSF :: Int -> SF Bool (Event Int)
+    originalSF = edgeTag
+
+    -- Model SF that tags the value in the event, after applying edge
+    modelSF :: Int -> SF Bool (Event Int)
+    modelSF k = edge >>^ arr (tagWith k)
+
+    -- Generator: Tagging value
+    paramValG :: Gen Int
+    paramValG = arbitrary
+
+    -- Generator: Random input stream.
+    myStream :: Gen (SignalSampleStream Bool)
+    myStream = uniDistStream
+
+propEdgeJust :: Property
+propEdgeJust =
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF <*> modelSF
+  where
+    -- SF under test
+    originalSF :: SF (Maybe Int) (Event Int)
+    originalSF = edgeJust
+
+    -- Model SF
+    modelSF :: SF (Maybe Int) (Event Int)
+    modelSF = loopPre (Just 0) $ arr $ \v@(n, _) ->
+      case v of
+        (Just x, Nothing) -> (Event x, n)
+        _                 -> (NoEvent, n)
+
+    -- Generator: Random input stream.
+    myStream :: Gen (SignalSampleStream (Maybe Int))
+    myStream = uniDistStream
+
 -- Raising edge detector.
 evsrc_isEdge False False = Nothing
 evsrc_isEdge False True  = Just ()
@@ -488,6 +609,24 @@ evsrc_t16r =
   ]
 
 -- * Stateful event suppression
+
+propNotYet :: Property
+propNotYet =
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF
+                         <*> modelSF
+  where
+    -- SF under test
+    originalSF :: SF (Event Int) (Event Int)
+    originalSF = notYet
+
+    -- Model SF that sets the initial value of an Event signal to noEvent
+    modelSF :: SF (Event Int) (Event Int)
+    modelSF = const noEvent -=> identity
+
+    -- Generator: Random input stream.
+    myStream :: Gen (SignalSampleStream (Event Int))
+    myStream = uniDistStream
 
 evsrc_t17 :: [Event Int]
 evsrc_t17 = testSF1 (now 17 &&& repeatedly 0.795 42
@@ -797,3 +936,11 @@ utils_t14r =
 
 -- prop :: SF a b -> (a -> b ->
 prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
+
+-- * Arbitrary value generation
+
+instance Arbitrary a => Arbitrary (Event a) where
+  arbitrary = oneof [ return NoEvent
+                    , do x <- arbitrary
+                         return $ Event x
+                    ]
