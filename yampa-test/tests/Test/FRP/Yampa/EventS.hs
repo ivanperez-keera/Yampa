@@ -58,6 +58,7 @@ tests = testGroup "Regression tests for FRP.Yampa.EventS"
   , testProperty "eventS (12, fixed)"       (property $ evsrc_t12 ~= evsrc_t12r)
   , testProperty "eventS (13, fixed)"       (property $ evsrc_t13 ~= evsrc_t13r)
   , testProperty "iEdge (0, qc)"            propIEdge
+  , testProperty "edgeTag (0, qc)"          propEdgeTag
   , testProperty "eventS (14, fixed)"       (property $ evsrc_t14 ~= evsrc_t14r)
   , testProperty "eventS (15, fixed)"       (property $ evsrc_t15 ~= evsrc_t15r)
   , testProperty "eventS (16, fixed)"       (property $ evsrc_t16 ~= evsrc_t16r)
@@ -505,6 +506,28 @@ propIEdge =
     -- Generator: Initialization value for iEdge
     initialValG :: Gen Bool
     initialValG = arbitrary
+
+    -- Generator: Random input stream.
+    myStream :: Gen (SignalSampleStream Bool)
+    myStream = uniDistStream
+
+propEdgeTag :: Property
+propEdgeTag =
+    forAll paramValG $ \paramVal ->
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF paramVal <*> modelSF paramVal
+  where
+    -- SF under test
+    originalSF :: Int -> SF Bool (Event Int)
+    originalSF = edgeTag
+
+    -- Model SF that tags the value in the event, after applying edge
+    modelSF :: Int -> SF Bool (Event Int)
+    modelSF k = edge >>^ arr (tagWith k)
+
+    -- Generator: Tagging value
+    paramValG :: Gen Int
+    paramValG = arbitrary
 
     -- Generator: Random input stream.
     myStream :: Gen (SignalSampleStream Bool)
