@@ -63,6 +63,7 @@ tests = testGroup "Regression tests for FRP.Yampa.EventS"
   , testProperty "eventS (14, fixed)"       (property $ evsrc_t14 ~= evsrc_t14r)
   , testProperty "eventS (15, fixed)"       (property $ evsrc_t15 ~= evsrc_t15r)
   , testProperty "eventS (16, fixed)"       (property $ evsrc_t16 ~= evsrc_t16r)
+  , testProperty "notYet (0, qc)"           propNotYet
   , testProperty "eventS (17, fixed)"       (property $ evsrc_t17 ~= evsrc_t17r)
   , testProperty "eventS (18, fixed)"       (property $ evsrc_t18 ~= evsrc_t18r)
   , testProperty "eventS (19, fixed)"       (property $ evsrc_t19 ~= evsrc_t19r)
@@ -609,6 +610,24 @@ evsrc_t16r =
 
 -- * Stateful event suppression
 
+propNotYet :: Property
+propNotYet =
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF
+                         <*> modelSF
+  where
+    -- SF under test
+    originalSF :: SF (Event Int) (Event Int)
+    originalSF = notYet
+
+    -- Model SF that sets the initial value of an Event signal to noEvent
+    modelSF :: SF (Event Int) (Event Int)
+    modelSF = const noEvent -=> identity
+
+    -- Generator: Random input stream.
+    myStream :: Gen (SignalSampleStream (Event Int))
+    myStream = uniDistStream
+
 evsrc_t17 :: [Event Int]
 evsrc_t17 = testSF1 (now 17 &&& repeatedly 0.795 42
                      >>> arr (uncurry merge)
@@ -917,3 +936,11 @@ utils_t14r =
 
 -- prop :: SF a b -> (a -> b ->
 prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
+
+-- * Arbitrary value generation
+
+instance Arbitrary a => Arbitrary (Event a) where
+  arbitrary = oneof [ return NoEvent
+                    , do x <- arbitrary
+                         return $ Event x
+                    ]
