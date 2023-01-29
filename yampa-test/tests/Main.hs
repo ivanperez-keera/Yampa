@@ -24,6 +24,7 @@ import qualified Test.FRP.Yampa.Hybrid       as Hybrid
 import qualified Test.FRP.Yampa.Integration  as Integration
 import qualified Test.FRP.Yampa.InternalCore as InternalCore
 import qualified Test.FRP.Yampa.Loop         as Loop
+import qualified Test.FRP.Yampa.Random       as Random
 import qualified Test.FRP.Yampa.Scan         as Scan
 import qualified Test.FRP.Yampa.Simulation   as Simulation
 import qualified Test.FRP.Yampa.Switches     as Switches
@@ -45,6 +46,7 @@ tests = testGroup "Yampa QC properties"
   , Integration.tests
   , InternalCore.tests
   , Loop.tests
+  , Random.tests
   , Scan.tests
   , Simulation.tests
   , Switches.tests

@@ -111,6 +111,7 @@ test-suite yampa-quicheck
     Test.FRP.Yampa.Integration
     Test.FRP.Yampa.InternalCore
     Test.FRP.Yampa.Loop
+    Test.FRP.Yampa.Random
     Test.FRP.Yampa.Scan
     Test.FRP.Yampa.Simulation
     Test.FRP.Yampa.Switches
