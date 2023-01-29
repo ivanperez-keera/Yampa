@@ -26,13 +26,15 @@ import Test.QuickCheck       hiding (once, sample)
 import Test.Tasty            (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
-import FRP.Yampa            (embed, noise, second)
+import FRP.Yampa            (embed, noise, noiseR, second)
 import FRP.Yampa.QuickCheck (Distribution (DistRandom), generateStream)
 import FRP.Yampa.Stream     (SignalSampleStream)
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Random"
-  [ testProperty "noise (0, qc)" propNoise ]
+  [ testProperty "noise (0, qc)"  propNoise
+  , testProperty "noiseR (0, qc)" propNoiseR
+  ]
 
 -- * Noise (i.e. random signal generators) and stochastic processes
 
@@ -59,6 +61,56 @@ propNoise =
     -- This number has to be high; numbers 100 or below will likely not work.
     numSamples :: Int
     numSamples = 400
+
+propNoiseR :: Property
+propNoiseR =
+    forAll genSeed $ \seed ->
+    forAll myStream $ \stream ->
+      -- True if the noise signal is within the given bounds, and it is random
+      -- when constrained to that range.
+      let output = embed (noiseR bounds (mkStdGen seed)) (structure stream)
+      in all (`isInRange` bounds) output && isRandom (constrainTypes output)
+
+  where
+
+    -- Generator: Input stream.
+    --
+    -- We provide a number of samples; otherwise, deviations might not indicate
+    -- lack of randomness for the signal function.
+    myStream :: Gen (SignalSampleStream ())
+    myStream =
+      generateStream DistRandom (Nothing, Nothing) (Just (Left numSamples))
+
+    -- Generator: Random generator seed
+    genSeed :: Gen Int
+    genSeed = arbitrary
+
+    -- Constant: Bounds used for the test.
+    --
+    -- We bound the numbers generated to the 32-bit range, but express it
+    -- using the type of Word64.
+    bounds :: (Word64, Word64)
+    bounds = (min32, max32)
+      where
+        min32 = fromIntegral (minBound :: Word32)
+        max32 = fromIntegral (maxBound :: Word32)
+
+    -- Constant: Number of samples in the stream used for testing.
+    --
+    -- This number has to be high; numbers 100 or below will likely not work.
+    numSamples :: Int
+    numSamples = 400
+
+    -- Constrain the types of the argument list to the output type.
+    --
+    -- For this test to work, this type must be consistent with the bounds
+    -- chosen in the constant 'bounds'.
+    constrainTypes :: [Word64] -> [Word32]
+    constrainTypes = map fromIntegral
+
+    -- | True if the argument is within the given range, false otherwise.
+    isInRange :: Ord a => a -> (a, a) -> Bool
+    isInRange x (minB, maxB) = minB <= x && x <= maxB
 
 -- * Auxiliary definitions
 
