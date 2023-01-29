@@ -26,14 +26,16 @@ import Test.QuickCheck       hiding (once, sample)
 import Test.Tasty            (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
-import FRP.Yampa            (embed, noise, noiseR, second)
+import FRP.Yampa            (DTime, Event (..), embed, isEvent, noise, noiseR,
+                             occasionally, second)
 import FRP.Yampa.QuickCheck (Distribution (DistRandom), generateStream)
 import FRP.Yampa.Stream     (SignalSampleStream)
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Random"
-  [ testProperty "noise (0, qc)"  propNoise
-  , testProperty "noiseR (0, qc)" propNoiseR
+  [ testProperty "noise (0, qc)"        propNoise
+  , testProperty "noiseR (0, qc)"       propNoiseR
+  , testProperty "occasionally (0, qc)" propOccasionally
   ]
 
 -- * Noise (i.e. random signal generators) and stochastic processes
@@ -111,6 +113,67 @@ propNoiseR =
     -- | True if the argument is within the given range, false otherwise.
     isInRange :: Ord a => a -> (a, a) -> Bool
     isInRange x (minB, maxB) = minB <= x && x <= maxB
+
+propOccasionally :: Property
+propOccasionally =
+    forAll genDt $ \avgDt ->
+    forAll genOutput $ \b ->
+    forAll genSeed $ \seed ->
+
+    -- We pass avgDt / 10 as max time delta to myStream to ensure that the
+    -- stream produces frequent samples.
+    forAll (myStream (avgDt / 10)) $ \stream ->
+
+      -- True if all events in the output contain the value 'b',
+      -- the number of events produced is roughtly as expected.
+      let output =
+            embed (occasionally (mkStdGen seed) avgDt b) (structure stream)
+
+          -- Difference between the number of samples produced and expected
+          diffNumSamples      = abs (actualOcurrences - expectedOccurrences)
+          actualOcurrences    = length $ filter isEvent output
+          expectedOccurrences = round (streamTime / avgDt)
+          streamTime          = sum $ map fst $ snd stream
+
+      in all (== Event b) (filter isEvent output) && diffNumSamples < margin
+
+  where
+
+    -- Generator: Input stream.
+    --
+    -- We provide a number of samples; otherwise, deviations might not indicate
+    -- lack of randomness for the signal function.
+    --
+    -- We also provide the max dt and ensure that samples are
+    myStream :: DTime -> Gen (SignalSampleStream ())
+    myStream maxDT =
+      generateStream
+        DistRandom
+        (Nothing, (Just maxDT))
+        (Just (Left numSamples))
+
+    -- Generator: Random generator seed
+    genDt :: Gen Double
+    genDt = fmap getPositive arbitrary
+
+    -- Generator: Random generator seed
+    genSeed :: Gen Int
+    genSeed = arbitrary
+
+    -- Generator: Random value generator
+    genOutput :: Gen Int
+    genOutput = arbitrary
+
+    -- Constant: Number of samples in the stream used for testing.
+    --
+    -- This number has to be high; numbers 100 or below will likely not work.
+    numSamples :: Int
+    numSamples = 400
+
+    -- Constant: Max difference accepted between actual occurrences and
+    -- expected occurrences
+    margin :: Int
+    margin = round (fromIntegral numSamples * 0.05)
 
 -- * Auxiliary definitions
 
