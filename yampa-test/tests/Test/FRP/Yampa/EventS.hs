@@ -1,4 +1,5 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE Arrows #-}
+{-# LANGUAGE CPP    #-}
 -- |
 -- Description : Test cases for signal functions working with events
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
@@ -56,6 +57,7 @@ tests = testGroup "Regression tests for FRP.Yampa.EventS"
   , testProperty "delayEventCat (0, fixed)" (property $ evsrc_t29 ~= evsrc_t29r)
   , testProperty "eventS (12, fixed)"       (property $ evsrc_t12 ~= evsrc_t12r)
   , testProperty "eventS (13, fixed)"       (property $ evsrc_t13 ~= evsrc_t13r)
+  , testProperty "iEdge (0, qc)"            propIEdge
   , testProperty "eventS (14, fixed)"       (property $ evsrc_t14 ~= evsrc_t14r)
   , testProperty "eventS (15, fixed)"       (property $ evsrc_t15 ~= evsrc_t15r)
   , testProperty "eventS (16, fixed)"       (property $ evsrc_t16 ~= evsrc_t16r)
@@ -477,6 +479,36 @@ evsrc_t13r =
   , NoEvent, NoEvent, NoEvent,  NoEvent  -- 5.0 s
   , NoEvent
   ]
+
+propIEdge :: Property
+propIEdge =
+    forAll initialValG $ \initialVal ->
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF initialVal <*> modelSF initialVal
+  where
+    -- SF under test
+    originalSF :: Bool -> SF Bool (Event ())
+    originalSF = iEdge
+
+    -- Model SF that behaves like edge except for the initial sample
+    modelSF :: Bool -> SF Bool (Event ())
+    modelSF k = proc (x) -> do
+      t <- time -< ()
+      e <- edge -< x
+
+      let result | t == 0 && not k && x = Event ()
+                 | t == 0 && k          = NoEvent
+                 | otherwise            = e
+
+      returnA -< result
+
+    -- Generator: Initialization value for iEdge
+    initialValG :: Gen Bool
+    initialValG = arbitrary
+
+    -- Generator: Random input stream.
+    myStream :: Gen (SignalSampleStream Bool)
+    myStream = uniDistStream
 
 -- Raising edge detector.
 evsrc_isEdge False False = Nothing
