@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Description : Test cases for signal functions working with events
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
@@ -16,6 +17,10 @@ module Test.FRP.Yampa.EventS
     )
   where
 
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative ((<*>))
+import Data.Functor        ((<$>))
+#endif
 import Test.QuickCheck hiding (once, sample)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
@@ -47,6 +52,7 @@ tests = testGroup "Regression tests for FRP.Yampa.EventS"
   , testProperty "eventS (11, fixed)"       (property $ evsrc_t11 ~= evsrc_t11r)
   , testProperty "eventS (28, fixed)"       (property $ evsrc_t28 ~= evsrc_t28r)
   , testProperty "delayEvent (0, fixed)"    (property $ evsrc_t30 ~= evsrc_t30r)
+  , testProperty "delayEvent (1, qc)"       propDelayEvent
   , testProperty "delayEventCat (0, fixed)" (property $ evsrc_t29 ~= evsrc_t29r)
   , testProperty "eventS (12, fixed)"       (property $ evsrc_t12 ~= evsrc_t12r)
   , testProperty "eventS (13, fixed)"       (property $ evsrc_t13 ~= evsrc_t13r)
@@ -294,6 +300,44 @@ evsrc_t11r =
   , NoEvent,  NoEvent,         Event [10],  NoEvent  -- 5.0 s
   , NoEvent
   ]
+
+propDelayEvent :: Property
+propDelayEvent =
+    forAll delayFactorG $ \delayFactor ->
+    forAll myStream $ evalT $
+      Always $ SP $ (==) <$> originalSF delayFactor
+                         <*> sfModelDelayEvent delayFactor
+  where
+    -- SF under test
+    originalSF :: Int -> SF () (Event ())
+    originalSF factor =
+      time
+        >>> arr cos
+        >>> arr (< 0)
+        >>> edge
+        >>> delayEvent (fromIntegral factor * delay)
+
+    -- Model SF that applies the delay internally
+    sfModelDelayEvent :: Int -> SF () (Event ())
+    sfModelDelayEvent factor =
+      time
+        >>> arr (\x -> x - (fromIntegral factor * delay))
+        >>> arr cos
+        >>> arr (< 0)
+        >>> edge
+
+    -- Generator: Factor by which the signal is delayed
+    delayFactorG :: Gen Int
+    delayFactorG = getPositive <$> arbitrary
+
+    -- Generator: Random input stream. Delays and values are fixed but the
+    -- length is not.
+    myStream :: Gen (SignalSampleStream ())
+    myStream = fixedDelayStream delay
+
+    -- Constant: Max delay
+    delay :: DTime
+    delay = 0.01
 
 evsrc_t28 :: [(Event Int, Event Int)]
 evsrc_t28 = embed (repeatedly 0.5 ()
