@@ -66,6 +66,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Switches"
   , testProperty "rpswitch (1, fixed)"  (property $ rpswitch_t1 ~= rpswitch_t1r)
   , testProperty "rpswitch (3, fixed)"  (property $ rpswitch_t3 ~= rpswitch_t3r)
   , testProperty "rpswitch (4, fixed)"  (property $ rpswitch_t4 ~= rpswitch_t4r)
+  , testProperty "par (0, qc)"          propPar
   , testProperty "rpSwitchZ (0, fixed)" (property $ utils_t6 ~= utils_t6r)
   ]
 
@@ -971,6 +972,42 @@ rpswitch_t4r =
   , [2.6, 0.6, 1.6]
   , [2.8, 0.8, 1.8]
   ]
+
+-- ** With helper routing function
+
+propPar :: Property
+propPar =
+    forAllBlind genSFs $ \sfs ->
+    forAll (genPos (length sfs)) $ \n ->
+    forAll myStream $ evalT $
+      Always $ SP $ (originalSF sfs n &&& modelSF sfs n) >>^ uncurry (==)
+
+  where
+
+    -- SF under test: Apply par and look at one specific value only.
+    originalSF :: [SF Int Int] -> Int -> SF Int Int
+    originalSF sfs n = par broad sfs >>^ (!! n)
+
+    -- Model SF: Pick an SF from a given list and apply only that SF to the
+    -- corresponding input using the routing function.
+    modelSF :: [SF Int Int] -> Int -> SF Int Int
+    modelSF sfs n = (fst . (!! n) . (`broad` sfs)) ^>> sfs !! n
+
+    -- Generator: Random non-empty list of SFs.
+    genSFs :: Gen [SF Int Int]
+    genSFs = listOf1 randomSF
+
+    -- Generator: Random position in a list of the given length.
+    genPos :: Int -> Gen Int
+    genPos n = chooseInt (0, n - 1)
+
+    -- Generator: Random input stream generator.
+    myStream :: Gen (SignalSampleStream Int)
+    myStream = uniDistStream
+
+    -- Pair list with element.
+    broad :: a -> [b] -> [(a, b)]
+    broad a = map (\x -> (a, x))
 
 -- * Parallel composition\/switching (lists)
 --
