@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows #-}
+{-# LANGUAGE CPP    #-}
 -- |
 -- Description : Test cases for FRP.Yampa.Switches
 -- Copyright   : (c) Ivan Perez, 2014-2022
@@ -11,6 +12,11 @@ module Test.FRP.Yampa.Switches
     ( tests
     )
   where
+
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative (pure, (<*>))
+import Data.Functor        ((<$>))
+#endif
 
 import Data.Fixed
 import Data.List (findIndex)
@@ -1006,3 +1012,30 @@ utils_t6r =
 
 -- prop :: SF a b -> (a -> b ->
 prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
+
+-- * Auxiliary
+
+-- | Generator of random signal functions on Ints.
+randomSF :: Gen (SF Int Int)
+randomSF = oneof [ return identity
+                 , pointwiseSF
+                 , loopPre <$> arbitrary <*> randomSF2
+                 ]
+
+-- | Generator of random signal functions on Int pairs.
+randomSF2 :: Gen (SF (Int, Int) (Int, Int))
+randomSF2 = oneof [ return identity
+                  , pointwiseSF2
+                  ]
+
+-- | Generator of random pointwise signal functions on Ints.
+pointwiseSF :: Gen (SF Int Int)
+pointwiseSF = arr <$> arbitrary
+
+-- | Generator of random pointwise signal functions on Int pairs.
+pointwiseSF2 :: Gen (SF (Int, Int) (Int, Int))
+pointwiseSF2 = arr <$> arbitrary
+
+-- | Arbitrary instance for Event with a high chance of not producing an event.
+instance Arbitrary a => Arbitrary (Event a) where
+  arbitrary = frequency [(9, pure noEvent), (1, fmap Event arbitrary)]
