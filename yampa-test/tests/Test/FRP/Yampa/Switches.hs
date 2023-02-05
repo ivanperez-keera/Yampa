@@ -27,7 +27,8 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
-import FRP.Yampa.Switches (dpSwitchZ, drpSwitchZ, parZ, pSwitchZ, rpSwitchZ)
+import FRP.Yampa.Switches (dpSwitchZ, drpSwitchZ, pSwitchZ, parC, parZ,
+                           rpSwitchZ)
 import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Stream
 import FRP.Yampa.QuickCheck
@@ -76,6 +77,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Switches"
   , testProperty "dpSwitchZ (0, qc)"    propDPSwitchZ
   , testProperty "rpSwitchZ (0, fixed)" (property $ utils_t6 ~= utils_t6r)
   , testProperty "drpSwitchZ (0, qc)"   propDRPSwitchZ
+  , testProperty "parC (0, qc)"         propParC
   ]
 
 -- * Basic switching
@@ -2064,6 +2066,47 @@ propDRPSwitchZ = propDRPSwitchZNoSwitch
             -- length.
             valueGenerator :: Int -> DTime -> Gen ([Int], Event ())
             valueGenerator _ _ = (,) <$> vectorOf n arbitrary <*> arbitrary
+
+-- ** With replication
+
+propParC :: Property
+propParC =
+    forAllBlind randomSF $ \sf ->
+    forAll genLength $ \m ->
+    forAll (genPos m) $ \n ->
+    forAll (myStream m) $ evalT $
+      Always $ SP $ (originalSF sf n &&& modelSF sf n) >>^ uncurry (==)
+
+  where
+
+    -- SF under test: Apply parC and look at one specific value only.
+    originalSF :: SF Int Int -> Int -> SF [Int] Int
+    originalSF sf n = parC sf >>^ (!! n)
+
+    -- Model SF: Pick a value from an input list and apply the given SF only to
+    -- that value.
+    modelSF :: SF Int Int -> Int -> SF [Int] Int
+    modelSF sf n = (!! n) ^>> sf
+
+    -- Generator: Random list length.
+    genLength :: Gen Int
+    genLength = getPositive <$> arbitrary
+
+    -- Generator: Random position in a list of the given length.
+    genPos :: Int -> Gen Int
+    genPos n = chooseInt (0, n - 1)
+
+    -- Generator: Random input stream generator where the lists generated
+    -- have the given length.
+    myStream :: Int -> Gen (SignalSampleStream [Int])
+    myStream n =
+        -- This is uniDistStream with a custom value generator.
+        generateStreamWith valueGenerator DistRandom (Nothing, Nothing) Nothing
+      where
+        -- Ensure that the values generated (lists) have the expected
+        -- length.
+        valueGenerator :: Int -> DTime -> Gen [Int]
+        valueGenerator _ _ = vectorOf n arbitrary
 
 -- * Auxiliary
 
