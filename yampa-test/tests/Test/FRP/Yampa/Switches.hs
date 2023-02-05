@@ -27,7 +27,7 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
-import FRP.Yampa.Switches (rpSwitchZ)
+import FRP.Yampa.Switches (parZ, rpSwitchZ)
 import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Stream
 import FRP.Yampa.QuickCheck
@@ -71,6 +71,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Switches"
   , testProperty "dpSwitch (0, qc)"     propDPSwitch
   , testProperty "rpSwitch (0, qc)"     propRPSwitch
   , testProperty "drpSwitch (0, qc)"    propDRPSwitch
+  , testProperty "parZ (0, qc)"         propParZ
   , testProperty "rpSwitchZ (0, fixed)" (property $ utils_t6 ~= utils_t6r)
   ]
 
@@ -1537,6 +1538,44 @@ propDRPSwitch = propDRPSwitchNoSwitch
 -- * Parallel composition\/switching (lists)
 --
 -- ** With "zip" routing
+
+propParZ :: Property
+propParZ =
+    forAllBlind genSFs $ \sfs ->
+    forAll (genPos (length sfs)) $ \n ->
+    forAll (myStream (length sfs)) $ evalT $
+      Always $ SP $ (originalSF sfs n &&& modelSF sfs n) >>^ uncurry (==)
+
+  where
+
+    -- SF under test: Apply parZ and look at one specific value only.
+    originalSF :: [SF Int Int] -> Int -> SF [Int] Int
+    originalSF sfs n = parZ sfs >>^ (!! n)
+
+    -- Model SF: Pick an SF from a given list and apply only that SF to the
+    -- corresponding input of the final SF.
+    modelSF :: [SF Int Int] -> Int -> SF [Int] Int
+    modelSF sfs n = (!! n) ^>> (sfs !! n)
+
+    -- Generator: Random non-empty list of SFs.
+    genSFs :: Gen [SF Int Int]
+    genSFs = listOf1 randomSF
+
+    -- Generator: Random position in a list of the given length.
+    genPos :: Int -> Gen Int
+    genPos n = chooseInt (0, n - 1)
+
+    -- Generator: Random input stream generator where the lists generated
+    -- have the given length.
+    myStream :: Int -> Gen (SignalSampleStream [Int])
+    myStream n =
+        -- This is uniDistStream with a custom value generator.
+        generateStreamWith valueGenerator DistRandom (Nothing, Nothing) Nothing
+      where
+        -- Ensure that the values generated (lists) have the expected
+        -- length.
+        valueGenerator :: Int -> DTime -> Gen [Int]
+        valueGenerator _ _ = vectorOf n arbitrary
 
 dynDelayLine :: a -> SF (a, Event Bool) a
 dynDelayLine a0 =
