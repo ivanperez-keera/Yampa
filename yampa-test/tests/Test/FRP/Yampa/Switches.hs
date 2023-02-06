@@ -69,6 +69,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Switches"
   , testProperty "par (0, qc)"          propPar
   , testProperty "pSwitch (0, qc)"      propPSwitch
   , testProperty "dpSwitch (0, qc)"     propDPSwitch
+  , testProperty "rpSwitch (0, qc)"     propRPSwitch
   , testProperty "rpSwitchZ (0, fixed)" (property $ utils_t6 ~= utils_t6r)
   ]
 
@@ -1324,6 +1325,102 @@ propDPSwitch = propDPSwitchNoSwitch
 
         -- Generator: Random input stream generator.
         myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+propRPSwitch :: Property
+propRPSwitch = propRPSwitchNoSwitch
+          .&&. propRPSwitchSwitch0
+          .&&. propRPSwitchSwitchNId
+
+  where
+
+    propRPSwitchNoSwitch :: Property
+    propRPSwitchNoSwitch =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          Always $ SP $ (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: rpSwitch but never switch.
+        originalSF :: [SF Int Int] -> SF Int [Int]
+        originalSF sfs = (identity &&& never) >>> rpSwitch broad sfs
+
+        -- Model SF: With no switching, rpSwitch behaves like parB.
+        modelSF :: [SF Int Int] -> SF Int [Int]
+        modelSF = parB
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+    propRPSwitchSwitch0 :: Property
+    propRPSwitchSwitch0 =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          Always $ SP $ (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: rpSwitch that switches immediately.
+        originalSF :: [SF Int Int] -> SF Int [Int]
+        originalSF sfs = (identity &&& now reverse) >>> rpSwitch broad sfs
+
+        -- Model SF: With immediate switching, rpSwitch behaves like (parB .
+        -- reverse).
+        modelSF :: [SF Int Int] -> SF Int [Int]
+        modelSF = parB . reverse
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+    propRPSwitchSwitchNId :: Property
+    propRPSwitchSwitchNId =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          Always $ SP $
+            (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: rpSwitch that switches at some random time but
+        -- leaves the list of SFs unchanged.
+        originalSF :: [SF Int Int]
+                   -> SF (Int, Event ()) [Int]
+        originalSF sfs = (identity *** arr (tagWith id)) >>> rpSwitch broad sfs
+
+        -- Model SF: If you switch to the input sfs, it's like never switching.
+        modelSF :: [SF Int Int]
+                -> SF (Int, Event ()) [Int]
+        modelSF sfs = fst ^>> parB sfs
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream (Int, Event ()))
         myStream = uniDistStream
 
         -- Pair list with element.
