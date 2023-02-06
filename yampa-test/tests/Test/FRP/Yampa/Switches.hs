@@ -1,4 +1,5 @@
 {-# LANGUAGE Arrows #-}
+{-# LANGUAGE CPP    #-}
 -- |
 -- Description : Test cases for FRP.Yampa.Switches
 -- Copyright   : (c) Ivan Perez, 2014-2022
@@ -12,6 +13,11 @@ module Test.FRP.Yampa.Switches
     )
   where
 
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative (pure, (<*>))
+import Data.Functor        ((<$>))
+#endif
+
 import Data.Fixed
 import Data.List (findIndex)
 import Data.Maybe (fromJust)
@@ -21,7 +27,8 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
-import FRP.Yampa.Switches (rpSwitchZ)
+import FRP.Yampa.Switches (dpSwitchZ, drpSwitchZ, pSwitchZ, parC, parZ,
+                           rpSwitchZ)
 import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Stream
 import FRP.Yampa.QuickCheck
@@ -60,7 +67,17 @@ tests = testGroup "Regression tests for FRP.Yampa.Switches"
   , testProperty "rpswitch (1, fixed)"  (property $ rpswitch_t1 ~= rpswitch_t1r)
   , testProperty "rpswitch (3, fixed)"  (property $ rpswitch_t3 ~= rpswitch_t3r)
   , testProperty "rpswitch (4, fixed)"  (property $ rpswitch_t4 ~= rpswitch_t4r)
+  , testProperty "par (0, qc)"          propPar
+  , testProperty "pSwitch (0, qc)"      propPSwitch
+  , testProperty "dpSwitch (0, qc)"     propDPSwitch
+  , testProperty "rpSwitch (0, qc)"     propRPSwitch
+  , testProperty "drpSwitch (0, qc)"    propDRPSwitch
+  , testProperty "parZ (0, qc)"         propParZ
+  , testProperty "pSwitchZ (0, qc)"     propPSwitchZ
+  , testProperty "dpSwitchZ (0, qc)"    propDPSwitchZ
   , testProperty "rpSwitchZ (0, fixed)" (property $ utils_t6 ~= utils_t6r)
+  , testProperty "drpSwitchZ (0, qc)"   propDRPSwitchZ
+  , testProperty "parC (0, qc)"         propParC
   ]
 
 -- * Basic switching
@@ -966,9 +983,934 @@ rpswitch_t4r =
   , [2.8, 0.8, 1.8]
   ]
 
+-- ** With helper routing function
+
+propPar :: Property
+propPar =
+    forAllBlind genSFs $ \sfs ->
+    forAll (genPos (length sfs)) $ \n ->
+    forAll myStream $ evalT $
+      Always $ SP $ (originalSF sfs n &&& modelSF sfs n) >>^ uncurry (==)
+
+  where
+
+    -- SF under test: Apply par and look at one specific value only.
+    originalSF :: [SF Int Int] -> Int -> SF Int Int
+    originalSF sfs n = par broad sfs >>^ (!! n)
+
+    -- Model SF: Pick an SF from a given list and apply only that SF to the
+    -- corresponding input using the routing function.
+    modelSF :: [SF Int Int] -> Int -> SF Int Int
+    modelSF sfs n = (fst . (!! n) . (`broad` sfs)) ^>> sfs !! n
+
+    -- Generator: Random non-empty list of SFs.
+    genSFs :: Gen [SF Int Int]
+    genSFs = listOf1 randomSF
+
+    -- Generator: Random position in a list of the given length.
+    genPos :: Int -> Gen Int
+    genPos n = chooseInt (0, n - 1)
+
+    -- Generator: Random input stream generator.
+    myStream :: Gen (SignalSampleStream Int)
+    myStream = uniDistStream
+
+    -- Pair list with element.
+    broad :: a -> [b] -> [(a, b)]
+    broad a = map (\x -> (a, x))
+
+propPSwitch :: Property
+propPSwitch = propPSwitchNoSwitch
+         .&&. propPSwitchSwitch0
+         .&&. propPSwitchSwitchN
+
+  where
+
+    propPSwitchNoSwitch :: Property
+    propPSwitchNoSwitch =
+        forAllBlind genSFs $ \sfs ->
+        forAll (genPos (length sfs)) $ \n ->
+        forAll myStream $ evalT $
+          Always $ SP $ (originalSF sfs n &&& modelSF sfs n) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: Apply pSwitch with a broadcasting and modification
+        -- function but never switch and look at one specific value only.
+        originalSF :: [SF Int Int] -> Int -> SF Int Int
+        originalSF sfs n = pSwitch broad sfs never undefined >>^ (!! n)
+
+        -- Model SF: Pick an SF from a given list and apply only that SF to the
+        -- corresponding input using the routing function.
+        modelSF :: [SF Int Int] -> Int -> SF Int Int
+        modelSF sfs n = (fst . (!! n) . (`broad` sfs)) ^>> sfs !! n
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random position in a list of the given length.
+        genPos :: Int -> Gen Int
+        genPos n = chooseInt (0, n - 1)
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element, modifying the element to make each input
+        -- unique.
+        broad :: Int -> [b] -> [(Int, b)]
+        broad a sfs = map (\(i, x) -> (a + i, x)) $ zip [0..] sfs
+
+    propPSwitchSwitch0 :: Property
+    propPSwitchSwitch0 =
+        forAllBlind genSFs $ \sfs ->
+        forAllBlind genCont $ \cont ->
+        forAll myStream $ evalT $
+          Always $ SP $
+            (originalSF sfs cont &&& modelSF sfs cont) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: Apply pSwitch with a broadcasting and modification
+        -- function but switch immediately and look at one specific value only.
+        originalSF :: [SF Int Int]
+                   -> ([SF Int Int] -> () -> SF Int [Int])
+                   -> SF Int [Int]
+        originalSF sfs cont = pSwitch broad sfs (now ()) cont
+
+        -- Model SF: The behavior with pSwitch if we switch immediately is that
+        -- produced using the continuation function to select the new SFs.
+        modelSF :: [SF Int Int]
+                -> ([SF Int Int] -> () -> SF Int [Int])
+                -> SF Int [Int]
+        modelSF sfs cont = cont sfs ()
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random continuations.
+        genCont :: Gen ([SF Int Int] -> () -> SF Int [Int])
+        genCont = oneof
+          [ -- Run same SFs in parallel
+            pure (\sfs _ -> parB sfs)
+
+          , -- Pick one SF from the input list, and replicate it as many
+            -- times as SFs were given, and run it in parallel.
+            arbitrary >>= \n ->
+              let pick :: [SF Int Int] -> Int -> SF Int Int
+                  pick sfs i = sfs !! (i `mod` length sfs)
+              in pure (\sfs _ -> parB (replicate (length sfs) (pick sfs n)))
+
+          , -- Generate SF randomly, replicate it as many times as SFs were
+            -- given, and run that in parallel.
+            randomSF >>= \sf ->
+              pure (\sfs _ -> parB (replicate (length sfs) sf))
+
+          , -- Generate random list of SFs with the same length as the given
+            -- list of SFs, and run in parallel.
+            listOf1 randomSF >>= \sfs' ->
+              let replic l sfs = take l $ concat $ repeat sfs
+              in pure (\sfs _ -> parB (replic (length sfs) sfs'))
+          ]
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+    propPSwitchSwitchN :: Property
+    propPSwitchSwitchN =
+        forAllBlind genSFs $ \sfs ->
+        forAllBlind genEventS $ \eventSwitch ->
+        forAllBlind genCont $ \cont ->
+        forAll myStream $ evalT $
+          Always $ SP $
+            (originalSF sfs eventSwitch cont &&& modelSF sfs eventSwitch cont)
+              >>^ uncurry (==)
+
+      where
+
+        -- SF under test: Apply pSwitch with a broadcasting, and switch at a
+        -- random time.
+        originalSF :: [SF Int Int]
+                   -> SF (Int, [Int]) (Event ())
+                   -> ([SF Int Int] -> () -> SF Int [Int])
+                   -> SF Int [Int]
+        originalSF sfs eventSwitch cont = pSwitch broad sfs eventSwitch cont
+
+        -- Model SF: Run several SFs in parallel indefinitely. This works
+        -- because the continuation function generated below in 'genCont' will
+        -- keep running the same continuations in parallel.
+        modelSF :: [SF Int Int]
+                -> SF (Int, [Int]) (Event ())
+                -> ([SF Int Int] -> () -> SF Int [Int])
+                -> SF Int [Int]
+        modelSF sfs _eventSwitch _cont = parB sfs
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random continuations.
+        genCont :: Gen ([SF Int Int] -> () -> SF Int [Int])
+        genCont = pure (\sfs _ -> parB sfs)
+
+        -- Generator: SF that will fire an event at a random time.
+        genEventS :: Gen (SF (Int, [Int]) (Event ()))
+        genEventS = randomTime >>= \dt ->
+          pure (after dt ())
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+propDPSwitch :: Property
+propDPSwitch = propDPSwitchNoSwitch
+          .&&. propDPSwitchSwitch0
+          .&&. propDPSwitchSwitchN
+
+  where
+
+    propDPSwitchNoSwitch :: Property
+    propDPSwitchNoSwitch =
+        forAllBlind genSFs $ \sfs ->
+        forAll (genPos (length sfs)) $ \n ->
+        forAll myStream $ evalT $
+          Always $ SP $ (originalSF sfs n &&& modelSF sfs n) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: Apply dpSwitch with a broadcasting and modification
+        -- function but never switch and look at one specific value only.
+        originalSF :: [SF Int Int] -> Int -> SF Int Int
+        originalSF sfs n = dpSwitch broad sfs never undefined >>^ (!! n)
+
+        -- Model SF: Pick an SF from a given list and apply only that SF to the
+        -- corresponding input using the routing function.
+        modelSF :: [SF Int Int] -> Int -> SF Int Int
+        modelSF sfs n = (fst . (!! n) . (`broad` sfs)) ^>> sfs !! n
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random position in a list of the given length.
+        genPos :: Int -> Gen Int
+        genPos n = chooseInt (0, n - 1)
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: Int -> [b] -> [(Int, b)]
+        broad a sfs = map (\(i, x) -> (a + i, x)) $ zip [0..] sfs
+
+    propDPSwitchSwitch0 :: Property
+    propDPSwitchSwitch0 =
+        forAllBlind genSFs $ \sfs ->
+        forAllBlind genCont $ \cont ->
+        forAll myStream $ evalT $
+          And (SP $
+                (originalSF sfs cont &&& modelSF0 sfs cont) >>^ uncurry (==)
+              )
+              (Next $ Always $ SP $
+                (originalSF sfs cont &&& modelSFN sfs cont) >>^ uncurry (==)
+              )
+
+      where
+
+        -- SF under test: Apply dpSwitch with a broadcasting and modification
+        -- function but never switch and look at one specific value only.
+        originalSF :: [SF Int Int]
+                   -> ([SF Int Int] -> () -> SF Int [Int])
+                   -> SF Int [Int]
+        originalSF sfs cont = dpSwitch broad sfs (now ()) cont
+
+        -- Model SF: At time 0, the behavior of dpSwitch is the same as picking
+        -- an SF from the argument list and applying only that SF to the
+        -- corresponding input of the final SF.
+        modelSF0 :: [SF Int Int]
+                -> ([SF Int Int] -> () -> SF Int [Int])
+                -> SF Int [Int]
+        modelSF0 sfs _cont = parB sfs
+
+        -- Model SF: The behavior of dpSwitch if we switch immediately, after
+        -- time 0, is that produced using the continuation function to select
+        -- the new SFs.
+        modelSFN :: [SF Int Int]
+                 -> ([SF Int Int] -> () -> SF Int [Int])
+                 -> SF Int [Int]
+        modelSFN sfs cont = cont sfs ()
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random continuations.
+        genCont :: Gen ([SF Int Int] -> () -> SF Int [Int])
+        genCont = oneof
+          [ -- Run same SFs in parallel.
+            pure (\sfs _ -> parB sfs)
+
+          , -- Pick one SF from the input list, replicate it as many
+            -- times as SFs were given, and run it in parallel.
+            arbitrary >>= \n ->
+              let pick :: [SF Int Int] -> Int -> SF Int Int
+                  pick sfs i = sfs !! (i `mod` length sfs)
+              in pure (\sfs _ -> parB (replicate (length sfs) (pick sfs n)))
+
+          , -- Generate SF randomly and run that in parallel.
+            randomSF >>= \sf ->
+              pure (\sfs _ -> parB (replicate (length sfs) sf))
+
+          , -- Generate random list of SFs with the same length as the given
+            -- list of SFs, and run in parallel.
+            listOf1 randomSF >>= \sfs' ->
+              let replic l sfs = take l $ concat $ repeat sfs
+              in pure (\sfs _ -> parB (replic (length sfs) sfs'))
+          ]
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+    propDPSwitchSwitchN :: Property
+    propDPSwitchSwitchN =
+        forAllBlind genSFs $ \sfs ->
+        forAllBlind genEventS $ \eventSwitch ->
+        forAllBlind genCont $ \cont ->
+        forAll myStream $ evalT $
+          Always $ SP $
+            (originalSF sfs eventSwitch cont &&& modelSF sfs eventSwitch cont)
+              >>^ uncurry (==)
+
+      where
+
+        -- SF under test: Apply dpSwitch with a broadcasting, and switch at a
+        -- random time.
+        originalSF :: [SF Int Int]
+                   -> SF (Int, [Int]) (Event ())
+                   -> ([SF Int Int] -> () -> SF Int [Int])
+                   -> SF Int [Int]
+        originalSF = dpSwitch broad
+
+        -- Model SF: Run several SFs in parallel indefinitely. This works
+        -- because the continuation function generated below in 'genCont' will
+        -- keep running the same continuations in parallel.
+        modelSF :: [SF Int Int]
+                -> SF (Int, [Int]) (Event ())
+                -> ([SF Int Int] -> () -> SF Int [Int])
+                -> SF Int [Int]
+        modelSF sfs _eventSwitch _cont = parB sfs
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random continuations.
+        genCont :: Gen ([SF Int Int] -> () -> SF Int [Int])
+        genCont = pure (\sfs _ -> parB sfs)
+
+        -- Generator: SF that will fire an event at a random time.
+        genEventS :: Gen (SF (Int, [Int]) (Event ()))
+        genEventS = randomTime >>= \dt ->
+          pure (after dt ())
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+propRPSwitch :: Property
+propRPSwitch = propRPSwitchNoSwitch
+          .&&. propRPSwitchSwitch0
+          .&&. propRPSwitchSwitchNId
+
+  where
+
+    propRPSwitchNoSwitch :: Property
+    propRPSwitchNoSwitch =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          Always $ SP $ (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: rpSwitch but never switch.
+        originalSF :: [SF Int Int] -> SF Int [Int]
+        originalSF sfs = (identity &&& never) >>> rpSwitch broad sfs
+
+        -- Model SF: With no switching, rpSwitch behaves like parB.
+        modelSF :: [SF Int Int] -> SF Int [Int]
+        modelSF = parB
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+    propRPSwitchSwitch0 :: Property
+    propRPSwitchSwitch0 =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          Always $ SP $ (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: rpSwitch that switches immediately.
+        originalSF :: [SF Int Int] -> SF Int [Int]
+        originalSF sfs = (identity &&& now reverse) >>> rpSwitch broad sfs
+
+        -- Model SF: With immediate switching, rpSwitch behaves like (parB .
+        -- reverse).
+        modelSF :: [SF Int Int] -> SF Int [Int]
+        modelSF = parB . reverse
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+    propRPSwitchSwitchNId :: Property
+    propRPSwitchSwitchNId =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          Always $ SP $
+            (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: rpSwitch that switches at some random time but
+        -- leaves the list of SFs unchanged.
+        originalSF :: [SF Int Int]
+                   -> SF (Int, Event ()) [Int]
+        originalSF sfs = (identity *** arr (tagWith id)) >>> rpSwitch broad sfs
+
+        -- Model SF: If you switch to the input sfs, it's like never switching.
+        modelSF :: [SF Int Int]
+                -> SF (Int, Event ()) [Int]
+        modelSF sfs = fst ^>> parB sfs
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream (Int, Event ()))
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+propDRPSwitch :: Property
+propDRPSwitch = propDRPSwitchNoSwitch
+           .&&. propDRPSwitchSwitch0
+           .&&. propDRPSwitchSwitchNId
+
+  where
+
+    propDRPSwitchNoSwitch :: Property
+    propDRPSwitchNoSwitch =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          Always $ SP $ (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: drpSwitch but never switch.
+        originalSF :: [SF Int Int] -> SF Int [Int]
+        originalSF sfs = (identity &&& never) >>> drpSwitch broad sfs
+
+        -- Model SF: With no switching, drpSwitch behaves like parB.
+        modelSF :: [SF Int Int] -> SF Int [Int]
+        modelSF = parB
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+    propDRPSwitchSwitch0 :: Property
+    propDRPSwitchSwitch0 =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          And (SP $
+                (originalSF sfs &&& modelSF0 sfs) >>^ uncurry (==)
+              )
+              (Next $ Always $ SP $
+                (originalSF sfs &&& modelSFN sfs) >>^ uncurry (==)
+              )
+
+      where
+
+        -- SF under test: drpSwitch that switches immediately.
+        originalSF :: [SF Int Int] -> SF Int [Int]
+        originalSF sfs = (identity &&& now reverse) >>> drpSwitch broad sfs
+
+        -- Model SF: With immediate switching, drpSwitch behaves like parB
+        -- at time 0.
+        modelSF0 :: [SF Int Int] -> SF Int [Int]
+        modelSF0 = parB
+
+        -- Model SF: With immediate switching, drpSwitch behaves like (parB .
+        -- reverse) at times greater than 0.
+        modelSFN :: [SF Int Int] -> SF Int [Int]
+        modelSFN = parB . reverse
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream Int)
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
+    propDRPSwitchSwitchNId :: Property
+    propDRPSwitchSwitchNId =
+        forAllBlind genSFs $ \sfs ->
+        forAll myStream $ evalT $
+          Always $ SP $
+            (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: drpSwitch that switches at some random time but
+        -- leaves the list of SFs unchanged.
+        originalSF :: [SF Int Int]
+                   -> SF (Int, Event ()) [Int]
+        originalSF sfs = (identity *** arr (tagWith id)) >>> drpSwitch broad sfs
+
+        -- Model SF: If you switch to the input sfs, it's like never switching.
+        modelSF :: [SF Int Int]
+                -> SF (Int, Event ()) [Int]
+        modelSF sfs = fst ^>> parB sfs
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator.
+        myStream :: Gen (SignalSampleStream (Int, Event ()))
+        myStream = uniDistStream
+
+        -- Pair list with element.
+        broad :: a -> [b] -> [(a, b)]
+        broad a = map (\x -> (a, x))
+
 -- * Parallel composition\/switching (lists)
 --
 -- ** With "zip" routing
+
+propParZ :: Property
+propParZ =
+    forAllBlind genSFs $ \sfs ->
+    forAll (genPos (length sfs)) $ \n ->
+    forAll (myStream (length sfs)) $ evalT $
+      Always $ SP $ (originalSF sfs n &&& modelSF sfs n) >>^ uncurry (==)
+
+  where
+
+    -- SF under test: Apply parZ and look at one specific value only.
+    originalSF :: [SF Int Int] -> Int -> SF [Int] Int
+    originalSF sfs n = parZ sfs >>^ (!! n)
+
+    -- Model SF: Pick an SF from a given list and apply only that SF to the
+    -- corresponding input of the final SF.
+    modelSF :: [SF Int Int] -> Int -> SF [Int] Int
+    modelSF sfs n = (!! n) ^>> (sfs !! n)
+
+    -- Generator: Random non-empty list of SFs.
+    genSFs :: Gen [SF Int Int]
+    genSFs = listOf1 randomSF
+
+    -- Generator: Random position in a list of the given length.
+    genPos :: Int -> Gen Int
+    genPos n = chooseInt (0, n - 1)
+
+    -- Generator: Random input stream generator where the lists generated
+    -- have the given length.
+    myStream :: Int -> Gen (SignalSampleStream [Int])
+    myStream n =
+        -- This is uniDistStream with a custom value generator.
+        generateStreamWith valueGenerator DistRandom (Nothing, Nothing) Nothing
+      where
+        -- Ensure that the values generated (lists) have the expected
+        -- length.
+        valueGenerator :: Int -> DTime -> Gen [Int]
+        valueGenerator _ _ = vectorOf n arbitrary
+
+propPSwitchZ :: Property
+propPSwitchZ = propPSwitchZNoSwitch
+          .&&. propPSwitchZSwitch0
+          .&&. propPSwitchZSwitchN
+
+  where
+
+    propPSwitchZNoSwitch :: Property
+    propPSwitchZNoSwitch =
+        forAllBlind genSFs $ \sfs ->
+        forAll (myStream (length sfs)) $ evalT $
+          Always $ SP $ (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: pSwitchZ but never switch.
+        originalSF :: [SF Int Int] -> SF [Int] [Int]
+        originalSF sfs =
+          -- We pass undefined in the third argument on purpose, so that there
+          -- is an exception if pSwitchZ tries to switch and the test fails.
+          pSwitchZ sfs never undefined
+
+        -- Model SF: With no switching, pSwitchZ behaves like parZ.
+        modelSF :: [SF Int Int] -> SF [Int] [Int]
+        modelSF = parZ
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream [Int])
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen [Int]
+            valueGenerator _ _ = vectorOf n arbitrary
+
+    propPSwitchZSwitch0 :: Property
+    propPSwitchZSwitch0 =
+        forAllBlind genSFs $ \sfs ->
+        forAllBlind genCont $ \cont ->
+        forAll (myStream (length sfs)) $ evalT $
+          Always $ SP $
+            (originalSF sfs cont &&& modelSF sfs cont) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: pSwitchZ that switches immediately.
+        originalSF :: [SF Int Int]
+                   -> ([SF Int Int] -> () -> SF [Int] [Int])
+                   -> SF [Int] [Int]
+        originalSF sfs cont = pSwitchZ sfs (now ()) cont
+
+        -- Model SF: The behavior with pSwitchZ if we switch immediately is
+        -- that produced using the continuation function to select the new SFs.
+        modelSF :: [SF Int Int]
+                -> ([SF Int Int] -> () -> SF [Int] [Int])
+                -> SF [Int] [Int]
+        modelSF sfs cont = cont sfs ()
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random continuations.
+        genCont :: Gen ([SF Int Int] -> () -> SF [Int] [Int])
+        genCont = oneof
+          [ -- Run same SFs in parallel.
+            pure (\sfs _ -> parZ sfs)
+
+          , -- Pick one SF from the input list, and run that in parallel.
+            arbitrary >>= \n ->
+              let pick :: [SF Int Int] -> Int -> SF Int Int
+                  pick sfs i = sfs !! (i `mod` length sfs)
+              in pure (\sfs _ -> parC (pick sfs n))
+
+          , -- Generate SF randomly and run that in parallel.
+            randomSF >>= \sf -> pure (\_ _ -> parC sf)
+
+         , -- Generate random list of SFs with the same length as the given
+           -- list of SFs, and run in parallel.
+           listOf1 randomSF >>= \sfs' ->
+             let replic l sfs = take l $ concat $ repeat sfs
+             in pure (\sfs _ -> parZ (replic (length sfs) sfs'))
+          ]
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream [Int])
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen [Int]
+            valueGenerator _ _ = vectorOf n arbitrary
+
+    propPSwitchZSwitchN :: Property
+    propPSwitchZSwitchN =
+        forAllBlind genSFs $ \sfs ->
+        forAllBlind genEventS $ \eventSwitch ->
+        forAllBlind genCont $ \cont ->
+        forAll (myStream (length sfs)) $ evalT $
+          Always $ SP $
+            (originalSF sfs eventSwitch cont &&& modelSF sfs eventSwitch cont)
+              >>^ uncurry (==)
+
+      where
+
+        -- SF under test: pSwitchZ that switches at some random time.
+        originalSF :: [SF Int Int]
+                   -> (SF ([Int], [Int]) (Event ()))
+                   -> ([SF Int Int] -> () -> SF [Int] [Int])
+                   -> SF [Int] [Int]
+        originalSF = pSwitchZ
+
+        -- Model SF: If you switch to the input sfs, it's like never switching.
+        --
+        -- This equality only holds because of how genCont is being generated.
+        modelSF :: [SF Int Int]
+                -> (SF ([Int], [Int]) (Event ()))
+                -> ([SF Int Int] -> () -> SF [Int] [Int])
+                -> SF [Int] [Int]
+        modelSF sfs _eventSwitch _cont = parZ sfs
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Continuation that switches to the same input streams.
+        genCont :: Gen ([SF Int Int] -> () -> SF [Int] [Int])
+        genCont = pure (\sfs _ -> parZ sfs)
+
+        -- Generator: SF that will fire an event at a random time.
+        genEventS :: Gen (SF ([Int], [Int]) (Event ()))
+        genEventS = randomTime >>= \dt ->
+          pure (after dt ())
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream [Int])
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen [Int]
+            valueGenerator _ _ = vectorOf n arbitrary
+
+propDPSwitchZ :: Property
+propDPSwitchZ = propDPSwitchZNoSwitch
+           .&&. propDPSwitchZSwitch0
+           .&&. propDPSwitchZSwitchN
+
+  where
+
+    propDPSwitchZNoSwitch :: Property
+    propDPSwitchZNoSwitch =
+        forAllBlind genSFs $ \sfs ->
+        forAll (myStream (length sfs)) $ evalT $
+          Always $ SP $ (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: dpSwitchZ but never switch.
+        originalSF :: [SF Int Int] -> SF [Int] [Int]
+        originalSF sfs =
+          -- We pass undefined in the third argument on purpose, so that there
+          -- is an exception if dpSwitchZ tries to switch and the test fails.
+          dpSwitchZ sfs never undefined
+
+        -- Model SF: With no switching, dpSwitchZ behaves like parZ.
+        modelSF :: [SF Int Int] -> SF [Int] [Int]
+        modelSF = parZ
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream [Int])
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen [Int]
+            valueGenerator _ _ = vectorOf n arbitrary
+
+    propDPSwitchZSwitch0 :: Property
+    propDPSwitchZSwitch0 =
+        forAllBlind genSFs $ \sfs ->
+        forAllBlind genCont $ \cont ->
+        forAll (myStream (length sfs)) $ evalT $
+          And (SP $
+                (originalSF sfs cont &&& modelSF0 sfs cont) >>^ uncurry (==)
+              )
+              (Next $ Always $ SP $
+                (originalSF sfs cont &&& modelSFN sfs cont) >>^ uncurry (==)
+              )
+
+      where
+
+        -- SF under test: dpSwitchZ that switches immediately.
+        originalSF :: [SF Int Int]
+                   -> ([SF Int Int] -> () -> SF [Int] [Int])
+                   -> SF [Int] [Int]
+        originalSF sfs cont = dpSwitchZ sfs (now ()) cont
+
+        -- Model SF: With immediate switching, dpSwitchZ behaves like parZ at
+        -- time 0.
+        modelSF0 :: [SF Int Int]
+                 -> ([SF Int Int] -> () -> SF [Int] [Int])
+                 -> SF [Int] [Int]
+        modelSF0 sfs _cont = parZ sfs
+
+        -- Model SF: The behavior of dpSwitchZ if we switch immediately, after
+        -- time 0, is that produced using the continuation function to select
+        -- the new SFs.
+        modelSFN :: [SF Int Int]
+                 -> ([SF Int Int] -> () -> SF [Int] [Int])
+                 -> SF [Int] [Int]
+        modelSFN sfs cont = cont sfs ()
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random continuations.
+        genCont :: Gen ([SF Int Int] -> () -> SF [Int] [Int])
+        genCont = oneof
+          [ -- Run same SFs in parallel.
+            pure (\sfs _ -> parZ sfs)
+
+          , -- Pick one SF from the input list, and run that in parallel
+            arbitrary >>= \n ->
+              let pick :: [SF Int Int] -> Int -> SF Int Int
+                  pick sfs i = sfs !! (i `mod` length sfs)
+              in pure (\sfs _ -> parC (pick sfs n))
+
+          , -- Generate SF randomly and run that in parallel
+            randomSF >>= \sf -> pure (\_ _ -> parC sf)
+
+          , -- Generate random list of SFs with the same length as the given
+            -- list of SFs, and run in parallel.
+            listOf1 randomSF >>= \sfs' ->
+              let replic l sfs = take l $ concat $ repeat sfs
+              in pure (\sfs _ -> parZ (replic (length sfs) sfs'))
+          ]
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream [Int])
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen [Int]
+            valueGenerator _ _ = vectorOf n arbitrary
+
+    propDPSwitchZSwitchN :: Property
+    propDPSwitchZSwitchN =
+        forAllBlind genSFs $ \sfs ->
+        forAllBlind genEventS $ \eventSwitch ->
+        forAllBlind genCont $ \cont ->
+        forAll (myStream (length sfs)) $ evalT $
+          Always $ SP $
+            (originalSF sfs eventSwitch cont &&& modelSF sfs eventSwitch cont)
+              >>^ uncurry (==)
+
+      where
+
+        -- SF under test: dpSwitchZ that switches at some random time.
+        originalSF :: [SF Int Int]
+                   -> (SF ([Int], [Int]) (Event ()))
+                   -> ([SF Int Int] -> () -> SF [Int] [Int])
+                   -> SF [Int] [Int]
+        originalSF = dpSwitchZ
+
+        -- Model SF: If you switch to the input sfs, it's like never switching.
+        --
+        -- This equality only holds because of how genCont is being generated.
+        modelSF :: [SF Int Int]
+                -> (SF ([Int], [Int]) (Event ()))
+                -> ([SF Int Int] -> () -> SF [Int] [Int])
+                -> SF [Int] [Int]
+        modelSF sfs _eventSwitch _cont = parZ sfs
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Continuation that switches to the same input streams.
+        genCont :: Gen ([SF Int Int] -> () -> SF [Int] [Int])
+        genCont = pure (\sfs _ -> parZ sfs)
+
+        -- Generator: SF that will fire an event at a random time.
+        genEventS :: Gen (SF ([Int], [Int]) (Event ()))
+        genEventS = randomTime >>= \dt ->
+          pure (after dt ())
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream [Int])
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen [Int]
+            valueGenerator _ _ = vectorOf n arbitrary
 
 dynDelayLine :: a -> SF (a, Event Bool) a
 dynDelayLine a0 =
@@ -1002,7 +1944,202 @@ utils_t6r =
   , 169,170,171,171,172,174
   ]
 
+propDRPSwitchZ :: Property
+propDRPSwitchZ = propDRPSwitchZNoSwitch
+            .&&. propDRPSwitchZSwitch0
+            .&&. propDRPSwitchZSwitchNId
+
+  where
+
+    propDRPSwitchZNoSwitch :: Property
+    propDRPSwitchZNoSwitch =
+        forAllBlind genSFs $ \sfs ->
+        forAll (myStream (length sfs)) $ evalT $
+          Always $ SP $ (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: drpSwitchZ but never switch.
+        originalSF :: [SF Int Int] -> SF [Int] [Int]
+        originalSF sfs =
+          (identity &&& never) >>> drpSwitchZ sfs
+
+        -- Model SF: With no switching, drpSwitchZ behaves like parZ.
+        modelSF :: [SF Int Int] -> SF [Int] [Int]
+        modelSF = parZ
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream [Int])
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen [Int]
+            valueGenerator _ _ = vectorOf n arbitrary
+
+    propDRPSwitchZSwitch0 :: Property
+    propDRPSwitchZSwitch0 =
+        forAllBlind genSFs $ \sfs ->
+        forAll (myStream (length sfs)) $ evalT $
+          And (SP $
+                (originalSF sfs &&& modelSF0 sfs) >>^ uncurry (==)
+              )
+              (Next $ Always $ SP $
+                (originalSF sfs &&& modelSFN sfs) >>^ uncurry (==)
+              )
+
+      where
+
+        -- SF under test: drpSwitchZ that switches immediately.
+        originalSF :: [SF Int Int] -> SF [Int] [Int]
+        originalSF sfs =
+          (identity &&& now reverse) >>> drpSwitchZ sfs
+
+        -- Model SF: With immediate switching, drpSwitchZ behaves like parZ at
+        -- time 0.
+        modelSF0 :: [SF Int Int] -> SF [Int] [Int]
+        modelSF0 = parZ
+
+        -- Model SF: With immediate switching, drpSwitchZ behaves like (parZ .
+        -- reverse) after time 0.
+        modelSFN :: [SF Int Int] -> SF [Int] [Int]
+        modelSFN = parZ . reverse
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream [Int])
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen [Int]
+            valueGenerator _ _ = vectorOf n arbitrary
+
+    propDRPSwitchZSwitchNId :: Property
+    propDRPSwitchZSwitchNId =
+        forAllBlind genSFs $ \sfs ->
+        forAll (myStream (length sfs)) $ evalT $
+          Always $ SP $
+            (originalSF sfs &&& modelSF sfs) >>^ uncurry (==)
+
+      where
+
+        -- SF under test: drpSwitchZ that switches at some random time but
+        -- leaves the list of SFs unchanged.
+        originalSF :: [SF Int Int]
+                   -> SF ([Int], Event ()) [Int]
+        originalSF sfs = (identity *** arr (tagWith id)) >>> drpSwitchZ sfs
+
+        -- Model SF: If you switch to the input sfs, it's like never switching.
+        modelSF :: [SF Int Int]
+                -> SF ([Int], Event ()) [Int]
+        modelSF sfs = fst ^>> parZ sfs
+
+        -- Generator: Random non-empty list of SFs.
+        genSFs :: Gen [SF Int Int]
+        genSFs = listOf1 randomSF
+
+        -- Generator: Random input stream generator where the lists generated
+        -- have the given length.
+        myStream :: Int -> Gen (SignalSampleStream ([Int], Event ()))
+        myStream n =
+            -- This is uniDistStream with a custom value generator.
+            generateStreamWith
+              valueGenerator DistRandom (Nothing, Nothing) Nothing
+          where
+            -- Ensure that the values generated (lists) have the expected
+            -- length.
+            valueGenerator :: Int -> DTime -> Gen ([Int], Event ())
+            valueGenerator _ _ = (,) <$> vectorOf n arbitrary <*> arbitrary
+
+-- ** With replication
+
+propParC :: Property
+propParC =
+    forAllBlind randomSF $ \sf ->
+    forAll genLength $ \m ->
+    forAll (genPos m) $ \n ->
+    forAll (myStream m) $ evalT $
+      Always $ SP $ (originalSF sf n &&& modelSF sf n) >>^ uncurry (==)
+
+  where
+
+    -- SF under test: Apply parC and look at one specific value only.
+    originalSF :: SF Int Int -> Int -> SF [Int] Int
+    originalSF sf n = parC sf >>^ (!! n)
+
+    -- Model SF: Pick a value from an input list and apply the given SF only to
+    -- that value.
+    modelSF :: SF Int Int -> Int -> SF [Int] Int
+    modelSF sf n = (!! n) ^>> sf
+
+    -- Generator: Random list length.
+    genLength :: Gen Int
+    genLength = getPositive <$> arbitrary
+
+    -- Generator: Random position in a list of the given length.
+    genPos :: Int -> Gen Int
+    genPos n = chooseInt (0, n - 1)
+
+    -- Generator: Random input stream generator where the lists generated
+    -- have the given length.
+    myStream :: Int -> Gen (SignalSampleStream [Int])
+    myStream n =
+        -- This is uniDistStream with a custom value generator.
+        generateStreamWith valueGenerator DistRandom (Nothing, Nothing) Nothing
+      where
+        -- Ensure that the values generated (lists) have the expected
+        -- length.
+        valueGenerator :: Int -> DTime -> Gen [Int]
+        valueGenerator _ _ = vectorOf n arbitrary
+
 -- * Auxiliary
 
 -- prop :: SF a b -> (a -> b ->
 prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
+
+-- * Auxiliary
+
+-- | Generate a random positive time delta.
+randomTime :: Gen Double
+randomTime = getPositive <$> arbitrary
+
+-- | Generator of random signal functions on Ints.
+randomSF :: Gen (SF Int Int)
+randomSF = oneof [ return identity
+                 , pointwiseSF
+                 , loopPre <$> arbitrary <*> randomSF2
+                 ]
+
+-- | Generator of random signal functions on Int pairs.
+randomSF2 :: Gen (SF (Int, Int) (Int, Int))
+randomSF2 = oneof [ return identity
+                  , pointwiseSF2
+                  ]
+
+-- | Generator of random pointwise signal functions on Ints.
+pointwiseSF :: Gen (SF Int Int)
+pointwiseSF = arr <$> arbitrary
+
+-- | Generator of random pointwise signal functions on Int pairs.
+pointwiseSF2 :: Gen (SF (Int, Int) (Int, Int))
+pointwiseSF2 = arr <$> arbitrary
+
+-- | Arbitrary instance for Event with a high chance of not producing an event.
+instance Arbitrary a => Arbitrary (Event a) where
+  arbitrary = frequency [(9, pure noEvent), (1, fmap Event arbitrary)]
