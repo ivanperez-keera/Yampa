@@ -13,7 +13,7 @@
 --
 -- Switches allow you to change the signal function being applied.
 --
--- The basic idea of switching is fromed by combining a subordinate signal
+-- The basic idea of switching is formed by combining a subordinate signal
 -- function and a signal function continuation parameterised over some initial
 -- data.
 --
