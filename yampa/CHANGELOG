@@ -1,3 +1,6 @@
+2023-02-06 Ivan Perez <ivan.perez@keera.co.uk>
+        * src/: Replace broken links (#253).
+
 2022-12-07 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.14) (#242), bump version bounds of
           dependency (#241).
