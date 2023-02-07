@@ -13,7 +13,7 @@
 --
 -- Switches allow you to change the signal function being applied.
 --
--- The basic idea of switching is fromed by combining a subordinate signal
+-- The basic idea of switching is formed by combining a subordinate signal
 -- function and a signal function continuation parameterised over some initial
 -- data.
 --
@@ -363,7 +363,7 @@ broadcast a = fmap (\sf -> (a, sf))
 -- of outputs. See 'par'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 parB :: Functor col => col (SF a b) -> SF a (col b)
 parB = par broadcast
 
@@ -371,7 +371,7 @@ parB = par broadcast
 -- in parallel) with broadcasting. See 'pSwitch'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 pSwitchB :: Functor col =>
     col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c-> SF a (col b))
     -> SF a (col b)
@@ -381,7 +381,7 @@ pSwitchB = pSwitch broadcast
 --   signal functions spatially composed in parallel). See 'dpSwitch'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 dpSwitchB :: Functor col =>
     col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c->SF a (col b))
     -> SF a (col b)
@@ -400,7 +400,7 @@ dpSwitchB = dpSwitch broadcast
 -- See 'rpSwitch'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 rpSwitchB :: Functor col =>
     col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
 rpSwitchB = rpSwitch broadcast
@@ -418,7 +418,7 @@ rpSwitchB = rpSwitch broadcast
 -- This is the decoupled version of 'rpSwitchB'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 drpSwitchB :: Functor col =>
     col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
 drpSwitchB = drpSwitch broadcast
@@ -635,7 +635,7 @@ parZ = par (safeZip "parZ")
 -- in parallel). See 'pSwitch'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 pSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
             -> SF [a] [b]
 pSwitchZ = pSwitch (safeZip "pSwitchZ")
@@ -644,7 +644,7 @@ pSwitchZ = pSwitch (safeZip "pSwitchZ")
 --   signal functions spatially composed in parallel). See 'dpSwitch'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 dpSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c ->SF [a] [b])
              -> SF [a] [b]
 dpSwitchZ = dpSwitch (safeZip "dpSwitchZ")
@@ -661,7 +661,7 @@ dpSwitchZ = dpSwitch (safeZip "dpSwitchZ")
 -- See 'rpSwitch'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 rpSwitchZ :: [SF a b] -> SF ([a], Event ([SF a b] -> [SF a b])) [b]
 rpSwitchZ = rpSwitch (safeZip "rpSwitchZ")
 
@@ -677,7 +677,7 @@ rpSwitchZ = rpSwitch (safeZip "rpSwitchZ")
 -- See 'rpSwitchZ' and 'drpSwitch'.
 --
 -- For more information on how parallel composition works, check
--- <http://haskell.cs.yale.edu/wp-content/uploads/2011/01/yampa-arcade.pdf>
+-- <https://www.antonycourtney.com/pubs/hw03.pdf>
 drpSwitchZ :: [SF a b] -> SF ([a], Event ([SF a b] -> [SF a b])) [b]
 drpSwitchZ = drpSwitch (safeZip "drpSwitchZ")
 

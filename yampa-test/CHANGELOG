@@ -1,3 +1,12 @@
+2023-02-07 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.14.1) (#251).
+        * tests/: add tests for module FRP.Yampa.Hybrid (#243), add tests for
+          module FRP.Yampa.Arrow (#244), complete unit tests for FRP.Yampa.Test
+          (#245), complete unit tests for FRP.Yampa.Simulation (#246), complete
+          unit tests for FRP.Yampa.EventS (#247), complete unit tests for
+          FRP.Yampa.Random (#248), complete unit tests for FRP.Yampa.Switches
+          (#250).
+
 2022-12-07 Ivan Perez <ivan.perez@keera.co.uk>
         * yampa-test.cabal: Version bump (0.14) (#242), add tests for module
           FRP.Yampa.Event (#237).

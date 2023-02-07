@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Description : Test cases for tasks (Task)
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
@@ -8,6 +9,9 @@ module Test.FRP.Yampa.Task
     ( tests )
   where
 
+#if __GLASGOW_HASKELL__ < 710
+import Data.Functor ((<$>))
+#endif
 import Control.Monad (when, forever)
 
 import Test.QuickCheck
@@ -16,6 +20,10 @@ import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
 import FRP.Yampa.Task
+
+import FRP.Yampa.LTLFuture  (TPred (Always, SP), evalT)
+import FRP.Yampa.QuickCheck (uniDistStream)
+import FRP.Yampa.Stream     (SignalSampleStream)
 
 import TestsCommon
 
@@ -30,6 +38,9 @@ tests = testGroup "Regression tests for FRP.Yampa.Task"
   , testProperty "tasks (fixed)" (property $ task_t6 ~= task_t6r)
   , testProperty "tasks (fixed)" (property $ task_t7 ~= task_t7r)
   , testProperty "tasks (fixed)" (property $ task_t8 ~= task_t8r)
+  , testProperty "runTask_ (qc)" testRunTask_
+  , testProperty "taskToSF (qc)" testTaskToSF
+  , testProperty "constT (qc)"   testConstT
   ]
 
 -- * The Task type
@@ -210,6 +221,80 @@ task_t8r =
     , Right (Left 24.0,24.0)
     ]
 
+testRunTask_ :: Property
+testRunTask_ =
+    forAll arbitrary $ \i ->
+    forAll myStream $
+      evalT $ Always $ prop (sf i &&& sfModel i, pred)
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    sf :: Double -> SF Float Double
+    sf x = runTask_ $ constT x
+
+    sfModel :: Double -> SF Float Double
+    sfModel x = constant x
+
+    -- Both the SF under test and the model should behave the same way,
+    -- that is, output the same result.
+    pred _ = uncurry (==)
+
+testTaskToSF :: Property
+testTaskToSF =
+    forAll positive $ \t ->
+    forAll arbitrary $ \i ->
+    forAll arbitrary $ \j ->
+    forAll myStream $
+      evalT (Always $ prop (sf t i j &&& sfModel t i j, pred))
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    positive :: Gen Double
+    positive = getPositive <$> arbitrary
+
+    -- Note that we use switch to abandon the Task after it terminates. Tasks
+    -- do not produce correct output once they finish, they just throw an
+    -- error.
+    sf :: Time -> Double -> Double -> SF Float Double
+    sf t x y = switch (taskToSF (sleepT t x)) (\_ -> constant y)
+
+    -- Note that we use switch to abandon the Task after it terminates. Tasks
+    -- do not produce correct output once they finish, they just throw an
+    -- error.
+    sfModel :: Time -> Double -> Double -> SF Float Double
+    sfModel t x y = switch
+      -- Output x, and indicate when time t is exceeded for the first time
+      (constant x &&& (time >>> arr (>= t) >>> edge))
+      (\_ -> constant y)
+
+    -- Both the SF under test and the model should behave the same way,
+    -- that is, output the same result.
+    pred _ = uncurry (==)
+
+testConstT :: Property
+testConstT =
+    forAll arbitrary $ \i ->
+    forAll myStream $
+      evalT $ Always $ prop (sf i &&& sfModel i, pred)
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+
+    -- Task that constantly outputs a value. If it finishes (which it
+    -- shouldn't), then return the negated value.
+    sf :: Double -> SF Float (Either Double ())
+    sf x = runTask (constT x)
+
+    -- SF that constantly outputs a value on the Left side of an Either.
+    sfModel :: Double -> SF Float (Either Double ())
+    sfModel x = constant $ Left x
+
+    -- Both the SF under test and the model should behave the same way,
+    -- that is, output the same result.
+    pred _ = uncurry (==)
+
 -- * Auxiliary
 
 -- | Repeat m until result satisfies the predicate p
@@ -223,3 +308,6 @@ m `repeatUntil` p = m >>= \x -> if not (p x) then repeatUntil m p else return x
 -- >>> for 0 (+1) (>=10) ...
 for :: Monad m => a -> (a -> a) -> (a -> Bool) -> m b -> m ()
 for i f p m = when (p i) $ m >> for (f i) f p m
+
+prop :: (SF a b, a -> b -> Bool) -> TPred a
+prop (a, b) = SP ((identity &&& a) >>^ uncurry b)

@@ -14,6 +14,7 @@ module Main where
 
 import Test.Tasty (TestTree, defaultMain, testGroup)
 
+import qualified Test.FRP.Yampa.Arrow        as Arrow
 import qualified Test.FRP.Yampa.Basic        as Basic
 import qualified Test.FRP.Yampa.Conditional  as Conditional
 import qualified Test.FRP.Yampa.Delays       as Delays
@@ -23,6 +24,7 @@ import qualified Test.FRP.Yampa.Hybrid       as Hybrid
 import qualified Test.FRP.Yampa.Integration  as Integration
 import qualified Test.FRP.Yampa.InternalCore as InternalCore
 import qualified Test.FRP.Yampa.Loop         as Loop
+import qualified Test.FRP.Yampa.Random       as Random
 import qualified Test.FRP.Yampa.Scan         as Scan
 import qualified Test.FRP.Yampa.Simulation   as Simulation
 import qualified Test.FRP.Yampa.Switches     as Switches
@@ -34,7 +36,8 @@ main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Yampa QC properties"
-  [ Basic.tests
+  [ Arrow.tests
+  , Basic.tests
   , Conditional.tests
   , Delays.tests
   , Event.tests
@@ -43,6 +46,7 @@ tests = testGroup "Yampa QC properties"
   , Integration.tests
   , InternalCore.tests
   , Loop.tests
+  , Random.tests
   , Scan.tests
   , Simulation.tests
   , Switches.tests
