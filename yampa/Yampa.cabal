@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          Yampa
-version:       0.14
+version:       0.14.1
 author:        Henrik Nilsson, Antony Courtney
 maintainer:    Ivan Perez (ivan.perez@keera.co.uk)
 homepage:      https://github.com/ivanperez-keera/Yampa/
