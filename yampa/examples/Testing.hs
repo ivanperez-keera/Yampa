@@ -1,7 +1,6 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
 module Testing where
 
 -- Examples accompanying the ICFP 2017 paper.
