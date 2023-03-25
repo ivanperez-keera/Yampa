@@ -76,7 +76,8 @@ bouncingBall p0 v0 = switch (fallingBall'' p0 v0 >>> (identity &&& hit))
 --   returnA -< (p, v)
 --
 -- hit :: SF (Double, Double) (Event (Double, Double))
--- hit = arr (\(p0, v0) -> if ((p0 <= 0) && (v0 < 0)) then Event (p0, v0) else NoEvent)
+-- hit = arr
+--   (\(p0, v0) -> if ((p0 <= 0) && (v0 < 0)) then Event (p0, v0) else NoEvent)
 
 ballLower :: Double -> TPred ()
 ballLower p0 = Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
