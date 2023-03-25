@@ -319,7 +319,7 @@ module FRP.Yampa
     , kSwitch, dkSwitch
 
       -- ** Parallel composition and switching
-      -- *** Parallel composition and switching over collections with broadcasting
+      -- *** Parallel composition and switching with broadcasting
     , parB
     , pSwitchB,dpSwitchB
     , rpSwitchB,drpSwitchB
