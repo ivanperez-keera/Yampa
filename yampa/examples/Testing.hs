@@ -136,7 +136,8 @@ hit =
 --   (\(p0', v0') -> bouncingBall p0' (-v0'))
 
 -- ballBouncingLower :: Double -> TPred ()
--- ballBouncingLower p0 = Always $ SP (bouncingBall p0 0, (\_ (p1,_) -> p1 <= p0))
+-- ballBouncingLower p0 =
+--   Always $ SP (bouncingBall p0 0, (\_ (p1,_) -> p1 <= p0))
 
 testBallBouncing = evalT (ballBouncingLower 100) stream0_5
 
