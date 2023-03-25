@@ -1,3 +1,7 @@
+-- |
+-- Copyright   :  (c) Ivan Perez, 2017-2022
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Maintainer  :  ivan.perez@keera.co.uk
 module YampaSDL where
 
 import Data.IORef
