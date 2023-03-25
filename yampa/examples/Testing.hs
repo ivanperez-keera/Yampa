@@ -59,7 +59,8 @@ ballTrulyFalling p0 =
 -- False
 
 ballTrulyFalling' :: Double -> TPred ()
-ballTrulyFalling' p0 = Next (Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po))))
+ballTrulyFalling' p0 =
+  Next (Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po))))
 
 -- > evalT (ballTrulyFalling ′ 100) stream01
 -- True
