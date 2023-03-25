@@ -70,7 +70,10 @@ sdlGetController controllerState = do
   state <- readIORef controllerState
   e     <- pollEvent
   case e of
-    MouseMotion x y _ _ -> writeIORef controllerState (Controller (fromIntegral x, fromIntegral y)) >> sdlGetController controllerState
+    MouseMotion x y _ _ -> do writeIORef
+                                controllerState
+                                (Controller (fromIntegral x, fromIntegral y))
+                              sdlGetController controllerState
     _                   -> return state
 
 -- * Graphics
