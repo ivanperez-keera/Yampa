@@ -141,7 +141,10 @@ hit =
 
 testBallBouncing = evalT (ballBouncingLower 100) stream0_5
 
-showBallBouncing = embed (bouncingBall 100 0 >>> arr fst ) ((), map (second Just) [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ())])
+showBallBouncing =
+  embed
+    (bouncingBall 100 0 >>> arr fst )
+    ((), map (second Just) (replicate 39 (0.5, ())))
 
 -- ballOverFloor :: Double -> TPred ()
 -- ballOverFloor p0 = Always $ SP (bouncingBall p0 0, (\_ (p1, v1) -> p1 >= 0))
