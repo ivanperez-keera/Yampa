@@ -52,7 +52,8 @@ ballFallingLower p0 = Always (ballFellLower p0)
 -- fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
 
 ballTrulyFalling :: Double -> TPred ()
-ballTrulyFalling p0 = Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po)))
+ballTrulyFalling p0 =
+  Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po)))
 
 -- > evalT (ballTrulyFalling 100) stream01
 -- False
