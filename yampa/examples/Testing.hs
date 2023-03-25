@@ -1,6 +1,14 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+-- |
+-- Module      :  FRP.Yampa
+-- Copyright   :  (c) Ivan Perez, 2017-2023
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+--
+-- Maintainer  :  ivan.perez@keera.co.uk
+-- Stability   :  provisional
+-- Portability :  non-portable (GHC extensions)
 module Testing where
 
 -- Examples accompanying the ICFP 2017 paper.
