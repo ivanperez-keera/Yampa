@@ -1,7 +1,6 @@
 {-# LANGUAGE Arrows                    #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
-
 -- | Example of connecting the diagrams drawing library with Yampa.
 --
 -- Based on:
