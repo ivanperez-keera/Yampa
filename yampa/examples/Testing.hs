@@ -110,12 +110,14 @@ fallingBallPair :: Double -> SF () (Double, Double)
 fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
 
 -- ballTrulyFalling :: Double -> TPred ()
--- ballTrulyFalling p0 = Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
+-- ballTrulyFalling p0 =
+--   Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
 
 testBallTrulyFalling = evalT (ballTrulyFalling 100) stream0_1
 
 -- ballTrulyFalling' :: Double -> TPred ()
--- ballTrulyFalling' p0 = Next $ Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
+-- ballTrulyFalling' p0 =
+--   Next $ Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
 
 testBallTrulyFalling' = evalT (ballTrulyFalling' 100) stream0_1
 
