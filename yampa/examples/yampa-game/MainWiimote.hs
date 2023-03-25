@@ -23,7 +23,7 @@ height = 480
 -- The first two arguments to reactimate are the value of the input signal
 -- at time zero and at subsequent times, together with the times between
 -- samples.
--- 
+--
 -- The third argument to reactimate is the output consumer that renders
 -- the signal.
 --
@@ -110,7 +110,7 @@ senseWiimote wmdev = do
   let finX  = width  * propX
       finY  = height * propY
 
-  return (finX, finY) 
+  return (finX, finY)
 
 -- | Initializes the wiimote, optionally returning the sensing function. It
 -- returns Nothing if the Wiimote cannot be detected. Users should have a BT
