@@ -324,7 +324,7 @@ module FRP.Yampa
     , pSwitchB,dpSwitchB
     , rpSwitchB,drpSwitchB
 
-      -- *** Parallel composition and switching over collections with general routing
+      -- *** Parallel composition and switching with general routing
     , par
     , pSwitch, dpSwitch
     , rpSwitch,drpSwitch
