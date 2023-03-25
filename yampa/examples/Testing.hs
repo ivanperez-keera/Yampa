@@ -128,7 +128,8 @@ fallingBall'' p0 v0 = proc () -> do
   returnA -< (p, v)
 
 hit :: SF (Double, Double) (Event (Double, Double))
-hit = arr (\(p0, v0) -> if (p0 <= 0 && v0 < 0) then Event (p0, v0) else NoEvent)
+hit =
+  arr (\(p0, v0) -> if (p0 <= 0 && v0 < 0) then Event (p0, v0) else NoEvent)
 
 -- bouncingBall :: Double -> Double -> SF () (Double, Double)
 -- bouncingBall p0 v0 = switch (fallingBall'' p0 v0 >>> (identity &&& hit))
