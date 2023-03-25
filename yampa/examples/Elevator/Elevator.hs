@@ -1,8 +1,15 @@
 {-# LANGUAGE Arrows #-}
--- Module      : Elevator
--- Description : Elevator simulation based on the Fran version by Thompson.
--- Copyright   : The University of Nottingham, 2004
--- Authors     : Henrik Nilsson
+-- |
+-- Module      :  Elevator
+-- Description :  Elevator simulation based on the Fran version by Thompson.
+-- Copyright   :  (c) Ivan Perez, 2014-2022
+--                (c) George Giorgidze, 2007-2012
+--                (c) Henrik Nilsson, The University of Nottingham, 2004-2006
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+--
+-- Maintainer  :  ivan.perez@keera.co.uk
+-- Stability   :  provisional
+-- Portability :  non-portable (GHC extensions)
 --
 -- Elevator simulation based on the Fran version from Simon Thompson's paper "A
 -- functional reactive animation of a lift using Fran".

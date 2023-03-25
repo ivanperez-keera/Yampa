@@ -52,7 +52,6 @@
 -- "FRP.Yampa.Event" defines events and event-manipulation functions.
 --
 -- Finally, see [<#g:26>] for sources of randomness (useful in games).
-
 module FRP.Yampa.InternalCore
     ( module Control.Arrow
 

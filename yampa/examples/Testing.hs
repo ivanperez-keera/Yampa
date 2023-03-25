@@ -1,7 +1,14 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-
+-- |
+-- Module      :  FRP.Yampa
+-- Copyright   :  (c) Ivan Perez, 2017-2023
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+--
+-- Maintainer  :  ivan.perez@keera.co.uk
+-- Stability   :  provisional
+-- Portability :  non-portable (GHC extensions)
 module Testing where
 
 -- Examples accompanying the ICFP 2017 paper.
@@ -45,13 +52,15 @@ ballFallingLower p0 = Always (ballFellLower p0)
 -- fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
 
 ballTrulyFalling :: Double -> TPred ()
-ballTrulyFalling p0 = Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po)))
+ballTrulyFalling p0 =
+  Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po)))
 
 -- > evalT (ballTrulyFalling 100) stream01
 -- False
 
 ballTrulyFalling' :: Double -> TPred ()
-ballTrulyFalling' p0 = Next (Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po))))
+ballTrulyFalling' p0 =
+  Next (Always (SP (fallingBallPair p0 >>> arr (\(pn, po) -> pn < po))))
 
 -- > evalT (ballTrulyFalling ′ 100) stream01
 -- True
@@ -67,7 +76,8 @@ bouncingBall p0 v0 = switch (fallingBall'' p0 v0 >>> (identity &&& hit))
 --   returnA -< (p, v)
 --
 -- hit :: SF (Double, Double) (Event (Double, Double))
--- hit = arr (\(p0, v0) -> if ((p0 <= 0) && (v0 < 0)) then Event (p0, v0) else NoEvent)
+-- hit = arr
+--   (\(p0, v0) -> if ((p0 <= 0) && (v0 < 0)) then Event (p0, v0) else NoEvent)
 
 ballLower :: Double -> TPred ()
 ballLower p0 = Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
@@ -78,7 +88,8 @@ ballLower p0 = Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
 ballBouncingLower = ballLower
 
 ballOverFloor :: Double -> TPred ()
-ballOverFloor p0 = Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 >= 0)))
+ballOverFloor p0 =
+  Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 >= 0)))
 
 -- > evalT (ballOverFloor 100) stream05
 -- False
@@ -99,12 +110,14 @@ fallingBallPair :: Double -> SF () (Double, Double)
 fallingBallPair p0 = fallingBall p0 >>> (identity &&& iPre p0)
 
 -- ballTrulyFalling :: Double -> TPred ()
--- ballTrulyFalling p0 = Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
+-- ballTrulyFalling p0 =
+--   Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
 
 testBallTrulyFalling = evalT (ballTrulyFalling 100) stream0_1
 
 -- ballTrulyFalling' :: Double -> TPred ()
--- ballTrulyFalling' p0 = Next $ Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
+-- ballTrulyFalling' p0 =
+--   Next $ Always $ SP (fallingBallPair p0, \() (pn,po) -> pn < po)
 
 testBallTrulyFalling' = evalT (ballTrulyFalling' 100) stream0_1
 
@@ -115,25 +128,33 @@ fallingBall'' p0 v0 = proc () -> do
   returnA -< (p, v)
 
 hit :: SF (Double, Double) (Event (Double, Double))
-hit = arr (\(p0, v0) -> if (p0 <= 0 && v0 < 0) then Event (p0, v0) else NoEvent)
+hit =
+  arr (\(p0, v0) -> if (p0 <= 0 && v0 < 0) then Event (p0, v0) else NoEvent)
 
 -- bouncingBall :: Double -> Double -> SF () (Double, Double)
 -- bouncingBall p0 v0 = switch (fallingBall'' p0 v0 >>> (identity &&& hit))
 --   (\(p0', v0') -> bouncingBall p0' (-v0'))
 
 -- ballBouncingLower :: Double -> TPred ()
--- ballBouncingLower p0 = Always $ SP (bouncingBall p0 0, (\_ (p1,_) -> p1 <= p0))
+-- ballBouncingLower p0 =
+--   Always $ SP (bouncingBall p0 0, (\_ (p1,_) -> p1 <= p0))
 
 testBallBouncing = evalT (ballBouncingLower 100) stream0_5
 
-showBallBouncing = embed (bouncingBall 100 0 >>> arr fst ) ((), map (second Just) [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ())])
+showBallBouncing =
+  embed
+    (bouncingBall 100 0 >>> arr fst )
+    ((), map (second Just) (replicate 39 (0.5, ())))
 
 -- ballOverFloor :: Double -> TPred ()
 -- ballOverFloor p0 = Always $ SP (bouncingBall p0 0, (\_ (p1, v1) -> p1 >= 0))
 
 testBallOverFloor = evalT (ballOverFloor 100) stream0_5'
 
-showBallBouncing1 = embed (bouncingBall 110.24999999999999 0 >>> arr fst ) ((), map (second Just) [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ())])
+showBallBouncing1 =
+  embed
+    (bouncingBall 110.24999999999999 0 >>> arr fst )
+    ((), map (second Just) (replicate 102 (0.5, ())))
 
 testBallOverFloor' = evalT (ballOverFloor 110.24999999999999) stream0_5'
 
@@ -157,13 +178,13 @@ ballAboveFloor p0 v0 = proc () -> do
 
 -- * Sample streams
 
-stream0_1 = ((), [(0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ())])
+stream0_1 = ((), replicate 21 (0.1, ()))
 
-stream0_2 = ((), [(0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (0.1, ()), (-1000000, ())])
+stream0_2 = ((), (replicate 20 (0.1, ())) ++ [(-1000000, ())])
 
-stream0_5 = ((), [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ())])
+stream0_5 = ((), replicate 39 (0.5, ()))
 
-stream0_5' = ((), [(0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()), (0.5, ()),(0.5, ())])
+stream0_5' = ((), replicate 20 (0.5, ()))
 
 -- ** Extended SFs
 
