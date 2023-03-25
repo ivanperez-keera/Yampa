@@ -88,7 +88,8 @@ ballLower p0 = Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 <= p0)))
 ballBouncingLower = ballLower
 
 ballOverFloor :: Double -> TPred ()
-ballOverFloor p0 = Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 >= 0)))
+ballOverFloor p0 =
+  Always (SP (bouncingBall p0 0 >>> arr (\(p1, v1) -> p1 >= 0)))
 
 -- > evalT (ballOverFloor 100) stream05
 -- False
