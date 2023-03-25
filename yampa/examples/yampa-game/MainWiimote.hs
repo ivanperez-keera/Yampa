@@ -121,5 +121,6 @@ initializeWiimote = do
   wm <- cwiidOpen
   case wm of
     Nothing  -> return ()
-    Just wm' -> void $ cwiidSetRptMode wm' 15 -- Enable button reception, acc and IR
+    Just wm' -> void $ cwiidSetRptMode wm' 15 -- Enable button reception, acc
+                                              -- and IR
   return wm
