@@ -1,9 +1,14 @@
--- | Minimal FRP core.
+-- |
+-- Copyright   :  (c) Ivan Perez, 2015-2022
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Maintainer  :  ivan.perez@keera.co.uk
 --
---   For documentation purposes only, to serve as a minimal FRP implementation.
---   Based on Antony Courtney's thesis "Modeling User Interfaces in a
---   Functional Language", page 48
---   (see https://www.antonycourtney.com/pubs/ac-thesis.pdf, page 61).
+-- Minimal FRP core.
+--
+-- For documentation purposes only, to serve as a minimal FRP implementation.
+-- Based on Antony Courtney's thesis "Modeling User Interfaces in a Functional
+-- Language", page 48
+-- (see https://www.antonycourtney.com/pubs/ac-thesis.pdf, page 61).
 --
 -- Notes:
 --
