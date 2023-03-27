@@ -1,3 +1,6 @@
+2023-03-26 Ivan Perez <ivan.perez@keera.co.uk>
+        * examples/: Introduce testing example from Yampa library (#257).
+
 2023-02-07 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.14.1) (#251).
         * tests/: add tests for module FRP.Yampa.Hybrid (#243), add tests for
