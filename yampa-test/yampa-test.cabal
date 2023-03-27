@@ -56,8 +56,8 @@ description:
   <https://dl.acm.org/citation.cfm?id=3110246 Testing and Debugging Functional Reactive Programming>.
 
 extra-source-files:
-  CHANGELOG
-
+    CHANGELOG
+  , examples/Testing.hs
 
 source-repository head
   type:     git
