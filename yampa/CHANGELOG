@@ -1,7 +1,8 @@
-2023-03-26 Ivan Perez <ivan.perez@keera.co.uk>
+2023-03-31 Ivan Perez <ivan.perez@keera.co.uk>
         * src/: Conformance with style guide (#255).
         * examples/: Conformance with style guide (#255), move example to
           yampa-test library (#257).
+        * README: Add game to list of games and apps in README (#254).
 
 2023-02-07 Ivan Perez <ivan.perez@keera.co.uk>
         * Yampa.cabal: Version bump (0.14.1) (#251).
