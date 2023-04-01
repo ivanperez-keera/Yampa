@@ -207,6 +207,7 @@ $ cabal install Yampa -fexamples
 * [The Bearriver Arcade](https://github.com/walseb/The_Bearriver_Arcade): A couple of arcade games made using bearriver, a library that
 implements the Yampa API.
 * [Yampa-2048](https://github.com/ksaveljev/yampa-2048): an implementation of the game 2048 using Yampa and Gloss.
+* [Yampa - Game of Life](https://github.com/Poselsky/Yampa-Game-Of-Life): an implementation of Game of Life using SDL2 and OpenGL.
 * [YampaShooter](https://github.com/werk/YampaShooter): Top-down team based networked tank game.
 * [YampaSynth](http://hackage.haskell.org/package/YampaSynth): Software synthesizer.
 * [YFrob](hackage.haskell.org/package/YFrob): Yampa-based library for programming robots.
