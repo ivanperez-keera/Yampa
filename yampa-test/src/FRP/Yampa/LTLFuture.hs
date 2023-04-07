@@ -1,5 +1,10 @@
 {-# LANGUAGE GADTs #-}
--- | Linear Temporal Logics based on SFs.
+-- |
+-- Copyright  : (c) Ivan Perez, 2017-2022
+-- License    : BSD-style (see the LICENSE file in the distribution)
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Linear Temporal Logics based on SFs.
 --
 -- This module contains a definition of LTL with Next on top of Signal
 -- Functions.
