@@ -11,12 +11,6 @@
 --
 -- LTL predicates are parameterized over an input. A basic proposition is a
 -- Signal Function that produces a boolean function.
-
--- Important question: because this FRP implement uses CPS, it is stateful, and
--- sampling twice in one time period is not necessarily the same as sampling
--- once. This means that tauApp, or next, might not work correctly. It's
--- important to see what is going on there... :(
-
 module FRP.Yampa.LTLFuture
     ( TPred(..)
     , evalT
