@@ -24,7 +24,10 @@ module FRP.Yampa.LTLFuture
     )
   where
 
+-- External imports
 import FRP.Yampa
+
+-- Internal imports
 import FRP.Yampa.Stream
 
 -- | Type representing future-time linear temporal logic predicates with until
