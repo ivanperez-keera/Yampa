@@ -68,7 +68,7 @@ generateStreamWith arb DistConstant range len =
 generateStreamWith arb dist (m, n) len = do
     ds <- generateDeltas len
     let l = length ds
-    let f n = arb n (ds!!(n-1))
+    let f n = arb n (ds !! (n - 1))
     xs <- vectorOfWith l f
 
     x <- arb 0 0
@@ -123,7 +123,7 @@ generateStreamLenDT range len = do
 -- | Generate one random delta, possibly within a range.
 generateDelta :: Maybe DTime -> Maybe DTime -> Gen DTime
 generateDelta (Just x)  (Just y)  = choose (x, y)
-generateDelta (Just x)  (Nothing) = (x+) <$> arbitrary
+generateDelta (Just x)  (Nothing) = (x +) <$> arbitrary
 generateDelta (Nothing) (Just y)  = choose (2.2251e-308, y)
 generateDelta (Nothing) (Nothing) = getPositive <$> arbitrary
 
