@@ -1,4 +1,3 @@
-{-# LANGUAGE MultiWayIf #-}
 -- |
 -- Copyright  : (c) Ivan Perez, 2017-2022
 -- License    : BSD-style (see the LICENSE file in the distribution)
@@ -131,12 +130,13 @@ sClipBeforeFrame n (_,(dt,x):xs) = sClipBeforeFrame (n-1) (x, xs)
 -- deltas are not re-calculated to match the original stream.
 sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
-  | dt <= 0   = xs
-  | otherwise = case xs of
-                  (x,[])           -> (x,[])
-                  (_,(dt',x'):xs') -> if | dt < dt'  -> -- (dt' - dt, x'):xs'
-                                                        (x',xs')
-                                         | otherwise -> sClipBeforeTime (dt - dt') (x', xs')
+    | dt <= 0       = xs
+    | null (snd xs) = (x,[])
+    | dt < dt'      = -- (dt' - dt, x'):xs'
+                      (x',xs')
+    | otherwise     = sClipBeforeTime (dt - dt') (x', xs')
+  where
+    (_fstSample, ((dt',x'):xs')) = xs
 
 -- ** Stream-based evaluation
 
