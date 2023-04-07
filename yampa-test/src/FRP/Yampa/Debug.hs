@@ -23,4 +23,4 @@ traceSFWith f = arr (\x -> trace (f x) x)
 -- | Execute an IO action using 'unsafePerformIO' at every step, and ignore the
 -- result.
 traceSFWithIO :: (a -> IO b) -> SF a a
-traceSFWithIO f = arr (\x -> (unsafePerformIO (f x >> return x)))
+traceSFWithIO f = arr (\x -> unsafePerformIO (f x >> return x))
