@@ -12,12 +12,12 @@
 -- - The maximum and minimum bounds for the time deltas ('Range').
 -- - The maximum stream length ('Length').
 --
--- The main function to generate streams is 'generateStream'. The specific
--- time deltas can be customized further using 'generateStreamWith'. Some
--- helper functions are provided to facilitate testing.
+-- The main function to generate streams is 'generateStream'. The specific time
+-- deltas can be customized further using 'generateStreamWith'. Some helper
+-- functions are provided to facilitate testing.
 
--- The function uniDistStreamMaxDT had the wrong type and the name on the
--- paper was: uniDistStream. This has been fixed.
+-- The function uniDistStreamMaxDT had the wrong type and the name on the paper
+-- was: uniDistStream. This has been fixed.
 
 module FRP.Yampa.QuickCheck
     (
@@ -58,63 +58,49 @@ generateStream = generateStreamWith (\_ _ -> arbitrary)
 
 -- | Generate random stream, parameterized by the value generator.
 generateStreamWith :: Arbitrary a
-                   => (Int -> DTime -> Gen a) -> Distribution -> Range -> Length -> Gen (SignalSampleStream a)
-generateStreamWith arb DistConstant range  len     = generateConstantStream arb =<< generateStreamLenDT range len
-generateStreamWith arb DistRandom   (m, n) Nothing = do
-  l <- arbitrary
-  x <- arb 0 0
-  ds <- vectorOfWith l (\_ -> generateDelta m n)
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+                   => (Int -> DTime -> Gen a)
+                   -> Distribution
+                   -> Range
+                   -> Length
+                   -> Gen (SignalSampleStream a)
+generateStreamWith arb DistConstant range len =
+  generateConstantStream arb =<< generateStreamLenDT range len
+generateStreamWith arb dist (m, n) len = do
+    ds <- generateDeltas len
+    let l = length ds
+    let f n = arb n (ds!!(n-1))
+    xs <- vectorOfWith l f
 
-generateStreamWith arb DistRandom (m, n) (Just (Left l)) = do
-  x <- arb 0 0
-  ds <- vectorOfWith l (\_ -> generateDelta m n)
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+    x <- arb 0 0
+    return $ groupDeltas (x:xs) ds
 
-generateStreamWith arb DistRandom (m, n) (Just (Right maxds)) = do
-  ds <- timeStampsUntilWith (generateDelta m n) maxds
-  let l = length ds
-  x  <- arb 0 0
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+  where
 
-generateStreamWith arb (DistNormal (avg, stddev)) (m, n) Nothing = do
-  l <- arbitrary
-  x <- arb 0 0
-  ds <- vectorOfWith l (\_ -> generateDSNormal avg stddev m n)
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+    deltaF :: Gen DTime
+    deltaF = case dist of
+               DistRandom -> generateDelta m n
+               DistNormal (avg, stddev) -> generateDSNormal avg stddev m n
+               _ -> error "yampa-test: generateStreamWith"
 
-generateStreamWith arb (DistNormal (avg, stddev)) (m, n) (Just (Left l)) = do
-  x <- arb 0 0
-  ds <- vectorOfWith l (\_ -> generateDSNormal avg stddev m n)
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
-
-generateStreamWith arb (DistNormal (avg, stddev)) (m, n) (Just (Right maxds)) = do
-  ds <- timeStampsUntilWith (generateDSNormal avg stddev m n) maxds
-  let l = length ds
-  x <- arb 0 0
-  let f n = arb n (ds!!(n-1))
-  xs <- vectorOfWith l f
-  return $ groupDeltas (x:xs) ds
+    generateDeltas :: Length -> Gen [DTime]
+    generateDeltas Nothing              = do l <- arbitrary
+                                             vectorOfWith l (\_ -> deltaF)
+    generateDeltas (Just (Left l))      = vectorOfWith l (\_ -> deltaF)
+    generateDeltas (Just (Right maxds)) = timeStampsUntilWith deltaF maxds
 
 -- | Generate arbitrary stream with fixed length and constant delta.
-generateConstantStream :: (Int -> DTime -> Gen a) -> (DTime, Int) -> Gen (SignalSampleStream a)
+generateConstantStream :: (Int -> DTime -> Gen a)
+                       -> (DTime, Int)
+                       -> Gen (SignalSampleStream a)
 generateConstantStream arb (x, length) = do
   ys <- vectorOfWith length (\n -> arb n x)
   let ds = repeat x
   return $ groupDeltas ys ds
 
 -- | Generate arbitrary stream
-generateStreamLenDT :: (Maybe DTime, Maybe DTime) -> Maybe (Either Int DTime) -> Gen (DTime, Int)
+generateStreamLenDT :: (Maybe DTime, Maybe DTime)
+                    -> Maybe (Either Int DTime)
+                    -> Gen (DTime, Int)
 generateStreamLenDT range len = do
   x <- uncurry generateDelta range
   l <- case len of
@@ -141,8 +127,8 @@ generateDelta (Just x)  (Nothing) = (x+) <$> arbitrary
 generateDelta (Nothing) (Just y)  = choose (2.2251e-308, y)
 generateDelta (Nothing) (Nothing) = getPositive <$> arbitrary
 
--- | Generate a random delta following a normal distribution,
---   and possibly within a given range.
+-- | Generate a random delta following a normal distribution, and possibly
+-- within a given range.
 generateDSNormal :: DTime -> DTime -> Maybe DTime -> Maybe DTime -> Gen DTime
 generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
   where
@@ -151,7 +137,7 @@ generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
     mx  = maybe (\_ -> True) (>=) n
 
 -- | Generate random samples up until a max time, with a given time delta
---   generation function.
+-- generation function.
 timeStampsUntilWith :: Gen DTime -> DTime -> Gen [DTime]
 timeStampsUntilWith arb ds = timeStampsUntilWith' arb [] ds
   where
@@ -167,10 +153,11 @@ timeStampsUntilWith arb ds = timeStampsUntilWith' arb [] ds
 -- ** Parameters used to generate random input streams
 
 -- | Distributions used for time delta (DT) generation.
-data Distribution = DistConstant                -- ^ Constant DT for the whole stream.
-                  | DistNormal (DTime, DTime)   -- ^ Variable DT following normal distribution,
-                                                --   with an average and a standard deviation.
-                  | DistRandom                  -- ^ Completely random (positive) DT.
+data Distribution
+  = DistConstant                -- ^ Constant DT for the whole stream.
+  | DistNormal (DTime, DTime)   -- ^ Variable DT following normal distribution,
+                                --   with an average and a standard deviation.
+  | DistRandom                  -- ^ Completely random (positive) DT.
 
 -- | Upper and lower bounds of time deltas for random DT generation.
 type Range = (Maybe DTime, Maybe DTime)
@@ -185,17 +172,23 @@ type Length = Maybe (Either Int DTime)
 uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)
 uniDistStream = generateStream DistRandom (Nothing, Nothing) Nothing
 
--- | Generate a stream of values with uniformly distributed time deltas, with a max DT.
+-- | Generate a stream of values with uniformly distributed time deltas, with a
+-- max DT.
 uniDistStreamMaxDT :: Arbitrary a => DTime -> Gen (SignalSampleStream a)
-uniDistStreamMaxDT maxDT = generateStream DistRandom (Nothing, Just maxDT ) Nothing
+uniDistStreamMaxDT maxDT =
+  generateStream DistRandom (Nothing, Just maxDT ) Nothing
 
 -- | Generate a stream of values with a fixed time delta.
 fixedDelayStream :: Arbitrary a => DTime -> Gen (SignalSampleStream a)
 fixedDelayStream dt = generateStream DistConstant (Just dt, Just dt) Nothing
 
 -- | Generate a stream of values with a fixed time delta.
-fixedDelayStreamWith :: Arbitrary a => (DTime -> a) ->  DTime -> Gen (SignalSampleStream a)
-fixedDelayStreamWith f dt = generateStreamWith f' DistConstant (Just dt, Just dt) Nothing
+fixedDelayStreamWith :: Arbitrary a
+                     => (DTime -> a)
+                     ->  DTime
+                     -> Gen (SignalSampleStream a)
+fixedDelayStreamWith f dt =
+    generateStreamWith f' DistConstant (Just dt, Just dt) Nothing
   where
     f' n t = return $ f (fromIntegral n * t)
 
