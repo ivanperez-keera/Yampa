@@ -144,7 +144,7 @@ sClipAfterTime dt (x, xs) = (x, sClipAfterTime' dt xs)
     sClipAfterTime' dt [] = []
     sClipAfterTime' dt ((dt', x) : xs)
       | dt < dt'  = []
-      | otherwise = ((dt', x) : sClipAfterTime' (dt - dt') xs)
+      | otherwise = (dt', x) : sClipAfterTime' (dt - dt') xs
 
 -- | Drop the first n samples of a signal stream. The time
 -- deltas are not re-calculated.
