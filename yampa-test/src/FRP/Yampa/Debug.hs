@@ -7,9 +7,9 @@
 module FRP.Yampa.Debug where
 
 -- External imports
-import Debug.Trace
-import FRP.Yampa
-import System.IO.Unsafe
+import Debug.Trace      (trace)
+import FRP.Yampa        (SF, arr)
+import System.IO.Unsafe (unsafePerformIO)
 
 -- | Signal Function that prints the value passing through using 'trace'.
 traceSF :: Show a => SF a a
