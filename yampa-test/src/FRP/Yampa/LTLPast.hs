@@ -7,7 +7,6 @@
 -- The difference between the future time and the past time LTL is that the
 -- former needs a trace for evaluation, and the latter can be embedded into a
 -- signal function network without additional support for evaluation.
-
 module FRP.Yampa.LTLPast where
 
 import FRP.Yampa
