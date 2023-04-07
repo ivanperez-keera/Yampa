@@ -21,7 +21,7 @@
 module FRP.Yampa.Stream where
 
 -- External imports
-import FRP.Yampa (DTime, SF, FutureSF, evalAtZero, evalAt)
+import FRP.Yampa (DTime, FutureSF, SF, evalAt, evalAtZero)
 
 -- * Types
 
