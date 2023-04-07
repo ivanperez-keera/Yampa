@@ -131,14 +131,14 @@ sRefineWith interpolate maxDT (a, as) =
       | otherwise  = (dt, a) : refineFutureStreamWith interpolate maxDT a as
 
 -- | Clip a sample stream at a given number of samples.
-sClipAfterFrame  :: Int -> SignalSampleStream a -> SignalSampleStream a
-sClipAfterFrame  0 (x, _)  = (x, [])
-sClipAfterFrame  n (x, xs) = (x, xs')
+sClipAfterFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
+sClipAfterFrame 0 (x, _)  = (x, [])
+sClipAfterFrame n (x, xs) = (x, xs')
   where
     xs' = take (n - 1) xs
 
 -- | Clip a sample stream after a certain (non-zero) time.
-sClipAfterTime   :: DTime -> SignalSampleStream a -> SignalSampleStream a
+sClipAfterTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipAfterTime dt (x, xs) = (x, sClipAfterTime' dt xs)
   where
     sClipAfterTime' dt [] = []
@@ -155,7 +155,7 @@ sClipBeforeFrame n (_, (dt, x) : xs) = sClipBeforeFrame (n - 1) (x, xs)
 
 -- | Drop the first samples of a signal stream up to a given time. The time
 -- deltas are not re-calculated to match the original stream.
-sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
+sClipBeforeTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
     | dt <= 0       = xs
     | null (snd xs) = xs
