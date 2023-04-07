@@ -15,8 +15,8 @@ import System.IO.Unsafe (unsafePerformIO)
 traceSF :: Show a => SF a a
 traceSF = traceSFWith show
 
--- | Signal Function that prints the value passing through using 'trace',
--- and a customizable 'show' function.
+-- | Signal Function that prints the value passing through using 'trace', and a
+-- customizable 'show' function.
 traceSFWith :: (a -> String) -> SF a a
 traceSFWith f = arr (\x -> trace (f x) x)
 
