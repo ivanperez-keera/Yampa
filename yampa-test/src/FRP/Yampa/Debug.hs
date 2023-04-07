@@ -1,4 +1,9 @@
--- | Debug FRP networks by inspecting their behaviour inside.
+-- |
+-- Copyright  : (c) Ivan Perez, 2017-2022
+-- License    : BSD-style (see the LICENSE file in the distribution)
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Debug FRP networks by inspecting their behaviour inside.
 module FRP.Yampa.Debug where
 
 import Debug.Trace
