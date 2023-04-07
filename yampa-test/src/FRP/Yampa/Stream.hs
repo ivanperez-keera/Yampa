@@ -40,7 +40,9 @@ type FutureSampleStream a = [(DTime, a)]
 --   dropped.
 groupDeltas :: [a] -> [DTime] -> SignalSampleStream a
 groupDeltas (x:xs) ds = (x, zip ds xs)
-groupDeltas xs     ds = error $ "groupDeltas: called me with lists with lengths" ++ show (length xs) ++ " and " ++ show (length ds)
+groupDeltas xs     ds =
+  error $ "groupDeltas: called me with lists with lengths"
+            ++ show (length xs) ++ " and " ++ show (length ds)
 
 -- * Examination
 
@@ -60,10 +62,16 @@ lastSample = last . samples
 
 -- | Merge two streams, using an auxilary function to merge samples that fall
 -- at the exact same sampling time.
-sMerge :: (a -> a -> a) -> SignalSampleStream a -> SignalSampleStream a -> SignalSampleStream a
+sMerge :: (a -> a -> a)
+       -> SignalSampleStream a
+       -> SignalSampleStream a
+       -> SignalSampleStream a
 sMerge f (x1, xs1) (x2, xs2) = (f x1 x2, sMergeTail f xs1 xs2)
   where
-    sMergeTail :: (a -> a -> a) -> FutureSampleStream a -> FutureSampleStream a -> FutureSampleStream a
+    sMergeTail :: (a -> a -> a)
+               -> FutureSampleStream a
+               -> FutureSampleStream a
+               -> FutureSampleStream a
     sMergeTail f []              xs2             = xs2
     sMergeTail f xs1             []              = xs1
     sMergeTail f ((dt1, x1):xs1) ((dt2, x2):xs2)
@@ -72,7 +80,10 @@ sMerge f (x1, xs1) (x2, xs2) = (f x1 x2, sMergeTail f xs1 xs2)
       | otherwise  = (dt2, x2) : sMergeTail f ((dt1-dt2, x1):xs1) xs2
 
 -- | Concatenate two sample streams, separating them by a given time delta.
-sConcat :: SignalSampleStream a -> DTime -> SignalSampleStream a -> SignalSampleStream a
+sConcat :: SignalSampleStream a
+        -> DTime
+        -> SignalSampleStream a
+        -> SignalSampleStream a
 sConcat (x1, xs1) dt (x2, xs2) = (x1 , xs1 ++ ((dt, x2):xs2))
 
 -- | Refine a stream by establishing the maximum time delta.
@@ -82,10 +93,14 @@ sConcat (x1, xs1) dt (x2, xs2) = (x1 , xs1 ++ ((dt, x2):xs2))
 sRefine :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sRefine maxDT (a, as) = (a, sRefineFutureStream maxDT a as)
   where
-    sRefineFutureStream :: DTime -> a -> FutureSampleStream a -> FutureSampleStream a
+    sRefineFutureStream :: DTime
+                        -> a
+                        -> FutureSampleStream a
+                        -> FutureSampleStream a
     sRefineFutureStream maxDT _ [] = []
     sRefineFutureStream maxDT a0 ((dt, a):as)
-      | dt > maxDT = (maxDT, a0) : sRefineFutureStream maxDT a0 ((dt - maxDT, a):as)
+      | dt > maxDT =
+          (maxDT, a0) : sRefineFutureStream maxDT a0 ((dt - maxDT, a):as)
       | otherwise  = (dt, a) : sRefineFutureStream maxDT a as
 
 -- | Refine a stream by establishing the maximum time delta.
@@ -93,14 +108,26 @@ sRefine maxDT (a, as) = (a, sRefineFutureStream maxDT a as)
 -- If two samples are separated by a time delta bigger than the given max DT,
 -- the auxiliary interpolation function is used to determine the intermendiate
 -- sample.
-sRefineWith :: (a -> a -> a) -> DTime -> SignalSampleStream a -> SignalSampleStream a
-sRefineWith interpolate maxDT (a, as) = (a, refineFutureStreamWith interpolate maxDT a as)
+sRefineWith :: (a -> a -> a)
+            -> DTime
+            -> SignalSampleStream a
+            -> SignalSampleStream a
+sRefineWith interpolate maxDT (a, as) =
+    (a, refineFutureStreamWith interpolate maxDT a as)
   where
-    refineFutureStreamWith :: (a -> a -> a) -> DTime -> a -> FutureSampleStream a -> FutureSampleStream a
+    refineFutureStreamWith :: (a -> a -> a)
+                           -> DTime
+                           -> a
+                           -> FutureSampleStream a
+                           -> FutureSampleStream a
     refineFutureStreamWith interpolate maxDT _  [] = []
     refineFutureStreamWith interpolate maxDT a0 ((dt, a):as)
       | dt > maxDT = let a' = interpolate a0 a
-                     in (maxDT, a') : refineFutureStreamWith interpolate maxDT a' ((dt - maxDT, a):as)
+                     in (maxDT, a')
+                          : refineFutureStreamWith interpolate
+                                                   maxDT
+                                                   a'
+                                                   ((dt - maxDT, a):as)
       | otherwise  = (dt, a) : refineFutureStreamWith interpolate maxDT a as
 
 -- | Clip a sample stream at a given number of samples.
