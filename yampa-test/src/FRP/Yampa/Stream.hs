@@ -100,7 +100,7 @@ sRefineWith interpolate maxDT (a, as) = (a, refineFutureStreamWith interpolate m
     refineFutureStreamWith interpolate maxDT _  [] = []
     refineFutureStreamWith interpolate maxDT a0 ((dt, a):as)
       | dt > maxDT = let a' = interpolate a0 a
-                     in (maxDT, interpolate a0 a) : refineFutureStreamWith interpolate maxDT a' ((dt - maxDT, a):as)
+                     in (maxDT, a') : refineFutureStreamWith interpolate maxDT a' ((dt - maxDT, a):as)
       | otherwise  = (dt, a) : refineFutureStreamWith interpolate maxDT a as
 
 -- | Clip a sample stream at a given number of samples.
