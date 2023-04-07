@@ -51,58 +51,7 @@ import Test.QuickCheck.Gen (Gen (MkGen))
 -- Internal imports
 import FRP.Yampa.Stream (SignalSampleStream, groupDeltas)
 
--- | Distributions used for time delta (DT) generation.
-data Distribution = DistConstant                -- ^ Constant DT for the whole stream.
-                  | DistNormal (DTime, DTime)   -- ^ Variable DT following normal distribution,
-                                                --   with an average and a standard deviation.
-                  | DistRandom                  -- ^ Completely random (positive) DT.
-
--- | Upper and lower bounds of time deltas for random DT generation.
-type Range = (Maybe DTime, Maybe DTime)
-
--- | Optional maximum length for a stream, given as a time, or a number of
--- samples.
-type Length = Maybe (Either Int DTime)
-
--- | Generate a random delta according to some required specifications.
-generateDeltas :: Distribution -> Range -> Length -> Gen DTime
-generateDeltas DistConstant            (mn, mx) len = generateDelta mn mx
-generateDeltas DistRandom              (mn, mx) len = generateDelta mn mx
-generateDeltas (DistNormal (avg, dev)) (mn, mx) len = generateDSNormal avg dev mn mx
-
--- | Generate one random delta, possibly within a range.
-generateDelta :: Maybe DTime -> Maybe DTime -> Gen DTime
-generateDelta (Just x)  (Just y)  = choose (x, y)
-generateDelta (Just x)  (Nothing) = (x+) <$> arbitrary
-generateDelta (Nothing) (Just y)  = choose (2.2251e-308, y)
-generateDelta (Nothing) (Nothing) = getPositive <$> arbitrary
-
--- | Generate a random delta following a normal distribution,
---   and possibly within a given range.
-generateDSNormal :: DTime -> DTime -> Maybe DTime -> Maybe DTime -> Gen DTime
-generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
-  where
-    gen = MkGen (\r _ -> let (x,_) = normal' (avg, stddev) r in x)
-    mn  = maybe (\_ -> True) (<=) m
-    mx  = maybe (\_ -> True) (>=) n
-
--- | Generate random samples up until a max time.
-timeStampsUntil :: DTime -> Gen [DTime]
-timeStampsUntil = timeStampsUntilWith arbitrary
-
--- | Generate random samples up until a max time, with a given time delta
---   generation function.
-timeStampsUntilWith :: Gen DTime -> DTime -> Gen [DTime]
-timeStampsUntilWith arb ds = timeStampsUntilWith' arb [] ds
-  where
-    -- | Generate random samples up until a max time, with a given time delta
-    --   generation function, and an initial suffix of time deltas.
-    timeStampsUntilWith' :: Gen DTime -> [DTime] -> DTime -> Gen [DTime]
-    timeStampsUntilWith' arb acc ds
-      | ds < 0    = return acc
-      | otherwise = do d <- arb
-                       let acc' = acc `seq` (d:acc)
-                       acc' `seq` timeStampsUntilWith' arb acc' (ds - d)
+-- * Random stream generation
 
 -- | Generate random stream.
 generateStream :: Arbitrary a
@@ -186,6 +135,63 @@ generateStreamLenDT range len = do
 -- generateStreamLenDT (Nothing, Nothing) (Just (Right ds)) = f2  <$> arbitrary
 --   where
 --     f2 l = (ds / fromIntegral l, l)
+
+-- | Generate a random delta according to some required specifications.
+generateDeltas :: Distribution -> Range -> Length -> Gen DTime
+generateDeltas DistConstant            (mn, mx) len = generateDelta mn mx
+generateDeltas DistRandom              (mn, mx) len = generateDelta mn mx
+generateDeltas (DistNormal (avg, dev)) (mn, mx) len = generateDSNormal avg dev mn mx
+
+-- | Generate one random delta, possibly within a range.
+generateDelta :: Maybe DTime -> Maybe DTime -> Gen DTime
+generateDelta (Just x)  (Just y)  = choose (x, y)
+generateDelta (Just x)  (Nothing) = (x+) <$> arbitrary
+generateDelta (Nothing) (Just y)  = choose (2.2251e-308, y)
+generateDelta (Nothing) (Nothing) = getPositive <$> arbitrary
+
+-- | Generate a random delta following a normal distribution,
+--   and possibly within a given range.
+generateDSNormal :: DTime -> DTime -> Maybe DTime -> Maybe DTime -> Gen DTime
+generateDSNormal avg stddev m n = suchThat gen (\x -> mx x && mn x)
+  where
+    gen = MkGen (\r _ -> let (x,_) = normal' (avg, stddev) r in x)
+    mn  = maybe (\_ -> True) (<=) m
+    mx  = maybe (\_ -> True) (>=) n
+
+-- | Generate random samples up until a max time.
+timeStampsUntil :: DTime -> Gen [DTime]
+timeStampsUntil = timeStampsUntilWith arbitrary
+
+-- | Generate random samples up until a max time, with a given time delta
+--   generation function.
+timeStampsUntilWith :: Gen DTime -> DTime -> Gen [DTime]
+timeStampsUntilWith arb ds = timeStampsUntilWith' arb [] ds
+  where
+    -- | Generate random samples up until a max time, with a given time delta
+    --   generation function, and an initial suffix of time deltas.
+    timeStampsUntilWith' :: Gen DTime -> [DTime] -> DTime -> Gen [DTime]
+    timeStampsUntilWith' arb acc ds
+      | ds < 0    = return acc
+      | otherwise = do d <- arb
+                       let acc' = acc `seq` (d:acc)
+                       acc' `seq` timeStampsUntilWith' arb acc' (ds - d)
+
+-- ** Parameters used to generate random input streams
+
+-- | Distributions used for time delta (DT) generation.
+data Distribution = DistConstant                -- ^ Constant DT for the whole stream.
+                  | DistNormal (DTime, DTime)   -- ^ Variable DT following normal distribution,
+                                                --   with an average and a standard deviation.
+                  | DistRandom                  -- ^ Completely random (positive) DT.
+
+-- | Upper and lower bounds of time deltas for random DT generation.
+type Range = (Maybe DTime, Maybe DTime)
+
+-- | Optional maximum length for a stream, given as a time, or a number of
+-- samples.
+type Length = Maybe (Either Int DTime)
+
+-- ** Helpers for common cases
 
 -- | Generate a stream of values with uniformly distributed time deltas.
 uniDistStream :: Arbitrary a => Gen (SignalSampleStream a)
