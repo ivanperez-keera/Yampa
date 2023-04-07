@@ -84,7 +84,7 @@ sConcat :: SignalSampleStream a
         -> DTime
         -> SignalSampleStream a
         -> SignalSampleStream a
-sConcat (x1, xs1) dt (x2, xs2) = (x1 , xs1 ++ ((dt, x2) : xs2))
+sConcat (x1, xs1) dt (x2, xs2) = (x1, xs1 ++ ((dt, x2) : xs2))
 
 -- | Refine a stream by establishing the maximum time delta.
 --
