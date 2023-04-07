@@ -15,10 +15,6 @@
 -- The main function to generate streams is 'generateStream'. The specific time
 -- deltas can be customized further using 'generateStreamWith'. Some helper
 -- functions are provided to facilitate testing.
-
--- The function uniDistStreamMaxDT had the wrong type and the name on the paper
--- was: uniDistStream. This has been fixed.
-
 module FRP.Yampa.QuickCheck
     (
       -- * Random stream generation
