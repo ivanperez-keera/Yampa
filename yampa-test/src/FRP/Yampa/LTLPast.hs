@@ -30,15 +30,15 @@ notSF = arr not
 
 -- | True if the first signal is False or the second one is True.
 impliesSF :: SF (Bool, Bool) Bool
-impliesSF = arr $ \(i,p) -> not i || p
+impliesSF = arr $ \(i, p) -> not i || p
 
 -- | True a a time if the input signal has been always True so far.
 sofarSF :: SF Bool Bool
-sofarSF = loopPre True $ arr $ \(n,o) -> let n' = o && n in (n', n')
+sofarSF = loopPre True $ arr $ \(n, o) -> let n' = o && n in (n', n')
 
 -- | True at a time if the input signal has ever been True before.
 everSF :: SF Bool Bool
-everSF = loopPre False $ arr $ \(n,o) -> let n' = o || n in (n', n')
+everSF = loopPre False $ arr $ \(n, o) -> let n' = o || n in (n', n')
 
 -- | True if the signal was True in the last sample. False at time zero.
 lastSF :: SF Bool Bool
@@ -48,7 +48,7 @@ lastSF = iPre False
 -- True, if ever.
 untilSF :: SF (Bool, Bool) Bool
 untilSF = switch
-  (loopPre True $ arr (\((i,u),o) ->
+  (loopPre True $ arr (\((i, u), o) ->
      let n = o && i
      in ((n, if (o && u) then Event () else NoEvent), n)))
   (\_ -> arr snd >>> sofarSF)
