@@ -42,13 +42,14 @@ module FRP.Yampa.QuickCheck
 
 -- External imports
 import Control.Applicative (pure, (<$>))
-import Data.Random.Normal
-import FRP.Yampa
-import Test.QuickCheck
-import Test.QuickCheck.Gen
+import Data.Random.Normal  (normal')
+import FRP.Yampa           (DTime)
+import Test.QuickCheck     (Arbitrary (arbitrary), choose, getPositive,
+                            suchThat)
+import Test.QuickCheck.Gen (Gen (MkGen))
 
 -- Internal imports
-import FRP.Yampa.Stream
+import FRP.Yampa.Stream (SignalSampleStream, groupDeltas)
 
 -- | Distributions used for time delta (DT) generation.
 data Distribution = DistConstant                -- ^ Constant DT for the whole stream.
