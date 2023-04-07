@@ -15,7 +15,7 @@
 module FRP.Yampa.LTLPast where
 
 -- External imports
-import FRP.Yampa
+import FRP.Yampa (Event (..), SF, arr, iPre, loopPre, switch, (>>>))
 
 -- | True if both inputs are True.
 andSF :: SF (Bool, Bool) Bool
