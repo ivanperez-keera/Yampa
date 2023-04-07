@@ -110,17 +110,6 @@ generateStreamLenDT range len = do
          Just (Right ds) -> max 1 <$> pure (floor (ds / x))
   return (x, l)
 
--- generateStreamLenDT (Just x,  Just y)  (Just (Left l))   = (,) <$> choose (x, y)        <*> pure l
--- generateStreamLenDT (Just x,  Nothing) (Just (Left l))   = (,) <$> ((x+) <$> arbitrary) <*> pure l
--- generateStreamLenDT (Nothing, Just y)  (Just (Left l))   = (,) <$> choose (0, y)        <*> pure l
--- generateStreamLenDT (Just x,  _)       (Just (Right ts)) = (,) <$> pure x               <*> pure (floor (ts / x))
--- generateStreamLenDT (Just x,  _)       Nothing           = (,) <$> pure x               <*> arbitrary
--- generateStreamLenDT (Nothing, Nothing) Nothing           = (,) <$> arbitrary            <*> arbitrary
--- generateStreamLenDT (Nothing, Nothing) (Just (Left l))   = (,) <$> arbitrary            <*> pure l
--- generateStreamLenDT (Nothing, Nothing) (Just (Right ds)) = f2  <$> arbitrary
---   where
---     f2 l = (ds / fromIntegral l, l)
-
 -- | Generate one random delta, possibly within a range.
 generateDelta :: Maybe DTime -> Maybe DTime -> Gen DTime
 generateDelta (Just x)  (Just y) = choose (x, y)
