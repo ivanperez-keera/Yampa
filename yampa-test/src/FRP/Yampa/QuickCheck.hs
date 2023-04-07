@@ -41,7 +41,7 @@ module FRP.Yampa.QuickCheck
   where
 
 -- External imports
-import Control.Applicative ((<$>), pure)
+import Control.Applicative (pure, (<$>))
 import Data.Random.Normal
 import FRP.Yampa
 import Test.QuickCheck
