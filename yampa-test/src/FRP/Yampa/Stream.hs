@@ -131,7 +131,7 @@ sClipBeforeFrame n (_,(dt,x):xs) = sClipBeforeFrame (n-1) (x, xs)
 sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
     | dt <= 0       = xs
-    | null (snd xs) = (x,[])
+    | null (snd xs) = xs
     | dt < dt'      = -- (dt' - dt, x'):xs'
                       (x',xs')
     | otherwise     = sClipBeforeTime (dt - dt') (x', xs')
