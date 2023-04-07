@@ -6,6 +6,7 @@
 -- Debug FRP networks by inspecting their behaviour inside.
 module FRP.Yampa.Debug where
 
+-- External imports
 import Debug.Trace
 import FRP.Yampa
 import System.IO.Unsafe
