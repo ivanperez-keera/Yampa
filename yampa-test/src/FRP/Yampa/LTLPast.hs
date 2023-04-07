@@ -14,6 +14,7 @@
 -- signal function network without additional support for evaluation.
 module FRP.Yampa.LTLPast where
 
+-- External imports
 import FRP.Yampa
 
 -- | True if both inputs are True.
