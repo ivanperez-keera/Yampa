@@ -1,7 +1,12 @@
 {-# LANGUAGE Arrows              #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
--- | QuickCheck generators for input streams.
+-- |
+-- Copyright  : (c) Ivan Perez, 2017-2022
+-- License    : BSD-style (see the LICENSE file in the distribution)
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- QuickCheck generators for input streams.
 --
 -- Random stream generation can be customized usin three parameters:
 --
