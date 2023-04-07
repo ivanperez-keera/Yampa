@@ -176,9 +176,10 @@ evalSF :: SF a b
        -> SignalSampleStream a
        -> (SignalSampleStream b, FutureSF a b)
 evalSF sf (a, as) = (outputStrm, fsf')
-  where (b,  fsf)  = evalAtZero sf a
-        (bs, fsf') = evalFutureSF fsf as
-        outputStrm = (b, bs)
+  where
+    (b,  fsf)  = evalAtZero sf a
+    (bs, fsf') = evalFutureSF fsf as
+    outputStrm = (b, bs)
 
 -- | Evaluate an initialised SF with a 'FutureSampleStream', obtaining
 -- an output stream and a continuation.
@@ -190,6 +191,7 @@ evalFutureSF :: FutureSF a b
              -> (FutureSampleStream b, FutureSF a b)
 evalFutureSF fsf []             = ([], fsf)
 evalFutureSF fsf ((dt, a) : as) = (outputStrm, fsf'')
-  where (b, fsf')   = evalAt fsf dt a
-        (bs, fsf'') = evalFutureSF fsf' as
-        outputStrm  = (dt, b) : bs
+  where
+    (b, fsf')   = evalAt fsf dt a
+    (bs, fsf'') = evalFutureSF fsf' as
+    outputStrm  = (dt, b) : bs
