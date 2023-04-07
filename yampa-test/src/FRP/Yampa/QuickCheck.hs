@@ -1,5 +1,3 @@
-{-# LANGUAGE Arrows              #-}
-{-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 -- |
 -- Copyright  : (c) Ivan Perez, 2017-2022
