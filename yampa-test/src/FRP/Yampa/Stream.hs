@@ -1,5 +1,10 @@
 {-# LANGUAGE MultiWayIf #-}
--- | Streams and stream manipulation API.
+-- |
+-- Copyright  : (c) Ivan Perez, 2017-2022
+-- License    : BSD-style (see the LICENSE file in the distribution)
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Streams and stream manipulation API.
 --
 -- The evaluation of Yampa SFs, especially for testing purposes, needs the
 -- generation of suitable input streams.
