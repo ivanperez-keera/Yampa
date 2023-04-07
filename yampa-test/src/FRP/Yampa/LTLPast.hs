@@ -52,31 +52,3 @@ untilSF = switch
      let n = o && i
      in ((n, if o && u then Event () else NoEvent), n)))
   (\_ -> arr snd >>> sofarSF)
-
--- -- * SF combinators that implement temporal combinators
---
--- type SPred a = SF a Bool
---
--- andSF' :: SPred a -> SPred a -> SPred a
--- andSF' sf1 sf2 = (sf1 &&& sf2) >>> arr (uncurry (&&))
---
--- orSF' :: SPred a -> SPred a -> SPred a
--- orSF' sf1 sf2 = (sf1 &&& sf2) >>> arr (uncurry (||))
---
--- notSF' :: SPred a -> SPred a
--- notSF' sf = sf >>> arr (not)
---
--- implySF' :: SPred a -> SPred a -> SPred a
--- implySF' sf1 sf2 = orSF' sf2 (notSF' sf1)
---
--- history' :: SPred a -> SPred a
--- history' sf = loopPre True $ proc (a, last) -> do
---   b <- sf -< a
---   let cur = last && b
---   returnA -< (cur, cur)
---
--- ever' :: SPred a -> SPred a
--- ever' sf = loopPre False $ proc (a, last) -> do
---   b <- sf -< a
---   let cur = last || b
---   returnA -< (cur, cur)
