@@ -40,12 +40,14 @@ module FRP.Yampa.QuickCheck
     )
   where
 
+-- External imports
 import Control.Applicative ((<$>), pure)
 import Data.Random.Normal
 import FRP.Yampa
 import Test.QuickCheck
 import Test.QuickCheck.Gen
 
+-- Internal imports
 import FRP.Yampa.Stream
 
 -- | Distributions used for time delta (DT) generation.
