@@ -20,6 +20,7 @@
 -- continuation SF.
 module FRP.Yampa.Stream where
 
+-- External imports
 import FRP.Yampa (DTime, SF, FutureSF, evalAtZero, evalAt)
 
 -- * Types
