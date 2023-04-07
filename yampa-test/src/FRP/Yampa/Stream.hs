@@ -188,7 +188,7 @@ evalSF sf (a, as) = (outputStrm, fsf')
 evalFutureSF :: FutureSF a b
              -> FutureSampleStream a
              -> (FutureSampleStream b, FutureSF a b)
-evalFutureSF fsf [] = ([], fsf)
+evalFutureSF fsf []             = ([], fsf)
 evalFutureSF fsf ((dt, a) : as) = (outputStrm, fsf'')
   where (b, fsf')   = evalAt fsf dt a
         (bs, fsf'') = evalFutureSF fsf' as
