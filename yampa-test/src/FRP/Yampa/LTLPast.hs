@@ -50,7 +50,7 @@ untilSF :: SF (Bool, Bool) Bool
 untilSF = switch
   (loopPre True $ arr (\((i, u), o) ->
      let n = o && i
-     in ((n, if (o && u) then Event () else NoEvent), n)))
+     in ((n, if o && u then Event () else NoEvent), n)))
   (\_ -> arr snd >>> sofarSF)
 
 -- -- * SF combinators that implement temporal combinators
