@@ -25,10 +25,10 @@ module FRP.Yampa.LTLFuture
   where
 
 -- External imports
-import FRP.Yampa
+import FRP.Yampa (DTime, SF, evalFuture)
 
 -- Internal imports
-import FRP.Yampa.Stream
+import FRP.Yampa.Stream (SignalSampleStream, evalSF, firstSample)
 
 -- | Type representing future-time linear temporal logic predicates with until
 -- and next.
