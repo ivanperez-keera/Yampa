@@ -1,4 +1,5 @@
-2023-03-31 Ivan Perez <ivan.perez@keera.co.uk>
+2023-04-07 Ivan Perez <ivan.perez@keera.co.uk>
+        * Yampa.cabal: Version bump (0.14.2) (#259).
         * src/: Conformance with style guide (#255).
         * examples/: Conformance with style guide (#255), move example to
           yampa-test library (#257).
