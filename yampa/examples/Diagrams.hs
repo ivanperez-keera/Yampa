@@ -1,8 +1,12 @@
 {-# LANGUAGE Arrows                    #-}
 {-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
-
--- | Example of connecting the diagrams drawing library with Yampa.
+-- |
+-- Copyright   :  (c) Ivan Perez, 2018-2022
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Maintainer  :  ivan.perez@keera.co.uk
+--
+-- Example of connecting the diagrams drawing library with Yampa.
 --
 -- Based on:
 -- https://archives.haskell.org/projects.haskell.org/diagrams/gallery/VectorField.html

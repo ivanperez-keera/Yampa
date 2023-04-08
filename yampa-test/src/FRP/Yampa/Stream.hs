@@ -1,5 +1,9 @@
-{-# LANGUAGE MultiWayIf #-}
--- | Streams and stream manipulation API.
+-- |
+-- Copyright  : (c) Ivan Perez, 2017-2022
+-- License    : BSD-style (see the LICENSE file in the distribution)
+-- Maintainer : ivan.perez@keera.co.uk
+--
+-- Streams and stream manipulation API.
 --
 -- The evaluation of Yampa SFs, especially for testing purposes, needs the
 -- generation of suitable input streams.
@@ -15,7 +19,8 @@
 -- continuation SF.
 module FRP.Yampa.Stream where
 
-import FRP.Yampa (DTime, SF, FutureSF, evalAtZero, evalAt)
+-- External imports
+import FRP.Yampa (DTime, FutureSF, SF, evalAt, evalAtZero)
 
 -- * Types
 
@@ -35,7 +40,9 @@ type FutureSampleStream a = [(DTime, a)]
 --   dropped.
 groupDeltas :: [a] -> [DTime] -> SignalSampleStream a
 groupDeltas (x:xs) ds = (x, zip ds xs)
-groupDeltas xs     ds = error $ "groupDeltas: called me with lists with lengths" ++ show (length xs) ++ " and " ++ show (length ds)
+groupDeltas xs     ds =
+  error $ "groupDeltas: called me with lists with lengths"
+            ++ show (length xs) ++ " and " ++ show (length ds)
 
 -- * Examination
 
@@ -55,20 +62,29 @@ lastSample = last . samples
 
 -- | Merge two streams, using an auxilary function to merge samples that fall
 -- at the exact same sampling time.
-sMerge :: (a -> a -> a) -> SignalSampleStream a -> SignalSampleStream a -> SignalSampleStream a
+sMerge :: (a -> a -> a)
+       -> SignalSampleStream a
+       -> SignalSampleStream a
+       -> SignalSampleStream a
 sMerge f (x1, xs1) (x2, xs2) = (f x1 x2, sMergeTail f xs1 xs2)
   where
-    sMergeTail :: (a -> a -> a) -> FutureSampleStream a -> FutureSampleStream a -> FutureSampleStream a
+    sMergeTail :: (a -> a -> a)
+               -> FutureSampleStream a
+               -> FutureSampleStream a
+               -> FutureSampleStream a
     sMergeTail f []              xs2             = xs2
     sMergeTail f xs1             []              = xs1
-    sMergeTail f ((dt1, x1):xs1) ((dt2, x2):xs2)
+    sMergeTail f ((dt1, x1) : xs1) ((dt2, x2) : xs2)
       | dt1 == dt2 = (dt1, f x1 x2) : sMergeTail f xs1 xs2
-      | dt1 <  dt2 = (dt1, x1) : sMergeTail f xs1 ((dt2-dt1, x2):xs2)
-      | otherwise  = (dt2, x2) : sMergeTail f ((dt1-dt2, x1):xs1) xs2
+      | dt1 <  dt2 = (dt1, x1) : sMergeTail f xs1 ((dt2 - dt1, x2) : xs2)
+      | otherwise  = (dt2, x2) : sMergeTail f ((dt1 - dt2, x1) : xs1) xs2
 
 -- | Concatenate two sample streams, separating them by a given time delta.
-sConcat :: SignalSampleStream a -> DTime -> SignalSampleStream a -> SignalSampleStream a
-sConcat (x1, xs1) dt (x2, xs2) = (x1 , xs1 ++ ((dt, x2):xs2))
+sConcat :: SignalSampleStream a
+        -> DTime
+        -> SignalSampleStream a
+        -> SignalSampleStream a
+sConcat (x1, xs1) dt (x2, xs2) = (x1, xs1 ++ ((dt, x2) : xs2))
 
 -- | Refine a stream by establishing the maximum time delta.
 --
@@ -77,10 +93,14 @@ sConcat (x1, xs1) dt (x2, xs2) = (x1 , xs1 ++ ((dt, x2):xs2))
 sRefine :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sRefine maxDT (a, as) = (a, sRefineFutureStream maxDT a as)
   where
-    sRefineFutureStream :: DTime -> a -> FutureSampleStream a -> FutureSampleStream a
+    sRefineFutureStream :: DTime
+                        -> a
+                        -> FutureSampleStream a
+                        -> FutureSampleStream a
     sRefineFutureStream maxDT _ [] = []
-    sRefineFutureStream maxDT a0 ((dt, a):as)
-      | dt > maxDT = (maxDT, a0) : sRefineFutureStream maxDT a0 ((dt - maxDT, a):as)
+    sRefineFutureStream maxDT a0 ((dt, a) : as)
+      | dt > maxDT =
+          (maxDT, a0) : sRefineFutureStream maxDT a0 ((dt - maxDT, a) : as)
       | otherwise  = (dt, a) : sRefineFutureStream maxDT a as
 
 -- | Refine a stream by establishing the maximum time delta.
@@ -88,49 +108,61 @@ sRefine maxDT (a, as) = (a, sRefineFutureStream maxDT a as)
 -- If two samples are separated by a time delta bigger than the given max DT,
 -- the auxiliary interpolation function is used to determine the intermendiate
 -- sample.
-sRefineWith :: (a -> a -> a) -> DTime -> SignalSampleStream a -> SignalSampleStream a
-sRefineWith interpolate maxDT (a, as) = (a, refineFutureStreamWith interpolate maxDT a as)
+sRefineWith :: (a -> a -> a)
+            -> DTime
+            -> SignalSampleStream a
+            -> SignalSampleStream a
+sRefineWith interpolate maxDT (a, as) =
+    (a, refineFutureStreamWith interpolate maxDT a as)
   where
-    refineFutureStreamWith :: (a -> a -> a) -> DTime -> a -> FutureSampleStream a -> FutureSampleStream a
+    refineFutureStreamWith :: (a -> a -> a)
+                           -> DTime
+                           -> a
+                           -> FutureSampleStream a
+                           -> FutureSampleStream a
     refineFutureStreamWith interpolate maxDT _  [] = []
-    refineFutureStreamWith interpolate maxDT a0 ((dt, a):as)
-      | dt > maxDT = let a' = interpolate a0 a
-                     in (maxDT, interpolate a0 a) : refineFutureStreamWith interpolate maxDT a' ((dt - maxDT, a):as)
-      | otherwise  = (dt, a) : refineFutureStreamWith interpolate maxDT a as
+    refineFutureStreamWith interpolate maxDT a0 ((dt, a) : as)
+        | dt > maxDT
+        = (maxDT, a')
+            : refineFutureStreamWith interpolate maxDT a' ((dt - maxDT, a) : as)
+        | otherwise
+        = (dt, a) : refineFutureStreamWith interpolate maxDT a as
+      where
+        a' = interpolate a0 a
 
 -- | Clip a sample stream at a given number of samples.
-sClipAfterFrame  :: Int -> SignalSampleStream a -> SignalSampleStream a
-sClipAfterFrame  0 (x,_)  = (x, [])
-sClipAfterFrame  n (x,xs) = (x, xs')
+sClipAfterFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
+sClipAfterFrame 0 (x, _)  = (x, [])
+sClipAfterFrame n (x, xs) = (x, xs')
   where
-    xs' = take (n-1) xs
+    xs' = take (n - 1) xs
 
 -- | Clip a sample stream after a certain (non-zero) time.
-sClipAfterTime   :: DTime -> SignalSampleStream a -> SignalSampleStream a
-sClipAfterTime dt (x,xs) = (x, sClipAfterTime' dt xs)
+sClipAfterTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
+sClipAfterTime dt (x, xs) = (x, sClipAfterTime' dt xs)
   where
     sClipAfterTime' dt [] = []
-    sClipAfterTime' dt ((dt',x):xs)
+    sClipAfterTime' dt ((dt', x) : xs)
       | dt < dt'  = []
-      | otherwise = ((dt',x):sClipAfterTime' (dt - dt') xs)
+      | otherwise = (dt', x) : sClipAfterTime' (dt - dt') xs
 
 -- | Drop the first n samples of a signal stream. The time
 -- deltas are not re-calculated.
 sClipBeforeFrame :: Int -> SignalSampleStream a -> SignalSampleStream a
-sClipBeforeFrame 0 (x,xs) = (x,xs)
-sClipBeforeFrame n (x,[]) = (x,[])
-sClipBeforeFrame n (_,(dt,x):xs) = sClipBeforeFrame (n-1) (x, xs)
+sClipBeforeFrame 0 (x, xs) = (x, xs)
+sClipBeforeFrame n (x, []) = (x, [])
+sClipBeforeFrame n (_, (dt, x) : xs) = sClipBeforeFrame (n - 1) (x, xs)
 
 -- | Drop the first samples of a signal stream up to a given time. The time
 -- deltas are not re-calculated to match the original stream.
-sClipBeforeTime  :: DTime -> SignalSampleStream a -> SignalSampleStream a
+sClipBeforeTime :: DTime -> SignalSampleStream a -> SignalSampleStream a
 sClipBeforeTime dt xs
-  | dt <= 0   = xs
-  | otherwise = case xs of
-                  (x,[])           -> (x,[])
-                  (_,(dt',x'):xs') -> if | dt < dt'  -> -- (dt' - dt, x'):xs'
-                                                        (x',xs')
-                                         | otherwise -> sClipBeforeTime (dt - dt') (x', xs')
+    | dt <= 0       = xs
+    | null (snd xs) = xs
+    | dt < dt'      = (x', xs')
+    | otherwise     = sClipBeforeTime (dt - dt') (x', xs')
+  where
+    (_fstSample, ((dt', x') : xs')) = xs
 
 -- ** Stream-based evaluation
 
@@ -143,9 +175,10 @@ evalSF :: SF a b
        -> SignalSampleStream a
        -> (SignalSampleStream b, FutureSF a b)
 evalSF sf (a, as) = (outputStrm, fsf')
-  where (b,  fsf)  = evalAtZero sf a
-        (bs, fsf') = evalFutureSF fsf as
-        outputStrm = (b, bs)
+  where
+    (b,  fsf)  = evalAtZero sf a
+    (bs, fsf') = evalFutureSF fsf as
+    outputStrm = (b, bs)
 
 -- | Evaluate an initialised SF with a 'FutureSampleStream', obtaining
 -- an output stream and a continuation.
@@ -155,8 +188,9 @@ evalSF sf (a, as) = (outputStrm, fsf')
 evalFutureSF :: FutureSF a b
              -> FutureSampleStream a
              -> (FutureSampleStream b, FutureSF a b)
-evalFutureSF fsf [] = ([], fsf)
-evalFutureSF fsf ((dt, a):as) = (outputStrm, fsf'')
-  where (b, fsf')   = evalAt fsf dt a
-        (bs, fsf'') = evalFutureSF fsf' as
-        outputStrm  = (dt, b) : bs
+evalFutureSF fsf []             = ([], fsf)
+evalFutureSF fsf ((dt, a) : as) = (outputStrm, fsf'')
+  where
+    (b, fsf')   = evalAt fsf dt a
+    (bs, fsf'') = evalFutureSF fsf' as
+    outputStrm  = (dt, b) : bs

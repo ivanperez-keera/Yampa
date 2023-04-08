@@ -29,7 +29,6 @@
 -- nature of the problem, and it makes use of the the fact that CONTINUATIONS
 -- ARE FIRST CLASS ENTITIES in a way which arguably also is justified
 -- by the nature of the problem.
-
 module TailgatingDetector where
 
 import Data.List (sortBy, (\\))

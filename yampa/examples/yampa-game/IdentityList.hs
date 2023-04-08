@@ -1,17 +1,13 @@
-{- $Id: IdentityList.hs,v 1.2 2003/11/10 21:28:58 antony Exp $
-******************************************************************************
-*                              I N V A D E R S                               *
-*                                                                            *
-*       Module:         IdentityList                                         *
-*       Purpose:        Association list with automatic key assignment and   *
-*                       identity-preserving map and filter operations.       *
-*       Author:         Henrik Nilsson                                       *
-*                                                                            *
-*             Copyright (c) Yale University, 2003                            *
-*                                                                            *
-******************************************************************************
--}
-
+-- |
+-- Copyright   :  (c) Ivan Perez, 2014-2022
+--                (c) George Giorgidze, 2007-2012
+--                (c) Henrik Nilsson, 2005-2006
+--                (c) Henrik Nilsson, Yale University, 2003-2004
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Maintainer  :  ivan.perez@keera.co.uk
+--
+-- Association list with automatic key assignment and identity-preserving map
+-- and filter operations.
 module IdentityList
     ( ILKey
     , IL
