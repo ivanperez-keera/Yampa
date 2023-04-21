@@ -63,7 +63,7 @@ integral = SF {sfTF = tf0}
       where
         tf dt a = (integralAux igrl' a, igrl')
           where
-            igrl' = igrl ^+^ realToFrac dt *^ a_prev
+            igrl' = igrl ^+^ (realToFrac dt / 2) *^ (a ^+^ a_prev)
 
 -- | \"Immediate\" integration (using the function's value at the current time)
 imIntegral :: (Fractional s, VectorSpace a s) => a -> SF a a
