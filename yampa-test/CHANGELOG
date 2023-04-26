@@ -1,3 +1,6 @@
+2023-04-26 Ivan Perez <ivan.perez@keera.co.uk>
+    * Improve readability of CHANGELOGs (#261).
+
 2023-04-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.2) (#259).
     * Introduce testing example from Yampa library (#257).
