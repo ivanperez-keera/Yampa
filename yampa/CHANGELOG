@@ -1,202 +1,214 @@
 2023-04-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.14.2) (#259).
-        * src/: Conformance with style guide (#255).
-        * examples/: Conformance with style guide (#255), move example to
-          yampa-test library (#257).
-        * README: Add game to list of games and apps in README (#254).
+        * Version bump (0.14.2) (#259).
+        * Conformance with style guide (#255).
+        * Move example to yampa-test library (#257).
+        * Add game to list of games and apps in README (#254).
 
 2023-02-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.14.1) (#251).
-        * src/: Replace broken links (#253), fix typo (#252).
+        * Version bump (0.14.1) (#251).
+        * Replace broken links (#253).
+        * Fix typo (#252).
 
 2022-12-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.14) (#242), bump version bounds of
-          dependency (#241).
-        * src/: Adjust to work with simple-affine-space-0.2 (#241).
+        * Version bump (0.14) (#242).
+        * Adjust to work with simple-affine-space-0.2 (#241).
 
 2022-10-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.13.7) (#238), add version bounds to
-          dependencies (#233).
-        * LICENSE: Update years, copyright holders (#235).
-        * src/: Update years, copyright holders (#235).
-        * .travis.yml: Update distribution to bionic (#236).
+        * Version bump (0.13.7) (#238).
+        * Add version bounds to dependencies (#233).
+        * Update years, copyright holders (#235).
+        * Update distribution to bionic (#236).
 
 2022-08-07 Ivan Perez <ivan.perez@haskell.sexy>
-        * Yampa.cabal: Version bump (0.13.6) (#232).
-        * src/: Fix typos in documentation (#224), replace AFRP with Yampa
-          (#223), simplify implementation of mapFilterE (#221).
-        * README: Re-structure README, add content, TOC (#227), fix typo
-          (#230).
+        * Version bump (0.13.6) (#232).
+        * Fix typos in documentation (#224).
+        * Replace AFRP with Yampa (#223).
+        * Simplify implementation of mapFilterE (#221).
+        * Re-structure README, add content, TOC (#227).
+        * Fix typo (#230).
         * Replace funding link (#231).
         * Thanks to @architsinghal-mriirs.
 
 2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
-        * Yampa.cabal: Version bump (0.13.5) (#220).
-        * src/: Remove vim modeline settings (#209), remove unnecessary
-          comments from module export lists (#210),  style consistency of
-          separators (#211), adjust format of export lists (#212), align
-          lists, tuples, records by leading comma (#213), compress multiple
-          empty lines (#214), adjust indentation to two spaces (#215), make
-          arrows less prominent in descriptions (#183), remove unnecessary
-          import (#222).
-        * examples/: Replace tabs with spaces (#205), format module header to
-          conform to style guide (#207), style consistency of separators
-          (#211), adjust format of export lists (#212), align lists, tuples,
-          records by leading comma (#213), compress multiple empty lines
-          (#214), adjust indentation to two spaces (#215).
-        * tests/: Style consistency of separators (#211).
-        * README: make arrows less prominent in descriptions (#183).
+        * Version bump (0.13.5) (#220).
+        * Remove vim modeline settings (#209).
+        * Remove unnecessary comments from module export lists (#210).
+        * Style consistency of separators (#211).
+        * Adjust format of export lists (#212).
+        * Align lists, tuples, records by leading comma (#213).
+        * Compress multiple empty lines (#214).
+        * Adjust indentation to two spaces (#215).
+        * Make arrows less prominent in descriptions (#183).
+        * Remove unnecessary import (#222).
+        * Replace tabs with spaces (#205).
+        * Format module header to conform to style guide (#207).
 
 2022-04-07 Ivan Perez <ivan.perez@haskell.sexy>
-        * Yampa.cabal: Version bump (0.13.4) (#203), syntax rules (#196),
-          remove regression tests (#201).
-        * src/: Remove unused extensions (#199), syntax rules (#200), remove
-          commented code and notes (#202).
-        * tests/: Rename tests (#195), remove regression tests (#201).
-        * README: Add new game (#197).
+        * Version bump (0.13.4) (#203).
+        * Syntax rules (#196).
+        * Remove regression tests (#201).
+        * Remove unused extensions (#199).
+        * Syntax rules (#200).
+        * Remove commented code and notes (#202).
+        * Rename tests (#195).
+        * Add new game (#197).
 
 2021-10-07 Ivan Perez <ivan.perez@haskell.sexy>
-        * Yampa.cabal: Version bump (0.13.3) (#193), add modules missing from
-          other modules (#181).
-        * src/: Code cleaning and style fixes (#190, #191, #192).
-        * README.md: Restructure documentation (#184), fix installation
-          instructions (#186), add new games (#188), remove note (#189).
+        * Version bump (0.13.3) (#193).
+        * Add modules missing from other-modules in Cabal file (#181).
+        * Limit line length to 80 characters (#190).
+        * Standardize pragma style (#191).
+        * Correct module/copyright info in haddock documentation (#192).
+        * Restructure documentation in README (#184).
+        * Fix installation instructions in README (#186).
+        * Mention new games in README (#188).
+        * Remove note from README (#189).
 
 2021-09-15 Ivan Perez <ivan.perez@haskell.sexy>
-        * Yampa.cabal: Version bump (0.13.2), change cabal-version, add
-          default language (#180).
-        * src/: Update links (#179).
-        * README.md: Update installation instructions (#177), links (#178),
-          pointers to other projects (#162, #160, #153)
-        * .travis.yml: Enable testing haddock documentation (#72).
-        * tests/: Avoid modules whose documentation haddock does not generated
-          even if present (#72).
-        * src/: Minor adaptations to imports to make tests work (#72),
-                minor haddock documentation fixes (#175),
-                complete missing haddock documentation (#72).
+        * Version bump (0.13.2), change cabal-version, add default language
+          (#180).
+        * Update links in Haddock (#179).
+        * Update installation instructions in README (#177).
+        * Update links in README (#178).
+        * Update pointers to other projects in README (#162)
+        * Update pointers to other projects in README (#160)
+        * Update pointers to other projects in README (#153)
+        * Enable testing haddock documentation in CI (#72).
+        * Minor haddock documentation fixes (#175).
 
 2019-10-15 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.13.1), introduce examples
-          as executables, depend on fail if needed.
-        * README.md: Add Peoplemon.
-        * examples/: Fix errors due to module reorg.
-        * extensions/: Chnage testing to use tasty.
-        * .travis.yml: Compile with GHC8.8.
-        * src/: Support MonadFail proposal and GHC 8.8.
+        * Version bump (0.13.1).
+        * Introduce examples as executables in Cabal file.
+        * Add Peoplemon to README.
+        * Fix errors in examples due to module reorg.
+        * Chnage testing extension to use tasty.
+        * Compile with GHC8.8 in CI.
+        * Support MonadFail proposal and GHC 8.8.
         * Thanks to @sigrlami, @RyanGlScott and @CraigTreptow.
 
 2018-11-02 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.13).
-        * README.md: Documents related projects.
-        * src/: Cleans API, removes deprecated constructs, moves
-          vector and points into separate library, hides Core,
-          eliminates Forceable and MergeableRecord, adds documentation.
-        * examples/: Adds Diagrams example.
-        * .travis.yml: Compile with GHC8.6 (allowing failures).
+        * Version bump (0.13).
+        * Documents related projects.
+        * Cleans API, removes deprecated constructs, moves vector and points
+          into separate library, hides Core.
+        * Eliminates Forceable and MergeableRecord.
+        * Adds documentation.
+        * Adds Diagrams example.
+        * Compile with GHC8.6 in CI (allowing failures).
 
 2018-10-21 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.12).
-        * README.md: Documents testing.
-        * src/: Introduces FutureSF, needed for testing.
-        * extensions/test/: Introduces testing library.
+        * Version bump (0.12).
+        * Documents testing in README.
+        * Introduces FutureSF, needed for testing.
+        * Introduces testing library.
         * Thanks to @chriz-keera.
 
 2018-08-11 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.11.1).
-        * README.md: Documents papers.
-        * src/: Fixes leak.
+        * Version bump (0.11.1).
+        * Documents papers in README.
+        * Fixes leak.
         * Thanks to @tresormuta, @chriz-keera.
 
 2018-04-05 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.11).
-        * src/: Adds documentation; makes type synonym a newtype.
-        * tests/: Removes deprecated import.
-        * .travis.yml: Tests on travis with GHC 7.6 to 8.4.
+        * Version bump (0.11).
+        * Adds documentation; makes type synonym a newtype.
+        * Removes deprecated import in tests.
+        * Tests on travis with GHC 7.6 to 8.4.
         * Thanks to @ptvirgo, @thalerjonathan, @turion.
 
 2017-12-17 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.10.7), adds flag to expose core,
-          adds flag descriptions, fixes missing modules.
-        * README.md: Adds images to descriptions.
-        * doc/: New HCAR including iOS release.
-        * src/: Exposes new function, removes unused extensions,
-          simplifies code, adds documentation, fixes multiple bugs.
-        * stack.yaml: Fixes nix setup.
-        * tests/: Adapts to new API.
-        * examples/: Adapts to new API.
-        * Thanks to @chriz-keera, @suzumiyasmith, @meimisaki,
-          @RyanGlScott, @madjestic, @mgttlinger, @eapcochran,
-          @jonmouchou.
+        * Version bump (0.10.7).
+        * Adds flag to cabal file to expose core.
+        * Adds flag to descriptions.
+        * Fixes missing modules in cabal file.
+        * Adds images to descriptions in README.
+        * New HCAR entry including iOS release.
+        * Exposes new function.
+        * Removes unused extensions.
+        * Simplifies code.
+        * Adds documentation.
+        * Fixes multiple bugs.
+        * Fixes nix setup.
+        * Adapts tests to new API.
+        * Adapts examples to new API.
+        * Thanks to @chriz-keera, @suzumiyasmith, @meimisaki, @RyanGlScott,
+          @madjestic, @mgttlinger, @eapcochran, @jonmouchou.
 
 2017-08-28 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.10.6.2), fixes issue with dependencies.
-        * stack.yaml: Includes minimal stack configuration.
+        * Version bump (0.10.6.2).
+        * Fixes issue with dependencies in Cabal file.
+        * Includes minimal stack configuration.
 
 2017-08-17 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.10.6.1).
-        * examples/: new examples, using wiimote.
-        * src/: Minor improvements to documentation.
+        * Version bump (0.10.6.1).
+        * New examples, using wiimote.
+        * Minor improvements to documentation.
 
 2017-05-05 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.10.6).
-        * tests/: do not warn if they contain tabs.
-        * src/: Includes combinators to deal with collections,
-          to iterate over time (for custom/discrete integration),
-          implements ArrowChoice.
+        * Version bump (0.10.6).
+        * Do not warn if tests contain tabs.
+        * Includes combinators to deal with collections.
+        * Includes combinators to iterate over time (for custom/discrete
+          integration).
+        * Implements ArrowChoice.
 
 2017-04-26 Ivan Perez <ivan.perez@keera.co.uk>
-        * .travis.yml: Instruct TravisCI upload package to hackage.
-        * Yampa.cabal: Version bump (0.10.5.1).
+        * Instruct TravisCI upload package to hackage.
+        * Version bump (0.10.5.1).
 
 2016-05-23 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/: Adds new -:> combinator.
-        * Yampa.cabal: Version bump (0.10.5).
+        * Adds new -:> combinator.
+        * Version bump (0.10.5).
 
 2015-11-14 Ivan Perez <ivan.perez@keera.co.uk>
-        * tests/: Include haddock. Regression tests now exit with proper exit
-          code.
-        * src/: Includes more documentation.
-        * Yampa.cabal: Include haddock and regression test suites.
-          Version bump (0.10.4).
+        * Include haddock in tests.
+        * Regression tests now exit with proper exit code.
+        * Includes more documentation.
+        * Include haddock and regression test suites.
+        * Version bump (0.10.4).
 
 2015-10-02 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/: Event instances of Applicative and Alternative.
-        * Yampa.cabal: Version bump (0.10.3).
+        * Event instances of Applicative and Alternative.
+        * Version bump (0.10.3).
 
 2015-06-19 Ivan Perez <ivan.perez@keera.co.uk>
-        * src:/ instances of DeepSeq (see #5).
-        * Yampa.cabal: Deepseq added to dependencies. Version bump (0.10.2).
+        * Instances of DeepSeq (see #5).
+        * Version bump (0.10.2).
 
 2015-05-06 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: disables tests by default. Version bump (0.10.1.1).
+        * Disables tests by default in Cabal file.
+        * Version bump (0.10.1.1).
 
 2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: exposes internal modules for documentation purposes.
-          Version bump (0.10.1)
+        * Exposes internal modules for documentation purposes.
+        * Version bump (0.10.1).
 
 2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/: Reorders code. Marks modules as deprecated. Removes useless functions.
-        * Yampa.cabal: version bump (0.10.0)
+        * Reorders code.
+        * Marks modules as deprecated.
+        * Removes useless functions.
+        * Version bump (0.10.0).
 
 2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/FRP/Yampa.hs: documentation. Removes tabs.
-        * README.md: links to games, related projects, documentation.
-        * Yampa.cabal: version bump (0.9.7)
+        * Documentation added to FRP.Yampa.
+        * Removes tabs from FRP.Yampa.
+        * Links to games, related projects, documentation in README.
+        * Version bump (0.9.7).
 
 2015-03-30 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/FRP/Yampa/Task.hs: Adds Functor and Applicative instances,
-          for compatibility with base >= 4.8 (issue #7, pull request by
-          Ryan Scott).
-        * Yampa.cabal: version bump (0.9.6.1).
+        * Adds Functor and Applicative instances for Tasks for compatibility
+          with base >= 4.8 (issue #7).
+        * Version bump (0.9.6.1).
+        * Thanks to Ryan Scott.
 
 2015-03-04 Ivan Perez <ivan.perez@keera.co.uk>
-        * src/: Coding style improvements.
+        * Coding style improvements.
 
 2014-08-29 Ivan Perez <ivan.perez@keera.co.uk>
 
-        * Yampa.cabal: version bump (0.9.6).
-        * src/: Adds a substantial amount of documentation.
-        * src/FRP/Yampa.hs: Adds a new pause combinator.
+        * Version bump (0.9.6).
+        * Adds a substantial amount of documentation.
+        * Adds a new pause combinator.
 
 2014-06-04 Ivan Perez <ivan.perez@keera.co.uk>
 
@@ -204,13 +216,14 @@
 
 2014-04-26 Ivan Perez <ivan.perez@keera.es>
 
-        * Yampa.cabal: version bump (0.9.5).
+        * Version bump (0.9.5).
         * Adds CHANGELOG to cabal file.
 
 2014-04-07 Ivan Perez <ivan.perez@keera.es>
 
-        * Yampa.cabal: new maintainer, version bump (0.9.4).
-        * src/: documentation is exposed so that Haddock can process it.
+        * New maintainer.
+        * Version bump (0.9.4).
+        * Documentation is exposed so that Haddock can process it.
         * No interface changes.
 
 Copyright (c) 2003, Henrik Nilsson, Antony Courtney and Yale University.
