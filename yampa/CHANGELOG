@@ -87,56 +87,56 @@
 
 2018-11-02 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.13).
-    * Documents related projects.
-    * Cleans API, removes deprecated constructs, moves vector and points into
-      separate library, hides Core.
-    * Eliminates Forceable and MergeableRecord.
-    * Adds documentation.
-    * Adds Diagrams example.
+    * Document related projects.
+    * Clean API, remove deprecated constructs, move vector and point into
+      separate library, hide Core.
+    * Eliminate Forceable and MergeableRecord.
+    * Add documentation.
+    * Add Diagrams example.
     * Compile with GHC8.6 in CI (allowing failures).
 
 2018-10-21 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.12).
-    * Documents testing in README.
-    * Introduces FutureSF, needed for testing.
-    * Introduces testing library.
+    * Document testing in README.
+    * Introduce FutureSF, needed for testing.
+    * Introduce testing library.
     * Thanks to @chriz-keera.
 
 2018-08-11 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.11.1).
-    * Documents papers in README.
-    * Fixes leak.
+    * Document papers in README.
+    * Fix leak.
     * Thanks to @tresormuta, @chriz-keera.
 
 2018-04-05 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.11).
-    * Adds documentation; makes type synonym a newtype.
-    * Removes deprecated import in tests.
-    * Tests on travis with GHC 7.6 to 8.4.
+    * Add documentation; makes type synonym a newtype.
+    * Remove deprecated import in tests.
+    * Test on travis with GHC 7.6 to 8.4.
     * Thanks to @ptvirgo, @thalerjonathan, @turion.
 
 2017-12-17 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.7).
-    * Adds flag to cabal file to expose core.
-    * Adds flag to descriptions.
-    * Fixes missing modules in cabal file.
-    * Adds images to descriptions in README.
+    * Add flag to cabal file to expose core.
+    * Add flag to descriptions.
+    * Fix missing modules in cabal file.
+    * Add images to descriptions in README.
     * New HCAR entry including iOS release.
-    * Exposes new function.
-    * Removes unused extensions.
-    * Simplifies code.
-    * Adds documentation.
-    * Fixes multiple bugs.
-    * Fixes nix setup.
-    * Adapts tests to new API.
-    * Adapts examples to new API.
+    * Expose new function.
+    * Remove unused extensions.
+    * Simplify code.
+    * Add documentation.
+    * Fix multiple bugs.
+    * Fix nix setup.
+    * Adapt tests to new API.
+    * Adapt examples to new API.
     * Thanks to @chriz-keera, @suzumiyasmith, @meimisaki, @RyanGlScott,
       @madjestic, @mgttlinger, @eapcochran, @jonmouchou.
 
 2017-08-28 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.6.2).
-    * Fixes issue with dependencies in Cabal file.
-    * Includes minimal stack configuration.
+    * Fix issue with dependencies in Cabal file.
+    * Include minimal stack configuration.
 
 2017-08-17 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.6.1).
@@ -146,10 +146,10 @@
 2017-05-05 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.6).
     * Do not warn if tests contain tabs.
-    * Includes combinators to deal with collections.
-    * Includes combinators to iterate over time (for custom/discrete
+    * Include combinators to deal with collections.
+    * Include combinators to iterate over time (for custom/discrete
       integration).
-    * Implements ArrowChoice.
+    * Implement ArrowChoice.
 
 2017-04-26 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.5.1).
@@ -157,13 +157,13 @@
 
 2016-05-23 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.5).
-    * Adds new -:> combinator.
+    * Add new -:> combinator.
 
 2015-11-14 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.4).
     * Include haddock in tests.
     * Regression tests now exit with proper exit code.
-    * Includes more documentation.
+    * Include more documentation.
     * Include haddock and regression test suites.
 
 2015-10-02 Ivan Perez <ivan.perez@keera.co.uk>
@@ -176,27 +176,27 @@
 
 2015-05-06 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.1.1).
-    * Disables tests by default in Cabal file.
+    * Disable tests by default in Cabal file.
 
 2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.1).
-    * Exposes internal modules for documentation purposes.
+    * Expose internal modules for documentation purposes.
 
 2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.10.0).
-    * Reorders code.
-    * Marks modules as deprecated.
-    * Removes useless functions.
+    * Reorder code.
+    * Mark modules as deprecated.
+    * Remove useless functions.
 
 2015-05-05 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.9.7).
     * Documentation added to FRP.Yampa.
-    * Removes tabs from FRP.Yampa.
-    * Links to games, related projects, documentation in README.
+    * Remove tabs from FRP.Yampa.
+    * Link to games, related projects, documentation in README.
 
 2015-03-30 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.9.6.1).
-    * Adds Functor and Applicative instances for Tasks for compatibility with
+    * Add Functor and Applicative instances for Tasks for compatibility with
       base >= 4.8 (#7).
     * Thanks to Ryan Scott.
 
@@ -205,15 +205,15 @@
 
 2014-08-29 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.9.6).
-    * Adds a substantial amount of documentation.
-    * Adds a new pause combinator.
+    * Add a substantial amount of documentation.
+    * Add a new pause combinator.
 
 2014-06-04 Ivan Perez <ivan.perez@keera.co.uk>
-    * Adds project to hudson-backed continuous integration server.
+    * Add project to hudson-backed continuous integration server.
 
 2014-04-26 Ivan Perez <ivan.perez@keera.es>
     * Version bump (0.9.5).
-    * Adds CHANGELOG to cabal file.
+    * Add CHANGELOG to cabal file.
 
 2014-04-07 Ivan Perez <ivan.perez@keera.es>
     * Version bump (0.9.4).
