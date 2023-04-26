@@ -80,7 +80,7 @@
     * Introduce examples as executables in Cabal file.
     * Add Peoplemon to README.
     * Fix errors in examples due to module reorg.
-    * Chnage testing extension to use tasty.
+    * Change testing extension to use tasty.
     * Compile with GHC8.8 in CI.
     * Support MonadFail proposal and GHC 8.8.
     * Thanks to @sigrlami, @RyanGlScott and @CraigTreptow.
