@@ -173,7 +173,7 @@
 
 2015-06-19 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.10.2).
-        * Instances of DeepSeq (see #5).
+        * Instances of DeepSeq (#5).
 
 2015-05-06 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.10.1.1).
@@ -198,7 +198,7 @@
 2015-03-30 Ivan Perez <ivan.perez@keera.co.uk>
         * Version bump (0.9.6.1).
         * Adds Functor and Applicative instances for Tasks for compatibility
-          with base >= 4.8 (issue #7).
+          with base >= 4.8 (#7).
         * Thanks to Ryan Scott.
 
 2015-03-04 Ivan Perez <ivan.perez@keera.co.uk>
