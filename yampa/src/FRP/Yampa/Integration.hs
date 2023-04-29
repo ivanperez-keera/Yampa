@@ -61,11 +61,11 @@ integral = SF {sfTF = tf0}
 
     igrl0  = zeroVector
 
-    integralAux igrl a_prev = SF' tf -- True
+    integralAux igrl aPrev = SF' tf -- True
       where
         tf dt a = (integralAux igrl' a, igrl')
           where
-            igrl' = igrl ^+^ realToFrac dt *^ a_prev
+            igrl' = igrl ^+^ realToFrac dt *^ aPrev
 
 -- | \"Immediate\" integration (using the function's value at the current time)
 imIntegral :: (Fractional s, VectorSpace a s) => a -> SF a a
@@ -92,9 +92,9 @@ derivative = SF {sfTF = tf0}
   where
     tf0 a0 = (derivativeAux a0, zeroVector)
 
-    derivativeAux a_prev = SF' tf -- True
+    derivativeAux aPrev = SF' tf -- True
       where
-        tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
+        tf dt a = (derivativeAux a, (a ^-^ aPrev) ^/ realToFrac dt)
 
 -- | Integrate using an auxiliary function that takes the current and the last
 --   input, the time between those samples, and the last output, and returns a
