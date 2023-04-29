@@ -14,14 +14,20 @@
 --
 -- Task abstraction on top of signal transformers.
 module FRP.Yampa.Task
-    ( Task
+    (
+      -- * The Task type
+      Task
     , mkTask
     , runTask
     , runTask_
     , taskToSF
+
+      -- * Basic tasks
     , constT
     , sleepT
     , snapT
+
+    -- * Basic tasks combinators
     , timeOut
     , abortWhen
     )
