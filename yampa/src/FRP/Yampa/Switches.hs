@@ -607,7 +607,7 @@ drpSwitch :: Functor col
           -> SF (a, Event (col (SF b c) -> col (SF b c))) (col c)
 drpSwitch rf sfs =
   dpSwitch (rf . fst) sfs (arr (snd . fst)) $ \sfs' f ->
-  noEventSnd >=- drpSwitch rf (f sfs')
+    noEventSnd >=- drpSwitch rf (f sfs')
 
 -- * Parallel composition/switchers with "zip" routing
 
