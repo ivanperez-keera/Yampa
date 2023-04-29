@@ -79,8 +79,8 @@ never = SF {sfTF = \_ -> (sfNever, NoEvent)}
 sfNever :: SF' a (Event b)
 sfNever = sfConst NoEvent
 
--- | Event source with a single occurrence at time 0. The value of the event
--- is given by the function argument.
+-- | Event source with a single occurrence at time 0. The value of the event is
+-- given by the function argument.
 now :: b -> SF a (Event b)
 now b0 = Event b0 --> never
 
@@ -92,26 +92,26 @@ after :: Time -- ^ The time /q/ after which the event should be produced
 after q x = afterEach [(q,x)]
 
 -- | Event source with repeated occurrences with interval q.
--- Note: If the interval is too short w.r.t. the sampling intervals,
--- the result will be that events occur at every sample. However, no more
--- than one event results from any sampling interval, thus avoiding an
--- "event backlog" should sampling become more frequent at some later
--- point in time.
+--
+-- Note: If the interval is too short w.r.t. the sampling intervals, the result
+-- will be that events occur at every sample. However, no more than one event
+-- results from any sampling interval, thus avoiding an "event backlog" should
+-- sampling become more frequent at some later point in time.
 repeatedly :: Time -> b -> SF a (Event b)
 repeatedly q x | q > 0 = afterEach qxs
                | otherwise = usrErr "Yampa" "repeatedly" "Non-positive period."
   where
     qxs = (q,x):qxs
 
--- | Event source with consecutive occurrences at the given intervals.
--- Should more than one event be scheduled to occur in any sampling interval,
--- only the first will in fact occur to avoid an event backlog.
+-- | Event source with consecutive occurrences at the given intervals. Should
+-- more than one event be scheduled to occur in any sampling interval, only the
+-- first will in fact occur to avoid an event backlog.
 afterEach :: [(Time,b)] -> SF a (Event b)
 afterEach qxs = afterEachCat qxs >>> arr (fmap head)
 
--- | Event source with consecutive occurrences at the given intervals.
--- Should more than one event be scheduled to occur in any sampling interval,
--- the output list will contain all events produced during that interval.
+-- | Event source with consecutive occurrences at the given intervals. Should
+-- more than one event be scheduled to occur in any sampling interval, the
+-- output list will contain all events produced during that interval.
 afterEachCat :: [(Time,b)] -> SF a (Event [b])
 afterEachCat [] = never
 afterEachCat ((q,x):qxs)
@@ -182,12 +182,11 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
                 NoEvent  -> (tLast', rqxs)
                 Event x' -> (-q, (tLast'+q,x') : rqxs)
 
-    -- tNext is the present time w.r.t. the *scheduled* time of the
-    -- event that is about to be emitted (i.e. >= 0).
-    -- The time associated with any event at the head of the event
-    -- queue is also given w.r.t. the event that is about to be emitted.
-    -- Thus, tNext - q' is the present time w.r.t. the event at the head
-    -- of the event queue.
+    -- tNext is the present time w.r.t. the *scheduled* time of the event that
+    -- is about to be emitted (i.e. >= 0).
+    -- The time associated with any event at the head of the event queue is also
+    -- given w.r.t. the event that is about to be emitted.  Thus, tNext - q' is
+    -- the present time w.r.t. the event at the head of the event queue.
     emitEventsScheduleNext e _ [] [] _ rxs =
       ( case e of
           NoEvent -> noPendingEvent
@@ -219,15 +218,15 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
                                              (tNext - q')
                                              (x' : rxs)
 
--- | A rising edge detector. Useful for things like detecting key presses.
--- It is initialised as /up/, meaning that events occurring at time 0 will
--- not be detected.
+-- | A rising edge detector. Useful for things like detecting key presses. It is
+-- initialised as /up/, meaning that events occurring at time 0 will not be
+-- detected.
 edge :: SF Bool (Event ())
 edge = iEdge True
 
--- | A rising edge detector that can be initialized as up ('True', meaning
---   that events occurring at time 0 will not be detected) or down
---   ('False', meaning that events occurring at time 0 will be detected).
+-- | A rising edge detector that can be initialized as up ('True', meaning that
+-- events occurring at time 0 will not be detected) or down ('False', meaning
+-- that events occurring at time 0 will be detected).
 iEdge :: Bool -> SF Bool (Event ())
 iEdge b = sscanPrim f (if b then 2 else 0) NoEvent
   where
@@ -244,8 +243,8 @@ iEdge b = sscanPrim f (if b then 2 else 0) NoEvent
 edgeTag :: a -> SF Bool (Event a)
 edgeTag a = edge >>> arr (`tag` a)
 
--- | Edge detector particularized for detecting transitions
---   on a 'Maybe' signal from 'Nothing' to 'Just'.
+-- | Edge detector particularized for detecting transitions on a 'Maybe' signal
+-- from 'Nothing' to 'Just'.
 edgeJust :: SF (Maybe a) (Event a)
 edgeJust = edgeBy isJustEdge (Just undefined)
   where
@@ -255,8 +254,8 @@ edgeJust = edgeBy isJustEdge (Just undefined)
     isJustEdge (Just _) Nothing     = Nothing
 
 -- | Edge detector parameterized on the edge detection function and initial
--- state, i.e., the previous input sample. The first argument to the
--- edge detection function is the previous sample, the second the current one.
+-- state, i.e., the previous input sample. The first argument to the edge
+-- detection function is the previous sample, the second the current one.
 edgeBy :: (a -> a -> Maybe b) -> a -> SF a (Event b)
 edgeBy isEdge aInit = SF {sfTF = tf0}
   where
@@ -300,8 +299,8 @@ snap =
   switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
 
 -- | Event source with a single occurrence at or as soon after (local) time
--- @tEv@ as possible. The value of the event is obtained by sampling the input
--- a that time.
+-- @tEv@ as possible. The value of the event is obtained by sampling the input a
+-- that time.
 snapAfter :: Time -> SF a (Event a)
 snapAfter tEv =
   switch (never &&& (identity &&& after tEv () >>^ \(a, e) -> e `tag` a)) now
@@ -313,11 +312,10 @@ sample pEv = identity &&& repeatedly pEv () >>^ \(a, e) -> e `tag` a
 -- | Window sampling
 --
 -- First argument is the window length wl, second is the sampling interval t.
--- The output list should contain (min (truncate (T/t) wl)) samples, where
--- T is the time the signal function has been running. This requires some
--- care in case of sparse sampling. In case of sparse sampling, the
--- current input value is assumed to have been present at all points where
--- sampling was missed.
+-- The output list should contain (min (truncate (T/t) wl)) samples, where T is
+-- the time the signal function has been running. This requires some care in
+-- case of sparse sampling. In case of sparse sampling, the current input value
+-- is assumed to have been present at all points where sampling was missed.
 sampleWindow :: Int -> Time -> SF a (Event [a])
 sampleWindow wl q =
     identity &&& afterEachCat (repeat (q, ()))
