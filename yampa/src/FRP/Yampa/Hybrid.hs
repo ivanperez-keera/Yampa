@@ -42,10 +42,10 @@ import FRP.Yampa.InternalCore (SF, epPrim)
 
 -- | Zero-order hold.
 --
--- Converts a discrete-time signal into a continuous-time signal, by holding
--- the last value until it changes in the input signal. The given parameter
--- may be used for time zero, and until the first event occurs in the input
--- signal, so hold is always well-initialized.
+-- Converts a discrete-time signal into a continuous-time signal, by holding the
+-- last value until it changes in the input signal. The given parameter may be
+-- used for time zero, and until the first event occurs in the input signal, so
+-- hold is always well-initialized.
 --
 -- >>> embed (hold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
 -- [1,1,2,2,3,3]
@@ -56,10 +56,10 @@ hold aInit = epPrim f () aInit
 
 -- | Zero-order hold with a delay.
 --
--- Converts a discrete-time signal into a continuous-time signal, by holding
--- the last value until it changes in the input signal. The given parameter is
--- used for time zero (until the first event occurs in the input signal), so
--- 'dHold' shifts the discrete input by an infinitesimal delay.
+-- Converts a discrete-time signal into a continuous-time signal, by holding the
+-- last value until it changes in the input signal. The given parameter is used
+-- for time zero (until the first event occurs in the input signal), so 'dHold'
+-- shifts the discrete input by an infinitesimal delay.
 --
 -- >>> embed (dHold 1) (deltaEncode 0.1 [NoEvent, NoEvent, Event 2, NoEvent, Event 3, NoEvent])
 -- [1,1,1,2,2,3]
@@ -69,8 +69,8 @@ dHold a0 = hold a0 >>> iPre a0
 -- | Tracks input signal when available, holding the last value when the input
 -- is 'Nothing'.
 --
--- This behaves similarly to 'hold', but there is a conceptual difference, as
--- it takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
+-- This behaves similarly to 'hold', but there is a conceptual difference, as it
+-- takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
 --
 -- >>> embed (trackAndHold 1) (deltaEncode 0.1 [Nothing, Nothing, Just 2, Nothing, Just 3, Nothing])
 -- [1,1,2,2,3,3]
@@ -80,8 +80,8 @@ trackAndHold aInit = arr (maybe NoEvent Event) >>> hold aInit
 -- | Tracks input signal when available, holding the last value when the input
 -- is 'Nothing', with a delay.
 --
--- This behaves similarly to 'hold', but there is a conceptual difference, as
--- it takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
+-- This behaves similarly to 'hold', but there is a conceptual difference, as it
+-- takes a signal of input @Maybe a@ (for some @a@) and not @Event@.
 --
 -- >>> embed (dTrackAndHold 1) (deltaEncode 0.1 [Nothing, Nothing, Just 2, Nothing, Just 3, Nothing])
 -- [1,1,1,2,2,3]
@@ -91,23 +91,21 @@ dTrackAndHold aInit = trackAndHold aInit >>> iPre aInit
 
 -- * Accumulators
 
--- | Given an initial value in an accumulator,
---   it returns a signal function that processes
---   an event carrying transformation functions.
---   Every time an 'Event' is received, the function
---   inside it is applied to the accumulator,
---   whose new value is outputted in an 'Event'.
+-- | Given an initial value in an accumulator, it returns a signal function that
+-- processes an event carrying transformation functions. Every time an 'Event'
+-- is received, the function inside it is applied to the accumulator, whose new
+-- value is outputted in an 'Event'.
 --
 accum :: a -> SF (Event (a -> a)) (Event a)
 accum aInit = epPrim f aInit NoEvent
   where
-    f a g = (a', Event a', NoEvent) -- Accumulator, output if Event,
-                                    -- output if no event
+    f a g = (a', Event a', NoEvent) -- Accumulator, output if Event, output if
+                                    -- no event
       where
         a' = g a
 
--- | Zero-order hold accumulator (always produces the last outputted value
---   until an event arrives).
+-- | Zero-order hold accumulator (always produces the last outputted value until
+-- an event arrives).
 accumHold :: a -> SF (Event (a -> a)) a
 accumHold aInit = epPrim f aInit aInit
   where
@@ -137,16 +135,16 @@ accumHoldBy g bInit = epPrim f bInit bInit
       where
         b' = g b a
 
--- | Zero-order hold accumulator parameterized by the accumulation function
---   with delayed initialization (initial output sample is always the
---   given accumulator).
+-- | Zero-order hold accumulator parameterized by the accumulation function with
+-- delayed initialization (initial output sample is always the given
+-- accumulator).
 dAccumHoldBy :: (b -> a -> b) -> b -> SF (Event a) b
 dAccumHoldBy f aInit = accumHoldBy f aInit >>> iPre aInit
 
 -- | Accumulator parameterized by the accumulator function with filtering,
---   possibly discarding some of the input events based on whether the second
---   component of the result of applying the accumulation function is
---   'Nothing' or 'Just' x for some x.
+-- possibly discarding some of the input events based on whether the second
+-- component of the result of applying the accumulation function is 'Nothing' or
+-- 'Just' x for some x.
 accumFilter :: (c -> a -> (c, Maybe b)) -> c -> SF (Event a) (Event b)
 accumFilter g cInit = epPrim f cInit NoEvent
   where
