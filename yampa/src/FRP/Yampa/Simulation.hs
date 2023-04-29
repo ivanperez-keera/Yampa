@@ -60,11 +60,11 @@ module FRP.Yampa.Simulation
 
 -- External imports
 import Control.Monad (unless)
-import Data.IORef
+import Data.IORef    (IORef, newIORef, readIORef, writeIORef)
 import Data.Maybe    (fromMaybe)
 
 -- Internal imports
-import FRP.Yampa.Diagnostics
+import FRP.Yampa.Diagnostics  (intErr, usrErr)
 import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
 
 -- * Reactimation
