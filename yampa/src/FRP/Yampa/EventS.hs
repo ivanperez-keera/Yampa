@@ -89,7 +89,7 @@ now b0 = Event b0 --> never
 after :: Time -- ^ The time /q/ after which the event should be produced
       -> b    -- ^ Value to produce at that time
       -> SF a (Event b)
-after q x = afterEach [(q,x)]
+after q x = afterEach [(q, x)]
 
 -- | Event source with repeated occurrences with interval q.
 --
@@ -101,20 +101,20 @@ repeatedly :: Time -> b -> SF a (Event b)
 repeatedly q x | q > 0 = afterEach qxs
                | otherwise = usrErr "Yampa" "repeatedly" "Non-positive period."
   where
-    qxs = (q,x):qxs
+    qxs = (q, x):qxs
 
 -- | Event source with consecutive occurrences at the given intervals. Should
 -- more than one event be scheduled to occur in any sampling interval, only the
 -- first will in fact occur to avoid an event backlog.
-afterEach :: [(Time,b)] -> SF a (Event b)
+afterEach :: [(Time, b)] -> SF a (Event b)
 afterEach qxs = afterEachCat qxs >>> arr (fmap head)
 
 -- | Event source with consecutive occurrences at the given intervals. Should
 -- more than one event be scheduled to occur in any sampling interval, the
 -- output list will contain all events produced during that interval.
-afterEachCat :: [(Time,b)] -> SF a (Event [b])
+afterEachCat :: [(Time, b)] -> SF a (Event [b])
 afterEachCat [] = never
-afterEachCat ((q,x):qxs)
+afterEachCat ((q, x):qxs)
     | q < 0     = usrErr "Yampa" "afterEachCat" "Negative period."
     | otherwise = SF {sfTF = tf0}
   where
@@ -123,7 +123,7 @@ afterEachCat ((q,x):qxs)
               else (awaitNextEvent (-q) x qxs, NoEvent)
 
     emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
-    emitEventsScheduleNext t xs ((q,x):qxs)
+    emitEventsScheduleNext t xs ((q, x):qxs)
         | q < 0     = usrErr "Yampa" "afterEachCat" "Negative period."
         | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
         | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
@@ -181,7 +181,7 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
             (tLast'', rqxs') =
               case e of
                 NoEvent  -> (tLast', rqxs)
-                Event x' -> (-q, (tLast'+q,x') : rqxs)
+                Event x' -> (-q, (tLast'+q, x') : rqxs)
 
     -- tNext is the present time w.r.t. the *scheduled* time of the event that
     -- is about to be emitted (i.e. >= 0).
