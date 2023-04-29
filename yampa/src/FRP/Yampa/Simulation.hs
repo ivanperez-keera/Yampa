@@ -134,7 +134,7 @@ reactInit :: IO a -- init
              -> IO (ReactHandle a b)
 reactInit init actuate (SF {sfTF = tf0}) = do
   a0 <- init
-  let (sf,b0) = tf0 a0
+  let (sf, b0) = tf0 a0
   -- TODO: really need to fix this interface, since right now we just ignore
   -- termination at time 0:
   r' <- newIORef (ReactState { rsActuate = actuate, rsSF = sf
@@ -147,15 +147,15 @@ reactInit init actuate (SF {sfTF = tf0}) = do
 
 -- | Process a single input sample.
 react :: ReactHandle a b
-      -> (DTime,Maybe a)
+      -> (DTime, Maybe a)
       -> IO Bool
-react rh (dt,ma') = do
+react rh (dt, ma') = do
   rs <- readIORef (reactHandle rh)
   let ReactState {rsActuate = actuate, rsSF = sf, rsA = a, rsB = _b } = rs
 
   let a' = fromMaybe a ma'
-      (sf',b') = (sfTF' sf) dt a'
-  writeIORef (reactHandle rh) (rs {rsSF = sf',rsA = a',rsB = b'})
+      (sf', b') = (sfTF' sf) dt a'
+  writeIORef (reactHandle rh) (rs {rsSF = sf', rsA = a', rsB = b'})
   done <- actuate rh True b'
   return done
 
