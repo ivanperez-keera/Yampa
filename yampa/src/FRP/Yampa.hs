@@ -328,7 +328,7 @@ import Control.Arrow
 import Data.VectorSpace
 
 -- Internal modules
-import FRP.Yampa.InternalCore
+import FRP.Yampa.Arrow (dup)
 import FRP.Yampa.Basic
 import FRP.Yampa.Conditional
 import FRP.Yampa.Delays
@@ -336,8 +336,8 @@ import FRP.Yampa.Event
 import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
 import FRP.Yampa.Integration
+import FRP.Yampa.InternalCore
 import FRP.Yampa.Loop
-import FRP.Yampa.Arrow (dup)
 import FRP.Yampa.Random
 import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
