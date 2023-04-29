@@ -420,13 +420,13 @@ cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
     sfSScan f (s1, b, s2, c) c
   where
     f (s1, b, s2, c) a =
-        let (u, s1',  b') = case f1 s1 a of
-                              Nothing       -> (True, s1, b)
-                              Just (s1',b') -> (False,  s1', b')
-        in case f2 s2 b' of
-             Nothing | u         -> Nothing
-                     | otherwise -> Just ((s1', b', s2, c), c)
-             Just (s2', c') -> Just ((s1', b', s2', c'), c')
+      let (u, s1',  b') = case f1 s1 a of
+                            Nothing       -> (True, s1, b)
+                            Just (s1',b') -> (False,  s1', b')
+      in case f2 s2 b' of
+           Nothing | u         -> Nothing
+                   | otherwise -> Just ((s1', b', s2, c), c)
+           Just (s2', c') -> Just ((s1', b', s2', c'), c')
 cpXX (SFSScan _ f1 s1 eb) (SFEP _ f2 s2 cne) =
     sfSScan f (s1, eb, s2, cne) cne
   where
