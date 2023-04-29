@@ -30,7 +30,7 @@ module FRP.Yampa.Time
   where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow ((>>>))
 
 -- Internal imports
 import FRP.Yampa.Basic        (constant)
