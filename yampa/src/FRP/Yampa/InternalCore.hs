@@ -85,6 +85,7 @@ module FRP.Yampa.InternalCore
     )
   where
 
+-- External imports
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative (Applicative(..))
 #endif
@@ -95,6 +96,7 @@ import Control.Arrow
 import qualified Control.Category (Category(..))
 #endif
 
+-- Internal imports
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
 
