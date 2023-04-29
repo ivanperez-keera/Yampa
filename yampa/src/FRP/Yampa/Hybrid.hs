@@ -31,11 +31,11 @@ module FRP.Yampa.Hybrid
   where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow (arr, (>>>))
 
 -- Internal imports
-import FRP.Yampa.Delays
-import FRP.Yampa.Event
+import FRP.Yampa.Delays       (iPre)
+import FRP.Yampa.Event        (Event (..))
 import FRP.Yampa.InternalCore (SF, epPrim)
 
 -- * Wave-form generation
