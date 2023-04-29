@@ -221,7 +221,7 @@ fdComp (FDG f1) (FDE f2 f2ne) = FDG f
 fdComp (FDG f1) fd2 = FDG (fdFun fd2 . f1)
 
 -- | Parallel application of structured functions.
-fdPar :: FunDesc a b -> FunDesc c d -> FunDesc (a,c) (b,d)
+fdPar :: FunDesc a b -> FunDesc c d -> FunDesc (a, c) (b, d)
 fdPar FDI     FDI     = FDI
 fdPar FDI     (FDC d) = FDG (\(~(a, _)) -> (a, d))
 fdPar FDI     fd2     = FDG (\(~(a, c)) -> (a, (fdFun fd2) c))
@@ -231,7 +231,7 @@ fdPar (FDC b) fd2     = FDG (\(~(_, c)) -> (b, (fdFun fd2) c))
 fdPar fd1     fd2     = FDG (\(~(a, c)) -> ((fdFun fd1) a, (fdFun fd2) c))
 
 -- | Parallel application with broadcasting for structured functions.
-fdFanOut :: FunDesc a b -> FunDesc a c -> FunDesc a (b,c)
+fdFanOut :: FunDesc a b -> FunDesc a c -> FunDesc a (b, c)
 fdFanOut FDI     FDI     = FDG (\a -> (a, a))
 fdFanOut FDI     (FDC c) = FDG (\a -> (a, c))
 fdFanOut FDI     fd2     = FDG (\a -> (a, (fdFun fd2) a))
@@ -265,7 +265,7 @@ vfyNoEv _       _  =
 -- | Composition and identity for SFs.
 instance Control.Category.Category SF where
   (.) = flip compPrim
-  id = SF $ \x -> (sfId,x)
+  id = SF $ \x -> (sfId, x)
 #endif
 
 -- | Choice of which SF to run based on the value of a signal.
@@ -420,8 +420,8 @@ cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
   where
     f (s1, b, s2, c) a =
       let (u, s1',  b') = case f1 s1 a of
-                            Nothing       -> (True, s1, b)
-                            Just (s1',b') -> (False,  s1', b')
+                            Nothing        -> (True, s1, b)
+                            Just (s1', b') -> (False,  s1', b')
       in case f2 s2 b' of
            Nothing | u         -> Nothing
                    | otherwise -> Just ((s1', b', s2, c), c)
@@ -685,14 +685,14 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
 --     first identity     = identity                            -- New
 --     first (constant b) = arr (\(_, c) -> (b, c))
 --     (first (arr f))    = arr (\(a, c) -> (f a, c))
-firstPrim :: SF a b -> SF (a,c) (b,c)
+firstPrim :: SF a b -> SF (a, c) (b, c)
 firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
   where
     tf0 ~(a0, c0) = (fpAux sf1, (b0, c0))
       where
         (sf1, b0) = tf10 a0
 
-fpAux :: SF' a b -> SF' (a,c) (b,c)
+fpAux :: SF' a b -> SF' (a, c) (b, c)
 fpAux (SFArr _ FDI)       = sfId                        -- New
 fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
 fpAux (SFArr _ fd1)       = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
@@ -703,14 +703,14 @@ fpAux sf1 = SF' tf
         (sf1', b) = (sfTF' sf1) dt a
 
 -- Mirror image of first.
-secondPrim :: SF a b -> SF (c,a) (c,b)
+secondPrim :: SF a b -> SF (c, a) (c, b)
 secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
   where
     tf0 ~(c0, a0) = (spAux sf1, (c0, b0))
       where
         (sf1, b0) = tf10 a0
 
-spAux :: SF' a b -> SF' (c,a) (c,b)
+spAux :: SF' a b -> SF' (c, a) (c, b)
 spAux (SFArr _ FDI)       = sfId                        -- New
 spAux (SFArr _ (FDC b))   = sfArrG (\(~(c, _)) -> (c, b))
 spAux (SFArr _ fd1)       = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
@@ -730,7 +730,7 @@ spAux sf1 = SF' tf
 --     constant b *** arr f2     = arr (\(_, c) -> (b, f2 c)
 --     arr f1     *** constant d = arr (\(a, _) -> (f1 a, d)
 --     arr f1     *** arr f2     = arr (\(a, b) -> (f1 a, f2 b)
-parSplitPrim :: SF a b -> SF c d  -> SF (a,c) (b,d)
+parSplitPrim :: SF a b -> SF c d  -> SF (a, c) (b, d)
 parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
   where
     tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
@@ -743,7 +743,7 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     -- A - arbitrary pure arrow
     -- C - constant arrow
 
-    psXX :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
+    psXX :: SF' a b -> SF' c d -> SF' (a, c) (b, d)
     psXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr (fdPar fd1 fd2)
     psXX (SFArr _ FDI)       sf2                 = spAux sf2        -- New
     psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
@@ -758,7 +758,7 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
             (sf1', b) = (sfTF' sf1) dt a
             (sf2', d) = (sfTF' sf2) dt c
 
-    psCX :: b -> SF' c d -> SF' (a,c) (b,d)
+    psCX :: b -> SF' c d -> SF' (a, c) (b, d)
     psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
     psCX b sf2                 = SF' tf
       where
@@ -766,7 +766,7 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', d) = (sfTF' sf2) dt c
 
-    psXC :: SF' a b -> d -> SF' (a,c) (b,d)
+    psXC :: SF' a b -> d -> SF' (a, c) (b, d)
     psXC (SFArr _ fd1)       d = sfArr (fdPar fd1 (FDC d))
     psXC sf1                 d = SF' tf
       where
@@ -774,7 +774,7 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf1', b) = (sfTF' sf1) dt a
 
-    psAX :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
+    psAX :: (a -> b) -> SF' c d -> SF' (a, c) (b, d)
     psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
     psAX f1 sf2                 = SF' tf
       where
@@ -782,7 +782,7 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', d) = (sfTF' sf2) dt c
 
-    psXA :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
+    psXA :: SF' a b -> (c -> d) -> SF' (a, c) (b, d)
     psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
     psXA sf1                 f2 = SF' tf
       where
@@ -804,7 +804,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     -- I - identity arrow
     -- C - constant arrow
 
-    pfoXX :: SF' a b -> SF' a c -> SF' a (b ,c)
+    pfoXX :: SF' a b -> SF' a c -> SF' a (b , c)
     pfoXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr(fdFanOut fd1 fd2)
     pfoXX (SFArr _ FDI)       sf2                 = pfoIX sf2
     pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
@@ -819,7 +819,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
             (sf1', b) = (sfTF' sf1) dt a
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoIX :: SF' a c -> SF' a (a ,c)
+    pfoIX :: SF' a c -> SF' a (a , c)
     pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
     pfoIX sf2 = SF' tf
       where
@@ -827,7 +827,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXI :: SF' a b -> SF' a (b ,a)
+    pfoXI :: SF' a b -> SF' a (b , a)
     pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
     pfoXI sf1 = SF' tf
       where
@@ -835,7 +835,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf1', b) = (sfTF' sf1) dt a
 
-    pfoCX :: b -> SF' a c -> SF' a (b ,c)
+    pfoCX :: b -> SF' a c -> SF' a (b , c)
     pfoCX b (SFArr _ fd2) = sfArr (fdFanOut (FDC b) fd2)
     pfoCX b sf2 = SF' tf
       where
@@ -843,7 +843,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXC :: SF' a b -> c -> SF' a (b ,c)
+    pfoXC :: SF' a b -> c -> SF' a (b , c)
     pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
     pfoXC sf1 c = SF' tf
       where
@@ -851,7 +851,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf1', b) = (sfTF' sf1) dt a
 
-    pfoAX :: (a -> b) -> SF' a c -> SF' a (b ,c)
+    pfoAX :: (a -> b) -> SF' a c -> SF' a (b , c)
     pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
     pfoAX f1 sf2 = SF' tf
       where
@@ -859,7 +859,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXA :: SF' a b -> (a -> c) -> SF' a (b ,c)
+    pfoXA :: SF' a b -> (a -> c) -> SF' a (b , c)
     pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
     pfoXA sf1 f2 = SF' tf
       where
@@ -873,18 +873,18 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 instance ArrowLoop SF where
   loop = loopPrim
 
-loopPrim :: SF (a,c) (b,c) -> SF a b
+loopPrim :: SF (a, c) (b, c) -> SF a b
 loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
   where
     tf0 a0 = (loopAux sf1, b0)
       where
         (sf1, (b0, c0)) = tf10 (a0, c0)
 
-    loopAux :: SF' (a,c) (b,c) -> SF' a b
+    loopAux :: SF' (a, c) (b, c) -> SF' a b
     loopAux (SFArr _ FDI) = sfId
     loopAux (SFArr _ (FDC (b, _))) = sfConst b
     loopAux (SFArr _ fd1) =
-      sfArrG (\a -> let (b,c) = (fdFun fd1) (a,c) in b)
+      sfArrG (\a -> let (b, c) = (fdFun fd1) (a, c) in b)
     loopAux sf1 = SF' tf
       where
         tf dt a = (loopAux sf1', b)
