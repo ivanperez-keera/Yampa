@@ -1,14 +1,14 @@
 -- |
--- Module      :  FRP.Yampa.Integration
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa.Integration
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
 --
 -- Integration and derivation of input signals.
 --
@@ -59,7 +59,7 @@ integral = SF {sfTF = tf0}
   where
     tf0 a0 = (integralAux igrl0 a0, igrl0)
 
-    igrl0  = zeroVector
+    igrl0 = zeroVector
 
     integralAux igrl aPrev = SF' tf -- True
       where
@@ -69,7 +69,7 @@ integral = SF {sfTF = tf0}
 
 -- | \"Immediate\" integration (using the function's value at the current time)
 imIntegral :: (Fractional s, VectorSpace a s) => a -> SF a a
-imIntegral = ((\ _ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
+imIntegral = ((\_ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
 
 -- | Integrate the first input signal and add the /discrete/ accumulation (sum)
 -- of the second, discrete, input signal.
@@ -102,4 +102,4 @@ derivative = SF {sfTF = tf0}
 iterFrom :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 f `iterFrom` b = SF (iterAux b)
   where
-    iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a'), b)
+    iterAux b a = (SF' (\dt a' -> iterAux (f a a' dt b) a'), b)
