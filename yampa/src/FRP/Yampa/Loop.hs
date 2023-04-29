@@ -35,8 +35,7 @@ import FRP.Yampa.InternalCore (SF)
 loopPre :: c -> SF (a,c) (b,c) -> SF a b
 loopPre cInit sf = loop (second (iPre cInit) >>> sf)
 
--- | Loop by integrating the second value in the pair and feeding the
--- result back. Because the integral at time 0 is zero, this is always
--- well defined.
+-- | Loop by integrating the second value in the pair and feeding the result
+-- back. Because the integral at time 0 is zero, this is always well defined.
 loopIntegral :: (Fractional s, VectorSpace c s) => SF (a,c) (b,c) -> SF a b
 loopIntegral sf = loop (second integral >>> sf)
