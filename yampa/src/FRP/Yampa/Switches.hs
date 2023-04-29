@@ -74,13 +74,13 @@ module FRP.Yampa.Switches
       -- * Parallel composition\/switching (collections)
       -- ** With broadcasting
     , parB
-    , pSwitchB,dpSwitchB
-    , rpSwitchB,drpSwitchB
+    , pSwitchB, dpSwitchB
+    , rpSwitchB, drpSwitchB
 
       -- ** With helper routing function
     , par
-    , pSwitch, dpSwitch
-    , rpSwitch,drpSwitch
+    , pSwitch,  dpSwitch
+    , rpSwitch, drpSwitch
 
       -- * Parallel composition\/switching (lists)
       --
@@ -243,7 +243,7 @@ drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
 --
 -- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
 -- this switch works.
-kSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
+kSwitch :: SF a b -> SF (a, b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
   where
     tf0 a0 =
@@ -323,7 +323,7 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 --
 -- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
 -- this switch works.
-dkSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
+dkSwitch :: SF a b -> SF (a, b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
   where
     tf0 a0 =
@@ -367,7 +367,7 @@ parB = par broadcast
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
 pSwitchB :: Functor col =>
-    col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c-> SF a (col b))
+    col (SF a b) -> SF (a, col b) (Event c) -> (col (SF a b)->c-> SF a (col b))
     -> SF a (col b)
 pSwitchB = pSwitch broadcast
 
@@ -377,7 +377,7 @@ pSwitchB = pSwitch broadcast
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
 dpSwitchB :: Functor col =>
-    col (SF a b) -> SF (a,col b) (Event c) -> (col (SF a b)->c->SF a (col b))
+    col (SF a b) -> SF (a, col b) (Event c) -> (col (SF a b)->c->SF a (col b))
     -> SF a (col b)
 dpSwitchB = dpSwitch broadcast
 
@@ -626,7 +626,7 @@ parZ = par (safeZip "parZ")
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-pSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
+pSwitchZ :: [SF a b] -> SF ([a], [b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
             -> SF [a] [b]
 pSwitchZ = pSwitch (safeZip "pSwitchZ")
 
@@ -635,7 +635,7 @@ pSwitchZ = pSwitch (safeZip "pSwitchZ")
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-dpSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c ->SF [a] [b])
+dpSwitchZ :: [SF a b] -> SF ([a], [b]) (Event c) -> ([SF a b] -> c ->SF [a] [b])
              -> SF [a] [b]
 dpSwitchZ = dpSwitch (safeZip "dpSwitchZ")
 
@@ -671,7 +671,7 @@ rpSwitchZ = rpSwitch (safeZip "rpSwitchZ")
 drpSwitchZ :: [SF a b] -> SF ([a], Event ([SF a b] -> [SF a b])) [b]
 drpSwitchZ = drpSwitch (safeZip "drpSwitchZ")
 
-safeZip :: String -> [a] -> [b] -> [(a,b)]
+safeZip :: String -> [a] -> [b] -> [(a, b)]
 safeZip fn l1 l2 = safeZip' l1 l2
   where
     safeZip' :: [a] -> [b] -> [(a, b)]
@@ -728,7 +728,7 @@ parCAux :: [SF' a b] -> SF' [a] [b]
 parCAux sfs = SF' tf
   where
     tf dt as =
-      let os    = map (\(a,sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
+      let os    = map (\(a, sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
           bs    = map snd os
           sfcs  = map fst os
       in (listSeq sfcs `seq` parCAux sfcs, listSeq bs)
