@@ -29,8 +29,10 @@ module FRP.Yampa.Time
     )
   where
 
+-- External imports
 import Control.Arrow
 
+-- Internal imports
 import FRP.Yampa.Basic        (constant)
 import FRP.Yampa.Integration  (integral)
 import FRP.Yampa.InternalCore (SF, Time)
