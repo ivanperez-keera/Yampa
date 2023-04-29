@@ -324,7 +324,8 @@ sampleWindow wl q =
     >>> accumBy updateWindow []
   where
     updateWindow w as = drop (max (length w' - wl) 0) w'
-      where w' = w ++ as
+      where
+        w' = w ++ as
 
 -- * Repetition and switching
 
