@@ -101,7 +101,7 @@ repeatedly :: Time -> b -> SF a (Event b)
 repeatedly q x | q > 0 = afterEach qxs
                | otherwise = usrErr "Yampa" "repeatedly" "Non-positive period."
   where
-    qxs = (q, x):qxs
+    qxs = (q, x) : qxs
 
 -- | Event source with consecutive occurrences at the given intervals. Should
 -- more than one event be scheduled to occur in any sampling interval, only the
@@ -114,7 +114,7 @@ afterEach qxs = afterEachCat qxs >>> arr (fmap head)
 -- output list will contain all events produced during that interval.
 afterEachCat :: [(Time, b)] -> SF a (Event [b])
 afterEachCat [] = never
-afterEachCat ((q, x):qxs)
+afterEachCat ((q, x) : qxs)
     | q < 0     = usrErr "Yampa" "afterEachCat" "Negative period."
     | otherwise = SF {sfTF = tf0}
   where
@@ -123,7 +123,7 @@ afterEachCat ((q, x):qxs)
               else (awaitNextEvent (-q) x qxs, NoEvent)
 
     emitEventsScheduleNext _ xs [] = (sfNever, Event (reverse xs))
-    emitEventsScheduleNext t xs ((q, x):qxs)
+    emitEventsScheduleNext t xs ((q, x) : qxs)
         | q < 0     = usrErr "Yampa" "afterEachCat" "Negative period."
         | t' >= 0   = emitEventsScheduleNext t' (x:xs) qxs
         | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
@@ -181,7 +181,7 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
             (tLast'', rqxs') =
               case e of
                 NoEvent  -> (tLast', rqxs)
-                Event x' -> (-q, (tLast'+q, x') : rqxs)
+                Event x' -> (-q, (tLast' + q, x') : rqxs)
 
     -- tNext is the present time w.r.t. the *scheduled* time of the event that
     -- is about to be emitted (i.e. >= 0).
@@ -206,7 +206,7 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
                                          x'
                          Event x'' ->
                            pendingEvents (-q)
-                                         ((tLast+q, x'') : rqxs)
+                                         ((tLast + q, x'') : rqxs)
                                          qxs'
                                          (tNext - q')
                                          x'
@@ -331,7 +331,7 @@ sampleWindow wl q =
 -- | Makes an event source recurring by restarting it as soon as it has an
 -- occurrence.
 recur :: SF a (Event b) -> SF a (Event b)
-recur sfe = switch (never &&& sfe) $ \b -> Event b --> (recur (NoEvent-->sfe))
+recur sfe = switch (never &&& sfe) $ \b -> Event b --> (recur (NoEvent --> sfe))
 
 -- | Apply the first SF until it produces an event, and, afterwards, switch to
 -- the second SF. This is just a convenience function, used to write what
