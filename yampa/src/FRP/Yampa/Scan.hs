@@ -46,4 +46,4 @@ sscanPrim f cInit bInit = SF {sfTF = tf0}
   where
     tf0 a0 = case f cInit a0 of
                Nothing       -> (sfSScan f cInit bInit, bInit)
-               Just (c', b') -> (sfSScan f c' b', b')
+               Just (c', b') -> (sfSScan f c' b',       b')
