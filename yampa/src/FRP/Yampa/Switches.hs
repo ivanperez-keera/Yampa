@@ -21,10 +21,10 @@
 --
 -- @switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b@
 --
--- which indicates that it has two parameters: a signal function
--- that produces an output and indicates, with an event, when it is time to
--- switch, and a signal function that starts with the residual data left by the
--- first SF in the event and continues onwards.
+-- which indicates that it has two parameters: a signal function that produces
+-- an output and indicates, with an event, when it is time to switch, and a
+-- signal function that starts with the residual data left by the first SF in
+-- the event and continues onwards.
 --
 -- Switching occurs, at most, once. If you want something to switch repeatedly,
 -- in general, you need to loop, or to switch onto the same signal function
@@ -36,22 +36,21 @@
 -- Switches vary depending on a number of criteria:
 --
 -- - /Decoupled/ vs normal switching /(d)/: when an SF is being applied and a
--- different SF needs to be applied next, one question is which one is used
--- for the time in which the switching takes place. In decoupled switching, the
--- old SF is used for the time of switching, and the one SF is only used after
--- that. In normal or instantaneous or coupled switching, the old SF is
--- discarded immediately and a new SF is used for the output already from that
--- point in time.
+-- different SF needs to be applied next, one question is which one is used for
+-- the time in which the switching takes place. In decoupled switching, the old
+-- SF is used for the time of switching, and the one SF is only used after that.
+-- In normal or instantaneous or coupled switching, the old SF is discarded
+-- immediately and a new SF is used for the output already from that point in
+-- time.
 --
 -- - How the switching event is provided /( \/r\/k)/: normally, an 'Event' is
 -- used to indicate that a switching must take place. This event can be part of
 -- the argument SF (e.g., 'switch'), it can be part of the input (e.g.,
--- 'rSwitch'), or it can be determined by a second argument SF (e.g,
--- 'kSwitch').
+-- 'rSwitch'), or it can be determined by a second argument SF (e.g, 'kSwitch').
 --
 -- - How many SFs are being handled /( \/p\/par)/: some combinators deal with
--- only one SF, others handle collections, either in the form of a
---'Functor' or a list ('[]').
+-- only one SF, others handle collections, either in the form of a 'Functor' or
+-- a list ('[]').
 --
 -- - How the input is router /(B\/Z\/ )/: when multiple SFs are being combined,
 -- a decision needs to be made about how the input is passed to the internal
@@ -62,9 +61,9 @@
 -- the collection.
 --
 -- These gives a number of different combinations, some of which make no sense,
--- and also helps determine the expected behaviour of a combinator by looking
--- at its name. For example, 'drpSwitchB' is the decoupled (/d/), recurrent
--- (/r/), parallel (/p/) switch with broadcasting (/B/).
+-- and also helps determine the expected behaviour of a combinator by looking at
+-- its name. For example, 'drpSwitchB' is the decoupled (/d/), recurrent (/r/),
+-- parallel (/p/) switch with broadcasting (/B/).
 module FRP.Yampa.Switches
     (
       -- * Basic switching
@@ -119,12 +118,10 @@ import FRP.Yampa.InternalCore (DTime, FunDesc (..), SF (..), SF' (..), fdFun,
 --
 -- Important note: at the time of switching, the second signal function is
 -- applied immediately. If that second SF can also switch at time zero, then a
--- double (nested) switch might take place. If the second SF refers to the
--- first one, the switch might take place infinitely many times and never be
--- resolved.
+-- double (nested) switch might take place. If the second SF refers to the first
+-- one, the switch might take place infinitely many times and never be resolved.
 --
--- Remember: The continuation is evaluated strictly at the time
--- of switching!
+-- Remember: The continuation is evaluated strictly at the time of switching!
 switch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
 switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
   where
@@ -160,25 +157,22 @@ switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 --
 -- By default, the first signal function is applied.
 --
--- Whenever the second value in the pair actually is an event,
--- the value carried by the event is used to obtain a new signal
--- function to be applied *at future times*.
+-- Whenever the second value in the pair actually is an event, the value carried
+-- by the event is used to obtain a new signal function to be applied *at future
+-- times*.
 --
--- Until that happens, the first value in the pair is produced
--- in the output signal.
+-- Until that happens, the first value in the pair is produced in the output
+-- signal.
 --
--- Important note: at the time of switching, the second
--- signal function is used immediately, but the current
--- input is fed by it (even though the actual output signal
--- value at time 0 is discarded).
+-- Important note: at the time of switching, the second signal function is used
+-- immediately, but the current input is fed by it (even though the actual
+-- output signal value at time 0 is discarded).
 --
--- If that second SF can also switch at time zero, then a
--- double (nested) -- switch might take place. If the second SF refers to the
--- first one, the switch might take place infinitely many times and never be
--- resolved.
+-- If that second SF can also switch at time zero, then a double (nested) switch
+-- might take place. If the second SF refers to the first one, the switch might
+-- take place infinitely many times and never be resolved.
 --
--- Remember: The continuation is evaluated strictly at the time
--- of switching!
+-- Remember: The continuation is evaluated strictly at the time of switching!
 dSwitch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
 dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
   where
@@ -224,8 +218,8 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 -- Uses the given SF until an event comes in the input, in which case the SF in
 -- the event is turned on, until the next event comes in the input, and so on.
 --
--- See <https://wiki.haskell.org/Yampa#Switches> for more
--- information on how this switch works.
+-- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
+-- this switch works.
 rSwitch :: SF a b -> SF (a, Event (SF a b)) b
 rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
 
@@ -236,8 +230,8 @@ rSwitch sf = switch (first sf) ((noEventSnd >=-) . rSwitch)
 --
 -- Uses decoupled switch ('dSwitch').
 --
--- See <https://wiki.haskell.org/Yampa#Switches> for more
--- information on how this switch works.
+-- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
+-- this switch works.
 drSwitch :: SF a b -> SF (a, Event (SF a b)) b
 drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
 
@@ -247,8 +241,8 @@ drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
 -- passed to the second SF, produce an event, in which case the original SF and
 -- the event are used to build an new SF to switch into.
 --
--- See <https://wiki.haskell.org/Yampa#Switches> for more
--- information on how this switch works.
+-- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
+-- this switch works.
 kSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
   where
@@ -327,8 +321,8 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 --
 -- The switch is decoupled ('dSwitch').
 --
--- See <https://wiki.haskell.org/Yampa#Switches> for more
--- information on how this switch works.
+-- See <https://wiki.haskell.org/Yampa#Switches> for more information on how
+-- this switch works.
 dkSwitch :: SF a b -> SF (a,b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
   where
@@ -353,16 +347,14 @@ dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 
 -- * Parallel composition and switching over collections with broadcasting
 
--- | Tuple a value up with every element of a collection of signal
--- functions.
+-- | Tuple a value up with every element of a collection of signal functions.
 broadcast :: Functor col => a -> col sf -> col (a, sf)
 broadcast a = fmap (\sf -> (a, sf))
 
--- | Spatial parallel composition of a signal function collection.
--- Given a collection of signal functions, it returns a signal
--- function that broadcasts its input signal to every element
--- of the collection, to return a signal carrying a collection
--- of outputs. See 'par'.
+-- | Spatial parallel composition of a signal function collection. Given a
+-- collection of signal functions, it returns a signal function that broadcasts
+-- its input signal to every element of the collection, to return a signal
+-- carrying a collection of outputs. See 'par'.
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
@@ -379,8 +371,8 @@ pSwitchB :: Functor col =>
     -> SF a (col b)
 pSwitchB = pSwitch broadcast
 
--- | Decoupled parallel switch with broadcasting (dynamic collection of
---   signal functions spatially composed in parallel). See 'dpSwitch'.
+-- | Decoupled parallel switch with broadcasting (dynamic collection of signal
+-- functions spatially composed in parallel). See 'dpSwitch'.
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
@@ -391,10 +383,10 @@ dpSwitchB = dpSwitch broadcast
 
 -- | Recurring parallel switch with broadcasting.
 --
--- Uses the given collection of SFs, until an event comes in the input, in
--- which case the function in the 'Event' is used to transform the collections
--- of SF to be used with 'rpSwitch' again, until the next event comes in the
--- input, and so on.
+-- Uses the given collection of SFs, until an event comes in the input, in which
+-- case the function in the 'Event' is used to transform the collections of SF
+-- to be used with 'rpSwitch' again, until the next event comes in the input,
+-- and so on.
 --
 -- Broadcasting is used to decide which subpart of the input goes to each SF in
 -- the collection.
@@ -409,10 +401,10 @@ rpSwitchB = rpSwitch broadcast
 
 -- | Decoupled recurring parallel switch with broadcasting.
 --
--- Uses the given collection of SFs, until an event comes in the input, in
--- which case the function in the 'Event' is used to transform the collections
--- of SF to be used with 'rpSwitch' again, until the next event comes in the
--- input, and so on.
+-- Uses the given collection of SFs, until an event comes in the input, in which
+-- case the function in the 'Event' is used to transform the collections of SF
+-- to be used with 'rpSwitch' again, until the next event comes in the input,
+-- and so on.
 --
 -- Broadcasting is used to decide which subpart of the input goes to each SF in
 -- the collection.
@@ -462,12 +454,11 @@ parAux rf sfs = SF' tf -- True
       in (parAux rf sfs', cs)
 
 -- | Parallel switch parameterized on the routing function. This is the most
--- general switch from which all other (non-delayed) switches in principle
--- can be derived. The signal function collection is spatially composed in
--- parallel and run until the event signal function has an occurrence. Once
--- the switching event occurs, all signal function are "frozen" and their
--- continuations are passed to the continuation function, along with the
--- event value.
+-- general switch from which all other (non-delayed) switches in principle can
+-- be derived. The signal function collection is spatially composed in parallel
+-- and run until the event signal function has an occurrence. Once the switching
+-- event occurs, all signal function are "frozen" and their continuations are
+-- passed to the continuation function, along with the event value.
 pSwitch :: Functor col
         => (forall sf . (a -> col sf -> col (b, sf)))
            -- ^ Routing function: determines the input to each signal function
@@ -507,33 +498,31 @@ pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
 -- | Parallel switch with delayed observation parameterized on the routing
 -- function.
 --
--- The collection argument to the function invoked on the
--- switching event is of particular interest: it captures the
--- continuations of the signal functions running in the collection
--- maintained by 'dpSwitch' at the time of the switching event,
--- thus making it possible to preserve their state across a switch.
--- Since the continuations are plain, ordinary signal functions,
--- they can be resumed, discarded, stored, or combined with
--- other signal functions.
+-- The collection argument to the function invoked on the switching event is of
+-- particular interest: it captures the continuations of the signal functions
+-- running in the collection maintained by 'dpSwitch' at the time of the
+-- switching event, thus making it possible to preserve their state across a
+-- switch.  Since the continuations are plain, ordinary signal functions, they
+-- can be resumed, discarded, stored, or combined with other signal functions.
 dpSwitch :: Functor col
          => (forall sf . (a -> col sf -> col (b, sf)))
-            -- ^ Routing function. Its purpose is to pair up each running
-            -- signal function in the collection maintained by 'dpSwitch' with
-            -- the input it is going to see at each point in time. All the
-            -- routing function can do is specify how the input is distributed.
+            -- ^ Routing function. Its purpose is to pair up each running signal
+            -- function in the collection maintained by 'dpSwitch' with the
+            -- input it is going to see at each point in time. All the routing
+            -- function can do is specify how the input is distributed.
          -> col (SF b c)
             -- ^ Initial collection of signal functions.
          -> SF (a, col c) (Event d)
-            -- ^ Signal function that observes the external input signal and
-            -- the output signals from the collection in order to produce a
+            -- ^ Signal function that observes the external input signal and the
+            -- output signals from the collection in order to produce a
             -- switching event.
          -> (col (SF b c) -> d -> SF a (col c))
             -- ^ The fourth argument is a function that is invoked when the
             -- switching event occurs, yielding a new signal function to switch
             -- into based on the collection of signal functions previously
-            -- running and the value carried by the switching event. This
-            -- allows the collection to be updated and then switched back in,
-            -- typically by employing 'dpSwitch' again.
+            -- running and the value carried by the switching event. This allows
+            -- the collection to be updated and then switched back in, typically
+            -- by employing 'dpSwitch' again.
          -> SF a (col c)
 dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
   where
@@ -562,13 +551,13 @@ dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
 
 -- | Recurring parallel switch parameterized on the routing function.
 --
--- Uses the given collection of SFs, until an event comes in the input, in
--- which case the function in the 'Event' is used to transform the collections
--- of SF to be used with 'rpSwitch' again, until the next event comes in the
--- input, and so on.
+-- Uses the given collection of SFs, until an event comes in the input, in which
+-- case the function in the 'Event' is used to transform the collections of SF
+-- to be used with 'rpSwitch' again, until the next event comes in the input,
+-- and so on.
 --
--- The routing function is used to decide which subpart of the input
--- goes to each SF in the collection.
+-- The routing function is used to decide which subpart of the input goes to
+-- each SF in the collection.
 --
 -- This is the parallel version of 'rSwitch'.
 rpSwitch :: Functor col
@@ -587,20 +576,20 @@ rpSwitch rf sfs =
 -- | Recurring parallel switch with delayed observation parameterized on the
 -- routing function.
 --
--- Uses the given collection of SFs, until an event comes in the input, in
--- which case the function in the 'Event' is used to transform the collections
--- of SF to be used with 'rpSwitch' again, until the next event comes in the
--- input, and so on.
+-- Uses the given collection of SFs, until an event comes in the input, in which
+-- case the function in the 'Event' is used to transform the collections of SF
+-- to be used with 'rpSwitch' again, until the next event comes in the input,
+-- and so on.
 --
--- The routing function is used to decide which subpart of the input
--- goes to each SF in the collection.
+-- The routing function is used to decide which subpart of the input goes to
+-- each SF in the collection.
 --
 -- This is the parallel version of 'drSwitch'.
 drpSwitch :: Functor col
           => (forall sf . (a -> col sf -> col (b, sf)))
-             -- ^ Routing function: determines the input to each signal
-             -- function in the collection. IMPORTANT! The routing function has
-             -- an obligation to preserve the structure of the signal function
+             -- ^ Routing function: determines the input to each signal function
+             -- in the collection. IMPORTANT! The routing function has an
+             -- obligation to preserve the structure of the signal function
              -- collection.
           -> col (SF b c)
              -- ^ Initial signal function collection.
@@ -613,21 +602,21 @@ drpSwitch rf sfs =
 
 -- | Parallel composition of a list of SFs.
 --
---   Given a list of SFs, returns an SF that takes a list of inputs, applies
---   each SF to each input in order, and returns the SFs' outputs.
+-- Given a list of SFs, returns an SF that takes a list of inputs, applies each
+-- SF to each input in order, and returns the SFs' outputs.
 --
---   >>> embed (parZ [arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
---   [[1,2],[2,3]]
+-- >>> embed (parZ [arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+-- [[1,2],[2,3]]
 --
---   If there are more SFs than inputs, an exception is thrown.
+-- If there are more SFs than inputs, an exception is thrown.
 --
---   >>> embed (parZ [arr (+1), arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
---   [[1,1,*** Exception: FRP.Yampa.Switches.parZ: Input list too short.
+-- >>> embed (parZ [arr (+1), arr (+1), arr (+2)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+-- [[1,1,*** Exception: FRP.Yampa.Switches.parZ: Input list too short.
 --
---   If there are more inputs than SFs, the unused inputs are ignored.
+-- If there are more inputs than SFs, the unused inputs are ignored.
 --
---   >>> embed (parZ [arr (+1)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
---   [[1],[2]]
+-- >>> embed (parZ [arr (+1)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
+-- [[1],[2]]
 
 parZ :: [SF a b] -> SF [a] [b]
 parZ = par (safeZip "parZ")
@@ -641,8 +630,8 @@ pSwitchZ :: [SF a b] -> SF ([a],[b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
             -> SF [a] [b]
 pSwitchZ = pSwitch (safeZip "pSwitchZ")
 
--- | Decoupled parallel switch with broadcasting (dynamic collection of
---   signal functions spatially composed in parallel). See 'dpSwitch'.
+-- | Decoupled parallel switch with broadcasting (dynamic collection of signal
+-- functions spatially composed in parallel). See 'dpSwitch'.
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
@@ -710,23 +699,23 @@ freezeCol sfs dt = fmap (`freeze` dt) sfs
 
 -- | Apply an SF to every element of a list.
 --
---   Example:
+-- Example:
 --
---   >>> embed (parC integral) (deltaEncode 0.1 [[1, 2], [2, 4], [3, 6], [4.0, 8.0 :: Float]])
---   [[0.0,0.0],[0.1,0.2],[0.3,0.6],[0.6,1.2]]
+-- >>> embed (parC integral) (deltaEncode 0.1 [[1, 2], [2, 4], [3, 6], [4.0, 8.0 :: Float]])
+-- [[0.0,0.0],[0.1,0.2],[0.3,0.6],[0.6,1.2]]
 --
---   The number of SFs or expected inputs is determined by the first input
---   list, and not expected to vary over time.
+-- The number of SFs or expected inputs is determined by the first input list,
+-- and not expected to vary over time.
 --
---   If more inputs come in a subsequent list, they are ignored.
+-- If more inputs come in a subsequent list, they are ignored.
 --
---   >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
---   [[1],[2],[4],[7],[2],[1],[2]]
+-- >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
+-- [[1],[2],[4],[7],[2],[1],[2]]
 --
---   If less inputs come in a subsequent list, an exception is thrown.
+-- If less inputs come in a subsequent list, an exception is thrown.
 --
---   >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0, 0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
---   [[1,1],[2,2],[4,5],[7,8],[2,2],[1,1],[2,10]]
+-- >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0, 0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
+-- [[1,1],[2,2],[4,5],[7,8],[2,2],[1,1],[2,10]]
 
 parC :: SF a b -> SF [a] [b]
 parC sf = SF $ \as -> let os  = map (sfTF sf) as
