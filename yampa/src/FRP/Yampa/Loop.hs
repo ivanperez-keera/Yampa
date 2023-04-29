@@ -11,7 +11,7 @@
 --
 -- Portability : non-portable -GHC extensions-
 --
--- Well-initialised loops
+-- Well-initialised loops.
 module FRP.Yampa.Loop
     (
       -- * Loops with guaranteed well-defined feedback
