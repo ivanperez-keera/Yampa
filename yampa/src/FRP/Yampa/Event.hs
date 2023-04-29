@@ -103,16 +103,16 @@ noEventFst (_, b) = (NoEvent, b)
 noEventSnd :: (a, Event b) -> (a, Event c)
 noEventSnd (a, _) = (a, NoEvent)
 
--- | Eq instance (equivalent to derived instance)
+-- | Eq instance (equivalent to derived instance).
 instance Eq a => Eq (Event a) where
   -- | Equal if both NoEvent or both Event carrying equal values.
   NoEvent   == NoEvent   = True
   (Event x) == (Event y) = x == y
   _         == _         = False
 
--- | Ord instance (equivalent to derived instance)
+-- | Ord instance (equivalent to derived instance).
 instance Ord a => Ord (Event a) where
-  -- | NoEvent is smaller than Event, Event x < Event y if x < y
+  -- | NoEvent is smaller than Event, Event x < Event y if x < y.
   compare NoEvent   NoEvent   = EQ
   compare NoEvent   (Event _) = LT
   compare (Event _) NoEvent   = GT
@@ -132,7 +132,7 @@ instance Applicative Event where
   NoEvent <*> _ = NoEvent
   Event f <*> x = f <$> x
 
--- | Monad instance
+-- | Monad instance.
 instance Monad Event where
   -- | Combine events, return 'NoEvent' if any value in the sequence is
   -- 'NoEvent'.
@@ -153,7 +153,7 @@ instance Fail.MonadFail Event where
   -- | Fail with 'NoEvent'.
   fail _ = NoEvent
 
--- | Alternative instance
+-- | Alternative instance.
 instance Alternative Event where
   -- | An empty alternative carries no event, so it is ignored.
   empty = NoEvent
@@ -161,7 +161,7 @@ instance Alternative Event where
   NoEvent <|> r = r
   l       <|> _ = l
 
--- | NFData instance
+-- | NFData instance.
 instance NFData a => NFData (Event a) where
   -- | Evaluate value carried by event.
   rnf NoEvent   = ()
@@ -244,7 +244,7 @@ mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 -- | A generic event merge-map utility that maps event occurrences, merging the
 -- results. The first three arguments are mapping functions, the third of which
 -- will only be used when both events are present.  Therefore, 'mergeBy' =
--- 'mapMerge' 'id' 'id'
+-- 'mapMerge' 'id' 'id'.
 --
 -- Applicative-based definition:
 -- mapMerge lf rf lrf le re = (f <$> le <*> re) <|> (lf <$> le) <|> (rf <$> re)
