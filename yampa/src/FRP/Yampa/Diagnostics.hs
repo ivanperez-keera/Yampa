@@ -10,7 +10,7 @@
 -- Stability   : provisional
 -- Portability : portable
 --
--- Standardized error-reporting for Yampa
+-- Standardized error-reporting for Yampa.
 module FRP.Yampa.Diagnostics
     ( usrErr
     , intErr
