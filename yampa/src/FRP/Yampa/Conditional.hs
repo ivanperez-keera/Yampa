@@ -85,6 +85,6 @@ pause bInit (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
     pause' bInit' tf10' tfP' = SF' tf0'
       where tf0' dt a =
               case (sfTF' tfP') dt a of
-                (tfP'', True) -> (pause' bInit' tf10' tfP'', bInit')
+                (tfP'', True)  -> (pause' bInit' tf10' tfP'', bInit')
                 (tfP'', False) -> let (tf10'', b0') = (sfTF' tf10') dt a
                                   in (pause' b0' tf10'' tfP'', b0')
