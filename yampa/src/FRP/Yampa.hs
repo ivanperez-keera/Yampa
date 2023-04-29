@@ -237,13 +237,13 @@ module FRP.Yampa
       -- ** Parallel composition and switching
       -- *** Parallel composition and switching with broadcasting
     , parB
-    , pSwitchB,dpSwitchB
-    , rpSwitchB,drpSwitchB
+    , pSwitchB, dpSwitchB
+    , rpSwitchB, drpSwitchB
 
       -- *** Parallel composition and switching with general routing
     , par
-    , pSwitch, dpSwitch
-    , rpSwitch,drpSwitch
+    , pSwitch,  dpSwitch
+    , rpSwitch, drpSwitch
 
       -- * Discrete to continuous-time signal functions
       -- ** Wave-form generation
