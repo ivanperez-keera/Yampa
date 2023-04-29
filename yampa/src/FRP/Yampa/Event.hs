@@ -13,9 +13,9 @@
 -- Portability : portable
 --
 -- Events in Yampa represent discrete time-signals, meaning those that do not
--- change continuously. Examples of event-carrying signals would be mouse
--- clicks (in between clicks it is assumed that there is no click), some
--- keyboard events, button presses on wiimotes or window-manager events.
+-- change continuously. Examples of event-carrying signals would be mouse clicks
+-- (in between clicks it is assumed that there is no click), some keyboard
+-- events, button presses on wiimotes or window-manager events.
 --
 -- The type 'Event' is isomorphic to 'Maybe' (@Event a = NoEvent | Event a@)
 -- but, semantically, a 'Maybe'-carrying signal could change continuously,
@@ -84,8 +84,8 @@ infixl 6 `lMerge`, `rMerge`, `merge`
 
 -- * The Event type
 
--- | A single possible event occurrence, that is, a value that may or may
--- not occur. Events are used to represent values that are not produced
+-- | A single possible event occurrence, that is, a value that may or may not
+-- occur. Events are used to represent values that are not produced
 -- continuously, such as mouse clicks (only produced when the mouse is clicked,
 -- as opposed to mouse positions, which are always defined).
 data Event a = NoEvent | Event a deriving (Show)
@@ -134,8 +134,8 @@ instance Applicative Event where
 
 -- | Monad instance
 instance Monad Event where
-  -- | Combine events, return 'NoEvent' if any value in the
-  -- sequence is 'NoEvent'.
+  -- | Combine events, return 'NoEvent' if any value in the sequence is
+  -- 'NoEvent'.
   (Event x) >>= k = k x
   NoEvent  >>= _  = NoEvent
 
@@ -157,8 +157,7 @@ instance Fail.MonadFail Event where
 instance Alternative Event where
   -- | An empty alternative carries no event, so it is ignored.
   empty = NoEvent
-  -- | Merge favouring the left event ('NoEvent' only if both are
-  -- 'NoEvent').
+  -- | Merge favouring the left event ('NoEvent' only if both are 'NoEvent').
   NoEvent <|> r = r
   l       <|> _ = l
 
@@ -170,8 +169,8 @@ instance NFData a => NFData (Event a) where
 
 -- * Internal utilities for event construction
 
--- These utilities are to be considered strictly internal to Yampa for the
--- time being.
+-- These utilities are to be considered strictly internal to Yampa for the time
+-- being.
 
 -- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
 maybeToEvent :: Maybe a -> Event a
@@ -203,16 +202,14 @@ isNoEvent = not . isEvent
 
 -- | Tags an (occurring) event with a value ("replacing" the old value).
 --
--- Applicative-based definition:
---  tag = ($>)
+-- Applicative-based definition: tag = ($>)
 tag :: Event a -> b -> Event b
 e `tag` b = fmap (const b) e
 
--- | Tags an (occurring) event with a value ("replacing" the old value). Same
--- as 'tag' with the arguments swapped.
+-- | Tags an (occurring) event with a value ("replacing" the old value). Same as
+-- 'tag' with the arguments swapped.
 --
--- Applicative-based definition:
--- tagWith = (<$)
+-- Applicative-based definition: tagWith = (<$)
 tagWith :: b -> Event a -> Event b
 tagWith = flip tag
 
@@ -244,10 +241,10 @@ mergeBy _       le@(Event _) NoEvent      = le
 mergeBy _       NoEvent      re@(Event _) = re
 mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 
--- | A generic event merge-map utility that maps event occurrences,
--- merging the results. The first three arguments are mapping functions,
--- the third of which will only be used when both events are present.
--- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
+-- | A generic event merge-map utility that maps event occurrences, merging the
+-- results. The first three arguments are mapping functions, the third of which
+-- will only be used when both events are present.  Therefore, 'mergeBy' =
+-- 'mapMerge' 'id' 'id'
 --
 -- Applicative-based definition:
 -- mapMerge lf rf lrf le re = (f <$> le <*> re) <|> (lf <$> le) <|> (rf <$> re)
@@ -276,8 +273,8 @@ catEvents eas = case [ a | Event a <- eas ] of
                   [] -> NoEvent
                   as -> Event as
 
--- | Join (conjunction) of two events. Only produces an event
--- if both events exist.
+-- | Join (conjunction) of two events. Only produces an event if both events
+-- exist.
 --
 -- Applicative-based definition:
 -- joinE = liftA2 (,)
