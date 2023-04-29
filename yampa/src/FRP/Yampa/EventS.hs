@@ -1,14 +1,14 @@
 -- |
--- Module      :  FRP.Yampa.EventS
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa.EventS
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
 --
 -- Event Signal Functions and SF combinators.
 --
@@ -176,8 +176,8 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
             | otherwise
             = (pendingEvents tLast'' rqxs' qxs tNext' x, NoEvent)
           where
-            tNext' = tNext  + dt
-            tLast' = tLast  + dt
+            tNext' = tNext + dt
+            tLast' = tLast + dt
             (tLast'', rqxs') =
               case e of
                 NoEvent  -> (tLast', rqxs)
@@ -212,12 +212,12 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
                                          x'
                       , Event (reverse rxs)
                       )
-      | otherwise   = emitEventsScheduleNext e
-                                             tLast
-                                             rqxs
-                                             qxs'
-                                             (tNext - q')
-                                             (x' : rxs)
+      | otherwise  = emitEventsScheduleNext e
+                                            tLast
+                                            rqxs
+                                            qxs'
+                                            (tNext - q')
+                                            (x' : rxs)
 
 -- | A rising edge detector. Useful for things like detecting key presses. It is
 -- initialised as /up/, meaning that events occurring at time 0 will not be
@@ -283,7 +283,7 @@ takeEvents n = dSwitch (arr dup) (const (NoEvent >-- takeEvents (n - 1)))
 
 -- | Suppress first n events.
 dropEvents :: Int -> SF (Event a) (Event a)
-dropEvents n | n <= 0  = identity
+dropEvents n | n <= 0 = identity
 dropEvents n =
   -- Here dSwitch or switch does not really matter.
   dSwitch (never &&& identity)
