@@ -1,16 +1,16 @@
 {-# LANGUAGE CPP   #-}
 {-# LANGUAGE GADTs #-}
 -- |
--- Module      :  FRP.Yampa
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
 --
 --
 -- Domain-specific language embedded in Haskell for programming hybrid (mixed
@@ -124,16 +124,16 @@ data SF a b = SF {sfTF :: a -> Transition a b}
 -- It can also be seen as a Future Signal Function, meaning, an SF that, given a
 -- time delta or a time in the future, it will be an SF.
 data SF' a b where
-  SFArr   :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
+  SFArr :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
   -- The b is intentionally unstrict as the initial output sometimes is
   -- undefined (e.g. when defining pre). In any case, it isn't necessarily used
   -- and should thus not be forced.
   SFSScan :: !(DTime -> a -> Transition a b)
              -> !(c -> a -> Maybe (c, b)) -> !c -> b
              -> SF' a b
-  SFEP   :: !(DTime -> Event a -> Transition (Event a) b)
-            -> !(c -> a -> (c, b, b)) -> !c -> b
-            -> SF' (Event a) b
+  SFEP :: !(DTime -> Event a -> Transition (Event a) b)
+          -> !(c -> a -> (c, b, b)) -> !c -> b
+          -> SF' (Event a) b
   SFCpAXA :: !(DTime -> a -> Transition a d)
              -> !(FunDesc a b) -> !(SF' b c) -> !(FunDesc c d)
              -> SF' a d
@@ -175,8 +175,8 @@ sfConst b = sf
 sfArrE :: (Event a -> b) -> b -> SF' (Event a) b
 sfArrE f fne = sf
   where
-    sf  = SFArr (\_ ea -> (sf, case ea of NoEvent -> fne ; _ -> f ea))
-                (FDE f fne)
+    sf = SFArr (\_ ea -> (sf, case ea of NoEvent -> fne ; _ -> f ea))
+               (FDE f fne)
 
 -- | SF constructor for a general function.
 sfArrG :: (a -> b) -> SF' a b
@@ -253,7 +253,7 @@ fdFanOut fd1 fd2 =
 -- is exploited.
 vfyNoEv :: Event a -> b -> b
 vfyNoEv NoEvent b = b
-vfyNoEv _       _  =
+vfyNoEv _       _ =
   usrErr
     "Yampa"
     "vfyNoEv"
@@ -333,7 +333,7 @@ instance Functor (SF a) where
 -- composition using applicative style).
 instance Applicative (SF a) where
   pure x = arr (const x)
-  f <*>  x  = (f &&& x) >>> arr (uncurry ($))
+  f <*> x = (f &&& x) >>> arr (uncurry ($))
 
 -- * Lifting.
 
@@ -693,9 +693,9 @@ firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
         (sf1, b0) = tf10 a0
 
 fpAux :: SF' a b -> SF' (a, c) (b, c)
-fpAux (SFArr _ FDI)       = sfId                        -- New
-fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
-fpAux (SFArr _ fd1)       = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
+fpAux (SFArr _ FDI)     = sfId                        -- New
+fpAux (SFArr _ (FDC b)) = sfArrG (\(~(_, c)) -> (b, c))
+fpAux (SFArr _ fd1)     = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
 fpAux sf1 = SF' tf
   where
     tf dt ~(a, c) = (fpAux sf1', (b, c))
@@ -711,9 +711,9 @@ secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
         (sf1, b0) = tf10 a0
 
 spAux :: SF' a b -> SF' (c, a) (c, b)
-spAux (SFArr _ FDI)       = sfId                        -- New
-spAux (SFArr _ (FDC b))   = sfArrG (\(~(c, _)) -> (c, b))
-spAux (SFArr _ fd1)       = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
+spAux (SFArr _ FDI)     = sfId                        -- New
+spAux (SFArr _ (FDC b)) = sfArrG (\(~(c, _)) -> (c, b))
+spAux (SFArr _ fd1)     = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
 spAux sf1 = SF' tf
   where
     tf dt ~(c, a) = (spAux sf1', (c, b))
@@ -744,13 +744,13 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     -- C - constant arrow
 
     psXX :: SF' a b -> SF' c d -> SF' (a, c) (b, d)
-    psXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr (fdPar fd1 fd2)
-    psXX (SFArr _ FDI)       sf2                 = spAux sf2        -- New
-    psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
-    psXX (SFArr _ fd1)       sf2                 = psAX (fdFun fd1) sf2
-    psXX sf1                 (SFArr _ FDI)       = fpAux sf1        -- New
-    psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
-    psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
+    psXX (SFArr _ fd1)     (SFArr _ fd2)     = sfArr (fdPar fd1 fd2)
+    psXX (SFArr _ FDI)     sf2               = spAux sf2        -- New
+    psXX (SFArr _ (FDC b)) sf2               = psCX b sf2
+    psXX (SFArr _ fd1)     sf2               = psAX (fdFun fd1) sf2
+    psXX sf1               (SFArr _ FDI)     = fpAux sf1        -- New
+    psXX sf1               (SFArr _ (FDC d)) = psXC sf1 d
+    psXX sf1               (SFArr _ fd2)     = psXA sf1 (fdFun fd2)
     psXX sf1 sf2 = SF' tf
       where
         tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
@@ -759,32 +759,32 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
             (sf2', d) = (sfTF' sf2) dt c
 
     psCX :: b -> SF' c d -> SF' (a, c) (b, d)
-    psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
-    psCX b sf2                 = SF' tf
+    psCX b (SFArr _ fd2) = sfArr (fdPar (FDC b) fd2)
+    psCX b sf2           = SF' tf
       where
         tf dt ~(_, c) = (psCX b sf2', (b, d))
           where
             (sf2', d) = (sfTF' sf2) dt c
 
     psXC :: SF' a b -> d -> SF' (a, c) (b, d)
-    psXC (SFArr _ fd1)       d = sfArr (fdPar fd1 (FDC d))
-    psXC sf1                 d = SF' tf
+    psXC (SFArr _ fd1) d = sfArr (fdPar fd1 (FDC d))
+    psXC sf1           d = SF' tf
       where
         tf dt ~(a, _) = (psXC sf1' d, (b, d))
           where
             (sf1', b) = (sfTF' sf1) dt a
 
     psAX :: (a -> b) -> SF' c d -> SF' (a, c) (b, d)
-    psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
-    psAX f1 sf2                 = SF' tf
+    psAX f1 (SFArr _ fd2) = sfArr (fdPar (FDG f1) fd2)
+    psAX f1 sf2           = SF' tf
       where
         tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
           where
             (sf2', d) = (sfTF' sf2) dt c
 
     psXA :: SF' a b -> (c -> d) -> SF' (a, c) (b, d)
-    psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
-    psXA sf1                 f2 = SF' tf
+    psXA (SFArr _ fd1) f2 = sfArr (fdPar fd1 (FDG f2))
+    psXA sf1           f2 = SF' tf
       where
         tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
           where
@@ -805,13 +805,13 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     -- C - constant arrow
 
     pfoXX :: SF' a b -> SF' a c -> SF' a (b, c)
-    pfoXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr(fdFanOut fd1 fd2)
-    pfoXX (SFArr _ FDI)       sf2                 = pfoIX sf2
-    pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
-    pfoXX (SFArr _ fd1)       sf2                 = pfoAX (fdFun fd1) sf2
-    pfoXX sf1                 (SFArr _ FDI)       = pfoXI sf1
-    pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
-    pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
+    pfoXX (SFArr _ fd1)     (SFArr _ fd2)     = sfArr(fdFanOut fd1 fd2)
+    pfoXX (SFArr _ FDI)     sf2               = pfoIX sf2
+    pfoXX (SFArr _ (FDC b)) sf2               = pfoCX b sf2
+    pfoXX (SFArr _ fd1)     sf2               = pfoAX (fdFun fd1) sf2
+    pfoXX sf1               (SFArr _ FDI)     = pfoXI sf1
+    pfoXX sf1               (SFArr _ (FDC c)) = pfoXC sf1 c
+    pfoXX sf1               (SFArr _ fd2)     = pfoXA sf1 (fdFun fd2)
     pfoXX sf1 sf2 = SF' tf
       where
         tf dt a = (pfoXX sf1' sf2', (b, c))
