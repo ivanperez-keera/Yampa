@@ -323,6 +323,11 @@ module FRP.Yampa
     )
   where
 
+-- External modules
+import Control.Arrow
+import Data.VectorSpace
+
+-- Internal modules
 import FRP.Yampa.InternalCore
 import FRP.Yampa.Basic
 import FRP.Yampa.Conditional
@@ -338,6 +343,3 @@ import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
 import FRP.Yampa.Switches
 import FRP.Yampa.Time
-
-import Control.Arrow
-import Data.VectorSpace
