@@ -26,8 +26,10 @@ module FRP.Yampa.Random
     )
   where
 
+-- External imports
 import System.Random (Random (..), RandomGen (..))
 
+-- Internal imports
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
 import FRP.Yampa.InternalCore (SF (..), SF' (..), Time)
