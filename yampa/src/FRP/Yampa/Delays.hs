@@ -100,4 +100,4 @@ delay q aInit | q < 0     = usrErr "Yampa" "delay" "Negative delay."
               nextSmpl [] (reverse rbuf) tDiff a
             nextSmpl rbuf buf@((bdt, ba) : buf') tDiff a
               | tDiff < bdt = (delayAux rbuf buf tDiff a, a)
-              | otherwise   = nextSmpl rbuf buf' (tDiff-bdt) ba
+              | otherwise   = nextSmpl rbuf buf' (tDiff - bdt) ba
