@@ -32,7 +32,9 @@ import FRP.Yampa.InternalCore (SF(..), sfSScan)
 sscan :: (b -> a -> b) -> b -> SF a b
 sscan f bInit = sscanPrim f' bInit bInit
   where
-    f' b a = let b' = f b a in Just (b', b')
+    f' b a = Just (b', b')
+      where
+        b' = f b a
 
 -- | Generic version of 'sscan', in which the auxiliary function produces an
 -- internal accumulator and an "held" output.
