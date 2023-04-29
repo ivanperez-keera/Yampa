@@ -170,7 +170,7 @@ snapT = mkTask (constant (intErr "YampaTask" "snapT" "Bad switch?") &&& snap)
 timeOut :: Task a b c -> Time -> Task a b (Maybe c)
 tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
   where
-    aux ((b, ec), et) = (b, (lMerge (fmap Just ec) (fmap (const Nothing) et)))
+    aux ((b, ec), et) = (b, lMerge (fmap Just ec) (fmap (const Nothing) et))
 
 -- | Run a "guarding" event source (SF a (Event b)) in parallel with a (possibly
 -- non-terminating) task.
@@ -187,4 +187,4 @@ tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
 abortWhen :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
 tk `abortWhen` est = mkTask ((taskToSF tk &&& est) >>> arr aux)
   where
-    aux ((b, ec), ed) = (b, (lMerge (fmap Left ec) (fmap Right ed)))
+    aux ((b, ec), ed) = (b, lMerge (fmap Left ec) (fmap Right ed))
