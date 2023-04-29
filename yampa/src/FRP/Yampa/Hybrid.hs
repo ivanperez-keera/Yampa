@@ -30,8 +30,10 @@ module FRP.Yampa.Hybrid
     )
   where
 
+-- External imports
 import Control.Arrow
 
+-- Internal imports
 import FRP.Yampa.Delays
 import FRP.Yampa.Event
 import FRP.Yampa.InternalCore (SF, epPrim)
