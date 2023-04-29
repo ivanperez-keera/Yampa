@@ -25,13 +25,13 @@ module FRP.Yampa.Delays
   where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow ((>>>))
 
 -- Internal imports
-import FRP.Yampa.Basic
-import FRP.Yampa.Diagnostics
+import FRP.Yampa.Basic        (identity, (-->))
+import FRP.Yampa.Diagnostics  (usrErr)
 import FRP.Yampa.InternalCore (SF (..), SF' (..), Time)
-import FRP.Yampa.Scan
+import FRP.Yampa.Scan         (sscanPrim)
 
 infixr 0 `fby`
 
