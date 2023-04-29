@@ -98,12 +98,12 @@ module FRP.Yampa.Switches
   where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow (arr, first)
 
 -- Internal imports
-import FRP.Yampa.Basic
-import FRP.Yampa.Diagnostics
-import FRP.Yampa.Event
+import FRP.Yampa.Basic        (constant, (>=-))
+import FRP.Yampa.Diagnostics  (usrErr)
+import FRP.Yampa.Event        (Event (..), noEventSnd)
 import FRP.Yampa.InternalCore (DTime, FunDesc (..), SF (..), SF' (..), fdFun,
                                sfArrG, sfConst, sfTF')
 
