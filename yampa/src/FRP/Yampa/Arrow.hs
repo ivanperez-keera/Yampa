@@ -1,14 +1,14 @@
 -- |
--- Module      :  FRP.Yampa.Arrow
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa.Arrow
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  portable
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : portable
 --
 -- Arrow helper functions.
 module FRP.Yampa.Arrow
