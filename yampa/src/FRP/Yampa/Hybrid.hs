@@ -85,7 +85,6 @@ trackAndHold aInit = arr (maybe NoEvent Event) >>> hold aInit
 --
 -- >>> embed (dTrackAndHold 1) (deltaEncode 0.1 [Nothing, Nothing, Just 2, Nothing, Just 3, Nothing])
 -- [1,1,1,2,2,3]
-
 dTrackAndHold :: a -> SF (Maybe a) a
 dTrackAndHold aInit = trackAndHold aInit >>> iPre aInit
 
@@ -95,7 +94,6 @@ dTrackAndHold aInit = trackAndHold aInit >>> iPre aInit
 -- processes an event carrying transformation functions. Every time an 'Event'
 -- is received, the function inside it is applied to the accumulator, whose new
 -- value is outputted in an 'Event'.
---
 accum :: a -> SF (Event (a -> a)) (Event a)
 accum aInit = epPrim f aInit NoEvent
   where
