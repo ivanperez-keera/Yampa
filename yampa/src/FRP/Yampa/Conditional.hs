@@ -12,7 +12,11 @@
 --
 -- Apply SFs only under certain conditions.
 module FRP.Yampa.Conditional
-    ( provided
+    (
+      -- * Guards and automata-oriented combinators
+      provided
+
+      -- * Variable pause
     , pause
     )
   where
