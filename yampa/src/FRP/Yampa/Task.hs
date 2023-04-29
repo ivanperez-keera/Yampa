@@ -53,10 +53,9 @@ infixl 0 `timeOut`, `abortWhen`
 -- | A task is a partially SF that may terminate with a result.
 
 newtype Task a b c =
-  -- CPS-based representation allowing termination to be detected.
-  -- (Note the rank 2 polymorphic type!)
-  -- The representation can be changed if necessary, but the Monad laws
-  -- follow trivially in this case.
+  -- CPS-based representation allowing termination to be detected. Note the
+  -- rank 2 polymorphic type! The representation can be changed if necessary,
+  -- but the Monad laws follow trivially in this case.
   Task (forall d . (c -> SF a (Either b d)) -> SF a (Either b d))
 
 unTask :: Task a b c -> ((c -> SF a (Either b d)) -> SF a (Either b d))
@@ -70,9 +69,9 @@ mkTask st = Task (switch (st >>> first (arr Left)))
 -- | Runs a task.
 --
 -- The output from the resulting signal transformer is tagged with Left while
--- the underlying task is running. Once the task has terminated, the output
--- goes constant with the value Right x, where x is the value of the
--- terminating event.
+-- the underlying task is running. Once the task has terminated, the output goes
+-- constant with the value Right x, where x is the value of the terminating
+-- event.
 
 -- Check name.
 runTask :: Task a b c -> SF a (Either b c)
@@ -88,8 +87,8 @@ runTask_ tk = runTask tk
               >>> arr (either id (usrErr "YampaTask" "runTask_"
                                          "Task terminated!"))
 
--- | Creates an SF that represents an SF and produces an event
--- when the task terminates, and otherwise produces just an output.
+-- | Creates an SF that represents an SF and produces an event when the task
+-- terminates, and otherwise produces just an output.
 taskToSF :: Task a b c -> SF a (b, Event c)
 taskToSF tk = runTask tk
               >>> (arr (either id (usrErr "YampaTask" "runTask_"
@@ -173,16 +172,16 @@ tk `timeOut` t = mkTask ((taskToSF tk &&& after t ()) >>> arr aux)
   where
     aux ((b, ec), et) = (b, (lMerge (fmap Just ec) (fmap (const Nothing) et)))
 
--- | Run a "guarding" event source (SF a (Event b)) in parallel with a
--- (possibly non-terminating) task.
+-- | Run a "guarding" event source (SF a (Event b)) in parallel with a (possibly
+-- non-terminating) task.
 --
 -- The task will be aborted at the first occurrence of the event source (if it
 -- has not terminated itself before that).
 --
 -- Useful for separating sequencing and termination concerns.  E.g. we can do
--- something "useful", but in parallel watch for a (exceptional) condition
--- which should terminate that activity, without having to check for that
--- condition explicitly during each and every phase of the activity.
+-- something "useful", but in parallel watch for a (exceptional) condition which
+-- should terminate that activity, without having to check for that condition
+-- explicitly during each and every phase of the activity.
 --
 -- Example: @tsk `abortWhen` lbp@
 abortWhen :: Task a b c -> SF a (Event d) -> Task a b (Either c d)
