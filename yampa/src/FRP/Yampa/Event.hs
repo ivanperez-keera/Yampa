@@ -67,10 +67,12 @@ module FRP.Yampa.Event
     )
   where
 
+-- External imports
 import           Control.Applicative
 import           Control.DeepSeq     (NFData (..))
 import qualified Control.Monad.Fail  as Fail
 
+-- Internal imports
 import FRP.Yampa.Diagnostics
 
 infixl 8 `tag`, `attach`, `gate`
