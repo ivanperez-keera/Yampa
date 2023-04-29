@@ -25,7 +25,7 @@ module FRP.Yampa.Arrow
   where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow (Arrow, arr)
 
 -- * Arrow plumbing aids
 
