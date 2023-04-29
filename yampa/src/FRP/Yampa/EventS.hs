@@ -198,18 +198,18 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
       emitEventsScheduleNext e tLast [] (reverse rqxs) tNext rxs
     emitEventsScheduleNext e tLast rqxs ((q', x') : qxs') tNext rxs
       | q' > tNext = ( case e of
-                          NoEvent ->
-                            pendingEvents tLast
-                                          rqxs
-                                          qxs'
-                                          (tNext - q')
-                                          x'
-                          Event x'' ->
-                            pendingEvents (-q)
-                                          ((tLast+q, x'') : rqxs)
-                                          qxs'
-                                          (tNext - q')
-                                          x'
+                         NoEvent ->
+                           pendingEvents tLast
+                                         rqxs
+                                         qxs'
+                                         (tNext - q')
+                                         x'
+                         Event x'' ->
+                           pendingEvents (-q)
+                                         ((tLast+q, x'') : rqxs)
+                                         qxs'
+                                         (tNext - q')
+                                         x'
                       , Event (reverse rxs)
                       )
       | otherwise   = emitEventsScheduleNext e
