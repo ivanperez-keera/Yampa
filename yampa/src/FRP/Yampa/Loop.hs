@@ -32,10 +32,10 @@ import FRP.Yampa.InternalCore (SF)
 -- * Loops with guaranteed well-defined feedback
 
 -- | Loop with an initial value for the signal being fed back.
-loopPre :: c -> SF (a,c) (b,c) -> SF a b
+loopPre :: c -> SF (a, c) (b, c) -> SF a b
 loopPre cInit sf = loop (second (iPre cInit) >>> sf)
 
 -- | Loop by integrating the second value in the pair and feeding the result
 -- back. Because the integral at time 0 is zero, this is always well defined.
-loopIntegral :: (Fractional s, VectorSpace c s) => SF (a,c) (b,c) -> SF a b
+loopIntegral :: (Fractional s, VectorSpace c s) => SF (a, c) (b, c) -> SF a b
 loopIntegral sf = loop (second integral >>> sf)
