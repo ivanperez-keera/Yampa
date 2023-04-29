@@ -42,7 +42,7 @@ noise :: (RandomGen g, Random b) => g -> SF a b
 noise g0 = streamToSF (randoms g0)
 
 -- | Noise (random signal) with specified range; based on "randomRs".
-noiseR :: (RandomGen g, Random b) => (b,b) -> g -> SF a b
+noiseR :: (RandomGen g, Random b) => (b, b) -> g -> SF a b
 noiseR range g0 = streamToSF (randomRs range g0)
 
 streamToSF :: [b] -> SF a b
