@@ -68,25 +68,26 @@ pause bInit (SF { sfTF = tfP}) (SF {sfTF = tf10}) = SF {sfTF = tf0}
     -- recurse.
     tf0 a0 = case tfP a0 of
                (c, True)  -> (pauseInit bInit tf10 c, bInit)
-               (c, False) -> let (k, b0) = tf10 a0
-                             in (pause' b0 k c, b0)
+               (c, False) -> (pause' b0 k c, b0)
+      where
+        (k, b0) = tf10 a0
 
     -- Similar deal, but with a time delta
     pauseInit :: b -> (a -> Transition a b) -> SF' a Bool -> SF' a b
     pauseInit bInit' tf10' c = SF' tf0'
       where
-        tf0' dt a =
-          case (sfTF' c) dt a of
-            (c', True)  -> (pauseInit bInit' tf10' c', bInit')
-            (c', False) -> let (k, b0) = tf10' a
-                           in (pause' b0 k c', b0)
+        tf0' dt a = case (sfTF' c) dt a of
+                      (c', True)  -> (pauseInit bInit' tf10' c', bInit')
+                      (c', False) -> (pause' b0 k c', b0)
+          where
+            (k, b0) = tf10' a
 
     -- Very same deal (almost alpha-renameable)
     pause' :: b -> SF' a b -> SF' a Bool -> SF' a b
     pause' bInit' tf10' tfP' = SF' tf0'
       where
-        tf0' dt a =
-          case (sfTF' tfP') dt a of
-            (tfP'', True)  -> (pause' bInit' tf10' tfP'', bInit')
-            (tfP'', False) -> let (tf10'', b0') = (sfTF' tf10') dt a
-                              in (pause' b0' tf10'' tfP'', b0')
+        tf0' dt a = case (sfTF' tfP') dt a of
+                      (tfP'', True)  -> (pause' bInit' tf10' tfP'', bInit')
+                      (tfP'', False) -> (pause' b0' tf10'' tfP'', b0')
+          where
+            (tf10'', b0') = (sfTF' tf10') dt a
