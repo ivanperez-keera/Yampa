@@ -68,12 +68,15 @@ module FRP.Yampa.Event
   where
 
 -- External imports
-import           Control.Applicative
+#if !MIN_VERSION_base(4,8,0)
+import           Control.Applicative (Applicative (..), (<$>))
+#endif
+import           Control.Applicative (Alternative (..))
 import           Control.DeepSeq     (NFData (..))
 import qualified Control.Monad.Fail  as Fail
 
 -- Internal imports
-import FRP.Yampa.Diagnostics
+import FRP.Yampa.Diagnostics (usrErr)
 
 infixl 8 `tag`, `attach`, `gate`
 infixl 7 `joinE`
