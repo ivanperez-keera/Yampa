@@ -13,9 +13,9 @@
 -- Execution/simulation of signal functions.
 --
 -- SFs can be executed in two ways: by running them, feeding input samples one
--- by one, obtained from a monadic environment (presumably, @IO@), or by
--- passing an input stream and calculating an output stream. The former is
--- called /reactimation/, and the latter is called /embedding/.
+-- by one, obtained from a monadic environment (presumably, @IO@), or by passing
+-- an input stream and calculating an output stream. The former is called
+-- /reactimation/, and the latter is called /embedding/.
 --
 -- * Running:
 -- Normally, to run an SF, you would use 'reactimate', providing input samples,
@@ -76,9 +76,9 @@ import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
 -- initial input for the signal transformer at time 0.
 --
 -- Afterwards, an input sensing action is used to obtain new input (if any) and
--- the time since the last iteration. The argument to the input sensing
--- function indicates if it can block. If no new input is received, it is
--- assumed to be the same as in the last iteration.
+-- the time since the last iteration. The argument to the input sensing function
+-- indicates if it can block. If no new input is received, it is assumed to be
+-- the same as in the last iteration.
 --
 -- After applying the signal function to the input, the actuation IO action is
 -- executed. The first argument indicates if the output has changed, the second
@@ -112,8 +112,8 @@ reactimate init sense actuate (SF {sfTF = tf0}) = do
             (sf', b') = (sfTF' sf) dt a'
         loop sf' a' b'
 
--- An API for animating a signal function when some other library
--- needs to own the top-level control flow:
+-- An API for animating a signal function when some other library needs to own
+-- the top-level control flow:
 
 -- reactimate's state, maintained across samples:
 data ReactState a b = ReactState
@@ -135,8 +135,8 @@ reactInit :: IO a -- init
 reactInit init actuate (SF {sfTF = tf0}) = do
   a0 <- init
   let (sf,b0) = tf0 a0
-  -- TODO: really need to fix this interface, since right now we
-  -- just ignore termination at time 0:
+  -- TODO: really need to fix this interface, since right now we just ignore
+  -- termination at time 0:
   r' <- newIORef (ReactState { rsActuate = actuate, rsSF = sf
                              , rsA = a0, rsB = b0
                              }
@@ -161,10 +161,9 @@ react rh (dt,ma') = do
 
 -- * Embedding
 
--- | Given a signal function and a pair with an initial
--- input sample for the input signal, and a list of sampling
--- times, possibly with new input samples at those times,
--- it produces a list of output samples.
+-- | Given a signal function and a pair with an initial input sample for the
+-- input signal, and a list of sampling times, possibly with new input samples
+-- at those times, it produces a list of output samples.
 --
 -- This is a simplified, purely-functional version of 'reactimate'.
 embed :: SF a b -> (a, [(DTime, Maybe a)]) -> [b]
@@ -199,19 +198,18 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
                                   (b, tbtbs') = advance tp tbtbs
                               in (esAux tp tbtbs', b)
 
-    -- Advance the time stamped stream to the perceived time tp.  Under the
+    -- Advance the time stamped stream to the perceived time tp. Under the
     -- assumption that the perceived time never goes backwards (non-negative
-    -- ratio), advance maintains the invariant that the perceived time is
-    -- always >= the first time stamp.
+    -- ratio), advance maintains the invariant that the perceived time is always
+    -- >= the first time stamp.
     advance _  tbtbs@[(_, b)] = (b, tbtbs)
     advance tp tbtbtbs@((_, b) : tbtbs@((t', _) : _))
       | tp <  t' = (b, tbtbtbs)
       | t' <= tp = advance tp tbtbs
     advance _ _ = undefined
 
--- | Spaces a list of samples by a fixed time delta, avoiding
---   unnecessary samples when the input has not changed since
---   the last sample.
+-- | Spaces a list of samples by a fixed time delta, avoiding unnecessary
+-- samples when the input has not changed since the last sample.
 deltaEncode :: Eq a => DTime -> [a] -> (a, [(DTime, Maybe a)])
 deltaEncode _  []        = usrErr "Yampa" "deltaEncode" "Empty input list."
 deltaEncode dt aas@(_:_) = deltaEncodeBy (==) dt aas
@@ -234,10 +232,10 @@ newtype FutureSF a b = FutureSF { unsafeSF :: SF' a b }
 
 -- | Evaluate an SF, and return an output and an initialized SF.
 --
---   /WARN/: Do not use this function for standard simulation. This function is
---   intended only for debugging/testing. Apart from being potentially slower
---   and consuming more memory, it also breaks the FRP abstraction by making
---   samples discrete and step based.
+-- /WARN/: Do not use this function for standard simulation. This function is
+-- intended only for debugging/testing. Apart from being potentially slower and
+-- consuming more memory, it also breaks the FRP abstraction by making samples
+-- discrete and step based.
 evalAtZero :: SF a b
            -> a                  -- ^ Input sample
            -> (b, FutureSF a b)  -- ^ Output x Continuation
@@ -246,10 +244,10 @@ evalAtZero (SF { sfTF = tf }) a = (b, FutureSF tf' )
 
 -- | Evaluate an initialized SF, and return an output and a continuation.
 --
---   /WARN/: Do not use this function for standard simulation. This function is
---   intended only for debugging/testing. Apart from being potentially slower
---   and consuming more memory, it also breaks the FRP abstraction by making
---   samples discrete and step based.
+-- /WARN/: Do not use this function for standard simulation. This function is
+-- intended only for debugging/testing. Apart from being potentially slower and
+-- consuming more memory, it also breaks the FRP abstraction by making samples
+-- discrete and step based.
 evalAt :: FutureSF a b
        -> DTime -> a         -- ^ Input sample
        -> (b, FutureSF a b)  -- ^ Output x Continuation
@@ -257,15 +255,15 @@ evalAt (FutureSF { unsafeSF = tf }) dt a = (b, FutureSF tf')
   where (tf', b) = (sfTF' tf) dt a
 
 -- | Given a signal function and time delta, it moves the signal function into
---   the future, returning a new uninitialized SF and the initial output.
+-- the future, returning a new uninitialized SF and the initial output.
 --
---   While the input sample refers to the present, the time delta refers to the
---   future (or to the time between the current sample and the next sample).
+-- While the input sample refers to the present, the time delta refers to the
+-- future (or to the time between the current sample and the next sample).
 --
---   /WARN/: Do not use this function for standard simulation. This function is
---   intended only for debugging/testing. Apart from being potentially slower
---   and consuming more memory, it also breaks the FRP abstraction by making
---   samples discrete and step based.
+-- /WARN/: Do not use this function for standard simulation. This function is
+-- intended only for debugging/testing. Apart from being potentially slower and
+-- consuming more memory, it also breaks the FRP abstraction by making samples
+-- discrete and step based.
 --
 evalFuture :: SF a b -> a -> DTime -> (b, SF a b)
 evalFuture sf a dt = (b, sf' dt)
