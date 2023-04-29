@@ -1,15 +1,15 @@
 {-# LANGUAGE Rank2Types #-}
 -- |
--- Module      :  FRP.Yampa.Switches
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa.Switches
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
 --
 -- Switches allow you to change the signal function being applied.
 --
@@ -286,7 +286,7 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
                (_,    Event c) -> sfTF (k (arr f1) c) a
 
     -- !!! Untested optimization!
-    kSwitchAuxAE (SFArr _ (FDC b))  fe = kSwitchAuxC1AE b fe
+    kSwitchAuxAE (SFArr _ (FDC b)) fe = kSwitchAuxC1AE b fe
     kSwitchAuxAE (SFArr _ fd1)   fe = kSwitchAuxA1AE (fdFun fd1) fe
     kSwitchAuxAE sf1            fe = SF' tf -- False
       where
@@ -732,9 +732,9 @@ parCAux :: [SF' a b] -> SF' [a] [b]
 parCAux sfs = SF' tf
   where
     tf dt as =
-      let os    = map (\(a, sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
-          bs    = map snd os
-          sfcs  = map fst os
+      let os   = map (\(a, sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
+          bs   = map snd os
+          sfcs = map fst os
       in (listSeq sfcs `seq` parCAux sfcs, listSeq bs)
 
 listSeq :: [a] -> [a]
