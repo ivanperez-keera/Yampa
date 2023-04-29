@@ -12,7 +12,6 @@
 -- Stability   : provisional
 -- Portability : non-portable (GHC extensions)
 --
---
 -- Domain-specific language embedded in Haskell for programming hybrid (mixed
 -- discrete-time and continuous-time) systems. Yampa is based on the concepts of
 -- Functional Reactive Programming (FRP) and is structured using arrow
@@ -152,7 +151,6 @@ data SF' a b where
 
 -- | A transition is a pair of the next state (in the form of a future signal
 -- function) and the output at the present time step.
-
 type Transition a b = (SF' a b, b)
 
 -- | Obtain the function that defines a running SF.
