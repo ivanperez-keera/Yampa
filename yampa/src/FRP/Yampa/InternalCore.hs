@@ -71,9 +71,6 @@ module FRP.Yampa.InternalCore
     , sfConst
     , sfArrG
 
-      -- *** Scanning
-    , sfSScan
-
       -- ** Function descriptions
     , FunDesc(..)
     , fdFun
@@ -82,6 +79,9 @@ module FRP.Yampa.InternalCore
     , arrPrim
     , arrEPrim
     , epPrim
+
+      -- *** Scanning
+    , sfSScan
     )
   where
 
@@ -185,41 +185,7 @@ sfArrG f = sf
   where
     sf = SFArr (\_ a -> (sf, f a)) (FDG f)
 
--- | Versatile zero-order hold SF' with folding.
---
---   This function returns an SF that, if there is an input, runs it
---   through the given function and returns part of its output and, if not,
---   returns the last known output.
---
---   The auxiliary function returns the value of the current output and
---   the future held output, thus making it possible to have to distinct
---   outputs for the present and the future.
-epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
-epPrim f c bne = SF {sfTF = tf0}
-  where
-    tf0 NoEvent   = (sfEP f c bne, bne)
-    tf0 (Event a) = let (c', b, bne') = f c a
-                    in (sfEP f c' bne', b)
-
--- | Constructor for a zero-order hold SF' with folding.
---
---   This function returns a running SF that, if there is an input, runs it
---   through the given function and returns part of its output and, if not,
---   returns the last known output.
---
---   The auxiliary function returns the value of the current output and
---   the future held output, thus making it possible to have to distinct
---   outputs for the present and the future.
-sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
-sfEP f c bne = sf
-  where
-    sf = SFEP (\_ ea -> case ea of
-                          NoEvent -> (sf, bne)
-                          Event a -> let (c', b, bne') = f c a
-                                     in (sfEP f c' bne', b))
-              f
-              c
-              bne
+-- ** Function descriptions
 
 -- | Structured function definition.
 --
@@ -382,6 +348,42 @@ arrPrim f = SF {sfTF = \a -> (sfArrG f, f a)}
 {-# RULES "arrPrim/arrEPrim" arrPrim = arrEPrim #-}
 arrEPrim :: (Event a -> b) -> SF (Event a) b
 arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
+
+-- | Versatile zero-order hold SF' with folding.
+--
+--   This function returns an SF that, if there is an input, runs it
+--   through the given function and returns part of its output and, if not,
+--   returns the last known output.
+--
+--   The auxiliary function returns the value of the current output and
+--   the future held output, thus making it possible to have to distinct
+--   outputs for the present and the future.
+epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
+epPrim f c bne = SF {sfTF = tf0}
+  where
+    tf0 NoEvent   = (sfEP f c bne, bne)
+    tf0 (Event a) = let (c', b, bne') = f c a
+                    in (sfEP f c' bne', b)
+
+-- | Constructor for a zero-order hold SF' with folding.
+--
+--   This function returns a running SF that, if there is an input, runs it
+--   through the given function and returns part of its output and, if not,
+--   returns the last known output.
+--
+--   The auxiliary function returns the value of the current output and
+--   the future held output, thus making it possible to have to distinct
+--   outputs for the present and the future.
+sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
+sfEP f c bne = sf
+  where
+    sf = SFEP (\_ ea -> case ea of
+                          NoEvent -> (sf, bne)
+                          Event a -> let (c', b, bne') = f c a
+                                     in (sfEP f c' bne', b))
+              f
+              c
+              bne
 
 -- * Composition.
 
