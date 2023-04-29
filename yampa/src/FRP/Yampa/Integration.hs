@@ -72,7 +72,7 @@ imIntegral :: (Fractional s, VectorSpace a s) => a -> SF a a
 imIntegral = ((\ _ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
 
 -- | Integrate the first input signal and add the /discrete/ accumulation (sum)
---   of the second, discrete, input signal.
+-- of the second, discrete, input signal.
 impulseIntegral :: (Fractional k, VectorSpace a k) => SF (a, Event a) a
 impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
 
@@ -85,8 +85,8 @@ count = accumBy (\n _ -> n + 1) 0
 
 -- * Differentiation
 
--- | A very crude version of a derivative. It simply divides the
---   value difference by the time difference. Use at your own risk.
+-- | A very crude version of a derivative. It simply divides the value
+-- difference by the time difference. Use at your own risk.
 derivative :: (Fractional s, VectorSpace a s) => SF a a
 derivative = SF {sfTF = tf0}
   where
@@ -97,8 +97,8 @@ derivative = SF {sfTF = tf0}
         tf dt a = (derivativeAux a, (a ^-^ aPrev) ^/ realToFrac dt)
 
 -- | Integrate using an auxiliary function that takes the current and the last
---   input, the time between those samples, and the last output, and returns a
---   new output.
+-- input, the time between those samples, and the last output, and returns a new
+-- output.
 iterFrom :: (a -> a -> DTime -> b -> b) -> b -> SF a b
 f `iterFrom` b = SF (iterAux b)
   where
