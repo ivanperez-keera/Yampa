@@ -11,7 +11,11 @@
 -- Portability :  portable
 --
 -- Standardized error-reporting for Yampa
-module FRP.Yampa.Diagnostics where
+module FRP.Yampa.Diagnostics
+    ( usrErr
+    , intErr
+    )
+  where
 
 -- | Reports an error due to a violation of Yampa's preconditions/requirements.
 usrErr :: String -> String -> String -> a
