@@ -33,10 +33,12 @@ module FRP.Yampa.Task
     )
   where
 
+-- External imports
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative (Applicative(..))
 #endif
 
+-- Internal imports
 import FRP.Yampa.Basic        (constant)
 import FRP.Yampa.Diagnostics  (intErr, usrErr)
 import FRP.Yampa.Event        (Event, lMerge)
