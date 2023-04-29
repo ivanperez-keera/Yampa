@@ -22,13 +22,13 @@ module FRP.Yampa.Conditional
   where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow ((&&&), (^>>))
 
 -- Internal imports
-import FRP.Yampa.Basic
-import FRP.Yampa.EventS
+import FRP.Yampa.Basic        (constant)
+import FRP.Yampa.EventS       (edge, snap)
 import FRP.Yampa.InternalCore (SF (..), SF' (..), Transition, sfTF')
-import FRP.Yampa.Switches
+import FRP.Yampa.Switches     (switch)
 
 -- * Guards and automata-oriented combinators
 
