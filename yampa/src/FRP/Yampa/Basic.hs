@@ -1,14 +1,14 @@
 -- |
--- Module      :  FRP.Yampa.Basic
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa.Basic
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
 --
 -- Defines basic signal functions, and elementary ways of altering them.
 --
@@ -16,8 +16,8 @@
 -- functions. In particular, it defines ways of creating constant output
 -- producing SFs, and SFs that just pass the signal through unmodified.
 --
--- It also defines ways of altering the input and the output signal only
--- by inserting one value in the signal, or by transforming it.
+-- It also defines ways of altering the input and the output signal only by
+-- inserting one value in the signal, or by transforming it.
 module FRP.Yampa.Basic
     (
       -- * Basic signal functions
@@ -34,6 +34,7 @@ module FRP.Yampa.Basic
     )
   where
 
+-- Internal imports
 import FRP.Yampa.InternalCore (SF(..), SF'(..), sfConst, sfId)
 
 infixr 0 -->, -:>, >--, -=>, >=-
@@ -61,40 +62,37 @@ constant b = SF {sfTF = \_ -> (sfConst b, b)}
 
 -- | Initialization operator (cf. Lustre/Lucid Synchrone).
 --
--- The output at time zero is the first argument, and from
--- that point on it behaves like the signal function passed as
--- second argument.
+-- The output at time zero is the first argument, and from that point on it
+-- behaves like the signal function passed as second argument.
 (-->) :: b -> SF a b -> SF a b
 b0 --> (SF {sfTF = tf10}) = SF {sfTF = \a0 -> (fst (tf10 a0), b0)}
 
 -- | Output pre-insert operator.
 --
--- Insert a sample in the output, and from that point on, behave
--- like the given sf.
+-- Insert a sample in the output, and from that point on, behave like the given
+-- sf.
 (-:>) :: b -> SF a b -> SF a b
 b0 -:> (SF {sfTF = tf10}) = SF {sfTF = \_a0 -> (ct, b0)}
-  where ct = SF' $ \_dt a0 -> tf10 a0
+  where
+    ct = SF' $ \_dt a0 -> tf10 a0
 
 -- | Input initialization operator.
 --
--- The input at time zero is the first argument, and from
--- that point on it behaves like the signal function passed as
--- second argument.
+-- The input at time zero is the first argument, and from that point on it
+-- behaves like the signal function passed as second argument.
 (>--) :: a -> SF a b -> SF a b
 a0 >-- (SF {sfTF = tf10}) = SF {sfTF = \_ -> tf10 a0}
 
 -- | Transform initial output value.
 --
--- Applies a transformation 'f' only to the first output value at
--- time zero.
+-- Applies a transformation 'f' only to the first output value at time zero.
 (-=>) :: (b -> b) -> SF a b -> SF a b
 f -=> (SF {sfTF = tf10}) =
   SF {sfTF = \a0 -> let (sf1, b0) = tf10 a0 in (sf1, f b0)}
 
 -- | Transform initial input value.
 --
--- Applies a transformation 'f' only to the first input value at
--- time zero.
+-- Applies a transformation 'f' only to the first input value at time zero.
 {-# ANN (>=-) "HLint: ignore Avoid lambda" #-}
 (>=-) :: (a -> a) -> SF a b -> SF a b
 f >=- (SF {sfTF = tf10}) = SF {sfTF = \a0 -> tf10 (f a0)}

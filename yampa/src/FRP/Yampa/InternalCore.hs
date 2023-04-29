@@ -1,21 +1,20 @@
 {-# LANGUAGE CPP   #-}
 {-# LANGUAGE GADTs #-}
 -- |
--- Module      :  FRP.Yampa
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
---
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
 --
 -- Domain-specific language embedded in Haskell for programming hybrid (mixed
--- discrete-time and continuous-time) systems. Yampa is based on the concepts
--- of Functional Reactive Programming (FRP) and is structured using arrow
+-- discrete-time and continuous-time) systems. Yampa is based on the concepts of
+-- Functional Reactive Programming (FRP) and is structured using arrow
 -- combinators.
 --
 -- You can find examples, tutorials and documentation on Yampa here:
@@ -30,19 +29,19 @@
 -- real numbers and, computationally, a very dense approximation (Double) is
 -- used.
 --
--- * Events: 'Event'. Values that may or may not occur (and would probably
--- occur rarely). It is often used for incoming network messages, mouse
--- clicks, etc. Events are used as values carried by signals.
+-- * Events: 'Event'. Values that may or may not occur (and would probably occur
+-- rarely). It is often used for incoming network messages, mouse clicks, etc.
+-- Events are used as values carried by signals.
 --
--- A complete Yampa system is defined as one Signal Function from some
--- type @a@ to a type @b@. The execution of this signal transformer
--- with specific input can be accomplished by means of two functions:
--- 'reactimate' (which needs an initialization action,
--- an input sensing action and an actuation/consumer action and executes
--- until explicitly stopped), and 'react' (which executes only one cycle).
+-- A complete Yampa system is defined as one Signal Function from some type @a@
+-- to a type @b@. The execution of this signal transformer with specific input
+-- can be accomplished by means of two functions: 'reactimate' (which needs an
+-- initialization action, an input sensing action and an actuation/consumer
+-- action and executes until explicitly stopped), and 'react' (which executes
+-- only one cycle).
 --
--- Apart from using normal functions and arrow syntax to define 'SF's, you
--- can also use several combinators. See [<#g:4>] for basic signals combinators,
+-- Apart from using normal functions and arrow syntax to define 'SF's, you can
+-- also use several combinators. See [<#g:4>] for basic signals combinators,
 -- [<#g:11>] for ways of switching from one signal transformation to another,
 -- and [<#g:16>] for ways of transforming Event-carrying signals into continuous
 -- signals, [<#g:19>] for ways of delaying signals, and [<#g:21>] for ways to
@@ -71,9 +70,6 @@ module FRP.Yampa.InternalCore
     , sfConst
     , sfArrG
 
-      -- *** Scanning
-    , sfSScan
-
       -- ** Function descriptions
     , FunDesc(..)
     , fdFun
@@ -82,21 +78,26 @@ module FRP.Yampa.InternalCore
     , arrPrim
     , arrEPrim
     , epPrim
+
+      -- *** Scanning
+    , sfSScan
     )
   where
 
+-- External imports
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative (Applicative(..))
 #endif
 
-import Control.Arrow
+import Control.Arrow (Arrow (..), ArrowChoice (..), ArrowLoop (..), (>>>))
 
 #if __GLASGOW_HASKELL__ >= 610
 import qualified Control.Category (Category(..))
 #endif
 
-import FRP.Yampa.Diagnostics
-import FRP.Yampa.Event
+-- Internal imports
+import FRP.Yampa.Diagnostics (usrErr)
+import FRP.Yampa.Event       (Event (..))
 
 -- * Basic type definitions with associated utilities
 
@@ -113,34 +114,43 @@ type DTime = Double     -- [s]
 
 -- | Signal function that transforms a signal carrying values of some type 'a'
 -- into a signal carrying values of some type 'b'. You can think of it as
--- (Signal a -> Signal b). A signal is, conceptually, a
--- function from 'Time' to value.
+-- (Signal a -> Signal b). A signal is, conceptually, a function from 'Time' to
+-- value.
 data SF a b = SF {sfTF :: a -> Transition a b}
 
 -- | Signal function in "running" state.
 --
---   It can also be seen as a Future Signal Function, meaning,
---   an SF that, given a time delta or a time in the future, it will
---   be an SF.
+-- It can also be seen as a Future Signal Function, meaning, an SF that, given a
+-- time delta or a time in the future, it will be an SF.
 data SF' a b where
-  SFArr   :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
-  -- The b is intentionally unstrict as the initial output sometimes
-  -- is undefined (e.g. when defining pre). In any case, it isn't
-  -- necessarily used and should thus not be forced.
+  SFArr :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
+
+  -- The b is intentionally unstrict as the initial output sometimes is
+  -- undefined (e.g. when defining pre). In any case, it isn't necessarily used
+  -- and should thus not be forced.
   SFSScan :: !(DTime -> a -> Transition a b)
-             -> !(c -> a -> Maybe (c, b)) -> !c -> b
-             -> SF' a b
-  SFEP   :: !(DTime -> Event a -> Transition (Event a) b)
-            -> !(c -> a -> (c, b, b)) -> !c -> b
-            -> SF' (Event a) b
+          -> !(c -> a -> Maybe (c, b))
+          -> !c
+          -> b
+          -> SF' a b
+
+  SFEP :: !(DTime -> Event a -> Transition (Event a) b)
+       -> !(c -> a -> (c, b, b))
+       -> !c
+       -> b
+       -> SF' (Event a) b
+
   SFCpAXA :: !(DTime -> a -> Transition a d)
-             -> !(FunDesc a b) -> !(SF' b c) -> !(FunDesc c d)
-             -> SF' a d
-  SF' :: !(DTime -> a -> Transition a b) -> SF' a b
+          -> !(FunDesc a b)
+          -> !(SF' b c)
+          -> !(FunDesc c d)
+          -> SF' a d
+
+  SF' :: !(DTime -> a -> Transition a b)
+      -> SF' a b
 
 -- | A transition is a pair of the next state (in the form of a future signal
 -- function) and the output at the present time step.
-
 type Transition a b = (SF' a b, b)
 
 -- | Obtain the function that defines a running SF.
@@ -174,8 +184,8 @@ sfConst b = sf
 sfArrE :: (Event a -> b) -> b -> SF' (Event a) b
 sfArrE f fne = sf
   where
-    sf  = SFArr (\_ ea -> (sf, case ea of NoEvent -> fne ; _ -> f ea))
-                (FDE f fne)
+    sf = SFArr (\_ ea -> (sf, case ea of NoEvent -> fne ; _ -> f ea))
+               (FDE f fne)
 
 -- | SF constructor for a general function.
 sfArrG :: (a -> b) -> SF' a b
@@ -183,47 +193,13 @@ sfArrG f = sf
   where
     sf = SFArr (\_ a -> (sf, f a)) (FDG f)
 
--- | Versatile zero-order hold SF' with folding.
---
---   This function returns an SF that, if there is an input, runs it
---   through the given function and returns part of its output and, if not,
---   returns the last known output.
---
---   The auxiliary function returns the value of the current output and
---   the future held output, thus making it possible to have to distinct
---   outputs for the present and the future.
-epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
-epPrim f c bne = SF {sfTF = tf0}
-  where
-    tf0 NoEvent   = (sfEP f c bne, bne)
-    tf0 (Event a) = let (c', b, bne') = f c a
-                    in (sfEP f c' bne', b)
-
--- | Constructor for a zero-order hold SF' with folding.
---
---   This function returns a running SF that, if there is an input, runs it
---   through the given function and returns part of its output and, if not,
---   returns the last known output.
---
---   The auxiliary function returns the value of the current output and
---   the future held output, thus making it possible to have to distinct
---   outputs for the present and the future.
-sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
-sfEP f c bne = sf
-  where
-    sf = SFEP (\_ ea -> case ea of
-                          NoEvent -> (sf, bne)
-                          Event a -> let (c', b, bne') = f c a
-                                     in (sfEP f c' bne', b))
-              f
-              c
-              bne
+-- ** Function descriptions
 
 -- | Structured function definition.
 --
---   This type represents functions with a bit more structure, providing
---   specific constructors for the identity, constant and event-based
---   functions, helping optimise arrow combinators for special cases.
+-- This type represents functions with a bit more structure, providing specific
+-- constructors for the identity, constant and event-based functions, helping
+-- optimise arrow combinators for special cases.
 data FunDesc a b where
   FDI :: FunDesc a a                                  -- Identity function
   FDC :: b -> FunDesc a b                             -- Constant function
@@ -254,7 +230,7 @@ fdComp (FDG f1) (FDE f2 f2ne) = FDG f
 fdComp (FDG f1) fd2 = FDG (fdFun fd2 . f1)
 
 -- | Parallel application of structured functions.
-fdPar :: FunDesc a b -> FunDesc c d -> FunDesc (a,c) (b,d)
+fdPar :: FunDesc a b -> FunDesc c d -> FunDesc (a, c) (b, d)
 fdPar FDI     FDI     = FDI
 fdPar FDI     (FDC d) = FDG (\(~(a, _)) -> (a, d))
 fdPar FDI     fd2     = FDG (\(~(a, c)) -> (a, (fdFun fd2) c))
@@ -264,13 +240,13 @@ fdPar (FDC b) fd2     = FDG (\(~(_, c)) -> (b, (fdFun fd2) c))
 fdPar fd1     fd2     = FDG (\(~(a, c)) -> ((fdFun fd1) a, (fdFun fd2) c))
 
 -- | Parallel application with broadcasting for structured functions.
-fdFanOut :: FunDesc a b -> FunDesc a c -> FunDesc a (b,c)
-fdFanOut FDI     FDI     = FDG (\a -> (a, a))
-fdFanOut FDI     (FDC c) = FDG (\a -> (a, c))
-fdFanOut FDI     fd2     = FDG (\a -> (a, (fdFun fd2) a))
-fdFanOut (FDC b) FDI     = FDG (\a -> (b, a))
-fdFanOut (FDC b) (FDC c) = FDC (b, c)
-fdFanOut (FDC b) fd2     = FDG (\a -> (b, (fdFun fd2) a))
+fdFanOut :: FunDesc a b -> FunDesc a c -> FunDesc a (b, c)
+fdFanOut FDI           FDI           = FDG (\a -> (a, a))
+fdFanOut FDI           (FDC c)       = FDG (\a -> (a, c))
+fdFanOut FDI           fd2           = FDG (\a -> (a, (fdFun fd2) a))
+fdFanOut (FDC b)       FDI           = FDG (\a -> (b, a))
+fdFanOut (FDC b)       (FDC c)       = FDC (b, c)
+fdFanOut (FDC b)       fd2           = FDG (\a -> (b, (fdFun fd2) a))
 fdFanOut (FDE f1 f1ne) (FDE f2 f2ne) = FDE f1f2 f1f2ne
   where
     f1f2 NoEvent      = f1f2ne
@@ -281,12 +257,12 @@ fdFanOut fd1 fd2 =
   FDG (\a -> ((fdFun fd1) a, (fdFun fd2) a))
 
 -- | Verifies that the first argument is NoEvent. Returns the value of the
--- second argument that is the case. Raises an error otherwise.
--- Used to check that functions on events do not map NoEvent to Event
--- wherever that assumption is exploited.
+-- second argument that is the case. Raises an error otherwise. Used to check
+-- that functions on events do not map NoEvent to Event wherever that assumption
+-- is exploited.
 vfyNoEv :: Event a -> b -> b
 vfyNoEv NoEvent b = b
-vfyNoEv _       _  =
+vfyNoEv _       _ =
   usrErr
     "Yampa"
     "vfyNoEv"
@@ -298,7 +274,7 @@ vfyNoEv _       _  =
 -- | Composition and identity for SFs.
 instance Control.Category.Category SF where
   (.) = flip compPrim
-  id = SF $ \x -> (sfId,x)
+  id  = SF $ \x -> (sfId, x)
 #endif
 
 -- | Choice of which SF to run based on the value of a signal.
@@ -345,7 +321,7 @@ instance ArrowChoice SF where
                      in (choose sfCL sf', Right e)
 
 -- | Signal Functions as Arrows. See "The Yampa Arcade", by Courtney, Nilsson
---   and Peterson.
+-- and Peterson.
 instance Arrow SF where
   arr    = arrPrim
   first  = firstPrim
@@ -355,7 +331,7 @@ instance Arrow SF where
 
 #if __GLASGOW_HASKELL__ >= 610
 #else
-  (>>>)  = compPrim
+  (>>>) = compPrim
 #endif
 
 -- | Functor instance for applied SFs.
@@ -365,8 +341,8 @@ instance Functor (SF a) where
 -- | Applicative Functor instance (allows classic-frp style signals and
 -- composition using applicative style).
 instance Applicative (SF a) where
-  pure x = arr (const x)
-  f <*>  x  = (f &&& x) >>> arr (uncurry ($))
+  pure x  = arr (const x)
+  f <*> x = (f &&& x) >>> arr (uncurry ($))
 
 -- * Lifting.
 
@@ -381,9 +357,46 @@ arrPrim f = SF {sfTF = \a -> (sfArrG f, f a)}
 arrEPrim :: (Event a -> b) -> SF (Event a) b
 arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
 
+-- | Versatile zero-order hold SF' with folding.
+--
+-- This function returns an SF that, if there is an input, runs it through the
+-- given function and returns part of its output and, if not, returns the last
+-- known output.
+--
+-- The auxiliary function returns the value of the current output and the future
+-- held output, thus making it possible to have to distinct outputs for the
+-- present and the future.
+epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
+epPrim f c bne = SF {sfTF = tf0}
+  where
+    tf0 NoEvent   = (sfEP f c bne, bne)
+    tf0 (Event a) = (sfEP f c' bne', b)
+      where
+        (c', b, bne') = f c a
+
+-- | Constructor for a zero-order hold SF' with folding.
+--
+-- This function returns a running SF that, if there is an input, runs it
+-- through the given function and returns part of its output and, if not,
+-- returns the last known output.
+--
+-- The auxiliary function returns the value of the current output and the future
+-- held output, thus making it possible to have to distinct outputs for the
+-- present and the future.
+sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
+sfEP f c bne = sf
+  where
+    sf = SFEP (\_ ea -> case ea of
+                          NoEvent -> (sf, bne)
+                          Event a -> let (c', b, bne') = f c a
+                                     in (sfEP f c' bne', b))
+              f
+              c
+              bne
+
 -- * Composition.
 
--- | SF Composition
+-- | SF Composition.
 --
 -- The definition exploits the following identities:
 --     sf         >>> identity   = sf                           -- New
@@ -410,19 +423,20 @@ compPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 --     event-processing (E).
 
 cpXX :: SF' a b -> SF' b c -> SF' a c
-cpXX (SFArr _ fd1)       sf2               = cpAX fd1 sf2
-cpXX sf1                 (SFArr _ fd2)     = cpXA sf1 fd2
+cpXX (SFArr _ fd1)       sf2                 = cpAX fd1 sf2
+cpXX sf1                 (SFArr _ fd2)       = cpXA sf1 fd2
 cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
     sfSScan f (s1, b, s2, c) c
   where
     f (s1, b, s2, c) a =
-        let (u, s1',  b') = case f1 s1 a of
-                              Nothing       -> (True, s1, b)
-                              Just (s1',b') -> (False,  s1', b')
-        in case f2 s2 b' of
-             Nothing | u         -> Nothing
-                     | otherwise -> Just ((s1', b', s2, c), c)
-             Just (s2', c') -> Just ((s1', b', s2', c'), c')
+        case f2 s2 b' of
+          Nothing | u         -> Nothing
+                  | otherwise -> Just ((s1', b', s2, c), c)
+          Just (s2', c') -> Just ((s1', b', s2', c'), c')
+      where
+        (u, s1', b') = case f1 s1 a of
+                         Nothing        -> (True, s1, b)
+                         Just (s1', b') -> (False,  s1', b')
 cpXX (SFSScan _ f1 s1 eb) (SFEP _ f2 s2 cne) =
     sfSScan f (s1, eb, s2, cne) cne
   where
@@ -443,29 +457,29 @@ cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
     sfSScan f (s1, bne, s2, c) c
   where
     f (s1, bne, s2, c) ea =
-      let (u, s1', b', bne') = case ea of
-                                 NoEvent -> (True, s1, bne, bne)
-                                 Event a -> let (s1', b, bne') = f1 s1 a
-                                            in (False, s1', b, bne')
-      in case f2 s2 b' of
-           Nothing | u         -> Nothing
-                   | otherwise -> Just (seq s1' (s1', bne', s2, c), c)
-           Just (s2', c') -> Just (seq s1' (s1', bne', s2', c'), c')
+        case f2 s2 b' of
+             Nothing | u         -> Nothing
+                     | otherwise -> Just (seq s1' (s1', bne', s2, c), c)
+             Just (s2', c') -> Just (seq s1' (s1', bne', s2', c'), c')
+      where
+        (u, s1', b', bne') = case ea of
+                               NoEvent -> (True, s1, bne, bne)
+                               Event a -> let (s1', b, bne') = f1 s1 a
+                                          in (False, s1', b, bne')
 cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
     sfEP f (s1, s2, cne) (vfyNoEv bne cne)
   where
-    -- The function "f" is invoked whenever an event is to be processed. It
-    -- then computes the output, the new state, and the new NoEvent output.
-    -- However, when sequencing event processors, the ones in the latter
-    -- part of the chain may not get invoked since previous ones may decide
-    -- not to "fire". But a "new" NoEvent output still has to be produced,
-    -- i.e. the old one retained. Since it cannot be computed by invoking
-    -- the last event-processing function in the chain, it has to be
-    -- remembered. Since the composite event-processing function remains
-    -- constant/unchanged, the NoEvent output has to be part of the state.
-    -- An alternative would be to make the event-processing function take
-    -- an extra argument. But that is likely to make the simple case more
-    -- expensive. See note at sfEP.
+    -- The function "f" is invoked whenever an event is to be processed. It then
+    -- computes the output, the new state, and the new NoEvent output.  However,
+    -- when sequencing event processors, the ones in the latter part of the
+    -- chain may not get invoked since previous ones may decide not to "fire".
+    -- But a "new" NoEvent output still has to be produced, i.e. the old one
+    -- retained. Since it cannot be computed by invoking the last
+    -- event-processing function in the chain, it has to be remembered. Since
+    -- the composite event-processing function remains constant/unchanged, the
+    -- NoEvent output has to be part of the state.  An alternative would be to
+    -- make the event-processing function take an extra argument. But that is
+    -- likely to make the simple case more expensive. See note at sfEP.
     f (s1, s2, cne) a =
       case f1 s1 a of
         (s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
@@ -481,8 +495,8 @@ cpXX sf1@(SFEP{}) (SFCpAXA _ (FDG f21) sf22 fd23) =
 cpXX (SFCpAXA _ fd11 sf12 (FDE f13 f13ne)) sf2@(SFEP{}) =
   cpXX (cpAX fd11 sf12) (cpEX f13 f13ne sf2)
 cpXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
-  -- Termination: The first argument to cpXX is no larger than
-  -- the current first argument, and the second is smaller.
+  -- Termination: The first argument to cpXX is no larger than the current first
+  -- argument, and the second is smaller.
   cpAXA fd11 (cpXX (cpXA sf12 (fdComp fd13 fd21)) sf22) fd23
 cpXX sf1 sf2 = SF' tf --  False
   where
@@ -492,8 +506,8 @@ cpXX sf1 sf2 = SF' tf --  False
         (sf2', c) = (sfTF' sf2) dt b
 
 cpAXA :: FunDesc a b -> SF' b c -> FunDesc c d -> SF' a d
--- Termination: cpAX/cpXA, via cpCX, cpEX etc. only call cpAXA if sf2
--- is SFCpAXA, and then on the embedded sf and hence on a smaller arg.
+-- Termination: cpAX/cpXA, via cpCX, cpEX etc. only call cpAXA if sf2 is
+-- SFCpAXA, and then on the embedded sf and hence on a smaller arg.
 cpAXA FDI     sf2 fd3     = cpXA sf2 fd3
 cpAXA fd1     sf2 FDI     = cpAX fd1 sf2
 cpAXA (FDC b) sf2 fd3     = cpCXA b sf2 fd3
@@ -501,10 +515,14 @@ cpAXA _       _   (FDC d) = sfConst d
 cpAXA fd1     sf2 fd3     =
     cpAXAAux fd1 (fdFun fd1) fd3 (fdFun fd3) sf2
   where
-    -- Really: cpAXAAux :: SF' b c -> SF' a d
-    -- Note: Event cases are not optimized (EXA etc.)
-    cpAXAAux :: FunDesc a b -> (a -> b) -> FunDesc c d -> (c -> d)
-                -> SF' b c -> SF' a d
+    -- Really: cpAXAAux :: SF' b c -> SF' a d. Note: Event cases are not
+    -- optimized (EXA etc.)
+    cpAXAAux :: FunDesc a b
+             -> (a -> b)
+             -> FunDesc c d
+             -> (c -> d)
+             -> SF' b c
+             -> SF' a d
     cpAXAAux fd1 _ fd3 _ (SFArr _ fd2) =
       sfArr (fdComp (fdComp fd1 fd2) fd3)
     cpAXAAux fd1 _ fd3 _ sf2@(SFSScan {}) =
@@ -535,9 +553,9 @@ cpXA sf1 (FDG f2)      = cpXG sf1 f2
 -- The remaining signal function, if it is SF', later could turn into something
 -- else, like SFId.
 cpCX :: b -> SF' b c -> SF' a c
-cpCX b (SFArr _ fd2) = sfConst ((fdFun fd2) b)
-cpCX b (SFSScan _ f s c) = sfSScan (\s _ -> f s b) s c
-cpCX b (SFEP _ _ _ cne) = sfConst (vfyNoEv b cne)
+cpCX b (SFArr _ fd2)              = sfConst ((fdFun fd2) b)
+cpCX b (SFSScan _ f s c)          = sfSScan (\s _ -> f s b) s c
+cpCX b (SFEP _ _ _ cne)           = sfConst (vfyNoEv b cne)
 cpCX b (SFCpAXA _ fd21 sf22 fd23) =
   cpCXA ((fdFun fd21) b) sf22 fd23
 cpCX b sf2 = SFCpAXA tf (FDC b) sf2 FDI
@@ -552,8 +570,12 @@ cpCXA _ _   (FDC c) = sfConst c
 cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
   where
     -- Really: SF' b c -> SF' a d
-    cpCXAAux :: FunDesc a b -> b -> FunDesc c d -> (c -> d)
-                -> SF' b c -> SF' a d
+    cpCXAAux :: FunDesc a b
+             -> b
+             -> FunDesc c d
+             -> (c -> d)
+             -> SF' b c
+             -> SF' a d
     cpCXAAux _ b _ f3 (SFArr _ fd2)     = sfConst (f3 ((fdFun fd2) b))
     cpCXAAux _ b _ f3 (SFSScan _ f s c) = sfSScan f' s (f3 c)
       where
@@ -574,12 +596,12 @@ cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
   where
     cpGXAux :: FunDesc a b -> (a -> b) -> SF' b c -> SF' a c
     cpGXAux fd1 _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
-    -- We actually do know that (fdComp (FDG f1) fd21) is going to
-    -- result in an FDG. So we *could* call a cpGXA here. But the
-    -- price is "inlining" of part of fdComp.
+    -- We actually do know that (fdComp (FDG f1) fd21) is going to result in an
+    -- FDG. So we *could* call a cpGXA here. But the price is "inlining" of part
+    -- of fdComp.
     cpGXAux _ f1 (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
-    -- We really shouldn't see an EP here, as that would mean
-    -- an arrow INTRODUCING events ...
+    -- We really shouldn't see an EP here, as that would mean an arrow
+    -- INTRODUCING events ...
     cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
       cpAXA (fdComp fd1 fd21) sf22 fd23
     cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
@@ -599,11 +621,16 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
         f' s a = case f s a of
                    Nothing -> Nothing
                    Just (s', b') -> Just (s', f2 b')
+
     cpXGAux _ f2 (SFEP _ f1 s bne) = sfEP f s (f2 bne)
       where
-        f s a = let (s', b, bne') = f1 s a in (s', f2 b, f2 bne')
+        f s a = (s', f2 b, f2 bne')
+          where
+            (s', b, bne') = f1 s a
+
     cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
       cpAXA fd11 sf12 (fdComp fd22 fd2)
+
     cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
       where
         tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
@@ -613,11 +640,14 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
 cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
 cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
   where
-    cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b
-               -> SF' b c -> SF' (Event a) c
+    cpEXAux :: FunDesc (Event a) b
+            -> (Event a -> b)
+            -> b
+            -> SF' b c
+            -> SF' (Event a) c
     cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
     cpEXAux _ f1 _   (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
-    -- We must not capture cne in the f closure since cne can change!  See cpXX
+    -- We must not capture cne in the f closure since cne can change! See cpXX
     -- the SFEP/SFEP case for a similar situation. However, FDE represent a
     -- state-less signal function, so *its* NoEvent value never changes. Hence
     -- we only need to verify that it is NoEvent once.
@@ -627,7 +657,10 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
         f scne@(s, cne) a =
           case f1 (Event a) of
             NoEvent -> (scne, cne, cne)
-            Event b -> let (s', c, cne') = f2 s b in ((s', cne'), c, cne')
+            Event b -> ((s', cne'), c, cne')
+              where
+                (s', c, cne') = f2 s b
+
     cpEXAux fd1 _ _ (SFCpAXA _ fd21 sf22 fd23) =
       cpAXA (fdComp fd1 fd21) sf22 fd23
     -- The rationale for the following is that the case analysis is typically
@@ -646,8 +679,11 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
 cpXE :: SF' a (Event b) -> (Event b -> c) -> c -> SF' a c
 cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
   where
-    cpXEAux :: FunDesc (Event b) c -> (Event b -> c) -> c
-               -> SF' a (Event b) -> SF' a c
+    cpXEAux :: FunDesc (Event b) c
+            -> (Event b -> c)
+            -> c
+            -> SF' a (Event b)
+            -> SF' a c
     cpXEAux fd2 _ _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
     cpXEAux _ f2 f2ne (SFSScan _ f s eb) = sfSScan f' s (f2 eb)
       where
@@ -677,23 +713,23 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
 
 -- * Widening.
 
--- | Widening
+-- | Widening.
 --
 -- The definition exploits the following identities:
 --     first identity     = identity                            -- New
 --     first (constant b) = arr (\(_, c) -> (b, c))
 --     (first (arr f))    = arr (\(a, c) -> (f a, c))
-firstPrim :: SF a b -> SF (a,c) (b,c)
+firstPrim :: SF a b -> SF (a, c) (b, c)
 firstPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
   where
     tf0 ~(a0, c0) = (fpAux sf1, (b0, c0))
       where
         (sf1, b0) = tf10 a0
 
-fpAux :: SF' a b -> SF' (a,c) (b,c)
-fpAux (SFArr _ FDI)       = sfId                        -- New
-fpAux (SFArr _ (FDC b))   = sfArrG (\(~(_, c)) -> (b, c))
-fpAux (SFArr _ fd1)       = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
+fpAux :: SF' a b -> SF' (a, c) (b, c)
+fpAux (SFArr _ FDI)     = sfId                        -- New
+fpAux (SFArr _ (FDC b)) = sfArrG (\(~(_, c)) -> (b, c))
+fpAux (SFArr _ fd1)     = sfArrG (\(~(a, c)) -> ((fdFun fd1) a, c))
 fpAux sf1 = SF' tf
   where
     tf dt ~(a, c) = (fpAux sf1', (b, c))
@@ -701,17 +737,17 @@ fpAux sf1 = SF' tf
         (sf1', b) = (sfTF' sf1) dt a
 
 -- Mirror image of first.
-secondPrim :: SF a b -> SF (c,a) (c,b)
+secondPrim :: SF a b -> SF (c, a) (c, b)
 secondPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
   where
     tf0 ~(c0, a0) = (spAux sf1, (c0, b0))
       where
         (sf1, b0) = tf10 a0
 
-spAux :: SF' a b -> SF' (c,a) (c,b)
-spAux (SFArr _ FDI)       = sfId                        -- New
-spAux (SFArr _ (FDC b))   = sfArrG (\(~(c, _)) -> (c, b))
-spAux (SFArr _ fd1)       = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
+spAux :: SF' a b -> SF' (c, a) (c, b)
+spAux (SFArr _ FDI)     = sfId                        -- New
+spAux (SFArr _ (FDC b)) = sfArrG (\(~(c, _)) -> (c, b))
+spAux (SFArr _ fd1)     = sfArrG (\(~(c, a)) -> (c, (fdFun fd1) a))
 spAux sf1 = SF' tf
   where
     tf dt ~(c, a) = (spAux sf1', (c, b))
@@ -728,7 +764,7 @@ spAux sf1 = SF' tf
 --     constant b *** arr f2     = arr (\(_, c) -> (b, f2 c)
 --     arr f1     *** constant d = arr (\(a, _) -> (f1 a, d)
 --     arr f1     *** arr f2     = arr (\(a, b) -> (f1 a, f2 b)
-parSplitPrim :: SF a b -> SF c d  -> SF (a,c) (b,d)
+parSplitPrim :: SF a b -> SF c d -> SF (a, c) (b, d)
 parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
   where
     tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
@@ -741,14 +777,14 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     -- A - arbitrary pure arrow
     -- C - constant arrow
 
-    psXX :: SF' a b -> SF' c d -> SF' (a,c) (b,d)
-    psXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr (fdPar fd1 fd2)
-    psXX (SFArr _ FDI)       sf2                 = spAux sf2        -- New
-    psXX (SFArr _ (FDC b))   sf2                 = psCX b sf2
-    psXX (SFArr _ fd1)       sf2                 = psAX (fdFun fd1) sf2
-    psXX sf1                 (SFArr _ FDI)       = fpAux sf1        -- New
-    psXX sf1                 (SFArr _ (FDC d))   = psXC sf1 d
-    psXX sf1                 (SFArr _ fd2)       = psXA sf1 (fdFun fd2)
+    psXX :: SF' a b -> SF' c d -> SF' (a, c) (b, d)
+    psXX (SFArr _ fd1)     (SFArr _ fd2)     = sfArr (fdPar fd1 fd2)
+    psXX (SFArr _ FDI)     sf2               = spAux sf2        -- New
+    psXX (SFArr _ (FDC b)) sf2               = psCX b sf2
+    psXX (SFArr _ fd1)     sf2               = psAX (fdFun fd1) sf2
+    psXX sf1               (SFArr _ FDI)     = fpAux sf1        -- New
+    psXX sf1               (SFArr _ (FDC d)) = psXC sf1 d
+    psXX sf1               (SFArr _ fd2)     = psXA sf1 (fdFun fd2)
     psXX sf1 sf2 = SF' tf
       where
         tf dt ~(a, c) = (psXX sf1' sf2', (b, d))
@@ -756,33 +792,33 @@ parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
             (sf1', b) = (sfTF' sf1) dt a
             (sf2', d) = (sfTF' sf2) dt c
 
-    psCX :: b -> SF' c d -> SF' (a,c) (b,d)
-    psCX b (SFArr _ fd2)       = sfArr (fdPar (FDC b) fd2)
-    psCX b sf2                 = SF' tf
+    psCX :: b -> SF' c d -> SF' (a, c) (b, d)
+    psCX b (SFArr _ fd2) = sfArr (fdPar (FDC b) fd2)
+    psCX b sf2           = SF' tf
       where
         tf dt ~(_, c) = (psCX b sf2', (b, d))
           where
             (sf2', d) = (sfTF' sf2) dt c
 
-    psXC :: SF' a b -> d -> SF' (a,c) (b,d)
-    psXC (SFArr _ fd1)       d = sfArr (fdPar fd1 (FDC d))
-    psXC sf1                 d = SF' tf
+    psXC :: SF' a b -> d -> SF' (a, c) (b, d)
+    psXC (SFArr _ fd1) d = sfArr (fdPar fd1 (FDC d))
+    psXC sf1           d = SF' tf
       where
         tf dt ~(a, _) = (psXC sf1' d, (b, d))
           where
             (sf1', b) = (sfTF' sf1) dt a
 
-    psAX :: (a -> b) -> SF' c d -> SF' (a,c) (b,d)
-    psAX f1 (SFArr _ fd2)       = sfArr (fdPar (FDG f1) fd2)
-    psAX f1 sf2                 = SF' tf
+    psAX :: (a -> b) -> SF' c d -> SF' (a, c) (b, d)
+    psAX f1 (SFArr _ fd2) = sfArr (fdPar (FDG f1) fd2)
+    psAX f1 sf2           = SF' tf
       where
         tf dt ~(a, c) = (psAX f1 sf2', (f1 a, d))
           where
             (sf2', d) = (sfTF' sf2) dt c
 
-    psXA :: SF' a b -> (c -> d) -> SF' (a,c) (b,d)
-    psXA (SFArr _ fd1)       f2 = sfArr (fdPar fd1 (FDG f2))
-    psXA sf1                 f2 = SF' tf
+    psXA :: SF' a b -> (c -> d) -> SF' (a, c) (b, d)
+    psXA (SFArr _ fd1) f2 = sfArr (fdPar fd1 (FDG f2))
+    psXA sf1           f2 = SF' tf
       where
         tf dt ~(a, c) = (psXA sf1' f2, (b, f2 c))
           where
@@ -802,22 +838,22 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     -- I - identity arrow
     -- C - constant arrow
 
-    pfoXX :: SF' a b -> SF' a c -> SF' a (b ,c)
-    pfoXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr(fdFanOut fd1 fd2)
-    pfoXX (SFArr _ FDI)       sf2                 = pfoIX sf2
-    pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
-    pfoXX (SFArr _ fd1)       sf2                 = pfoAX (fdFun fd1) sf2
-    pfoXX sf1                 (SFArr _ FDI)       = pfoXI sf1
-    pfoXX sf1                 (SFArr _ (FDC c))   = pfoXC sf1 c
-    pfoXX sf1                 (SFArr _ fd2)       = pfoXA sf1 (fdFun fd2)
-    pfoXX sf1 sf2 = SF' tf
+    pfoXX :: SF' a b -> SF' a c -> SF' a (b, c)
+    pfoXX (SFArr _ fd1)     (SFArr _ fd2)     = sfArr(fdFanOut fd1 fd2)
+    pfoXX (SFArr _ FDI)     sf2               = pfoIX sf2
+    pfoXX (SFArr _ (FDC b)) sf2               = pfoCX b sf2
+    pfoXX (SFArr _ fd1)     sf2               = pfoAX (fdFun fd1) sf2
+    pfoXX sf1               (SFArr _ FDI)     = pfoXI sf1
+    pfoXX sf1               (SFArr _ (FDC c)) = pfoXC sf1 c
+    pfoXX sf1               (SFArr _ fd2)     = pfoXA sf1 (fdFun fd2)
+    pfoXX sf1               sf2               = SF' tf
       where
         tf dt a = (pfoXX sf1' sf2', (b, c))
           where
             (sf1', b) = (sfTF' sf1) dt a
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoIX :: SF' a c -> SF' a (a ,c)
+    pfoIX :: SF' a c -> SF' a (a, c)
     pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
     pfoIX sf2 = SF' tf
       where
@@ -825,7 +861,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXI :: SF' a b -> SF' a (b ,a)
+    pfoXI :: SF' a b -> SF' a (b, a)
     pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
     pfoXI sf1 = SF' tf
       where
@@ -833,7 +869,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf1', b) = (sfTF' sf1) dt a
 
-    pfoCX :: b -> SF' a c -> SF' a (b ,c)
+    pfoCX :: b -> SF' a c -> SF' a (b, c)
     pfoCX b (SFArr _ fd2) = sfArr (fdFanOut (FDC b) fd2)
     pfoCX b sf2 = SF' tf
       where
@@ -841,7 +877,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXC :: SF' a b -> c -> SF' a (b ,c)
+    pfoXC :: SF' a b -> c -> SF' a (b, c)
     pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
     pfoXC sf1 c = SF' tf
       where
@@ -849,7 +885,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf1', b) = (sfTF' sf1) dt a
 
-    pfoAX :: (a -> b) -> SF' a c -> SF' a (b ,c)
+    pfoAX :: (a -> b) -> SF' a c -> SF' a (b, c)
     pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
     pfoAX f1 sf2 = SF' tf
       where
@@ -857,7 +893,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXA :: SF' a b -> (a -> c) -> SF' a (b ,c)
+    pfoXA :: SF' a b -> (a -> c) -> SF' a (b, c)
     pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
     pfoXA sf1 f2 = SF' tf
       where
@@ -871,19 +907,19 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 instance ArrowLoop SF where
   loop = loopPrim
 
-loopPrim :: SF (a,c) (b,c) -> SF a b
+loopPrim :: SF (a, c) (b, c) -> SF a b
 loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
   where
     tf0 a0 = (loopAux sf1, b0)
       where
         (sf1, (b0, c0)) = tf10 (a0, c0)
 
-    loopAux :: SF' (a,c) (b,c) -> SF' a b
-    loopAux (SFArr _ FDI) = sfId
+    loopAux :: SF' (a, c) (b, c) -> SF' a b
+    loopAux (SFArr _ FDI)          = sfId
     loopAux (SFArr _ (FDC (b, _))) = sfConst b
-    loopAux (SFArr _ fd1) =
-      sfArrG (\a -> let (b,c) = (fdFun fd1) (a,c) in b)
-    loopAux sf1 = SF' tf
+    loopAux (SFArr _ fd1)          =
+      sfArrG (\a -> let (b, c) = (fdFun fd1) (a, c) in b)
+    loopAux sf1                    = SF' tf
       where
         tf dt a = (loopAux sf1', b)
           where
@@ -893,14 +929,14 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
 
 -- | Constructor for a zero-order hold with folding.
 --
---   This function returns a running SF that takes an input, runs it through a
---   function and, if there is an output, returns it, otherwise, returns the
---   previous value. Additionally, an accumulator or folded value is kept
---   internally.
+-- This function returns a running SF that takes an input, runs it through a
+-- function and, if there is an output, returns it, otherwise, returns the
+-- previous value. Additionally, an accumulator or folded value is kept
+-- internally.
 sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
 sfSScan f c b = sf
   where
-    sf = SFSScan tf f c b
+    sf     = SFSScan tf f c b
     tf _ a = case f c a of
                Nothing       -> (sf, b)
                Just (c', b') -> (sfSScan f c' b', b')

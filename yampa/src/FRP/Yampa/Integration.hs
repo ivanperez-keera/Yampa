@@ -1,14 +1,14 @@
 -- |
--- Module      :  FRP.Yampa.Integration
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa.Integration
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
 --
 -- Integration and derivation of input signals.
 --
@@ -41,14 +41,16 @@ module FRP.Yampa.Integration
     )
   where
 
-import Control.Arrow
-import Data.VectorSpace
+-- External imports
+import Control.Arrow    ((***), (>>^))
+import Data.VectorSpace (VectorSpace, zeroVector, (*^), (^+^), (^-^), (^/))
 
-import FRP.Yampa.Event
-import FRP.Yampa.Hybrid
-import FRP.Yampa.InternalCore (SF(..), SF'(..), DTime)
+-- Internal imports
+import FRP.Yampa.Event        (Event)
+import FRP.Yampa.Hybrid       (accumBy, accumHoldBy)
+import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..))
 
--- * Integration and differentiation
+-- * Integration
 
 -- | Integration using the rectangle rule.
 {-# INLINE integral #-}
@@ -57,39 +59,20 @@ integral = SF {sfTF = tf0}
   where
     tf0 a0 = (integralAux igrl0 a0, igrl0)
 
-    igrl0  = zeroVector
+    igrl0 = zeroVector
 
-    integralAux igrl a_prev = SF' tf -- True
+    integralAux igrl aPrev = SF' tf -- True
       where
         tf dt a = (integralAux igrl' a, igrl')
           where
-            igrl' = igrl ^+^ realToFrac dt *^ a_prev
+            igrl' = igrl ^+^ realToFrac dt *^ aPrev
 
--- | \"Immediate\" integration (using the function's value at the current time)
+-- | \"Immediate\" integration (using the function's value at the current time).
 imIntegral :: (Fractional s, VectorSpace a s) => a -> SF a a
-imIntegral = ((\ _ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
-
--- | Integrate using an auxiliary function that takes the current and the last
---   input, the time between those samples, and the last output, and returns a
---   new output.
-iterFrom :: (a -> a -> DTime -> b -> b) -> b -> SF a b
-f `iterFrom` b = SF (iterAux b)
-  where
-    iterAux b a = (SF' (\ dt a' -> iterAux (f a a' dt b) a'), b)
-
--- | A very crude version of a derivative. It simply divides the
---   value difference by the time difference. Use at your own risk.
-derivative :: (Fractional s, VectorSpace a s) => SF a a
-derivative = SF {sfTF = tf0}
-  where
-    tf0 a0 = (derivativeAux a0, zeroVector)
-
-    derivativeAux a_prev = SF' tf -- True
-      where
-        tf dt a = (derivativeAux a, (a ^-^ a_prev) ^/ realToFrac dt)
+imIntegral = ((\_ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
 
 -- | Integrate the first input signal and add the /discrete/ accumulation (sum)
---   of the second, discrete, input signal.
+-- of the second, discrete, input signal.
 impulseIntegral :: (Fractional k, VectorSpace a k) => SF (a, Event a) a
 impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
 
@@ -99,3 +82,24 @@ impulseIntegral = (integral *** accumHoldBy (^+^) zeroVector) >>^ uncurry (^+^)
 -- [Event 1,NoEvent,Event 2]
 count :: Integral b => SF (Event a) (Event b)
 count = accumBy (\n _ -> n + 1) 0
+
+-- * Differentiation
+
+-- | A very crude version of a derivative. It simply divides the value
+-- difference by the time difference. Use at your own risk.
+derivative :: (Fractional s, VectorSpace a s) => SF a a
+derivative = SF {sfTF = tf0}
+  where
+    tf0 a0 = (derivativeAux a0, zeroVector)
+
+    derivativeAux aPrev = SF' tf -- True
+      where
+        tf dt a = (derivativeAux a, (a ^-^ aPrev) ^/ realToFrac dt)
+
+-- | Integrate using an auxiliary function that takes the current and the last
+-- input, the time between those samples, and the last output, and returns a new
+-- output.
+iterFrom :: (a -> a -> DTime -> b -> b) -> b -> SF a b
+f `iterFrom` b = SF (iterAux b)
+  where
+    iterAux b a = (SF' (\dt a' -> iterAux (f a a' dt b) a'), b)
