@@ -48,7 +48,7 @@ import Data.VectorSpace
 -- Internal imports
 import FRP.Yampa.Event
 import FRP.Yampa.Hybrid
-import FRP.Yampa.InternalCore (SF(..), SF'(..), DTime)
+import FRP.Yampa.InternalCore (DTime, SF(..), SF'(..))
 
 -- * Integration and differentiation
 
