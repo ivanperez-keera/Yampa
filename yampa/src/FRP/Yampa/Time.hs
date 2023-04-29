@@ -12,8 +12,8 @@
 --
 -- SF primitives that producing the current running time.
 --
--- Time is global for an 'SF', so, every constituent 'SF' will use the
--- same global clock. However, when used in combination with
+-- Time is global for an 'SF', so, every constituent 'SF' will use the same
+-- global clock. However, when used in combination with
 -- 'FRP.Yampa.Switches.switch'ing, the SF switched into will be started at the
 -- time of switching, so any reference to 'localTime' or 'time' from that 'SF'
 -- will count using the time of switching as the start time.
