@@ -22,6 +22,7 @@ module FRP.Yampa.Scan
     )
   where
 
+-- Internal imports
 import FRP.Yampa.InternalCore (SF(..), sfSScan)
 
 -- ** Simple, stateful signal processing
