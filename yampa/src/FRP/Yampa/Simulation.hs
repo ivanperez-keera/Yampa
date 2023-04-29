@@ -91,7 +91,6 @@ import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..), sfTF')
 -- also impose a sizeable constraint in larger projects in which different
 -- subparts run at different time steps. If you need to control the main loop
 -- yourself for these or other reasons, use 'reactInit' and 'react'.
-
 reactimate :: Monad m
            => m a                          -- ^ Initialization action
            -> (Bool -> m (DTime, Maybe a)) -- ^ Input sensing action
@@ -228,7 +227,6 @@ deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
 
 -- | A wrapper around an initialized SF (continuation), needed for testing and
 -- debugging purposes.
---
 newtype FutureSF a b = FutureSF { unsafeSF :: SF' a b }
 
 -- | Evaluate an SF, and return an output and an initialized SF.
@@ -267,7 +265,6 @@ evalAt (FutureSF { unsafeSF = tf }) dt a = (b, FutureSF tf')
 -- intended only for debugging/testing. Apart from being potentially slower and
 -- consuming more memory, it also breaks the FRP abstraction by making samples
 -- discrete and step based.
---
 evalFuture :: SF a b -> a -> DTime -> (b, SF a b)
 evalFuture sf a dt = (b, sf' dt)
   where
