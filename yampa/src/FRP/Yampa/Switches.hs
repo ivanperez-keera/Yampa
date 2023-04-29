@@ -204,7 +204,7 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
     dSwitchAuxA1 :: (a -> (b, Event c)) -> (c -> SF a b) -> SF' a b
     dSwitchAuxA1 f1 k = sf
       where
-        sf = SF' tf -- False
+        sf     = SF' tf -- False
         tf _ a =
           let (b, ec) = f1 a
           in ( case ec of
@@ -252,11 +252,13 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
            (sfe, NoEvent)  -> (kSwitchAux sf1 sfe, b0)
            (_,   Event c0) -> sfTF (k sf10 c0) a0
 
+    -- This is as best as we can align this function. Any other attempts at
+    -- aligning the arguments of the equal signs result in a more awkward style.
     kSwitchAux (SFArr _ (FDC b)) sfe = kSwitchAuxC1 b sfe
     kSwitchAux (SFArr _ fd1)     sfe = kSwitchAuxA1 (fdFun fd1) sfe
     kSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
-    kSwitchAux sf1 (SFArr _ fde) = kSwitchAuxAE sf1 (fdFun fde)
-    kSwitchAux sf1            sfe                 = SF' tf -- False
+    kSwitchAux sf1 (SFArr _ fde)           = kSwitchAuxAE sf1 (fdFun fde)
+    kSwitchAux sf1 sfe                     = SF' tf -- False
       where
         tf dt a =
           let (sf1', b) = (sfTF' sf1) dt a
@@ -266,8 +268,8 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 
     -- !!! Untested optimization!
     kSwitchAuxC1 b (SFArr _ (FDC NoEvent)) = sfConst b
-    kSwitchAuxC1 b (SFArr _ fde)        = kSwitchAuxC1AE b (fdFun fde)
-    kSwitchAuxC1 b sfe                 = SF' tf -- False
+    kSwitchAuxC1 b (SFArr _ fde)           = kSwitchAuxC1AE b (fdFun fde)
+    kSwitchAuxC1 b sfe                     = SF' tf -- False
       where
         tf dt a =
           case (sfTF' sfe) dt (a, b) of
@@ -276,8 +278,8 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 
     -- !!! Untested optimization!
     kSwitchAuxA1 f1 (SFArr _ (FDC NoEvent)) = sfArrG f1
-    kSwitchAuxA1 f1 (SFArr _ fde)        = kSwitchAuxA1AE f1 (fdFun fde)
-    kSwitchAuxA1 f1 sfe                 = SF' tf -- False
+    kSwitchAuxA1 f1 (SFArr _ fde)           = kSwitchAuxA1AE f1 (fdFun fde)
+    kSwitchAuxA1 f1 sfe                     = SF' tf -- False
       where
         tf dt a =
           let b = f1 a
@@ -287,8 +289,8 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 
     -- !!! Untested optimization!
     kSwitchAuxAE (SFArr _ (FDC b)) fe = kSwitchAuxC1AE b fe
-    kSwitchAuxAE (SFArr _ fd1)   fe = kSwitchAuxA1AE (fdFun fd1) fe
-    kSwitchAuxAE sf1            fe = SF' tf -- False
+    kSwitchAuxAE (SFArr _ fd1)     fe = kSwitchAuxA1AE (fdFun fd1) fe
+    kSwitchAuxAE sf1               fe = SF' tf -- False
       where
         tf dt a =
           let (sf1', b) = (sfTF' sf1) dt a
@@ -341,7 +343,7 @@ dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
           let (sf1', b) = (sfTF' sf1) dt a
           in ( case (sfTF' sfe) dt (a, b) of
                  (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
-                 (_, Event c) -> fst (sfTF (k (freeze sf1 dt) c) a)
+                 (_,    Event c) -> fst (sfTF (k (freeze sf1 dt) c) a)
              , b
              )
 
@@ -399,8 +401,9 @@ dpSwitchB = dpSwitch broadcast
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-rpSwitchB :: Functor col =>
-    col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
+rpSwitchB :: Functor col
+          => col (SF a b)
+          -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
 rpSwitchB = rpSwitch broadcast
 
 -- | Decoupled recurring parallel switch with broadcasting.
@@ -417,8 +420,9 @@ rpSwitchB = rpSwitch broadcast
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-drpSwitchB :: Functor col =>
-    col (SF a b) -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
+drpSwitchB :: Functor col
+           => col (SF a b)
+           -> SF (a, Event (col (SF a b) -> col (SF a b))) (col b)
 drpSwitchB = drpSwitch broadcast
 
 -- * Parallel composition and switching over collections with general routing
@@ -444,10 +448,10 @@ par rf sfs0 = SF {sfTF = tf0}
       in (parAux rf sfs, cs0)
 
 -- Internal definition. Also used in parallel switchers.
-parAux :: Functor col =>
-    (forall sf . (a -> col sf -> col (b, sf)))
-    -> col (SF' b c)
-    -> SF' a (col c)
+parAux :: Functor col
+       => (forall sf . (a -> col sf -> col (b, sf)))
+       -> col (SF' b c)
+       -> SF' a (col c)
 parAux rf sfs = SF' tf -- True
   where
     tf dt a =
@@ -488,7 +492,7 @@ pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
            (_,   Event d0) -> sfTF (k sfs0 d0) a0
 
     pSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
-    pSwitchAux sfs sfe = SF' tf -- False
+    pSwitchAux sfs sfe                     = SF' tf -- False
       where
         tf dt a =
           let bsfs  = rf a sfs
@@ -630,8 +634,10 @@ parZ = par (safeZip "parZ")
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-pSwitchZ :: [SF a b] -> SF ([a], [b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
-            -> SF [a] [b]
+pSwitchZ :: [SF a b]
+         -> SF ([a], [b]) (Event c)
+         -> ([SF a b] -> c -> SF [a] [b])
+         -> SF [a] [b]
 pSwitchZ = pSwitch (safeZip "pSwitchZ")
 
 -- | Decoupled parallel switch with broadcasting (dynamic collection of signal
@@ -639,8 +645,10 @@ pSwitchZ = pSwitch (safeZip "pSwitchZ")
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-dpSwitchZ :: [SF a b] -> SF ([a], [b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
-             -> SF [a] [b]
+dpSwitchZ :: [SF a b]
+          -> SF ([a], [b]) (Event c)
+          -> ([SF a b] -> c -> SF [a] [b])
+          -> SF [a] [b]
 dpSwitchZ = dpSwitch (safeZip "dpSwitchZ")
 
 -- | Recurring parallel switch with "zip" routing.
