@@ -79,6 +79,6 @@ occasionally g tAvg x | tAvg > 0 = SF {sfTF = tf0}
     occAux []     = undefined
     occAux (r:rs) = SF' tf -- True
       where
-        tf dt _ = let p = 1 - exp (- (dt / tAvg)) -- Probability for at least
-                                                  -- one event.
-                  in (occAux rs, if r < p then Event x else NoEvent)
+        tf dt _ = (occAux rs, if r < p then Event x else NoEvent)
+          where
+            p = 1 - exp (- (dt / tAvg)) -- Probability for at least one event.
