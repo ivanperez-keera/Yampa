@@ -317,7 +317,7 @@ module FRP.Yampa
       --   Reverse function composition and arrow plumbing aids
     , dup
 
-      -- Re-exported module, classes, and types
+      -- * Re-exported module, classes, and types
     , module Control.Arrow
     , module Data.VectorSpace
     )
