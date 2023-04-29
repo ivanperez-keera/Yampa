@@ -30,7 +30,7 @@ import FRP.Yampa.InternalCore (SF(..), sfSScan)
 -- | Applies a function point-wise, using the last output as next input. This
 -- creates a well-formed loop based on a pure, auxiliary function.
 sscan :: (b -> a -> b) -> b -> SF a b
-sscan f b_init = sscanPrim f' b_init b_init
+sscan f bInit = sscanPrim f' bInit bInit
   where
     f' b a = let b' = f b a in Just (b', b')
 
@@ -42,8 +42,8 @@ sscan f b_init = sscanPrim f' b_init b_init
 -- known accumulators are used. This creates a well-formed loop based on a
 -- pure, auxiliary function.
 sscanPrim :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
-sscanPrim f c_init b_init = SF {sfTF = tf0}
+sscanPrim f cInit bInit = SF {sfTF = tf0}
   where
-    tf0 a0 = case f c_init a0 of
-               Nothing       -> (sfSScan f c_init b_init, b_init)
+    tf0 a0 = case f cInit a0 of
+               Nothing       -> (sfSScan f cInit bInit, bInit)
                Just (c', b') -> (sfSScan f c' b', b')
