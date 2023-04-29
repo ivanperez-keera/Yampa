@@ -125,19 +125,30 @@ data SF a b = SF {sfTF :: a -> Transition a b}
 -- time delta or a time in the future, it will be an SF.
 data SF' a b where
   SFArr :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
+
   -- The b is intentionally unstrict as the initial output sometimes is
   -- undefined (e.g. when defining pre). In any case, it isn't necessarily used
   -- and should thus not be forced.
   SFSScan :: !(DTime -> a -> Transition a b)
-             -> !(c -> a -> Maybe (c, b)) -> !c -> b
-             -> SF' a b
+          -> !(c -> a -> Maybe (c, b))
+          -> !c
+          -> b
+          -> SF' a b
+
   SFEP :: !(DTime -> Event a -> Transition (Event a) b)
-          -> !(c -> a -> (c, b, b)) -> !c -> b
-          -> SF' (Event a) b
+       -> !(c -> a -> (c, b, b))
+       -> !c
+       -> b
+       -> SF' (Event a) b
+
   SFCpAXA :: !(DTime -> a -> Transition a d)
-             -> !(FunDesc a b) -> !(SF' b c) -> !(FunDesc c d)
-             -> SF' a d
-  SF' :: !(DTime -> a -> Transition a b) -> SF' a b
+          -> !(FunDesc a b)
+          -> !(SF' b c)
+          -> !(FunDesc c d)
+          -> SF' a d
+
+  SF' :: !(DTime -> a -> Transition a b)
+      -> SF' a b
 
 -- | A transition is a pair of the next state (in the form of a future signal
 -- function) and the output at the present time step.
@@ -232,12 +243,12 @@ fdPar fd1     fd2     = FDG (\(~(a, c)) -> ((fdFun fd1) a, (fdFun fd2) c))
 
 -- | Parallel application with broadcasting for structured functions.
 fdFanOut :: FunDesc a b -> FunDesc a c -> FunDesc a (b, c)
-fdFanOut FDI     FDI     = FDG (\a -> (a, a))
-fdFanOut FDI     (FDC c) = FDG (\a -> (a, c))
-fdFanOut FDI     fd2     = FDG (\a -> (a, (fdFun fd2) a))
-fdFanOut (FDC b) FDI     = FDG (\a -> (b, a))
-fdFanOut (FDC b) (FDC c) = FDC (b, c)
-fdFanOut (FDC b) fd2     = FDG (\a -> (b, (fdFun fd2) a))
+fdFanOut FDI           FDI           = FDG (\a -> (a, a))
+fdFanOut FDI           (FDC c)       = FDG (\a -> (a, c))
+fdFanOut FDI           fd2           = FDG (\a -> (a, (fdFun fd2) a))
+fdFanOut (FDC b)       FDI           = FDG (\a -> (b, a))
+fdFanOut (FDC b)       (FDC c)       = FDC (b, c)
+fdFanOut (FDC b)       fd2           = FDG (\a -> (b, (fdFun fd2) a))
 fdFanOut (FDE f1 f1ne) (FDE f2 f2ne) = FDE f1f2 f1f2ne
   where
     f1f2 NoEvent      = f1f2ne
@@ -265,7 +276,7 @@ vfyNoEv _       _ =
 -- | Composition and identity for SFs.
 instance Control.Category.Category SF where
   (.) = flip compPrim
-  id = SF $ \x -> (sfId, x)
+  id  = SF $ \x -> (sfId, x)
 #endif
 
 -- | Choice of which SF to run based on the value of a signal.
@@ -322,7 +333,7 @@ instance Arrow SF where
 
 #if __GLASGOW_HASKELL__ >= 610
 #else
-  (>>>)  = compPrim
+  (>>>) = compPrim
 #endif
 
 -- | Functor instance for applied SFs.
@@ -332,7 +343,7 @@ instance Functor (SF a) where
 -- | Applicative Functor instance (allows classic-frp style signals and
 -- composition using applicative style).
 instance Applicative (SF a) where
-  pure x = arr (const x)
+  pure x  = arr (const x)
   f <*> x = (f &&& x) >>> arr (uncurry ($))
 
 -- * Lifting.
@@ -413,8 +424,8 @@ compPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
 --     event-processing (E).
 
 cpXX :: SF' a b -> SF' b c -> SF' a c
-cpXX (SFArr _ fd1)       sf2               = cpAX fd1 sf2
-cpXX sf1                 (SFArr _ fd2)     = cpXA sf1 fd2
+cpXX (SFArr _ fd1)       sf2                 = cpAX fd1 sf2
+cpXX sf1                 (SFArr _ fd2)       = cpXA sf1 fd2
 cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
     sfSScan f (s1, b, s2, c) c
   where
@@ -505,8 +516,12 @@ cpAXA fd1     sf2 fd3     =
   where
     -- Really: cpAXAAux :: SF' b c -> SF' a d. Note: Event cases are not
     -- optimized (EXA etc.)
-    cpAXAAux :: FunDesc a b -> (a -> b) -> FunDesc c d -> (c -> d)
-                -> SF' b c -> SF' a d
+    cpAXAAux :: FunDesc a b
+             -> (a -> b)
+             -> FunDesc c d
+             -> (c -> d)
+             -> SF' b c
+             -> SF' a d
     cpAXAAux fd1 _ fd3 _ (SFArr _ fd2) =
       sfArr (fdComp (fdComp fd1 fd2) fd3)
     cpAXAAux fd1 _ fd3 _ sf2@(SFSScan {}) =
@@ -537,9 +552,9 @@ cpXA sf1 (FDG f2)      = cpXG sf1 f2
 -- The remaining signal function, if it is SF', later could turn into something
 -- else, like SFId.
 cpCX :: b -> SF' b c -> SF' a c
-cpCX b (SFArr _ fd2) = sfConst ((fdFun fd2) b)
-cpCX b (SFSScan _ f s c) = sfSScan (\s _ -> f s b) s c
-cpCX b (SFEP _ _ _ cne) = sfConst (vfyNoEv b cne)
+cpCX b (SFArr _ fd2)              = sfConst ((fdFun fd2) b)
+cpCX b (SFSScan _ f s c)          = sfSScan (\s _ -> f s b) s c
+cpCX b (SFEP _ _ _ cne)           = sfConst (vfyNoEv b cne)
 cpCX b (SFCpAXA _ fd21 sf22 fd23) =
   cpCXA ((fdFun fd21) b) sf22 fd23
 cpCX b sf2 = SFCpAXA tf (FDC b) sf2 FDI
@@ -554,8 +569,12 @@ cpCXA _ _   (FDC c) = sfConst c
 cpCXA b sf2 fd3     = cpCXAAux (FDC b) b fd3 (fdFun fd3) sf2
   where
     -- Really: SF' b c -> SF' a d
-    cpCXAAux :: FunDesc a b -> b -> FunDesc c d -> (c -> d)
-                -> SF' b c -> SF' a d
+    cpCXAAux :: FunDesc a b
+             -> b
+             -> FunDesc c d
+             -> (c -> d)
+             -> SF' b c
+             -> SF' a d
     cpCXAAux _ b _ f3 (SFArr _ fd2)     = sfConst (f3 ((fdFun fd2) b))
     cpCXAAux _ b _ f3 (SFSScan _ f s c) = sfSScan f' s (f3 c)
       where
@@ -615,8 +634,11 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
 cpEX :: (Event a -> b) -> b -> SF' b c -> SF' (Event a) c
 cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
   where
-    cpEXAux :: FunDesc (Event a) b -> (Event a -> b) -> b
-               -> SF' b c -> SF' (Event a) c
+    cpEXAux :: FunDesc (Event a) b
+            -> (Event a -> b)
+            -> b
+            -> SF' b c
+            -> SF' (Event a) c
     cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
     cpEXAux _ f1 _   (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
     -- We must not capture cne in the f closure since cne can change! See cpXX
@@ -648,8 +670,11 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
 cpXE :: SF' a (Event b) -> (Event b -> c) -> c -> SF' a c
 cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
   where
-    cpXEAux :: FunDesc (Event b) c -> (Event b -> c) -> c
-               -> SF' a (Event b) -> SF' a c
+    cpXEAux :: FunDesc (Event b) c
+            -> (Event b -> c)
+            -> c
+            -> SF' a (Event b)
+            -> SF' a c
     cpXEAux fd2 _ _ (SFArr _ fd1) = sfArr (fdComp fd1 fd2)
     cpXEAux _ f2 f2ne (SFSScan _ f s eb) = sfSScan f' s (f2 eb)
       where
@@ -730,7 +755,7 @@ spAux sf1 = SF' tf
 --     constant b *** arr f2     = arr (\(_, c) -> (b, f2 c)
 --     arr f1     *** constant d = arr (\(a, _) -> (f1 a, d)
 --     arr f1     *** arr f2     = arr (\(a, b) -> (f1 a, f2 b)
-parSplitPrim :: SF a b -> SF c d  -> SF (a, c) (b, d)
+parSplitPrim :: SF a b -> SF c d -> SF (a, c) (b, d)
 parSplitPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
   where
     tf0 ~(a0, c0) = (psXX sf1 sf2, (b0, d0))
@@ -812,7 +837,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     pfoXX sf1               (SFArr _ FDI)     = pfoXI sf1
     pfoXX sf1               (SFArr _ (FDC c)) = pfoXC sf1 c
     pfoXX sf1               (SFArr _ fd2)     = pfoXA sf1 (fdFun fd2)
-    pfoXX sf1 sf2 = SF' tf
+    pfoXX sf1               sf2               = SF' tf
       where
         tf dt a = (pfoXX sf1' sf2', (b, c))
           where
@@ -881,11 +906,11 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
         (sf1, (b0, c0)) = tf10 (a0, c0)
 
     loopAux :: SF' (a, c) (b, c) -> SF' a b
-    loopAux (SFArr _ FDI) = sfId
+    loopAux (SFArr _ FDI)          = sfId
     loopAux (SFArr _ (FDC (b, _))) = sfConst b
-    loopAux (SFArr _ fd1) =
+    loopAux (SFArr _ fd1)          =
       sfArrG (\a -> let (b, c) = (fdFun fd1) (a, c) in b)
-    loopAux sf1 = SF' tf
+    loopAux sf1                    = SF' tf
       where
         tf dt a = (loopAux sf1', b)
           where
@@ -902,7 +927,7 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
 sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
 sfSScan f c b = sf
   where
-    sf = SFSScan tf f c b
+    sf     = SFSScan tf f c b
     tf _ a = case f c a of
                Nothing       -> (sf, b)
                Just (c', b') -> (sfSScan f c' b', b')
