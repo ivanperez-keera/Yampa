@@ -310,7 +310,7 @@ snapAfter tEv =
 sample :: Time -> SF a (Event a)
 sample pEv = identity &&& repeatedly pEv () >>^ \(a, e) -> e `tag` a
 
--- | Window sampling
+-- | Window sampling.
 --
 -- First argument is the window length wl, second is the sampling interval t.
 -- The output list should contain (min (truncate (T/t) wl)) samples, where T is
