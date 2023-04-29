@@ -396,7 +396,7 @@ sfEP f c bne = sf
 
 -- * Composition.
 
--- | SF Composition
+-- | SF Composition.
 --
 -- The definition exploits the following identities:
 --     sf         >>> identity   = sf                           -- New
@@ -713,7 +713,7 @@ cpXE sf1 f2 f2ne = cpXEAux (FDE f2 f2ne) f2 f2ne sf1
 
 -- * Widening.
 
--- | Widening
+-- | Widening.
 --
 -- The definition exploits the following identities:
 --     first identity     = identity                            -- New
