@@ -331,7 +331,7 @@ sampleWindow wl q =
 -- | Makes an event source recurring by restarting it as soon as it has an
 -- occurrence.
 recur :: SF a (Event b) -> SF a (Event b)
-recur sfe = switch (never &&& sfe) $ \b -> Event b --> (recur (NoEvent --> sfe))
+recur sfe = switch (never &&& sfe) $ \b -> Event b --> recur (NoEvent --> sfe)
 
 -- | Apply the first SF until it produces an event, and, afterwards, switch to
 -- the second SF. This is just a convenience function, used to write what
