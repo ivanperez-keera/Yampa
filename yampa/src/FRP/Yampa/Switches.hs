@@ -176,13 +176,13 @@ switch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
 dSwitch :: SF a (b, Event c) -> (c -> SF a b) -> SF a b
 dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
   where
-    tf0 a0 =
-      let (sf1, (b0, ec0)) = tf10 a0
-      in ( case ec0 of
-             NoEvent  -> dSwitchAux sf1 k
-             Event c0 -> fst (sfTF (k c0) a0)
-         , b0
-         )
+    tf0 a0 = ( case ec0 of
+                 NoEvent  -> dSwitchAux sf1 k
+                 Event c0 -> fst (sfTF (k c0) a0)
+             , b0
+             )
+      where
+        (sf1, (b0, ec0)) = tf10 a0
 
     -- It would be nice to optimize further here. E.g. if it would be
     -- possible to observe the event source only.
@@ -191,13 +191,13 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
     dSwitchAux (SFArr _ fd1)                k = dSwitchAuxA1 (fdFun fd1) k
     dSwitchAux sf1                          k = SF' tf
       where
-        tf dt a =
-          let (sf1', (b, ec)) = (sfTF' sf1) dt a
-          in ( case ec of
-                 NoEvent -> dSwitchAux sf1' k
-                 Event c -> fst (sfTF (k c) a)
-             , b
-             )
+        tf dt a = ( case ec of
+                      NoEvent -> dSwitchAux sf1' k
+                      Event c -> fst (sfTF (k c) a)
+                  , b
+                  )
+          where
+            (sf1', (b, ec)) = (sfTF' sf1) dt a
 
     -- Note: While dSwitch behaves as a stateless arrow at this point, that
     -- could change after a switch. Hence, SF' overall.
@@ -205,13 +205,13 @@ dSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
     dSwitchAuxA1 f1 k = sf
       where
         sf     = SF' tf -- False
-        tf _ a =
-          let (b, ec) = f1 a
-          in ( case ec of
-                 NoEvent -> sf
-                 Event c -> fst (sfTF (k c) a)
-             , b
-             )
+        tf _ a = ( case ec of
+                     NoEvent -> sf
+                     Event c -> fst (sfTF (k c) a)
+                 , b
+                 )
+          where
+            (b, ec) = f1 a
 
 -- | Recurring switch.
 --
@@ -246,11 +246,11 @@ drSwitch sf = dSwitch (first sf) ((noEventSnd >=-) . drSwitch)
 kSwitch :: SF a b -> SF (a, b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
   where
-    tf0 a0 =
-      let (sf1, b0) = tf10 a0
-      in case tfe0 (a0, b0) of
-           (sfe, NoEvent)  -> (kSwitchAux sf1 sfe, b0)
-           (_,   Event c0) -> sfTF (k sf10 c0) a0
+    tf0 a0 = case tfe0 (a0, b0) of
+               (sfe, NoEvent)  -> (kSwitchAux sf1 sfe, b0)
+               (_,   Event c0) -> sfTF (k sf10 c0) a0
+      where
+        (sf1, b0) = tf10 a0
 
     -- This is as best as we can align this function. Any other attempts at
     -- aligning the arguments of the equal signs result in a more awkward style.
@@ -260,11 +260,11 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
     kSwitchAux sf1 (SFArr _ fde)           = kSwitchAuxAE sf1 (fdFun fde)
     kSwitchAux sf1 sfe                     = SF' tf -- False
       where
-        tf dt a =
-          let (sf1', b) = (sfTF' sf1) dt a
-          in case (sfTF' sfe) dt (a, b) of
-               (sfe', NoEvent) -> (kSwitchAux sf1' sfe', b)
-               (_,    Event c) -> sfTF (k (freeze sf1 dt) c) a
+        tf dt a = case (sfTF' sfe) dt (a, b) of
+                    (sfe', NoEvent) -> (kSwitchAux sf1' sfe', b)
+                    (_,    Event c) -> sfTF (k (freeze sf1 dt) c) a
+          where
+            (sf1', b) = (sfTF' sf1) dt a
 
     -- !!! Untested optimization!
     kSwitchAuxC1 b (SFArr _ (FDC NoEvent)) = sfConst b
@@ -281,22 +281,22 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
     kSwitchAuxA1 f1 (SFArr _ fde)           = kSwitchAuxA1AE f1 (fdFun fde)
     kSwitchAuxA1 f1 sfe                     = SF' tf -- False
       where
-        tf dt a =
-          let b = f1 a
-          in case (sfTF' sfe) dt (a, b) of
-               (sfe', NoEvent) -> (kSwitchAuxA1 f1 sfe', b)
-               (_,    Event c) -> sfTF (k (arr f1) c) a
+        tf dt a = case (sfTF' sfe) dt (a, b) of
+                    (sfe', NoEvent) -> (kSwitchAuxA1 f1 sfe', b)
+                    (_,    Event c) -> sfTF (k (arr f1) c) a
+          where
+            b = f1 a
 
     -- !!! Untested optimization!
     kSwitchAuxAE (SFArr _ (FDC b)) fe = kSwitchAuxC1AE b fe
     kSwitchAuxAE (SFArr _ fd1)     fe = kSwitchAuxA1AE (fdFun fd1) fe
     kSwitchAuxAE sf1               fe = SF' tf -- False
       where
-        tf dt a =
-          let (sf1', b) = (sfTF' sf1) dt a
-          in case fe (a, b) of
-               NoEvent -> (kSwitchAuxAE sf1' fe, b)
-               Event c -> sfTF (k (freeze sf1 dt) c) a
+        tf dt a = case fe (a, b) of
+                    NoEvent -> (kSwitchAuxAE sf1' fe, b)
+                    Event c -> sfTF (k (freeze sf1 dt) c) a
+          where
+            (sf1', b) = (sfTF' sf1) dt a
 
     -- !!! Untested optimization!
     kSwitchAuxC1AE b fe = SF' tf -- False
@@ -309,11 +309,11 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
     -- !!! Untested optimization!
     kSwitchAuxA1AE f1 fe = SF' tf -- False
       where
-        tf _ a =
-          let b = f1 a
-          in case fe (a, b) of
-               NoEvent -> (kSwitchAuxA1AE f1 fe, b)
-               Event c -> sfTF (k (arr f1) c) a
+        tf _ a = case fe (a, b) of
+                   NoEvent -> (kSwitchAuxA1AE f1 fe, b)
+                   Event c -> sfTF (k (arr f1) c) a
+          where
+            b = f1 a
 
 -- | 'kSwitch' with delayed observation.
 --
@@ -328,24 +328,24 @@ kSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
 dkSwitch :: SF a b -> SF (a, b) (Event c) -> (SF a b -> c -> SF a b) -> SF a b
 dkSwitch sf10@(SF {sfTF = tf10}) (SF {sfTF = tfe0}) k = SF {sfTF = tf0}
   where
-    tf0 a0 =
-      let (sf1, b0) = tf10 a0
-      in ( case tfe0 (a0, b0) of
-             (sfe, NoEvent)  -> dkSwitchAux sf1 sfe
-             (_,   Event c0) -> fst (sfTF (k sf10 c0) a0)
-         , b0
-         )
+    tf0 a0 = ( case tfe0 (a0, b0) of
+                 (sfe, NoEvent)  -> dkSwitchAux sf1 sfe
+                 (_,   Event c0) -> fst (sfTF (k sf10 c0) a0)
+             , b0
+             )
+      where
+        (sf1, b0) = tf10 a0
 
     dkSwitchAux sf1 (SFArr _ (FDC NoEvent)) = sf1
     dkSwitchAux sf1 sfe                     = SF' tf -- False
       where
-        tf dt a =
-          let (sf1', b) = (sfTF' sf1) dt a
-          in ( case (sfTF' sfe) dt (a, b) of
-                 (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
-                 (_,    Event c) -> fst (sfTF (k (freeze sf1 dt) c) a)
-             , b
-             )
+        tf dt a = ( case (sfTF' sfe) dt (a, b) of
+                      (sfe', NoEvent) -> dkSwitchAux sf1' sfe'
+                      (_,    Event c) -> fst (sfTF (k (freeze sf1 dt) c) a)
+                  , b
+                  )
+          where
+            (sf1', b) = (sfTF' sf1) dt a
 
 -- * Parallel composition and switching over collections with broadcasting
 
@@ -440,12 +440,12 @@ par :: Functor col
     -> SF a (col c)
 par rf sfs0 = SF {sfTF = tf0}
   where
-    tf0 a0 =
-      let bsfs0 = rf a0 sfs0
-          sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-          sfs   = fmap fst sfcs0
-          cs0   = fmap snd sfcs0
-      in (parAux rf sfs, cs0)
+    tf0 a0 = (parAux rf sfs, cs0)
+      where
+        bsfs0 = rf a0 sfs0
+        sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+        sfs   = fmap fst sfcs0
+        cs0   = fmap snd sfcs0
 
 -- Internal definition. Also used in parallel switchers.
 parAux :: Functor col
@@ -454,12 +454,12 @@ parAux :: Functor col
        -> SF' a (col c)
 parAux rf sfs = SF' tf -- True
   where
-    tf dt a =
-      let bsfs  = rf a sfs
-          sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-          sfs'  = fmap fst sfcs'
-          cs    = fmap snd sfcs'
-      in (parAux rf sfs', cs)
+    tf dt a = (parAux rf sfs', cs)
+      where
+        bsfs  = rf a sfs
+        sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+        sfs'  = fmap fst sfcs'
+        cs    = fmap snd sfcs'
 
 -- | Parallel switch parameterized on the routing function. This is the most
 -- general switch from which all other (non-delayed) switches in principle can
@@ -482,26 +482,26 @@ pSwitch :: Functor col
         -> SF a (col c)
 pSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
   where
-    tf0 a0 =
-      let bsfs0 = rf a0 sfs0
-          sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-          sfs   = fmap fst sfcs0
-          cs0   = fmap snd sfcs0
-      in case (sfTF sfe0) (a0, cs0) of
-           (sfe, NoEvent)  -> (pSwitchAux sfs sfe, cs0)
-           (_,   Event d0) -> sfTF (k sfs0 d0) a0
+    tf0 a0 = case (sfTF sfe0) (a0, cs0) of
+               (sfe, NoEvent)  -> (pSwitchAux sfs sfe, cs0)
+               (_,   Event d0) -> sfTF (k sfs0 d0) a0
+      where
+        bsfs0 = rf a0 sfs0
+        sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+        sfs   = fmap fst sfcs0
+        cs0   = fmap snd sfcs0
 
     pSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
     pSwitchAux sfs sfe                     = SF' tf -- False
       where
-        tf dt a =
-          let bsfs  = rf a sfs
-              sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-              sfs'  = fmap fst sfcs'
-              cs    = fmap snd sfcs'
-          in case (sfTF' sfe) dt (a, cs) of
-               (sfe', NoEvent) -> (pSwitchAux sfs' sfe', cs)
-               (_,    Event d) -> sfTF (k (freezeCol sfs dt) d) a
+        tf dt a = case (sfTF' sfe) dt (a, cs) of
+                    (sfe', NoEvent) -> (pSwitchAux sfs' sfe', cs)
+                    (_,    Event d) -> sfTF (k (freezeCol sfs dt) d) a
+          where
+            bsfs  = rf a sfs
+            sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+            sfs'  = fmap fst sfcs'
+            cs    = fmap snd sfcs'
 
 -- | Parallel switch with delayed observation parameterized on the routing
 -- function.
@@ -534,28 +534,28 @@ dpSwitch :: Functor col
          -> SF a (col c)
 dpSwitch rf sfs0 sfe0 k = SF {sfTF = tf0}
   where
-    tf0 a0 =
-      let bsfs0 = rf a0 sfs0
-          sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
-          cs0   = fmap snd sfcs0
-      in ( case (sfTF sfe0) (a0, cs0) of
-             (sfe, NoEvent)  -> dpSwitchAux (fmap fst sfcs0) sfe
-             (_,   Event d0) -> fst (sfTF (k sfs0 d0) a0)
-         , cs0
-         )
+    tf0 a0 = ( case (sfTF sfe0) (a0, cs0) of
+                 (sfe, NoEvent)  -> dpSwitchAux (fmap fst sfcs0) sfe
+                 (_,   Event d0) -> fst (sfTF (k sfs0 d0) a0)
+             , cs0
+             )
+      where
+        bsfs0 = rf a0 sfs0
+        sfcs0 = fmap (\(b0, sf0) -> (sfTF sf0) b0) bsfs0
+        cs0   = fmap snd sfcs0
 
     dpSwitchAux sfs (SFArr _ (FDC NoEvent)) = parAux rf sfs
     dpSwitchAux sfs sfe = SF' tf -- False
       where
-        tf dt a =
-          let bsfs  = rf a sfs
-              sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
-              cs    = fmap snd sfcs'
-          in ( case (sfTF' sfe) dt (a, cs) of
-                 (sfe', NoEvent) -> dpSwitchAux (fmap fst sfcs') sfe'
-                 (_,    Event d) -> fst (sfTF (k (freezeCol sfs dt) d) a)
-             , cs
-             )
+        tf dt a = ( case (sfTF' sfe) dt (a, cs) of
+                      (sfe', NoEvent) -> dpSwitchAux (fmap fst sfcs') sfe'
+                      (_,    Event d) -> fst (sfTF (k (freezeCol sfs dt) d) a)
+                  , cs
+                  )
+          where
+            bsfs  = rf a sfs
+            sfcs' = fmap (\(b, sf) -> (sfTF' sf) dt b) bsfs
+            cs    = fmap snd sfcs'
 
 -- | Recurring parallel switch parameterized on the routing function.
 --
@@ -739,11 +739,11 @@ parC sf = SF $ \as -> let os  = map (sfTF sf) as
 parCAux :: [SF' a b] -> SF' [a] [b]
 parCAux sfs = SF' tf
   where
-    tf dt as =
-      let os   = map (\(a, sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
-          bs   = map snd os
-          sfcs = map fst os
-      in (listSeq sfcs `seq` parCAux sfcs, listSeq bs)
+    tf dt as = (listSeq sfcs `seq` parCAux sfcs, listSeq bs)
+      where
+        os   = map (\(a, sf) -> sfTF' sf dt a) $ safeZip "parC" as sfs
+        bs   = map snd os
+        sfcs = map fst os
 
 listSeq :: [a] -> [a]
 listSeq x = x `seq` (listSeq' x)
