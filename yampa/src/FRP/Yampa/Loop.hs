@@ -33,7 +33,7 @@ import FRP.Yampa.InternalCore (SF)
 
 -- | Loop with an initial value for the signal being fed back.
 loopPre :: c -> SF (a,c) (b,c) -> SF a b
-loopPre c_init sf = loop (second (iPre c_init) >>> sf)
+loopPre cInit sf = loop (second (iPre cInit) >>> sf)
 
 -- | Loop by integrating the second value in the pair and feeding the
 -- result back. Because the integral at time 0 is zero, this is always
