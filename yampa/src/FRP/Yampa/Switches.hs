@@ -97,8 +97,10 @@ module FRP.Yampa.Switches
     )
   where
 
+-- External imports
 import Control.Arrow
 
+-- Internal imports
 import FRP.Yampa.Basic
 import FRP.Yampa.Diagnostics
 import FRP.Yampa.Event
