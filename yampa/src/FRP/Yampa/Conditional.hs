@@ -44,7 +44,6 @@ import FRP.Yampa.Switches     (switch)
 --
 -- >>> embed (provided (even . round) integral integral) (deltaEncode 1 [1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2 :: Double])
 -- [0.0,1.0,2.0,0.0,2.0,4.0,0.0,1.0,2.0,0.0,2.0,4.0]
-
 provided :: (a -> Bool) -> SF a b -> SF a b -> SF a b
 provided p sft sff =
     switch (constant undefined &&& snap) $ \a0 ->
