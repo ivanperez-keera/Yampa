@@ -129,6 +129,7 @@ afterEachCat ((q,x):qxs)
         | otherwise = (awaitNextEvent t' x qxs, Event (reverse xs))
       where
         t' = t - q
+
     awaitNextEvent t x qxs = SF' tf -- False
       where
         tf dt _ | t' >= 0   = emitEventsScheduleNext t' [x] qxs
