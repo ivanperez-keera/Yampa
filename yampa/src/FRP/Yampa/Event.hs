@@ -137,7 +137,7 @@ instance Monad Event where
   -- | Combine events, return 'NoEvent' if any value in the sequence is
   -- 'NoEvent'.
   (Event x) >>= k = k x
-  NoEvent  >>= _  = NoEvent
+  NoEvent   >>= _ = NoEvent
 
   (>>) = (*>)
 
