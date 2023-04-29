@@ -194,9 +194,10 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
     esAux tpPrev tbtbs = SF' tf -- True
       where
         tf dt r | r < 0     = usrErr "Yampa" "embedSynch" "Negative ratio."
-                | otherwise = let tp = tpPrev + dt * r
-                                  (b, tbtbs') = advance tp tbtbs
-                              in (esAux tp tbtbs', b)
+                | otherwise = (esAux tp tbtbs', b)
+          where
+            tp          = tpPrev + dt * r
+            (b, tbtbs') = advance tp tbtbs
 
     -- Advance the time stamped stream to the perceived time tp. Under the
     -- assumption that the perceived time never goes backwards (non-negative
