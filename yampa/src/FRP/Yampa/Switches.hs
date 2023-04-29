@@ -366,9 +366,11 @@ parB = par broadcast
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-pSwitchB :: Functor col =>
-    col (SF a b) -> SF (a, col b) (Event c) -> (col (SF a b)->c-> SF a (col b))
-    -> SF a (col b)
+pSwitchB :: Functor col
+         => col (SF a b)
+         -> SF (a, col b) (Event c)
+         -> (col (SF a b) -> c -> SF a (col b))
+         -> SF a (col b)
 pSwitchB = pSwitch broadcast
 
 -- | Decoupled parallel switch with broadcasting (dynamic collection of signal
@@ -376,9 +378,11 @@ pSwitchB = pSwitch broadcast
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-dpSwitchB :: Functor col =>
-    col (SF a b) -> SF (a, col b) (Event c) -> (col (SF a b)->c->SF a (col b))
-    -> SF a (col b)
+dpSwitchB :: Functor col
+          => col (SF a b)
+          -> SF (a, col b) (Event c)
+          -> (col (SF a b) -> c -> SF a (col b))
+          -> SF a (col b)
 dpSwitchB = dpSwitch broadcast
 
 -- | Recurring parallel switch with broadcasting.
@@ -635,7 +639,7 @@ pSwitchZ = pSwitch (safeZip "pSwitchZ")
 --
 -- For more information on how parallel composition works, check
 -- <https://www.antonycourtney.com/pubs/hw03.pdf>
-dpSwitchZ :: [SF a b] -> SF ([a], [b]) (Event c) -> ([SF a b] -> c ->SF [a] [b])
+dpSwitchZ :: [SF a b] -> SF ([a], [b]) (Event c) -> ([SF a b] -> c -> SF [a] [b])
              -> SF [a] [b]
 dpSwitchZ = dpSwitch (safeZip "dpSwitchZ")
 
