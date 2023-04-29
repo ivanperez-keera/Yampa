@@ -36,8 +36,8 @@ import FRP.Yampa.InternalCore (SF (..), SF' (..), Time)
 
 -- * Noise (i.e. random signal generators) and stochastic processes
 
--- | Noise (random signal) with default range for type in question;
--- based on "randoms".
+-- | Noise (random signal) with default range for type in question; based on
+-- "randoms".
 noise :: (RandomGen g, Random b) => g -> SF a b
 noise g0 = streamToSF (randoms g0)
 
@@ -59,9 +59,8 @@ streamToSF (b:bs) = SF {sfTF = tf0}
 
 -- | Stochastic event source with events occurring on average once every tAvg
 -- seconds. However, no more than one event results from any one sampling
--- interval in the case of relatively sparse sampling, thus avoiding an
--- "event backlog" should sampling become more frequent at some later
--- point in time.
+-- interval in the case of relatively sparse sampling, thus avoiding an "event
+-- backlog" should sampling become more frequent at some later point in time.
 
 occasionally :: RandomGen g => g -> Time -> b -> SF a (Event b)
 occasionally g tAvg x | tAvg > 0 = SF {sfTF = tf0}
@@ -71,9 +70,9 @@ occasionally g tAvg x | tAvg > 0 = SF {sfTF = tf0}
     -- Generally, if events occur with an average frequency of f, the
     -- probability of at least one event occurring in an interval of t is given
     -- by (1 - exp (-f*t)). The goal in the following is to decide whether at
-    -- least one event occurred in the interval of size dt preceding the
-    -- current sample point. For the first point, we can think of the preceding
-    -- interval as being 0, implying no probability of an event occurring.
+    -- least one event occurred in the interval of size dt preceding the current
+    -- sample point. For the first point, we can think of the preceding interval
+    -- as being 0, implying no probability of an event occurring.
 
     tf0 _ = (occAux (randoms g :: [Time]), NoEvent)
 
