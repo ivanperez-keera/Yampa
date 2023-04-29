@@ -42,13 +42,13 @@ module FRP.Yampa.Integration
   where
 
 -- External imports
-import Control.Arrow
-import Data.VectorSpace
+import Control.Arrow    ((***), (>>^))
+import Data.VectorSpace (VectorSpace, zeroVector, (*^), (^+^), (^-^), (^/))
 
 -- Internal imports
-import FRP.Yampa.Event
-import FRP.Yampa.Hybrid
-import FRP.Yampa.InternalCore (DTime, SF(..), SF'(..))
+import FRP.Yampa.Event        (Event)
+import FRP.Yampa.Hybrid       (accumBy, accumHoldBy)
+import FRP.Yampa.InternalCore (DTime, SF (..), SF' (..))
 
 -- * Integration and differentiation
 
