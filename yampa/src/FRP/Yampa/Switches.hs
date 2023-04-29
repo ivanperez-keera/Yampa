@@ -429,7 +429,6 @@ drpSwitchB = drpSwitch broadcast
 
 -- | Spatial parallel composition of a signal function collection parameterized
 -- on the routing function.
---
 par :: Functor col
     => (forall sf . (a -> col sf -> col (b, sf)))
        -- ^ Determines the input to each signal function in the collection.
@@ -625,7 +624,6 @@ drpSwitch rf sfs =
 --
 -- >>> embed (parZ [arr (+1)]) (deltaEncode 0.1 [[0, 0], [1, 1]])
 -- [[1],[2]]
-
 parZ :: [SF a b] -> SF [a] [b]
 parZ = par (safeZip "parZ")
 
@@ -728,7 +726,6 @@ freezeCol sfs dt = fmap (`freeze` dt) sfs
 --
 -- >>> embed (parC (arr (+1))) (deltaEncode 0.1 [[0, 0], [1, 1], [3, 4], [6, 7, 8], [1, 1], [0, 0], [1, 9, 8]])
 -- [[1,1],[2,2],[4,5],[7,8],[2,2],[1,1],[2,10]]
-
 parC :: SF a b -> SF [a] [b]
 parC sf = SF $ \as -> let os  = map (sfTF sf) as
                           bs  = map snd os
