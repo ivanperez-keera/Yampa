@@ -55,17 +55,17 @@ module FRP.Yampa.EventS
   where
 
 -- External imports
-import Control.Arrow
+import Control.Arrow (arr, (&&&), (>>>), (>>^))
 
 -- Internal imports
-import FRP.Yampa.Arrow
-import FRP.Yampa.Basic
-import FRP.Yampa.Diagnostics
-import FRP.Yampa.Event
-import FRP.Yampa.Hybrid
+import FRP.Yampa.Arrow        (dup)
+import FRP.Yampa.Basic        (identity, initially, (-->), (>--))
+import FRP.Yampa.Diagnostics  (usrErr)
+import FRP.Yampa.Event        (Event (..), maybeToEvent, tag)
+import FRP.Yampa.Hybrid       (accumBy)
 import FRP.Yampa.InternalCore (SF (..), SF' (..), Time, sfConst)
-import FRP.Yampa.Scan
-import FRP.Yampa.Switches
+import FRP.Yampa.Scan         (sscanPrim)
+import FRP.Yampa.Switches     (dSwitch, switch)
 
 infixr 5 `andThen`
 
