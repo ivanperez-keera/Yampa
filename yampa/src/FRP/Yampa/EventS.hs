@@ -163,30 +163,30 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
                  , NoEvent
                  )
 
-    -- t_next is the present time w.r.t. the next scheduled event.
-    -- t_last is the present time w.r.t. the last scheduled event.
+    -- tNext is the present time w.r.t. the next scheduled event.
+    -- tLast is the present time w.r.t. the last scheduled event.
     -- In the event queues, events are associated with their time
     -- w.r.t. to preceding event (positive).
-    pendingEvents t_last rqxs qxs t_next x = SF' tf -- True
+    pendingEvents tLast rqxs qxs tNext x = SF' tf -- True
       where
         tf dt e
-            | t_next' >= 0
-            = emitEventsScheduleNext e t_last' rqxs qxs t_next' [x]
+            | tNext' >= 0
+            = emitEventsScheduleNext e tLast' rqxs qxs tNext' [x]
             | otherwise
-            = (pendingEvents t_last'' rqxs' qxs t_next' x, NoEvent)
+            = (pendingEvents tLast'' rqxs' qxs tNext' x, NoEvent)
           where
-            t_next' = t_next  + dt
-            t_last' = t_last  + dt
-            (t_last'', rqxs') =
+            tNext' = tNext  + dt
+            tLast' = tLast  + dt
+            (tLast'', rqxs') =
               case e of
-                NoEvent  -> (t_last', rqxs)
-                Event x' -> (-q, (t_last'+q,x') : rqxs)
+                NoEvent  -> (tLast', rqxs)
+                Event x' -> (-q, (tLast'+q,x') : rqxs)
 
-    -- t_next is the present time w.r.t. the *scheduled* time of the
+    -- tNext is the present time w.r.t. the *scheduled* time of the
     -- event that is about to be emitted (i.e. >= 0).
     -- The time associated with any event at the head of the event
     -- queue is also given w.r.t. the event that is about to be emitted.
-    -- Thus, t_next - q' is the present time w.r.t. the event at the head
+    -- Thus, tNext - q' is the present time w.r.t. the event at the head
     -- of the event queue.
     emitEventsScheduleNext e _ [] [] _ rxs =
       ( case e of
@@ -194,29 +194,29 @@ delayEventCat q | q < 0     = usrErr "Yampa" "delayEventCat" "Negative delay."
           Event x -> pendingEvents (-q) [] [] (-q) x
       , Event (reverse rxs)
       )
-    emitEventsScheduleNext e t_last rqxs [] t_next rxs =
-      emitEventsScheduleNext e t_last [] (reverse rqxs) t_next rxs
-    emitEventsScheduleNext e t_last rqxs ((q', x') : qxs') t_next rxs
-      | q' > t_next = ( case e of
+    emitEventsScheduleNext e tLast rqxs [] tNext rxs =
+      emitEventsScheduleNext e tLast [] (reverse rqxs) tNext rxs
+    emitEventsScheduleNext e tLast rqxs ((q', x') : qxs') tNext rxs
+      | q' > tNext = ( case e of
                           NoEvent ->
-                            pendingEvents t_last
+                            pendingEvents tLast
                                           rqxs
                                           qxs'
-                                          (t_next - q')
+                                          (tNext - q')
                                           x'
                           Event x'' ->
                             pendingEvents (-q)
-                                          ((t_last+q, x'') : rqxs)
+                                          ((tLast+q, x'') : rqxs)
                                           qxs'
-                                          (t_next - q')
+                                          (tNext - q')
                                           x'
                       , Event (reverse rxs)
                       )
       | otherwise   = emitEventsScheduleNext e
-                                             t_last
+                                             tLast
                                              rqxs
                                              qxs'
-                                             (t_next - q')
+                                             (tNext - q')
                                              (x' : rxs)
 
 -- | A rising edge detector. Useful for things like detecting key presses.
@@ -258,13 +258,13 @@ edgeJust = edgeBy isJustEdge (Just undefined)
 -- state, i.e., the previous input sample. The first argument to the
 -- edge detection function is the previous sample, the second the current one.
 edgeBy :: (a -> a -> Maybe b) -> a -> SF a (Event b)
-edgeBy isEdge a_init = SF {sfTF = tf0}
+edgeBy isEdge aInit = SF {sfTF = tf0}
   where
-    tf0 a0 = (ebAux a0, maybeToEvent (isEdge a_init a0))
+    tf0 a0 = (ebAux a0, maybeToEvent (isEdge aInit a0))
 
-    ebAux a_prev = SF' tf -- True
+    ebAux aPrev = SF' tf -- True
       where
-        tf _ a = (ebAux a, maybeToEvent (isEdge a_prev a))
+        tf _ a = (ebAux a, maybeToEvent (isEdge aPrev a))
 
 -- * Stateful event suppression
 
@@ -300,15 +300,15 @@ snap =
   switch (never &&& (identity &&& now () >>^ \(a, e) -> e `tag` a)) now
 
 -- | Event source with a single occurrence at or as soon after (local) time
--- @t_ev@ as possible. The value of the event is obtained by sampling the input
+-- @tEv@ as possible. The value of the event is obtained by sampling the input
 -- a that time.
 snapAfter :: Time -> SF a (Event a)
-snapAfter t_ev =
-  switch (never &&& (identity &&& after t_ev () >>^ \(a, e) -> e `tag` a)) now
+snapAfter tEv =
+  switch (never &&& (identity &&& after tEv () >>^ \(a, e) -> e `tag` a)) now
 
 -- | Sample a signal at regular intervals.
 sample :: Time -> SF a (Event a)
-sample p_ev = identity &&& repeatedly p_ev () >>^ \(a, e) -> e `tag` a
+sample pEv = identity &&& repeatedly pEv () >>^ \(a, e) -> e `tag` a
 
 -- | Window sampling
 --
