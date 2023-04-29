@@ -804,7 +804,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
     -- I - identity arrow
     -- C - constant arrow
 
-    pfoXX :: SF' a b -> SF' a c -> SF' a (b , c)
+    pfoXX :: SF' a b -> SF' a c -> SF' a (b, c)
     pfoXX (SFArr _ fd1)       (SFArr _ fd2)       = sfArr(fdFanOut fd1 fd2)
     pfoXX (SFArr _ FDI)       sf2                 = pfoIX sf2
     pfoXX (SFArr _ (FDC b))   sf2                 = pfoCX b sf2
@@ -819,7 +819,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
             (sf1', b) = (sfTF' sf1) dt a
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoIX :: SF' a c -> SF' a (a , c)
+    pfoIX :: SF' a c -> SF' a (a, c)
     pfoIX (SFArr _ fd2) = sfArr (fdFanOut FDI fd2)
     pfoIX sf2 = SF' tf
       where
@@ -827,7 +827,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXI :: SF' a b -> SF' a (b , a)
+    pfoXI :: SF' a b -> SF' a (b, a)
     pfoXI (SFArr _ fd1) = sfArr (fdFanOut fd1 FDI)
     pfoXI sf1 = SF' tf
       where
@@ -835,7 +835,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf1', b) = (sfTF' sf1) dt a
 
-    pfoCX :: b -> SF' a c -> SF' a (b , c)
+    pfoCX :: b -> SF' a c -> SF' a (b, c)
     pfoCX b (SFArr _ fd2) = sfArr (fdFanOut (FDC b) fd2)
     pfoCX b sf2 = SF' tf
       where
@@ -843,7 +843,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXC :: SF' a b -> c -> SF' a (b , c)
+    pfoXC :: SF' a b -> c -> SF' a (b, c)
     pfoXC (SFArr _ fd1) c = sfArr (fdFanOut fd1 (FDC c))
     pfoXC sf1 c = SF' tf
       where
@@ -851,7 +851,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf1', b) = (sfTF' sf1) dt a
 
-    pfoAX :: (a -> b) -> SF' a c -> SF' a (b , c)
+    pfoAX :: (a -> b) -> SF' a c -> SF' a (b, c)
     pfoAX f1 (SFArr _ fd2) = sfArr (fdFanOut (FDG f1) fd2)
     pfoAX f1 sf2 = SF' tf
       where
@@ -859,7 +859,7 @@ parFanOutPrim (SF {sfTF = tf10}) (SF {sfTF = tf20}) = SF {sfTF = tf0}
           where
             (sf2', c) = (sfTF' sf2) dt a
 
-    pfoXA :: SF' a b -> (a -> c) -> SF' a (b , c)
+    pfoXA :: SF' a b -> (a -> c) -> SF' a (b, c)
     pfoXA (SFArr _ fd1) f2 = sfArr (fdFanOut fd1 (FDG f2))
     pfoXA sf1 f2 = SF' tf
       where
