@@ -57,16 +57,16 @@ streamToSF (b:bs) = SF {sfTF = tf0}
       where
         tf _ _ = (stsfAux bs, b)
 
--- | Stochastic event source with events occurring on average once every t_avg
+-- | Stochastic event source with events occurring on average once every tAvg
 -- seconds. However, no more than one event results from any one sampling
 -- interval in the case of relatively sparse sampling, thus avoiding an
 -- "event backlog" should sampling become more frequent at some later
 -- point in time.
 
 occasionally :: RandomGen g => g -> Time -> b -> SF a (Event b)
-occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
-                       | otherwise = usrErr "Yampa" "occasionally"
-                                            "Non-positive average interval."
+occasionally g tAvg x | tAvg > 0 = SF {sfTF = tf0}
+                      | otherwise = usrErr "Yampa" "occasionally"
+                                           "Non-positive average interval."
   where
     -- Generally, if events occur with an average frequency of f, the
     -- probability of at least one event occurring in an interval of t is given
@@ -80,6 +80,6 @@ occasionally g t_avg x | t_avg > 0 = SF {sfTF = tf0}
     occAux [] = undefined
     occAux (r:rs) = SF' tf -- True
       where
-        tf dt _ = let p = 1 - exp (-(dt/t_avg)) -- Probability for at least one
-                                                -- event.
+        tf dt _ = let p = 1 - exp (-(dt/tAvg)) -- Probability for at least one
+                                               -- event.
                   in (occAux rs, if r < p then Event x else NoEvent)
