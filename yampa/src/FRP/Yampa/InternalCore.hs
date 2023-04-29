@@ -14,8 +14,8 @@
 --
 --
 -- Domain-specific language embedded in Haskell for programming hybrid (mixed
--- discrete-time and continuous-time) systems. Yampa is based on the concepts
--- of Functional Reactive Programming (FRP) and is structured using arrow
+-- discrete-time and continuous-time) systems. Yampa is based on the concepts of
+-- Functional Reactive Programming (FRP) and is structured using arrow
 -- combinators.
 --
 -- You can find examples, tutorials and documentation on Yampa here:
@@ -30,19 +30,19 @@
 -- real numbers and, computationally, a very dense approximation (Double) is
 -- used.
 --
--- * Events: 'Event'. Values that may or may not occur (and would probably
--- occur rarely). It is often used for incoming network messages, mouse
--- clicks, etc. Events are used as values carried by signals.
+-- * Events: 'Event'. Values that may or may not occur (and would probably occur
+-- rarely). It is often used for incoming network messages, mouse clicks, etc.
+-- Events are used as values carried by signals.
 --
--- A complete Yampa system is defined as one Signal Function from some
--- type @a@ to a type @b@. The execution of this signal transformer
--- with specific input can be accomplished by means of two functions:
--- 'reactimate' (which needs an initialization action,
--- an input sensing action and an actuation/consumer action and executes
--- until explicitly stopped), and 'react' (which executes only one cycle).
+-- A complete Yampa system is defined as one Signal Function from some type @a@
+-- to a type @b@. The execution of this signal transformer with specific input
+-- can be accomplished by means of two functions: 'reactimate' (which needs an
+-- initialization action, an input sensing action and an actuation/consumer
+-- action and executes until explicitly stopped), and 'react' (which executes
+-- only one cycle).
 --
--- Apart from using normal functions and arrow syntax to define 'SF's, you
--- can also use several combinators. See [<#g:4>] for basic signals combinators,
+-- Apart from using normal functions and arrow syntax to define 'SF's, you can
+-- also use several combinators. See [<#g:4>] for basic signals combinators,
 -- [<#g:11>] for ways of switching from one signal transformation to another,
 -- and [<#g:16>] for ways of transforming Event-carrying signals into continuous
 -- signals, [<#g:19>] for ways of delaying signals, and [<#g:21>] for ways to
@@ -115,20 +115,19 @@ type DTime = Double     -- [s]
 
 -- | Signal function that transforms a signal carrying values of some type 'a'
 -- into a signal carrying values of some type 'b'. You can think of it as
--- (Signal a -> Signal b). A signal is, conceptually, a
--- function from 'Time' to value.
+-- (Signal a -> Signal b). A signal is, conceptually, a function from 'Time' to
+-- value.
 data SF a b = SF {sfTF :: a -> Transition a b}
 
 -- | Signal function in "running" state.
 --
---   It can also be seen as a Future Signal Function, meaning,
---   an SF that, given a time delta or a time in the future, it will
---   be an SF.
+-- It can also be seen as a Future Signal Function, meaning, an SF that, given a
+-- time delta or a time in the future, it will be an SF.
 data SF' a b where
   SFArr   :: !(DTime -> a -> Transition a b) -> !(FunDesc a b) -> SF' a b
-  -- The b is intentionally unstrict as the initial output sometimes
-  -- is undefined (e.g. when defining pre). In any case, it isn't
-  -- necessarily used and should thus not be forced.
+  -- The b is intentionally unstrict as the initial output sometimes is
+  -- undefined (e.g. when defining pre). In any case, it isn't necessarily used
+  -- and should thus not be forced.
   SFSScan :: !(DTime -> a -> Transition a b)
              -> !(c -> a -> Maybe (c, b)) -> !c -> b
              -> SF' a b
@@ -189,9 +188,9 @@ sfArrG f = sf
 
 -- | Structured function definition.
 --
---   This type represents functions with a bit more structure, providing
---   specific constructors for the identity, constant and event-based
---   functions, helping optimise arrow combinators for special cases.
+-- This type represents functions with a bit more structure, providing specific
+-- constructors for the identity, constant and event-based functions, helping
+-- optimise arrow combinators for special cases.
 data FunDesc a b where
   FDI :: FunDesc a a                                  -- Identity function
   FDC :: b -> FunDesc a b                             -- Constant function
@@ -249,9 +248,9 @@ fdFanOut fd1 fd2 =
   FDG (\a -> ((fdFun fd1) a, (fdFun fd2) a))
 
 -- | Verifies that the first argument is NoEvent. Returns the value of the
--- second argument that is the case. Raises an error otherwise.
--- Used to check that functions on events do not map NoEvent to Event
--- wherever that assumption is exploited.
+-- second argument that is the case. Raises an error otherwise. Used to check
+-- that functions on events do not map NoEvent to Event wherever that assumption
+-- is exploited.
 vfyNoEv :: Event a -> b -> b
 vfyNoEv NoEvent b = b
 vfyNoEv _       _  =
@@ -313,7 +312,7 @@ instance ArrowChoice SF where
                      in (choose sfCL sf', Right e)
 
 -- | Signal Functions as Arrows. See "The Yampa Arcade", by Courtney, Nilsson
---   and Peterson.
+-- and Peterson.
 instance Arrow SF where
   arr    = arrPrim
   first  = firstPrim
@@ -351,13 +350,13 @@ arrEPrim f = SF {sfTF = \a -> (sfArrE f (f NoEvent), f a)}
 
 -- | Versatile zero-order hold SF' with folding.
 --
---   This function returns an SF that, if there is an input, runs it
---   through the given function and returns part of its output and, if not,
---   returns the last known output.
+-- This function returns an SF that, if there is an input, runs it through the
+-- given function and returns part of its output and, if not, returns the last
+-- known output.
 --
---   The auxiliary function returns the value of the current output and
---   the future held output, thus making it possible to have to distinct
---   outputs for the present and the future.
+-- The auxiliary function returns the value of the current output and the future
+-- held output, thus making it possible to have to distinct outputs for the
+-- present and the future.
 epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
 epPrim f c bne = SF {sfTF = tf0}
   where
@@ -367,13 +366,13 @@ epPrim f c bne = SF {sfTF = tf0}
 
 -- | Constructor for a zero-order hold SF' with folding.
 --
---   This function returns a running SF that, if there is an input, runs it
---   through the given function and returns part of its output and, if not,
---   returns the last known output.
+-- This function returns a running SF that, if there is an input, runs it
+-- through the given function and returns part of its output and, if not,
+-- returns the last known output.
 --
---   The auxiliary function returns the value of the current output and
---   the future held output, thus making it possible to have to distinct
---   outputs for the present and the future.
+-- The auxiliary function returns the value of the current output and the future
+-- held output, thus making it possible to have to distinct outputs for the
+-- present and the future.
 sfEP :: (c -> a -> (c, b, b)) -> c -> b -> SF' (Event a) b
 sfEP f c bne = sf
   where
@@ -458,18 +457,17 @@ cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
 cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
     sfEP f (s1, s2, cne) (vfyNoEv bne cne)
   where
-    -- The function "f" is invoked whenever an event is to be processed. It
-    -- then computes the output, the new state, and the new NoEvent output.
-    -- However, when sequencing event processors, the ones in the latter
-    -- part of the chain may not get invoked since previous ones may decide
-    -- not to "fire". But a "new" NoEvent output still has to be produced,
-    -- i.e. the old one retained. Since it cannot be computed by invoking
-    -- the last event-processing function in the chain, it has to be
-    -- remembered. Since the composite event-processing function remains
-    -- constant/unchanged, the NoEvent output has to be part of the state.
-    -- An alternative would be to make the event-processing function take
-    -- an extra argument. But that is likely to make the simple case more
-    -- expensive. See note at sfEP.
+    -- The function "f" is invoked whenever an event is to be processed. It then
+    -- computes the output, the new state, and the new NoEvent output.  However,
+    -- when sequencing event processors, the ones in the latter part of the
+    -- chain may not get invoked since previous ones may decide not to "fire".
+    -- But a "new" NoEvent output still has to be produced, i.e. the old one
+    -- retained. Since it cannot be computed by invoking the last
+    -- event-processing function in the chain, it has to be remembered. Since
+    -- the composite event-processing function remains constant/unchanged, the
+    -- NoEvent output has to be part of the state.  An alternative would be to
+    -- make the event-processing function take an extra argument. But that is
+    -- likely to make the simple case more expensive. See note at sfEP.
     f (s1, s2, cne) a =
       case f1 s1 a of
         (s1', NoEvent, NoEvent) -> ((s1', s2, cne), cne, cne)
@@ -485,8 +483,8 @@ cpXX sf1@(SFEP{}) (SFCpAXA _ (FDG f21) sf22 fd23) =
 cpXX (SFCpAXA _ fd11 sf12 (FDE f13 f13ne)) sf2@(SFEP{}) =
   cpXX (cpAX fd11 sf12) (cpEX f13 f13ne sf2)
 cpXX (SFCpAXA _ fd11 sf12 fd13) (SFCpAXA _ fd21 sf22 fd23) =
-  -- Termination: The first argument to cpXX is no larger than
-  -- the current first argument, and the second is smaller.
+  -- Termination: The first argument to cpXX is no larger than the current first
+  -- argument, and the second is smaller.
   cpAXA fd11 (cpXX (cpXA sf12 (fdComp fd13 fd21)) sf22) fd23
 cpXX sf1 sf2 = SF' tf --  False
   where
@@ -496,8 +494,8 @@ cpXX sf1 sf2 = SF' tf --  False
         (sf2', c) = (sfTF' sf2) dt b
 
 cpAXA :: FunDesc a b -> SF' b c -> FunDesc c d -> SF' a d
--- Termination: cpAX/cpXA, via cpCX, cpEX etc. only call cpAXA if sf2
--- is SFCpAXA, and then on the embedded sf and hence on a smaller arg.
+-- Termination: cpAX/cpXA, via cpCX, cpEX etc. only call cpAXA if sf2 is
+-- SFCpAXA, and then on the embedded sf and hence on a smaller arg.
 cpAXA FDI     sf2 fd3     = cpXA sf2 fd3
 cpAXA fd1     sf2 FDI     = cpAX fd1 sf2
 cpAXA (FDC b) sf2 fd3     = cpCXA b sf2 fd3
@@ -505,8 +503,8 @@ cpAXA _       _   (FDC d) = sfConst d
 cpAXA fd1     sf2 fd3     =
     cpAXAAux fd1 (fdFun fd1) fd3 (fdFun fd3) sf2
   where
-    -- Really: cpAXAAux :: SF' b c -> SF' a d
-    -- Note: Event cases are not optimized (EXA etc.)
+    -- Really: cpAXAAux :: SF' b c -> SF' a d. Note: Event cases are not
+    -- optimized (EXA etc.)
     cpAXAAux :: FunDesc a b -> (a -> b) -> FunDesc c d -> (c -> d)
                 -> SF' b c -> SF' a d
     cpAXAAux fd1 _ fd3 _ (SFArr _ fd2) =
@@ -578,12 +576,12 @@ cpGX f1 sf2 = cpGXAux (FDG f1) f1 sf2
   where
     cpGXAux :: FunDesc a b -> (a -> b) -> SF' b c -> SF' a c
     cpGXAux fd1 _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
-    -- We actually do know that (fdComp (FDG f1) fd21) is going to
-    -- result in an FDG. So we *could* call a cpGXA here. But the
-    -- price is "inlining" of part of fdComp.
+    -- We actually do know that (fdComp (FDG f1) fd21) is going to result in an
+    -- FDG. So we *could* call a cpGXA here. But the price is "inlining" of part
+    -- of fdComp.
     cpGXAux _ f1 (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
-    -- We really shouldn't see an EP here, as that would mean
-    -- an arrow INTRODUCING events ...
+    -- We really shouldn't see an EP here, as that would mean an arrow
+    -- INTRODUCING events ...
     cpGXAux fd1 _ (SFCpAXA _ fd21 sf22 fd23) =
       cpAXA (fdComp fd1 fd21) sf22 fd23
     cpGXAux fd1 f1 sf2 = SFCpAXA tf fd1 sf2 FDI
@@ -621,7 +619,7 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
                -> SF' b c -> SF' (Event a) c
     cpEXAux fd1 _ _ (SFArr _ fd2) = sfArr (fdComp fd1 fd2)
     cpEXAux _ f1 _   (SFSScan _ f s c) = sfSScan (\s a -> f s (f1 a)) s c
-    -- We must not capture cne in the f closure since cne can change!  See cpXX
+    -- We must not capture cne in the f closure since cne can change! See cpXX
     -- the SFEP/SFEP case for a similar situation. However, FDE represent a
     -- state-less signal function, so *its* NoEvent value never changes. Hence
     -- we only need to verify that it is NoEvent once.
@@ -897,10 +895,10 @@ loopPrim (SF {sfTF = tf10}) = SF {sfTF = tf0}
 
 -- | Constructor for a zero-order hold with folding.
 --
---   This function returns a running SF that takes an input, runs it through a
---   function and, if there is an output, returns it, otherwise, returns the
---   previous value. Additionally, an accumulator or folded value is kept
---   internally.
+-- This function returns a running SF that takes an input, runs it through a
+-- function and, if there is an output, returns it, otherwise, returns the
+-- previous value. Additionally, an accumulator or folded value is kept
+-- internally.
 sfSScan :: (c -> a -> Maybe (c, b)) -> c -> b -> SF' a b
 sfSScan f c b = sf
   where
