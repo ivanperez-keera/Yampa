@@ -30,8 +30,8 @@ module FRP.Yampa.Random
 import System.Random (Random (..), RandomGen (..))
 
 -- Internal imports
-import FRP.Yampa.Diagnostics
-import FRP.Yampa.Event
+import FRP.Yampa.Diagnostics  (intErr, usrErr)
+import FRP.Yampa.Event        (Event (..))
 import FRP.Yampa.InternalCore (SF (..), SF' (..), Time)
 
 -- * Noise (i.e. random signal generators) and stochastic processes
