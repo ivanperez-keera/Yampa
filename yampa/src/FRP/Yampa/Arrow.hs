@@ -35,18 +35,18 @@ dup x = (x, x)
 
 -- * Liftings
 
--- | Lift a binary function onto an arrow
+-- | Lift a binary function onto an arrow.
 arr2 :: Arrow a => (b -> c -> d) -> a (b, c) d
 arr2 = arr . uncurry
 
--- | Lift a 3-ary function onto an arrow
+-- | Lift a 3-ary function onto an arrow.
 arr3 :: Arrow a => (b -> c -> d -> e) -> a (b, c, d) e
 arr3 = arr . \h (b, c, d) -> h b c d
 
--- | Lift a 4-ary function onto an arrow
+-- | Lift a 4-ary function onto an arrow.
 arr4 :: Arrow a => (b -> c -> d -> e -> f) -> a (b, c, d, e) f
 arr4 = arr . \h (b, c, d, e) -> h b c d e
 
--- | Lift a 5-ary function onto an arrow
+-- | Lift a 5-ary function onto an arrow.
 arr5 :: Arrow a => (b -> c -> d -> e -> f -> g) -> a (b, c, d, e, f) g
 arr5 = arr . \h (b, c, d, e, f) -> h b c d e f
