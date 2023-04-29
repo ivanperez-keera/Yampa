@@ -54,8 +54,10 @@ module FRP.Yampa.EventS
     )
   where
 
+-- External imports
 import Control.Arrow
 
+-- Internal imports
 import FRP.Yampa.Arrow
 import FRP.Yampa.Basic
 import FRP.Yampa.Diagnostics
