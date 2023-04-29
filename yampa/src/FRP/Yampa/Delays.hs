@@ -39,8 +39,8 @@ infixr 0 `fby`
 
 -- | Uninitialized delay operator.
 --
--- The output has an infinitesimal delay (1 sample), and the value at time
--- zero is undefined.
+-- The output has an infinitesimal delay (1 sample), and the value at time zero
+-- is undefined.
 pre :: SF a a
 pre = sscanPrim f uninit uninit
   where
@@ -50,17 +50,17 @@ pre = sscanPrim f uninit uninit
 -- | Initialized delay operator.
 --
 -- Creates an SF that delays the input signal, introducing an infinitesimal
--- delay (one sample), using the given argument to fill in the initial output
--- at time zero.
+-- delay (one sample), using the given argument to fill in the initial output at
+-- time zero.
 
 iPre :: a -> SF a a
 iPre = (--> pre)
 
 -- | Lucid-Synchrone-like initialized delay (read "followed by").
 --
--- Initialized delay combinator, introducing an infinitesimal delay (one
--- sample) in given 'SF', using the given argument to fill in the initial
--- output at time zero.
+-- Initialized delay combinator, introducing an infinitesimal delay (one sample)
+-- in given 'SF', using the given argument to fill in the initial output at time
+-- zero.
 --
 -- The difference with 'iPre' is that 'fby' takes an 'SF' as argument.
 fby :: b -> SF a b -> SF a b
@@ -68,8 +68,8 @@ b0 `fby` sf = b0 --> sf >>> pre
 
 -- * Timed delays
 
--- | Delay a signal by a fixed time 't', using the second parameter
--- to fill in the initial 't' seconds.
+-- | Delay a signal by a fixed time 't', using the second parameter to fill in
+-- the initial 't' seconds.
 delay :: Time -> a -> SF a a
 delay q aInit | q < 0     = usrErr "Yampa" "delay" "Negative delay."
               | q == 0    = identity
@@ -78,13 +78,12 @@ delay q aInit | q < 0     = usrErr "Yampa" "delay" "Negative delay."
     tf0 a0 = (delayAux [] [(q, a0)] 0 aInit, aInit)
 
     -- Invariants:
-    -- tDiff measure the time since the latest output sample ideally
-    -- should have been output. Whenever that equals or exceeds the
-    -- time delta for the next buffered sample, it is time to output a
-    -- new sample (although not necessarily the one first in the queue:
-    -- it might be necessary to "catch up" by discarding samples.
-    -- 0 <= tDiff < bdt, where bdt is the buffered time delta for the
-    -- sample on the front of the buffer queue.
+    -- tDiff measure the time since the latest output sample ideally should have
+    -- been output. Whenever that equals or exceeds the time delta for the next
+    -- buffered sample, it is time to output a new sample (although not
+    -- necessarily the one first in the queue: it might be necessary to "catch
+    -- up" by discarding samples.  0 <= tDiff < bdt, where bdt is the buffered
+    -- time delta for the sample on the front of the buffer queue.
     --
     -- Sum of time deltas in the queue >= q.
     delayAux _ [] _ _ = undefined
