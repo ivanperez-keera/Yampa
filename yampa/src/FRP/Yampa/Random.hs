@@ -61,7 +61,6 @@ streamToSF (b:bs) = SF {sfTF = tf0}
 -- seconds. However, no more than one event results from any one sampling
 -- interval in the case of relatively sparse sampling, thus avoiding an "event
 -- backlog" should sampling become more frequent at some later point in time.
-
 occasionally :: RandomGen g => g -> Time -> b -> SF a (Event b)
 occasionally g tAvg x | tAvg > 0 = SF {sfTF = tf0}
                       | otherwise = usrErr "Yampa" "occasionally"
