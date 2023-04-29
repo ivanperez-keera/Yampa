@@ -52,7 +52,6 @@ pre = sscanPrim f uninit uninit
 -- Creates an SF that delays the input signal, introducing an infinitesimal
 -- delay (one sample), using the given argument to fill in the initial output at
 -- time zero.
-
 iPre :: a -> SF a a
 iPre = (--> pre)
 
