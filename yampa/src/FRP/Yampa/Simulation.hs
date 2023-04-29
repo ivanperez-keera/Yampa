@@ -173,10 +173,10 @@ embed sf0 (a0, dtas) = b0 : loop a0 sf dtas
     (sf, b0) = (sfTF sf0) a0
 
     loop _ _ [] = []
-    loop a_prev sf ((dt, ma) : dtas) =
+    loop aPrev sf ((dt, ma) : dtas) =
         b : (a `seq` b `seq` loop a sf' dtas)
       where
-        a        = fromMaybe a_prev ma
+        a        = fromMaybe aPrev ma
         (sf', b) = (sfTF' sf) dt a
 
 -- | Synchronous embedding. The embedded signal function is run on the supplied
@@ -190,12 +190,12 @@ embedSynch sf0 (a0, dtas) = SF {sfTF = tf0}
 
     tf0 _ = (esAux 0 (zip tts bbs), b)
 
-    esAux _       []    = intErr "Yampa" "embedSynch" "Empty list!"
+    esAux _      []    = intErr "Yampa" "embedSynch" "Empty list!"
     -- Invarying below since esAux [] is an error.
-    esAux tp_prev tbtbs = SF' tf -- True
+    esAux tpPrev tbtbs = SF' tf -- True
       where
         tf dt r | r < 0     = usrErr "Yampa" "embedSynch" "Negative ratio."
-                | otherwise = let tp = tp_prev + dt * r
+                | otherwise = let tp = tpPrev + dt * r
                                   (b, tbtbs') = advance tp tbtbs
                               in (esAux tp tbtbs', b)
 
@@ -221,9 +221,9 @@ deltaEncodeBy :: (a -> a -> Bool) -> DTime -> [a] -> (a, [(DTime, Maybe a)])
 deltaEncodeBy _  _  []      = usrErr "Yampa" "deltaEncodeBy" "Empty input list."
 deltaEncodeBy eq dt (a0:as) = (a0, zip (repeat dt) (debAux a0 as))
   where
-    debAux _      []                     = []
-    debAux a_prev (a:as) | a `eq` a_prev = Nothing : debAux a as
-                         | otherwise     = Just a  : debAux a as
+    debAux _     []                    = []
+    debAux aPrev (a:as) | a `eq` aPrev = Nothing : debAux a as
+                        | otherwise    = Just a  : debAux a as
 
 -- * Debugging / Step by step simulation
 
