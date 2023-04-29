@@ -372,8 +372,9 @@ epPrim :: (c -> a -> (c, b, b)) -> c -> b -> SF (Event a) b
 epPrim f c bne = SF {sfTF = tf0}
   where
     tf0 NoEvent   = (sfEP f c bne, bne)
-    tf0 (Event a) = let (c', b, bne') = f c a
-                    in (sfEP f c' bne', b)
+    tf0 (Event a) = (sfEP f c' bne', b)
+      where
+        (c', b, bne') = f c a
 
 -- | Constructor for a zero-order hold SF' with folding.
 --
@@ -430,13 +431,14 @@ cpXX (SFSScan _ f1 s1 b) (SFSScan _ f2 s2 c) =
     sfSScan f (s1, b, s2, c) c
   where
     f (s1, b, s2, c) a =
-      let (u, s1',  b') = case f1 s1 a of
-                            Nothing        -> (True, s1, b)
-                            Just (s1', b') -> (False,  s1', b')
-      in case f2 s2 b' of
-           Nothing | u         -> Nothing
-                   | otherwise -> Just ((s1', b', s2, c), c)
-           Just (s2', c') -> Just ((s1', b', s2', c'), c')
+        case f2 s2 b' of
+          Nothing | u         -> Nothing
+                  | otherwise -> Just ((s1', b', s2, c), c)
+          Just (s2', c') -> Just ((s1', b', s2', c'), c')
+      where
+        (u, s1', b') = case f1 s1 a of
+                         Nothing        -> (True, s1, b)
+                         Just (s1', b') -> (False,  s1', b')
 cpXX (SFSScan _ f1 s1 eb) (SFEP _ f2 s2 cne) =
     sfSScan f (s1, eb, s2, cne) cne
   where
@@ -457,14 +459,15 @@ cpXX (SFEP _ f1 s1 bne) (SFSScan _ f2 s2 c) =
     sfSScan f (s1, bne, s2, c) c
   where
     f (s1, bne, s2, c) ea =
-      let (u, s1', b', bne') = case ea of
-                                 NoEvent -> (True, s1, bne, bne)
-                                 Event a -> let (s1', b, bne') = f1 s1 a
-                                            in (False, s1', b, bne')
-      in case f2 s2 b' of
-           Nothing | u         -> Nothing
-                   | otherwise -> Just (seq s1' (s1', bne', s2, c), c)
-           Just (s2', c') -> Just (seq s1' (s1', bne', s2', c'), c')
+        case f2 s2 b' of
+             Nothing | u         -> Nothing
+                     | otherwise -> Just (seq s1' (s1', bne', s2, c), c)
+             Just (s2', c') -> Just (seq s1' (s1', bne', s2', c'), c')
+      where
+        (u, s1', b', bne') = case ea of
+                               NoEvent -> (True, s1, bne, bne)
+                               Event a -> let (s1', b, bne') = f1 s1 a
+                                          in (False, s1', b, bne')
 cpXX (SFEP _ f1 s1 bne) (SFEP _ f2 s2 cne) =
     sfEP f (s1, s2, cne) (vfyNoEv bne cne)
   where
@@ -620,11 +623,16 @@ cpXG sf1 f2 = cpXGAux (FDG f2) f2 sf1
         f' s a = case f s a of
                    Nothing -> Nothing
                    Just (s', b') -> Just (s', f2 b')
+
     cpXGAux _ f2 (SFEP _ f1 s bne) = sfEP f s (f2 bne)
       where
-        f s a = let (s', b, bne') = f1 s a in (s', f2 b, f2 bne')
+        f s a = (s', f2 b, f2 bne')
+          where
+            (s', b, bne') = f1 s a
+
     cpXGAux fd2 _ (SFCpAXA _ fd11 sf12 fd22) =
       cpAXA fd11 sf12 (fdComp fd22 fd2)
+
     cpXGAux fd2 f2 sf1 = SFCpAXA tf FDI sf1 fd2
       where
         tf dt a = (cpXGAux fd2 f2 sf1', f2 b)
@@ -651,7 +659,10 @@ cpEX f1 f1ne sf2 = cpEXAux (FDE f1 f1ne) f1 f1ne sf2
         f scne@(s, cne) a =
           case f1 (Event a) of
             NoEvent -> (scne, cne, cne)
-            Event b -> let (s', c, cne') = f2 s b in ((s', cne'), c, cne')
+            Event b -> ((s', cne'), c, cne')
+              where
+                (s', c, cne') = f2 s b
+
     cpEXAux fd1 _ _ (SFCpAXA _ fd21 sf22 fd23) =
       cpAXA (fdComp fd1 fd21) sf22 fd23
     -- The rationale for the following is that the case analysis is typically
