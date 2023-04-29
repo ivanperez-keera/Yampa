@@ -51,7 +51,6 @@ infixl 0 `timeOut`, `abortWhen`
 -- * The Task type
 
 -- | A task is a partially SF that may terminate with a result.
-
 newtype Task a b c =
   -- CPS-based representation allowing termination to be detected. Note the
   -- rank 2 polymorphic type! The representation can be changed if necessary,
@@ -160,7 +159,6 @@ sleepT t b = mkTask (constant b &&& after t ())
 -- No time passes; therefore, the following must hold:
 --
 -- @snapT >> snapT = snapT@
-
 snapT :: Task a b a
 snapT = mkTask (constant (intErr "YampaTask" "snapT" "Bad switch?") &&& snap)
 
