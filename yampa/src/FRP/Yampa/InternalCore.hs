@@ -90,15 +90,15 @@ module FRP.Yampa.InternalCore
 import Control.Applicative (Applicative(..))
 #endif
 
-import Control.Arrow
+import Control.Arrow (Arrow (..), ArrowChoice (..), ArrowLoop (..), (>>>))
 
 #if __GLASGOW_HASKELL__ >= 610
 import qualified Control.Category (Category(..))
 #endif
 
 -- Internal imports
-import FRP.Yampa.Diagnostics
-import FRP.Yampa.Event
+import FRP.Yampa.Diagnostics (usrErr)
+import FRP.Yampa.Event       (Event (..))
 
 -- * Basic type definitions with associated utilities
 
