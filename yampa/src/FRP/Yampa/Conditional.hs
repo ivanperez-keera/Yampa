@@ -21,8 +21,10 @@ module FRP.Yampa.Conditional
     )
   where
 
+-- External imports
 import Control.Arrow
 
+-- Internal imports
 import FRP.Yampa.Basic
 import FRP.Yampa.EventS
 import FRP.Yampa.InternalCore (SF (..), SF' (..), Transition, sfTF')
