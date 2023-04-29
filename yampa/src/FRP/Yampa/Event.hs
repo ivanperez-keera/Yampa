@@ -27,7 +27,45 @@
 --
 -- Events are essential for many other Yampa constructs, like switches (see
 -- 'FRP.Yampa.Switches.switch' for details).
-module FRP.Yampa.Event where
+module FRP.Yampa.Event
+    (
+      -- * The Event type
+      Event(..)
+    , noEvent
+    , noEventFst
+    , noEventSnd
+
+      -- * Internal utilities for event construction
+    , maybeToEvent
+
+      -- * Utility functions similar to those available for Maybe
+    , event
+    , fromEvent
+    , isEvent
+    , isNoEvent
+
+      -- * Event tagging
+    , tag
+    , tagWith
+    , attach
+
+      -- * Event merging (disjunction) and joining (conjunction)
+    , lMerge
+    , rMerge
+    , merge
+    , mergeBy
+    , mapMerge
+    , mergeEvents
+    , catEvents
+    , joinE
+    , splitE
+
+      -- * Event filtering
+    , filterE
+    , mapFilterE
+    , gate
+    )
+  where
 
 import           Control.Applicative
 import           Control.DeepSeq     (NFData (..))
