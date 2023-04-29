@@ -240,7 +240,8 @@ evalAtZero :: SF a b
            -> a                  -- ^ Input sample
            -> (b, FutureSF a b)  -- ^ Output x Continuation
 evalAtZero (SF { sfTF = tf }) a = (b, FutureSF tf' )
-  where (tf', b) = tf a
+  where
+    (tf', b) = tf a
 
 -- | Evaluate an initialized SF, and return an output and a continuation.
 --
@@ -252,7 +253,8 @@ evalAt :: FutureSF a b
        -> DTime -> a         -- ^ Input sample
        -> (b, FutureSF a b)  -- ^ Output x Continuation
 evalAt (FutureSF { unsafeSF = tf }) dt a = (b, FutureSF tf')
-  where (tf', b) = (sfTF' tf) dt a
+  where
+    (tf', b) = (sfTF' tf) dt a
 
 -- | Given a signal function and time delta, it moves the signal function into
 -- the future, returning a new uninitialized SF and the initial output.
@@ -267,11 +269,13 @@ evalAt (FutureSF { unsafeSF = tf }) dt a = (b, FutureSF tf')
 --
 evalFuture :: SF a b -> a -> DTime -> (b, SF a b)
 evalFuture sf a dt = (b, sf' dt)
-  where (b, sf') = evalStep sf a
+  where
+    (b, sf') = evalStep sf a
 
 -- | Steps the signal function into the future one step. It returns the current
 -- output, and a signal function that expects, apart from an input, a time
 -- between samples.
 evalStep :: SF a b -> a -> (b, DTime -> SF a b)
 evalStep (SF sf) a = (b, \dt -> SF (sfTF' sf' dt))
-  where (sf', b) = sf a
+  where
+    (sf', b) = sf a
