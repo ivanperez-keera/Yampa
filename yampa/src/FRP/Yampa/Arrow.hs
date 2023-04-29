@@ -30,8 +30,8 @@ import Control.Arrow (Arrow, arr)
 -- * Arrow plumbing aids
 
 -- | Duplicate an input.
-dup :: a -> (a,a)
-dup x = (x,x)
+dup :: a -> (a, a)
+dup x = (x, x)
 
 -- * Liftings
 
