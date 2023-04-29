@@ -108,7 +108,7 @@ reactimate init sense actuate (SF {sfTF = tf0}) = do
       done <- actuate True b
       unless (a `seq` b `seq` done) $ do
         (dt, ma') <- sense False
-        let a' = fromMaybe a ma'
+        let a'        = fromMaybe a ma'
             (sf', b') = (sfTF' sf) dt a'
         loop sf' a' b'
 
@@ -118,9 +118,9 @@ reactimate init sense actuate (SF {sfTF = tf0}) = do
 -- reactimate's state, maintained across samples:
 data ReactState a b = ReactState
   { rsActuate :: ReactHandle a b -> Bool -> b -> IO Bool
-  , rsSF :: SF' a b
-  , rsA :: a
-  , rsB :: b
+  , rsSF      :: SF' a b
+  , rsA       :: a
+  , rsB       :: b
   }
 
 -- | A reference to reactimate's state, maintained across samples.
@@ -128,10 +128,10 @@ newtype ReactHandle a b = ReactHandle
   { reactHandle :: IORef (ReactState a b) }
 
 -- | Initialize a top-level reaction handle.
-reactInit :: IO a -- init
-             -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
-             -> SF a b
-             -> IO (ReactHandle a b)
+reactInit :: IO a                                      -- init
+          -> (ReactHandle a b -> Bool -> b -> IO Bool) -- actuate
+          -> SF a b
+          -> IO (ReactHandle a b)
 reactInit init actuate (SF {sfTF = tf0}) = do
   a0 <- init
   let (sf, b0) = tf0 a0
