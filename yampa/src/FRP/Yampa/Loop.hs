@@ -21,12 +21,12 @@ module FRP.Yampa.Loop
   where
 
 -- External imports
-import Control.Arrow
-import Data.VectorSpace
+import Control.Arrow    (loop, second, (>>>))
+import Data.VectorSpace (VectorSpace)
 
 -- Internal imports
-import FRP.Yampa.Delays
-import FRP.Yampa.Integration
+import FRP.Yampa.Delays       (iPre)
+import FRP.Yampa.Integration  (integral)
 import FRP.Yampa.InternalCore (SF)
 
 -- * Loops with guaranteed well-defined feedback
