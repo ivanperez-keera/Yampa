@@ -89,9 +89,8 @@ delay q aInit | q < 0     = usrErr "Yampa" "delay" "Negative delay."
     delayAux _ [] _ _ = undefined
     delayAux rbuf buf@((bdt, ba) : buf') tDiff aPrev = SF' tf -- True
       where
-        tf dt a | tDiff' < bdt =
-                    (delayAux rbuf' buf tDiff' aPrev, aPrev)
-                | otherwise = nextSmpl rbuf' buf' (tDiff' - bdt) ba
+        tf dt a | tDiff' < bdt = (delayAux rbuf' buf tDiff' aPrev, aPrev)
+                | otherwise    = nextSmpl rbuf' buf' (tDiff' - bdt) ba
           where
             tDiff' = tDiff + dt
             rbuf'  = (dt, a) : rbuf
