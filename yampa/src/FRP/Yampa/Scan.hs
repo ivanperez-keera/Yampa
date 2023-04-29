@@ -12,8 +12,8 @@
 --
 -- Simple, stateful signal processing.
 --
--- Scanning implements elementary, step-based accumulating over signal
--- functions by means of an auxiliary function applied to each input and to an
+-- Scanning implements elementary, step-based accumulating over signal functions
+-- by means of an auxiliary function applied to each input and to an
 -- accumulator. For comparison with other FRP libraries and with stream
 -- processing abstractions, think of fold.
 module FRP.Yampa.Scan
@@ -34,13 +34,13 @@ sscan f bInit = sscanPrim f' bInit bInit
   where
     f' b a = let b' = f b a in Just (b', b')
 
--- | Generic version of 'sscan', in which the auxiliary function produces
--- an internal accumulator and an "held" output.
+-- | Generic version of 'sscan', in which the auxiliary function produces an
+-- internal accumulator and an "held" output.
 --
--- Applies a function point-wise, using the last known 'Just' output to form
--- the output, and next input accumulator. If the output is 'Nothing', the last
--- known accumulators are used. This creates a well-formed loop based on a
--- pure, auxiliary function.
+-- Applies a function point-wise, using the last known 'Just' output to form the
+-- output, and next input accumulator. If the output is 'Nothing', the last
+-- known accumulators are used. This creates a well-formed loop based on a pure,
+-- auxiliary function.
 sscanPrim :: (c -> a -> Maybe (c, b)) -> c -> b -> SF a b
 sscanPrim f cInit bInit = SF {sfTF = tf0}
   where
