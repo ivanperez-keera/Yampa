@@ -20,9 +20,11 @@ module FRP.Yampa.Loop
     )
   where
 
+-- External imports
 import Control.Arrow
 import Data.VectorSpace
 
+-- Internal imports
 import FRP.Yampa.Delays
 import FRP.Yampa.Integration
 import FRP.Yampa.InternalCore (SF)
