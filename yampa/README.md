@@ -458,7 +458,10 @@ In addition:
   not directly related to one another, they belong in different PRs, issues and
   commits.
 - Document what you did in the respective CHANGELOGs in a separate commit
-  before you send a PR.
+  before you send a PR. This commit should be the last one in the PR.
+- If your commit pertains to one package only, name the package at the
+  beginning of the summary line with the syntax `<package_name>:
+  <...rest_of_summary...>`.
 - Make sure your changes conform to the [coding
   style](https://keera.co.uk/wp-content/uploads/2021/11/haskellguide-v1.3.0.pdf).
 
