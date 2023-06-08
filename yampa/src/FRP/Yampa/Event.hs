@@ -13,9 +13,9 @@
 -- Portability : portable
 --
 -- Events in Yampa represent discrete time-signals, meaning those that do not
--- change continuously. Examples of event-carrying signals would be mouse
--- clicks (in between clicks it is assumed that there is no click), some
--- keyboard events, button presses on wiimotes or window-manager events.
+-- change continuously. Examples of event-carrying signals would be mouse clicks
+-- (in between clicks it is assumed that there is no click), some keyboard
+-- events, button presses on wiimotes or window-manager events.
 --
 -- The type 'Event' is isomorphic to 'Maybe' (@Event a = NoEvent | Event a@)
 -- but, semantically, a 'Maybe'-carrying signal could change continuously,
@@ -27,13 +27,56 @@
 --
 -- Events are essential for many other Yampa constructs, like switches (see
 -- 'FRP.Yampa.Switches.switch' for details).
-module FRP.Yampa.Event where
+module FRP.Yampa.Event
+    (
+      -- * The Event type
+      Event(..)
+    , noEvent
+    , noEventFst
+    , noEventSnd
 
-import           Control.Applicative
+      -- * Internal utilities for event construction
+    , maybeToEvent
+
+      -- * Utility functions similar to those available for Maybe
+    , event
+    , fromEvent
+    , isEvent
+    , isNoEvent
+
+      -- * Event tagging
+    , tag
+    , tagWith
+    , attach
+
+      -- * Event merging (disjunction) and joining (conjunction)
+    , lMerge
+    , rMerge
+    , merge
+    , mergeBy
+    , mapMerge
+    , mergeEvents
+    , catEvents
+    , joinE
+    , splitE
+
+      -- * Event filtering
+    , filterE
+    , mapFilterE
+    , gate
+    )
+  where
+
+-- External imports
+#if !MIN_VERSION_base(4,8,0)
+import           Control.Applicative (Applicative (..), (<$>))
+#endif
+import           Control.Applicative (Alternative (..))
 import           Control.DeepSeq     (NFData (..))
 import qualified Control.Monad.Fail  as Fail
 
-import FRP.Yampa.Diagnostics
+-- Internal imports
+import FRP.Yampa.Diagnostics (usrErr)
 
 infixl 8 `tag`, `attach`, `gate`
 infixl 7 `joinE`
@@ -41,8 +84,8 @@ infixl 6 `lMerge`, `rMerge`, `merge`
 
 -- * The Event type
 
--- | A single possible event occurrence, that is, a value that may or may
--- not occur. Events are used to represent values that are not produced
+-- | A single possible event occurrence, that is, a value that may or may not
+-- occur. Events are used to represent values that are not produced
 -- continuously, such as mouse clicks (only produced when the mouse is clicked,
 -- as opposed to mouse positions, which are always defined).
 data Event a = NoEvent | Event a deriving (Show)
@@ -60,16 +103,16 @@ noEventFst (_, b) = (NoEvent, b)
 noEventSnd :: (a, Event b) -> (a, Event c)
 noEventSnd (a, _) = (a, NoEvent)
 
--- | Eq instance (equivalent to derived instance)
+-- | Eq instance (equivalent to derived instance).
 instance Eq a => Eq (Event a) where
   -- | Equal if both NoEvent or both Event carrying equal values.
   NoEvent   == NoEvent   = True
   (Event x) == (Event y) = x == y
   _         == _         = False
 
--- | Ord instance (equivalent to derived instance)
+-- | Ord instance (equivalent to derived instance).
 instance Ord a => Ord (Event a) where
-  -- | NoEvent is smaller than Event, Event x < Event y if x < y
+  -- | NoEvent is smaller than Event, Event x < Event y if x < y.
   compare NoEvent   NoEvent   = EQ
   compare NoEvent   (Event _) = LT
   compare (Event _) NoEvent   = GT
@@ -89,37 +132,36 @@ instance Applicative Event where
   NoEvent <*> _ = NoEvent
   Event f <*> x = f <$> x
 
--- | Monad instance
+-- | Monad instance.
 instance Monad Event where
-  -- | Combine events, return 'NoEvent' if any value in the
-  -- sequence is 'NoEvent'.
+  -- | Combine events, return 'NoEvent' if any value in the sequence is
+  -- 'NoEvent'.
   (Event x) >>= k = k x
-  NoEvent  >>= _  = NoEvent
+  NoEvent   >>= _ = NoEvent
 
   (>>) = (*>)
 
   -- | See 'pure'.
-  return          = pure
+  return = pure
 
 #if !(MIN_VERSION_base(4,13,0))
   -- | Fail with 'NoEvent'.
-  fail            = Fail.fail
+  fail = Fail.fail
 #endif
 
 instance Fail.MonadFail Event where
   -- | Fail with 'NoEvent'.
-  fail _          = NoEvent
+  fail _ = NoEvent
 
--- | Alternative instance
+-- | Alternative instance.
 instance Alternative Event where
   -- | An empty alternative carries no event, so it is ignored.
   empty = NoEvent
-  -- | Merge favouring the left event ('NoEvent' only if both are
-  -- 'NoEvent').
+  -- | Merge favouring the left event ('NoEvent' only if both are 'NoEvent').
   NoEvent <|> r = r
   l       <|> _ = l
 
--- | NFData instance
+-- | NFData instance.
 instance NFData a => NFData (Event a) where
   -- | Evaluate value carried by event.
   rnf NoEvent   = ()
@@ -127,8 +169,8 @@ instance NFData a => NFData (Event a) where
 
 -- * Internal utilities for event construction
 
--- These utilities are to be considered strictly internal to Yampa for the
--- time being.
+-- These utilities are to be considered strictly internal to Yampa for the time
+-- being.
 
 -- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
 maybeToEvent :: Maybe a -> Event a
@@ -160,16 +202,14 @@ isNoEvent = not . isEvent
 
 -- | Tags an (occurring) event with a value ("replacing" the old value).
 --
--- Applicative-based definition:
---  tag = ($>)
+-- Applicative-based definition: tag = ($>)
 tag :: Event a -> b -> Event b
 e `tag` b = fmap (const b) e
 
--- | Tags an (occurring) event with a value ("replacing" the old value). Same
--- as 'tag' with the arguments swapped.
+-- | Tags an (occurring) event with a value ("replacing" the old value). Same as
+-- 'tag' with the arguments swapped.
 --
--- Applicative-based definition:
--- tagWith = (<$)
+-- Applicative-based definition: tagWith = (<$)
 tagWith :: b -> Event a -> Event b
 tagWith = flip tag
 
@@ -201,10 +241,10 @@ mergeBy _       le@(Event _) NoEvent      = le
 mergeBy _       NoEvent      re@(Event _) = re
 mergeBy resolve (Event l)    (Event r)    = Event (resolve l r)
 
--- | A generic event merge-map utility that maps event occurrences,
--- merging the results. The first three arguments are mapping functions,
--- the third of which will only be used when both events are present.
--- Therefore, 'mergeBy' = 'mapMerge' 'id' 'id'
+-- | A generic event merge-map utility that maps event occurrences, merging the
+-- results. The first three arguments are mapping functions, the third of which
+-- will only be used when both events are present.  Therefore, 'mergeBy' =
+-- 'mapMerge' 'id' 'id'.
 --
 -- Applicative-based definition:
 -- mapMerge lf rf lrf le re = (f <$> le <*> re) <|> (lf <$> le) <|> (rf <$> re)
@@ -233,20 +273,20 @@ catEvents eas = case [ a | Event a <- eas ] of
                   [] -> NoEvent
                   as -> Event as
 
--- | Join (conjunction) of two events. Only produces an event
--- if both events exist.
+-- | Join (conjunction) of two events. Only produces an event if both events
+-- exist.
 --
 -- Applicative-based definition:
 -- joinE = liftA2 (,)
-joinE :: Event a -> Event b -> Event (a,b)
+joinE :: Event a -> Event b -> Event (a, b)
 joinE NoEvent   _         = NoEvent
 joinE _         NoEvent   = NoEvent
-joinE (Event l) (Event r) = Event (l,r)
+joinE (Event l) (Event r) = Event (l, r)
 
 -- | Split event carrying pairs into two events.
-splitE :: Event (a,b) -> (Event a, Event b)
-splitE NoEvent       = (NoEvent, NoEvent)
-splitE (Event (a,b)) = (Event a, Event b)
+splitE :: Event (a, b) -> (Event a, Event b)
+splitE NoEvent        = (NoEvent, NoEvent)
+splitE (Event (a, b)) = (Event a, Event b)
 
 -- * Event filtering
 

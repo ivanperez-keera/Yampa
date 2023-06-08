@@ -1,19 +1,19 @@
 -- |
--- Module      :  FRP.Yampa.Time
--- Copyright   :  (c) Ivan Perez, 2014-2022
---                (c) George Giorgidze, 2007-2012
---                (c) Henrik Nilsson, 2005-2006
---                (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
--- License     :  BSD-style (see the LICENSE file in the distribution)
+-- Module      : FRP.Yampa.Time
+-- Copyright   : (c) Ivan Perez, 2014-2022
+--               (c) George Giorgidze, 2007-2012
+--               (c) Henrik Nilsson, 2005-2006
+--               (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
+-- License     : BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  ivan.perez@keera.co.uk
--- Stability   :  provisional
--- Portability :  non-portable (GHC extensions)
+-- Maintainer  : ivan.perez@keera.co.uk
+-- Stability   : provisional
+-- Portability : non-portable (GHC extensions)
 --
 -- SF primitives that producing the current running time.
 --
--- Time is global for an 'SF', so, every constituent 'SF' will use the
--- same global clock. However, when used in combination with
+-- Time is global for an 'SF', so, every constituent 'SF' will use the same
+-- global clock. However, when used in combination with
 -- 'FRP.Yampa.Switches.switch'ing, the SF switched into will be started at the
 -- time of switching, so any reference to 'localTime' or 'time' from that 'SF'
 -- will count using the time of switching as the start time.
@@ -29,8 +29,10 @@ module FRP.Yampa.Time
     )
   where
 
-import Control.Arrow
+-- External imports
+import Control.Arrow ((>>>))
 
+-- Internal imports
 import FRP.Yampa.Basic        (constant)
 import FRP.Yampa.Integration  (integral)
 import FRP.Yampa.InternalCore (SF, Time)

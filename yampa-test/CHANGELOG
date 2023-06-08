@@ -1,79 +1,83 @@
+2023-06-07 Ivan Perez <ivan.perez@keera.co.uk>
+    * Version bump (0.14.3) (#269).
+    * Improve readability of CHANGELOGs (#261).
+
 2023-04-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.14.2) (#259).
-        * examples/: Introduce testing example from Yampa library (#257).
-        * src:/ Conformance with style guide (#256).
+    * Version bump (0.14.2) (#259).
+    * Introduce testing example from Yampa library (#257).
+    * Conformance with style guide (#256).
 
 2023-02-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * Yampa.cabal: Version bump (0.14.1) (#251).
-        * tests/: add tests for module FRP.Yampa.Hybrid (#243), add tests for
-          module FRP.Yampa.Arrow (#244), complete unit tests for FRP.Yampa.Test
-          (#245), complete unit tests for FRP.Yampa.Simulation (#246), complete
-          unit tests for FRP.Yampa.EventS (#247), complete unit tests for
-          FRP.Yampa.Random (#248), complete unit tests for FRP.Yampa.Switches
-          (#250).
+    * Version bump (0.14.1) (#251).
+    * Add tests for module FRP.Yampa.Hybrid (#243).
+    * Add tests for module FRP.Yampa.Arrow (#244).
+    * Complete unit tests for FRP.Yampa.Test (#245).
+    * Complete unit tests for FRP.Yampa.Simulation (#246).
+    * Complete unit tests for FRP.Yampa.EventS (#247).
+    * Complete unit tests for FRP.Yampa.Random (#248).
+    * Complete unit tests for FRP.Yampa.Switches (#250).
 
 2022-12-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * yampa-test.cabal: Version bump (0.14) (#242), add tests for module
-          FRP.Yampa.Event (#237).
-        * tests/: add tests for module FRP.Yampa.Event (#237), explicit import
-          from Control.Applicative with old versions of base (#239), complete
-          unit tests for FRP.Yampa.Integration (#240), adjust to work with
-          simple-affine-space-0.2 (#241).
+    * Version bump (0.14) (#242).
+    * Add tests for module FRP.Yampa.Event (#237).
+    * Explicit import from Control.Applicative with old versions of base
+      (#239).
+    * Complete unit tests for FRP.Yampa.Integration (#240).
+    * Adjust to work with simple-affine-space-0.2 (#241).
 
 2022-10-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * yampa-test.cabal: Version bump (0.13.7) (#238).
-        * LICENSE: Update years, copyright holders (#235).
-        * tests/: Update years, copyright holders (#235).
+    * Version bump (0.13.7) (#238).
+    * Update years, copyright holders (#235).
 
 2022-08-07 Ivan Perez <ivan.perez@haskell.sexy>
-        * yampa-test.cabal: Version bump (0.13.6) (#232).
-        * tests/: Complete unit tests for FRP.Yampa.Basic (#219), complete unit
-          tests for FRP.Yampa.Conditional (#225), complete unit tests for
-          FRP.Yampa.Delays (#226).
+    * Version bump (0.13.6) (#232).
+    * Complete unit tests for FRP.Yampa.Basic (#219).
+    * Complete unit tests for FRP.Yampa.Conditional (#225).
+    * Complete unit tests for FRP.Yampa.Delays (#226).
 
 2022-06-07 Ivan Perez <ivan.perez@haskell.sexy>
-        * yampa-test.cabal: Version bump (0.13.5) (#220), fix broken link in
-          description (#204), enable all warnings (#206), rename flag (#208),
-          rename test (#208), adjust modules to run regression tests with
-          QuickCheck testing module (#208), reorganize tests to match Yampa's
-          module hierarchy (#216).
-        * src/: Style consistency of separators (#211), adjust format of export
-          lists (#212), compress multiple empty lines (#214), adjust
-          indentation to two spaces (#215).
-        * tests/: Replace tabs with spaces (#205), remove local option disable
-          warning on tabs (#206), format module header to conform to style
-          guide (#207), adjust modules to run regression tests with QuickCheck
-          testing module (#208), rename space usage test to reflect module's
-          new purpose (#208), style consistency of separators (#211), adjust
-          format of export lists (#212), align lists, tuples, records by
-          leading comma (#213), compress multiple empty lines (#214), adjust
-          indentation to two spaces (#215), reorganize tests to match Yampa's
-          module hierarchy (#216), reorganize declarations and tests within
-          modules to match Yampa (#217), move ArrowLoop tests into InternalCore
-          test module (#218).
+    * Version bump (0.13.5) (#220).
+    * Fix broken link in description in Cabal file (#204).
+    * Enable all warnings (#206).
+    * Rename test (#208).
+    * Adjust modules to run regression tests with QuickCheck testing module
+      (#208).
+    * Reorganize tests to match Yampa's module hierarchy (#216).
+    * Style consistency of separators (#211).
+    * Adjust format of export lists (#212).
+    * Compress multiple empty lines (#214).
+    * Adjust indentation to two spaces (#215).
+    * Replace tabs with spaces (#205).
+    * Remove local option disable warning on tabs (#206).
+    * Format module header to conform to style guide (#207).
+    * Align lists, tuples, records by leading comma (#213).
+    * Reorganize declarations and tests within modules to match Yampa (#217).
+    * Move ArrowLoop tests into InternalCore test module (#218).
 
 2022-04-07 Ivan Perez <ivan.perez@haskell.sexy>
-        * yampa-test.cabal: Version bump (0.13.4) (#203), syntax rules (#196),
-          add regression tests (#201).
-        * tests/YampaQC.hs: Remove incorrect tests (#198).
-        * tests/: Add regression tests (#201).
+    * Version bump (0.13.4) (#203).
+    * Syntax rules (#196).
+    * Add regression tests (#201).
+    * Remove incorrect tests (#198).
+    * Add regression tests (#201).
 
 2021-10-07 Ivan Perez <ivan.perez@keera.co.uk>
-        * yampa-test.cabal: Version bump (0.13.3).
+    * Version bump (0.13.3).
 
 2021-09-15 Ivan Perez <ivan.perez@keera.co.uk>
-        * yampa-test.cabal: Version bump (0.13.2).
+    * Version bump (0.13.2).
 
 2019-10-15 Ivan Perez <ivan.perez@keera.co.uk>
-        * yampa-test.cabal: Version bump (0.2), use tasty for testing.
-        * Thanks to @RyanGlScott.
+    * Version bump (0.2).
+    * Use tasty for testing.
+    * Thanks to @RyanGlScott.
 
 2018-10-27 Ivan Perez <ivan.perez@keera.co.uk>
-        * yampa-test.cabal: Version bump (0.1.1).
-        * src/: Fixes bug (#108).
+    * Version bump (0.1.1).
+    * Fix bug (#108).
 
 2018-10-21 Ivan Perez <ivan.perez@keera.co.uk>
-        * Initial version.
+    * Initial version.
 
 Copyright (c) 2014-2018, Ivan Perez.
 All rights reserved.

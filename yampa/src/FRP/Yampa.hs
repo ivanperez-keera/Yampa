@@ -237,13 +237,13 @@ module FRP.Yampa
       -- ** Parallel composition and switching
       -- *** Parallel composition and switching with broadcasting
     , parB
-    , pSwitchB,dpSwitchB
-    , rpSwitchB,drpSwitchB
+    , pSwitchB, dpSwitchB
+    , rpSwitchB, drpSwitchB
 
       -- *** Parallel composition and switching with general routing
     , par
-    , pSwitch, dpSwitch
-    , rpSwitch,drpSwitch
+    , pSwitch,  dpSwitch
+    , rpSwitch, drpSwitch
 
       -- * Discrete to continuous-time signal functions
       -- ** Wave-form generation
@@ -317,13 +317,18 @@ module FRP.Yampa
       --   Reverse function composition and arrow plumbing aids
     , dup
 
-      -- Re-exported module, classes, and types
+      -- * Re-exported module, classes, and types
     , module Control.Arrow
     , module Data.VectorSpace
     )
   where
 
-import FRP.Yampa.InternalCore
+-- External modules
+import Control.Arrow
+import Data.VectorSpace
+
+-- Internal modules
+import FRP.Yampa.Arrow (dup)
 import FRP.Yampa.Basic
 import FRP.Yampa.Conditional
 import FRP.Yampa.Delays
@@ -331,13 +336,10 @@ import FRP.Yampa.Event
 import FRP.Yampa.EventS
 import FRP.Yampa.Hybrid
 import FRP.Yampa.Integration
+import FRP.Yampa.InternalCore
 import FRP.Yampa.Loop
-import FRP.Yampa.Arrow (dup)
 import FRP.Yampa.Random
 import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
 import FRP.Yampa.Switches
 import FRP.Yampa.Time
-
-import Control.Arrow
-import Data.VectorSpace
