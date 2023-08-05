@@ -1,0 +1,9 @@
+#!/bin/bash
+DESTINATION=$1
+mkdir -p $DESTINATION
+git log -1                    > $DESTINATION/git-log
+git diff HEAD                 > $DESTINATION/git-diff
+cabal v1-exec -- ghc-pkg list > $DESTINATION/packages
+ghc --version                 > $DESTINATION/ghc-version
+cabal --version               > $DESTINATION/cabal-version
+cabal v1-bench --benchmark-option=$DESTINATION
