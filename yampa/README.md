@@ -431,6 +431,10 @@ This project is split in two:
 Yampa's unit tests are mostly implemented as tests inside the yampa-test
 library. The module hierarchy of `yampa-test/tests/Test` mirrors that of Yampa.
 
+Yampa also includes some benchmarks as part of the main library. You are
+encouraged to use them to evaluate your pull requests, and to improve the
+benchmarks themselves.
+
 A directory `yampa/examples` contains a number of examples of Yampa programs,
 some of which can be installed with the flag `-fexamples`.
 
