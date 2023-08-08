@@ -349,10 +349,10 @@ benchmark yampa-bench
     Bench.hs
 
   build-depends:
-       base
-     , criterion
-     , filepath
-     , time
+       base      < 5
+     , criterion >= 0.5.0.0 && < 1.7
+     , filepath  >= 1.3.0.1 && < 1.5
+     , time      >= 1.4     && < 1.13
      , Yampa
 
   default-language:
