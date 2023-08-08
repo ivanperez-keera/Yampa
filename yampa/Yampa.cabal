@@ -30,7 +30,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          Yampa
-version:       0.14.3
+version:       0.14.4
 author:        Henrik Nilsson, Antony Courtney
 maintainer:    Ivan Perez (ivan.perez@keera.co.uk)
 homepage:      https://github.com/ivanperez-keera/Yampa/
@@ -315,3 +315,23 @@ executable yampa-examples-tailgatingdetector
   else
     buildable:
       False
+
+benchmark yampa-bench
+  type:
+    exitcode-stdio-1.0
+
+  main-is:
+    Bench.hs
+
+  build-depends:
+       base      < 5
+     , criterion >= 0.5.0.0 && < 1.7
+     , filepath  >= 1.3.0.1 && < 1.5
+     , time      >= 1.4     && < 1.13
+     , Yampa
+
+  default-language:
+    Haskell2010
+
+  hs-source-dirs:
+    benchmarks
