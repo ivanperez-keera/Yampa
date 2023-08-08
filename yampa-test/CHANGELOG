@@ -1,4 +1,5 @@
 2023-08-07 Ivan Perez <ivan.perez@keera.co.uk>
+    * Version bump (0.14.4) (#274).
     * Add version bounds to dependencies (#273).
 
 2023-06-07 Ivan Perez <ivan.perez@keera.co.uk>
