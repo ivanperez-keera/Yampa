@@ -110,7 +110,7 @@ instance Applicative (Task a b) where
 
 instance Monad (Task a b) where
   tk >>= f = Task (\k -> unTask tk (\c -> unTask (f c) k))
-  return x = Task (\k -> k x)
+  return   = pure
 
 -- Let's check the monad laws:
 --
