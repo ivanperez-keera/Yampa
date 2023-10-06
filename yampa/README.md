@@ -351,6 +351,7 @@ Documentation is also available in the
 ## Publications
 <sup>[(Back to top)](#table-of-contents)</sup>
 
+* [The Beauty and Elegance of Functional Reactive Animation](https://dl.acm.org/doi/10.1145/3609023.3609806?cid=99658741366) (Ivan Perez; 2023)
 * [Extensible and Robust Functional Reactive Programming](http://www.cs.nott.ac.uk/~psxip1/papers/2017-Perez-thesis-latest.pdf) (Ivan Perez; 2017)
 * [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/authorize?N46564) (Ivan Perez and Henrik Nilsson; 2017)
 * [Functional Reactive Programming, Refactored](http://dl.acm.org/authorize?N34896) (Ivan Perez, Manuel Bärenz, and Henrik Nilsson; 2016)
