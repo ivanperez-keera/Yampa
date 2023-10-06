@@ -1,5 +1,6 @@
 2023-10-05 Ivan Perez <ivan.perez@keera.co.uk>
     * Define Yampa.FRP.Task.return in terms of pure (#276).
+    * Add link to new publication (#277).
 
 2023-08-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.4) (#274).
