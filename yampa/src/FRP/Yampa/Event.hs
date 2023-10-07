@@ -35,9 +35,6 @@ module FRP.Yampa.Event
     , noEventFst
     , noEventSnd
 
-      -- * Internal utilities for event construction
-    , maybeToEvent
-
       -- * Utility functions similar to those available for Maybe
     , event
     , fromEvent
@@ -64,6 +61,10 @@ module FRP.Yampa.Event
     , filterE
     , mapFilterE
     , gate
+
+      -- * Utilities for easy event construction
+    , maybeToEvent
+
     )
   where
 
@@ -166,16 +167,6 @@ instance NFData a => NFData (Event a) where
   -- | Evaluate value carried by event.
   rnf NoEvent   = ()
   rnf (Event a) = rnf a `seq` ()
-
--- * Internal utilities for event construction
-
--- These utilities are to be considered strictly internal to Yampa for the time
--- being.
-
--- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
-maybeToEvent :: Maybe a -> Event a
-maybeToEvent Nothing  = NoEvent
-maybeToEvent (Just a) = Event a
 
 -- * Utility functions similar to those available for Maybe
 
@@ -304,3 +295,10 @@ mapFilterE f e = e >>= (maybeToEvent . f)
 gate :: Event a -> Bool -> Event a
 _ `gate` False = NoEvent
 e `gate` True  = e
+
+-- * Utilities for easy event construction
+
+-- | Convert a maybe value into a event ('Event' is isomorphic to 'Maybe').
+maybeToEvent :: Maybe a -> Event a
+maybeToEvent Nothing  = NoEvent
+maybeToEvent (Just a) = Event a
