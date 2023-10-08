@@ -38,7 +38,6 @@ tests = testGroup "Regression tests for FRP.Yampa.Event"
   , testApplicative
   , testMonad
   , testAlternative
-  , testProperty "maybeToEvent" testMaybeToEvent
   , testEvent
   , testProperty "fromEvent"    testFromEvent
   , testProperty "isEvent"      testIsEvent
@@ -58,6 +57,7 @@ tests = testGroup "Regression tests for FRP.Yampa.Event"
   , testProperty "filterE"      testFilterE
   , testProperty "mapFilterE"   testMapFilterE
   , testProperty "gate"         testGate
+  , testProperty "maybeToEvent" testMaybeToEvent
   ]
 
 -- * The Event type
@@ -227,14 +227,6 @@ testAlternative = testGroup "alternative"
     testAlternativeEmptyIdRight =
       forAll randomEvent $ \e ->
         (e <|> noEvent ) == e
-
--- * Internal utilities for event construction
-
--- | maybeToEvent
-testMaybeToEvent :: Property
-testMaybeToEvent =
-  forAll randomMaybe $ \m ->
-    event Nothing Just (maybeToEvent m) == m
 -- * Utility functions similar to those available for Maybe
 
 -- | event
@@ -437,6 +429,14 @@ testGate =
   forAll randomEvent $ \e ->
     forAll randomBool $ \b ->
       gate e b == filterE (const b) e
+
+-- * Utilities for easy event construction
+
+-- | maybeToEvent
+testMaybeToEvent :: Property
+testMaybeToEvent =
+  forAll randomMaybe $ \m ->
+    event Nothing Just (maybeToEvent m) == m
 
 -- * Arbitrary value generation
 
