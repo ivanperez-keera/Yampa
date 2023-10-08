@@ -34,6 +34,7 @@ module FRP.Yampa.Time
     , timeTransform
     , timeTransformSF
     , revSwitch
+    , repeatRevSF
     , alwaysForward
     , clocked
     , forgetPast
@@ -173,6 +174,9 @@ revSwitch (SF {sfTF = tf10}) k = SF {sfTF = tf0}
                     case (sfTF' sf1) dt a of
                         (sf1', (b, NoEvent)) -> (switchAux sf1' k, b)
                         (_,    (_, Event c)) -> switchingPoint sf1 k (sfTF (k c) a)
+
+repeatRevSF :: (c -> SF a (b, Event c)) -> c -> SF a b
+repeatRevSF sf c = revSwitch (sf c) (repeatRevSF sf)
 
 checkpoint :: SF a (b, Event (), Event ()) -> SF a b
 checkpoint sf = SF $ \a -> let (sf', (b, advance, reset)) = sfTF sf a
