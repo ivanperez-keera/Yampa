@@ -95,6 +95,7 @@ module FRP.Yampa.Switches
     , parC
 
     , ListSF(..)
+    , inertSF
     , dlSwitch
     )
   where
@@ -787,3 +788,7 @@ dlSwitch' sfs = SF' tf0
 
                         cts   = osfs ++ nsfs
                   in (dlSwitch' cts, bs)
+
+-- | ListSF that never dies or forks.
+inertSF :: SF a b -> ListSF a b
+inertSF sf = ListSF (sf >>> arr (\o -> (o, False, [])))
