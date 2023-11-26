@@ -70,7 +70,7 @@ timeTransform transform sf = SF tf
                   sf''     = timeTransformF transform sf'
               in (sf'', b)
 
-timeTransformF :: (DTime -> DTime) -> SF a b -> SF a b
+timeTransformF :: (DTime -> DTime) -> SF' a b -> SF' a b
 timeTransformF transform sf = SF' tf
  where tf dt a = let dt'      = transform dt
                      (sf', b) = (sfTF' sf) dt' a
