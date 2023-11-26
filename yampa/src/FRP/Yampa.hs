@@ -393,6 +393,7 @@ import FRP.Yampa.InternalCore
 import FRP.Yampa.Loop
 import FRP.Yampa.Random
 import FRP.Yampa.Scan
+import FRP.Yampa.Signal
 import FRP.Yampa.Simulation
 import FRP.Yampa.Switches
 import FRP.Yampa.Task
