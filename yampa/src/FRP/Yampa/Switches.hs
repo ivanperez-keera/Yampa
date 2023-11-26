@@ -101,7 +101,7 @@ module FRP.Yampa.Switches
   where
 
 -- External imports
-import Control.Arrow (arr, first)
+import Control.Arrow (arr, first, (>>>))
 
 -- Internal imports
 import FRP.Yampa.Basic        (constant, (>=-))
