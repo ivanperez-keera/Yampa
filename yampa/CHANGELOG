@@ -1,3 +1,7 @@
+2023-12-02 Ivan Perez <ivan.perez@keera.co.uk>
+    * Document HTML + WebAssembly backend in README (#34).
+    * Thanks to @AntanasKal.
+
 2023-10-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.5) (#278).
     * Define Yampa.FRP.Task.return in terms of pure (#276).
