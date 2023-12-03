@@ -311,6 +311,7 @@ want. Existing backends include:
 * WX (see wxHaskell)
 * HTML Canvas via JS Dom (for an example, see [haskanoid's GHCJS branch](https://github.com/ivanperez-keera/haskanoid/blob/ghcjs/src/Display.hs))
 * HTML5 Canvas via blank-canvas (see [yampa-canvas](https://github.com/ku-fpg/yampa-canvas))
+* HTML5 with Web Assembly (Wasm) (for an example, see [yampa-wasm-example](https://github.com/AntanasKal/yampa-wasm-example))
 * Gloss (see [yampa-gloss](https://github.com/ivanperez-keera/yampa-gloss))
 * Diagrams (see [diagrams example](https://github.com/ivanperez-keera/Yampa/blob/develop/yampa/examples/Diagrams.hs))
 * [Keera Hails](https://github.com/keera-studios/keera-hails/tree/master/keera-hails-reactive-yampa) (reactive programming framework with GTK, WX, Qt, Android, iOS and HTML support).
