@@ -25,14 +25,17 @@
 -- ./examples/Diagrams -w 400 -h 400 -o output.gif
 
 import Diagrams.Backend.Cairo.CmdLine
-import Diagrams.Prelude
+import Diagrams.Prelude               hiding (Time)
 import FRP.Yampa                      hiding (norm, ( # ), (*^))
 
+main :: IO ()
 main = mainWith $ take 60 frames
 
+-- | Frames of the animation.
 frames :: [(Diagram B, Int)]
 frames = zip ((embed sfVF $ deltaEncode 1 $ repeat ())) (repeat 1)
 
+-- | Signal producing the diagram at a point in time.
 sfVF :: SF () (Diagram B)
 sfVF = proc () -> do
   t <- time -< ()
@@ -40,16 +43,24 @@ sfVF = proc () -> do
           <> ( square 3.5 # lw none # alignBL))
   returnA -< diag
 
+-- | Field of arrows as it changes over time.
+field :: Time -> Diagram B
 field t = position $ zip points (arrows t)
 
-locs   = [(x, y) | x <- [0.1, 0.3 .. 3.25], y <- [0.1, 0.3 .. 3.25]]
-
+-- | Arrow points as they change over time.
+points :: [Point V2 Double]
 points = map p2 locs
 
-vectorField t (x, y) = r2 (sin (t + y + 1), sin (t + x + 1))
+-- | Arrow locations as they change over time.
+locs   :: [(Double, Double)]
+locs   = [(x, y) | x <- [0.1, 0.3 .. 3.25], y <- [0.1, 0.3 .. 3.25]]
 
+-- | Arrows as they change over time.
+arrows :: Time -> [Diagram B]
 arrows t = map (arrowAtPoint t) locs
 
+-- | Diagram of a star at a given point in time and space.
+arrowAtPoint :: Time -> (Double, Double) -> Diagram B
 arrowAtPoint t (x, y) = arrowAt' opts (p2 (x, y)) (sL *^ vf) # alignTL
   where
     vf   = vectorField t (x, y)
@@ -64,3 +75,7 @@ arrowAtPoint t (x, y) = arrowAt' opts (p2 (x, y)) (sL *^ vf) # alignTL
     opts = (with & arrowHead  .~ spike
                  & headLength .~ normalized hs
                  & shaftStyle %~ lwN sW)
+
+-- | Direction vector depending on the time and the position in space.
+vectorField :: Time -> (Double, Double) -> V2 Double
+vectorField t (x, y) = r2 (sin (t + y + 1), sin (t + x + 1))
