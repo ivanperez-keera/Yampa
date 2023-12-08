@@ -13,12 +13,12 @@
 --
 -- Install diagrams with Cairo support, together with Yampa:
 --
--- cabal sandbox init
--- cabal install Yampa diagrams -fcairo
+-- cabal v1-sandbox init
+-- cabal v1-install Yampa diagrams diagrams-cairo
 --
 -- Compile in a sandbox with:
 --
--- cabal exec -- ghc --make examples/Diagrams.hs
+-- cabal v1-exec -- ghc --make examples/Diagrams.hs
 --
 -- And run with:
 --
