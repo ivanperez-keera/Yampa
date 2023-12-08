@@ -1,3 +1,6 @@
+2023-12-07 Ivan Perez <ivan.perez@keera.co.uk>
+    * Version bump (0.14.6) (#282).
+
 2023-10-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.5) (#278).
     * Move test for consistency with module tested (#267).
