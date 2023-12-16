@@ -17,6 +17,11 @@ env:
 
 # Note: the distinction between `before_install` and `install` is not important.
 before_install:
+  # We remove the pgdg.list file because it's there to add the postgresql
+  # repository, and we don't need it. Leaving it in causes problems with Ubuntu
+  # Bionic (the distro is no longer supported by postgresql).
+  - sudo rm /etc/apt/sources.list.d/pgdg.list
+
   - travis_retry sudo add-apt-repository -y ppa:hvr/ghc
   - travis_retry sudo apt-get update
   - travis_retry sudo apt-get install --yes libcwiid-dev libsdl1.2-dev
