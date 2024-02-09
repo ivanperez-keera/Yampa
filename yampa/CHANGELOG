@@ -3,6 +3,7 @@
     * Simplify definition of FRP.Yampa.Event.joinE (#285).
     * Simplify definition of FRP.Yampa.EventS.isJustEdge (#286).
     * Simplify definition of FRP.Yampa.Task.isEdge (#287).
+    * Remove redundant imports from examples (#288).
 
 2023-12-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.6) (#282).
