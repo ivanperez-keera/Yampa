@@ -249,10 +249,8 @@ edgeTag a = edge >>> arr (`tag` a)
 edgeJust :: SF (Maybe a) (Event a)
 edgeJust = edgeBy isJustEdge (Just undefined)
   where
-    isJustEdge Nothing  Nothing     = Nothing
     isJustEdge Nothing  ma@(Just _) = ma
-    isJustEdge (Just _) (Just _)    = Nothing
-    isJustEdge (Just _) Nothing     = Nothing
+    isJustEdge _        _           = Nothing
 
 -- | Edge detector parameterized on the edge detection function and initial
 -- state, i.e., the previous input sample. The first argument to the edge
