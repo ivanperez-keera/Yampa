@@ -1,5 +1,6 @@
-2023-12-16 Ivan Perez <ivan.perez@keera.co.uk>
+2024-02-09 Ivan Perez <ivan.perez@keera.co.uk>
     * Remove postgresql repo before installation in CI script (#284).
+    * Simplify definition of FRP.Yampa.Event.joinE (#285).
 
 2023-12-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.6) (#282).
