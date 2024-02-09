@@ -2,7 +2,6 @@
 import Control.Monad
 import Data.IORef
 import Data.Maybe
-import Debug.Trace
 import FRP.Yampa       as Yampa
 import Graphics.UI.SDL as SDL
 import System.CWiid

@@ -1,6 +1,5 @@
 {-# LANGUAGE Arrows #-}
 import Data.IORef
-import Debug.Trace
 import FRP.Yampa       as Yampa
 import Graphics.UI.SDL as SDL
 
