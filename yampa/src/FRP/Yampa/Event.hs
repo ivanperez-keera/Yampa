@@ -270,9 +270,8 @@ catEvents eas = case [ a | Event a <- eas ] of
 -- Applicative-based definition:
 -- joinE = liftA2 (,)
 joinE :: Event a -> Event b -> Event (a, b)
-joinE NoEvent   _         = NoEvent
-joinE _         NoEvent   = NoEvent
 joinE (Event l) (Event r) = Event (l, r)
+joinE _         _         = NoEvent
 
 -- | Split event carrying pairs into two events.
 splitE :: Event (a, b) -> (Event a, Event b)
