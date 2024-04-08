@@ -39,17 +39,18 @@ basicsf_t2r =
 
 prop_basic_localtime_increasing =
     forAll myStream $ evalT $ Always $ prop (sf, const (uncurry (>)))
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
-        sf   :: SF a (Time, Time)
-        sf   = loopPre (-1 :: Time) sfI
+    sf   :: SF a (Time, Time)
+    sf   = loopPre (-1 :: Time) sfI
 
-        sfI :: SF (a,Time) ((Time, Time), Time)
-        sfI =  (localTime *** identity) >>> arr resort
+    sfI :: SF (a,Time) ((Time, Time), Time)
+    sfI =  (localTime *** identity) >>> arr resort
 
-        resort :: (Time, Time) -> ((Time,Time),Time)
-        resort (newT, oldT) = ((newT, oldT), newT)
+    resort :: (Time, Time) -> ((Time,Time),Time)
+    resort (newT, oldT) = ((newT, oldT), newT)
 
 basicsf_t3 :: [Double]
 basicsf_t3 = testSF1 time
@@ -66,44 +67,47 @@ basicsf_t3r =
 --   greater than the acc.
 prop_basic_time_increasing =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
-        sf   :: SF a (Time, Time)
-        sf   = loopPre (-1 :: Time) sfI
+    sf   :: SF a (Time, Time)
+    sf   = loopPre (-1 :: Time) sfI
 
-        sfI :: SF (a,Time) ((Time, Time), Time)
-        sfI =  (time *** identity) >>> arr resort
+    sfI :: SF (a,Time) ((Time, Time), Time)
+    sfI =  (time *** identity) >>> arr resort
 
-        resort :: (Time, Time) -> ((Time,Time),Time)
-        resort (newT, oldT) = ((newT, oldT), newT)
+    resort :: (Time, Time) -> ((Time,Time),Time)
+    resort (newT, oldT) = ((newT, oldT), newT)
 
-        pred :: a -> (Time, Time) -> Bool
-        pred _ (t,o) = (t > o)
+    pred :: a -> (Time, Time) -> Bool
+    pred _ (t,o) = (t > o)
 
 prop_basic_time_fixed_delay =
     forAll myStream $ evalT $
       Always (prop (sf25msec, const (== d)))
 
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = fixedDelayStream d
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = fixedDelayStream d
 
-        sf25msec = time >>> stepDiff (-d)
+    sf25msec = time >>> stepDiff (-d)
 
-        d :: Time
-        d = 0.25
+    d :: Time
+    d = 0.25
 
 prop_basic_localtime_fixed_delay =
     forAll myStream $ evalT $
       Always (prop (sf25msec, const (== d)))
 
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = fixedDelayStream d
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = fixedDelayStream d
 
-        sf25msec = time >>> stepDiff (-d)
+    sf25msec = time >>> stepDiff (-d)
 
-        d :: Time
-        d = 0.25
+    d :: Time
+    d = 0.25
 
 -- * Auxiliary
 

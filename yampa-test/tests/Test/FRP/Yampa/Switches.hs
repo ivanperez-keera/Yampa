@@ -173,21 +173,22 @@ prop_switch_t1 =
     forAll myStream $ evalT $
       Always $ SP ((switch_t1rec 42.0 &&& switch_tr) >>> arr same)
 
-  where myStream :: Gen (SignalSampleStream Double)
-        myStream = fixedDelayStreamWith f 1.0
-        f dt = l!!(floor dt)
-        l = [ 1.0, 1.0, 1.0
-            , 2.0
-            , 3.0, 3.0
-            , 4.0, 4.0, 4.0
-            , 5.0
-            , 6.0, 6.0
-            , 7.0, 7.0, 7.0
-            , 8.0
-            ]
-             ++ repeat 9.0
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = fixedDelayStreamWith f 1.0
+    f dt = l!!(floor dt)
+    l = [ 1.0, 1.0, 1.0
+        , 2.0
+        , 3.0, 3.0
+        , 4.0, 4.0, 4.0
+        , 5.0
+        , 6.0, 6.0
+        , 7.0, 7.0, 7.0
+        , 8.0
+        ]
+         ++ repeat 9.0
 
-        same = (uncurry (==))
+    same = (uncurry (==))
 
 switch_tr :: SF Double (Double, Double, Double)
 switch_tr = proc (a) -> do
@@ -524,11 +525,12 @@ coc_t0r =
 -- TODO: Add integral to the list of SFs being tested
 prop_broadcast =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
-        sf   = parB [identity, (arr (+1))]
-        pred = (\x [y,z] -> x == y && (x + 1) == z)
+    sf   = parB [identity, (arr (+1))]
+    pred = (\x [y,z] -> x == y && (x + 1) == z)
 
 pswitch_inp1 = deltaEncode 0.1 [0.0, 0.5 ..]
 

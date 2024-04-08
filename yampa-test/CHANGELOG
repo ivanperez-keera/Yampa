@@ -1,3 +1,8 @@
+2024-04-07 Ivan Perez <ivan.perez@keera.co.uk>
+    * Version bump (0.14.8) (#294).
+    * Move definitions to separate line (#292).
+    * Remove vertical space (#293).
+
 2024-02-09 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.7) (#289).
 
