@@ -315,11 +315,12 @@ delay_t5r = take 100 (drop 6 (embed sf (deltaEncode 0.1 (repeat ()))))
 -- | Delaying by 0.0 has no effect
 prop_delay_1 =
     forAll myStream $ evalT $ prop_always_equal sfDelayed sf
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
-        sfDelayed = delay 0.0 undefined >>> sf
-        sf = arr (+1)
+    sfDelayed = delay 0.0 undefined >>> sf
+    sf = arr (+1)
 
 -- | Delaying input signal by a small amount will fill in the "blank" signal
 --   with the given value, which will become also the sample at the initial
@@ -327,12 +328,13 @@ prop_delay_1 =
 prop_delay_2 =
     forAll myStream $ evalT $
       (prop (sfDelayed, (\x y -> y == initialValue)))
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
-        sfDelayed = delay 0.0001 initialValue
+    sfDelayed = delay 0.0001 initialValue
 
-        initialValue = 17
+    initialValue = 17
 
 -- * Auxiliary
 
@@ -342,4 +344,5 @@ prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
 -- | Compares two SFs, resulting in true if they are always equal
 prop_always_equal sf1 sf2 =
     Always $ SP ((sf1 &&& sf2) >>> arr sameResult)
-  where sameResult = uncurry (==)
+  where
+    sameResult = uncurry (==)

@@ -55,15 +55,17 @@ basicsf_t0r =
 -- Yampa's Basic SF builders
 prop_basic_identity_1 =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-        sf   = identity
-        pred = (==)
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+    sf   = identity
+    pred = (==)
 
 prop_basic_identity_2 =
     forAll myStream (evalT $ prop_always_equal identity (arr id))
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
 -- ** constant
 
@@ -77,11 +79,12 @@ basicsf_t1r =
 
 prop_basic_constant =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
-        sf   = constant 42.0
-        pred = const (== 42.0)
+    sf   = constant 42.0
+    pred = const (== 42.0)
 
 -- * Initialization
 
@@ -265,11 +268,12 @@ basicsf_t4r =
 
 prop_basic_initially =
     forAll myStream $ evalT $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
-        sf   = initially 42.0
-        pred = const (== 42.0)
+    sf   = initially 42.0
+    pred = const (== 42.0)
 
 -- * Auxiliary
 
@@ -279,4 +283,5 @@ prop (a,b) = SP ((identity &&& a) >>^ uncurry b)
 -- | Compares two SFs, resulting in true if they are always equal
 prop_always_equal sf1 sf2 =
     Always $ SP ((sf1 &&& sf2) >>> arr sameResult)
-  where sameResult = uncurry (==)
+  where
+    sameResult = uncurry (==)

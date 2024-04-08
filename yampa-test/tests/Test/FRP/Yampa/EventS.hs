@@ -102,10 +102,11 @@ evsrc_t0r =
 prop_event_noevent =
     forAll myStream $ evalT $ Always $ prop (sfNever, const (== noEvent))
 
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-        sfNever :: SF Float (Event Float)
-        sfNever = never
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+    sfNever :: SF Float (Event Float)
+    sfNever = never
 
 evsrc_t1 :: [Event Int]
 evsrc_t1 = testSF1 (now 42)
@@ -127,13 +128,14 @@ prop_event_now =
       And (prop (sf, p0))                 -- Initially
           (Next $ Always $ prop (sf, pn)) -- After first sample
 
-  where sf = Yampa.now 42.0
+  where
+    sf = Yampa.now 42.0
 
-        p0 x y = y == Event 42.0
-        pn x y = y == noEvent
+    p0 x y = y == Event 42.0
+    pn x y = y == noEvent
 
-        myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
 evsrc_t2 :: [Event Int]
 evsrc_t2 = testSF1 (after 0.0 42)
@@ -154,13 +156,14 @@ prop_event_after_0 =
       And (prop (sf, p0))                 -- Initially
           (Next $ Always $ prop (sf, pn)) -- After first sample
 
-  where sf = after 0.0 42.0
+  where
+    sf = after 0.0 42.0
 
-        p0 x y = y == Event 42.0
-        pn x y = y == noEvent
+    p0 x y = y == Event 42.0
+    pn x y = y == noEvent
 
-        myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
 evsrc_t3 :: [Event Int]
 evsrc_t3 = testSF1 (after 3.0 42)
