@@ -237,15 +237,16 @@ prop_derivative_1 =
     forAll myStream $ evalT $
       Next $ Always $ prop ((sfDer &&& sfDerByHand), const close)
 
-  where myStream :: Gen (SignalSampleStream Double)
-        myStream = fixedDelayStreamWith (\t -> sin(2 * pi * t)) der_step
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = fixedDelayStreamWith (\t -> sin(2 * pi * t)) der_step
 
-        sfDer :: SF Time Time
-        sfDer = derivative
+    sfDer :: SF Time Time
+    sfDer = derivative
 
-        sfDerByHand = localTime >>> arr (\t -> (2 * pi * cos (2 * pi * t)))
+    sfDerByHand = localTime >>> arr (\t -> (2 * pi * cos (2 * pi * t)))
 
-        close (x,y) = abs (x-y) < 0.05
+    close (x,y) = abs (x-y) < 0.05
 
 prop_derivative_2 =
     forAll myStream $ evalT $

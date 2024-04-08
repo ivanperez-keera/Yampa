@@ -110,18 +110,20 @@ arr_t1r =
 
 prop_arrow_1 = forAll myStream $ evalT $
     Always $ prop (arr id, \x y -> x == y)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
 -- C1: Arr naturality (testSF1 (arr (+1)))
 prop_arr_naturality =
     forAll myStream $ \stream ->
       forAll f $ \f' ->
         evalT (Always (prop (arr (apply f'), \x y -> apply f' x == y)))
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-        f :: Gen (Fun Int Int)
-        f = arbitrary
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+    f :: Gen (Fun Int Int)
+    f = arbitrary
 
 comp_t0 = testSF1 ((arr (+1)) >>> (arr (+2)))
 comp_t0r :: [Double]
@@ -170,31 +172,34 @@ comp_t5r =
 -- Arrow composition (we use Int to avoid floating-point discrepancies)
 prop_arrow_comp_1 =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Int)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Int)
+    myStream = uniDistStream
 
-        sf   = arr (+1) >>> arr (+2)
-        pred = (\x y -> x + 3 == y)
+    sf   = arr (+1) >>> arr (+2)
+    pred = (\x y -> x + 3 == y)
 
 -- Arrow composition
 prop_arrow_comp_2 =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
 
-        sf   = constant 5.0 >>> arr (+1)
-        pred = const (== 6.0)
+    sf   = constant 5.0 >>> arr (+1)
+    pred = const (== 6.0)
 
 -- Arrow composition
 prop_arrow_comp_3 =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = fixedDelayStream 0.25
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = fixedDelayStream 0.25
 
-        sf :: SF a Float
-        sf = constant 2.0 >>> integral >>> stepDiff (-0.5)
+    sf :: SF a Float
+    sf = constant 2.0 >>> integral >>> stepDiff (-0.5)
 
-        pred = const (== 0.5)
+    pred = const (== 0.5)
 
 first_t0 :: [(Int,Double)]
 first_t0 = testSF1 (arr dup >>> first (constant 7))
@@ -260,19 +265,21 @@ first_t5r =
 
 prop_arrow_first_1 =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Int)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Int)
+    myStream = uniDistStream
 
-        sf   = arr dup >>> first (constant 7)
-        pred = (\x y -> (7 :: Int, x) == y)
+    sf   = arr dup >>> first (constant 7)
+    pred = (\x y -> (7 :: Int, x) == y)
 
 prop_arrow_first_2 =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Int)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Int)
+    myStream = uniDistStream
 
-        sf   = arr dup >>> first (arr (+1))
-        pred = (\x y -> (x + 1, x) == y)
+    sf   = arr dup >>> first (arr (+1))
+    pred = (\x y -> (x + 1, x) == y)
 
 -- Test cases for second
 -- These should mirror the test cases for first.
@@ -297,19 +304,21 @@ second_t5 = testSF2 (arr dup >>> second integral >>> arr swap)
 
 prop_arrow_second_1 =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Int)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Int)
+    myStream = uniDistStream
 
-        sf   = arr dup >>> second (constant 7)
-        pred = (\x y -> (x, 7 :: Int) == y)
+    sf   = arr dup >>> second (constant 7)
+    pred = (\x y -> (x, 7 :: Int) == y)
 
 prop_arrow_second_2 =
     forAll myStream $ evalT $ Always $ prop (sf, pred)
-  where myStream :: Gen (SignalSampleStream Int)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Int)
+    myStream = uniDistStream
 
-        sf   = arr dup >>> second (arr (+1))
-        pred = (\x y -> (x, x + 1) == y)
+    sf   = arr dup >>> second (arr (+1))
+    pred = (\x y -> (x, x + 1) == y)
 
 -- For a description of the laws, see e.g. Ross Paterson: Embedding a Class of
 -- Domain-Specific Languages in a Functional Language.
@@ -324,12 +333,13 @@ laws_t0_rhs = testSF1 (integral)
 
 prop_arrow_id_0 =
     forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> pred)
-  where sf1 = arr id >>> integral
-        sf2 = integral
-        pred = arr $ uncurry (==)
+  where
+    sf1 = arr id >>> integral
+    sf2 = integral
+    pred = arr $ uncurry (==)
 
-        myStream :: Gen (SignalSampleStream Double)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
 
 laws_t1_lhs :: [Double]
 laws_t1_lhs = testSF1 (integral >>> arr id)
@@ -338,12 +348,13 @@ laws_t1_rhs = testSF1 (integral)
 
 prop_arrow_id_2 =
     forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> pred)
-  where sf1 = integral >>> arr id
-        sf2 = integral
-        pred = arr $ uncurry (==)
+  where
+    sf1 = integral >>> arr id
+    sf2 = integral
+    pred = arr $ uncurry (==)
 
-        myStream :: Gen (SignalSampleStream Double)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
 
 laws_t2_lhs :: [Double]
 laws_t2_lhs = testSF1 ((integral >>> arr (*0.5)) >>> integral)
@@ -352,12 +363,13 @@ laws_t2_rhs = testSF1 (integral >>> (arr (*0.5) >>> integral))
 
 prop_arrow_assoc =
     forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> pred)
-  where sf1 = (integral >>> arr (*0.5)) >>> integral
-        sf2 = integral >>> (arr (*0.5) >>> integral)
-        pred = arr $ uncurry (==)
+  where
+    sf1 = (integral >>> arr (*0.5)) >>> integral
+    sf2 = integral >>> (arr (*0.5) >>> integral)
+    pred = arr $ uncurry (==)
 
-        myStream :: Gen (SignalSampleStream Double)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
 
 laws_t3_lhs :: [Double]
 laws_t3_lhs = testSF1 (arr ((*2.5) . (+3.0)))
@@ -366,21 +378,23 @@ laws_t3_rhs = testSF1 (arr (+3.0) >>> arr (*2.5))
 
 prop_arrow_arr_comp =
     forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> pred)
-  where sf1 = (arr ((*2.5) . (+3.0)))
-        sf2 = (arr (+3.0) >>> arr (*2.5))
-        pred = arr (uncurry (==))
+  where
+    sf1 = (arr ((*2.5) . (+3.0)))
+    sf2 = (arr (+3.0) >>> arr (*2.5))
+    pred = arr (uncurry (==))
 
-        myStream :: Gen (SignalSampleStream Double)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
 
 prop_arrow_2 = forAll myStream $ evalT $
     Always $ prop (sf1 &&& sf2, const $ uncurry (==))
-  where myStream :: Gen (SignalSampleStream Float)
-        myStream = uniDistStream
-        sf1 = arr (f >>> g)
-        sf2 = arr f >>> arr g
-        f = (+5)
-        g = (/20)
+  where
+    myStream :: Gen (SignalSampleStream Float)
+    myStream = uniDistStream
+    sf1 = arr (f >>> g)
+    sf2 = arr f >>> arr g
+    f = (+5)
+    g = (/20)
 
 prop_arrow_2' =
     forAll f $ \f' ->
@@ -388,17 +402,19 @@ prop_arrow_2' =
         forAll myStream $ evalT $
           prop_arrow_2'' (apply f') (apply g')
 
-  where myStream :: Gen (SignalSampleStream Int)
-        myStream = uniDistStream
+  where
+    myStream :: Gen (SignalSampleStream Int)
+    myStream = uniDistStream
 
-        f, g :: Gen (Fun Int Int)
-        f = arbitrary
-        g = arbitrary
+    f, g :: Gen (Fun Int Int)
+    f = arbitrary
+    g = arbitrary
 
 prop_arrow_2'' f g =
     Always $ prop (sf1 &&& sf2, const $ uncurry (==))
-  where sf1 = arr (f >>> g)
-        sf2 = arr f >>> arr g
+  where
+    sf1 = arr (f >>> g)
+    sf2 = arr f >>> arr g
 
 laws_t4_lhs :: [(Double, Double)]
 laws_t4_lhs = testSF1 (arr dup >>> first (arr (*2.5)))
@@ -407,12 +423,13 @@ laws_t4_rhs = testSF1 (arr dup >>> arr ((*2.5) *** id))
 
 prop_arrow_first_3 =
     forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> arr pred)
-  where sf1 = (arr dup >>> first (arr (*2.5)))
-        sf2 = (arr dup >>> arr (fun_prod (*2.5) id))
-        pred = uncurry (==)
+  where
+    sf1 = (arr dup >>> first (arr (*2.5)))
+    sf2 = (arr dup >>> arr (fun_prod (*2.5) id))
+    pred = uncurry (==)
 
-        myStream :: Gen (SignalSampleStream Double)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
 
 laws_t5_lhs :: [(Double, Double)]
 laws_t5_lhs = testSF1 (arr dup >>> (first (integral >>> arr (+3.0))))
@@ -421,12 +438,13 @@ laws_t5_rhs = testSF1 (arr dup >>> (first integral >>> first (arr (+3.0))))
 
 prop_arrow_first_distrib =
     forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> arr pred)
-  where sf1 = (arr dup >>> (first (integral >>> arr (+3.0))))
-        sf2 = (arr dup >>> (first integral >>> first (arr (+3.0))))
-        pred = uncurry (==)
+  where
+    sf1 = (arr dup >>> (first (integral >>> arr (+3.0))))
+    sf2 = (arr dup >>> (first integral >>> first (arr (+3.0))))
+    pred = uncurry (==)
 
-        myStream :: Gen (SignalSampleStream Double)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
 
 laws_t6_lhs :: [(Double, Double)]
 laws_t6_lhs = testSF1 (arr dup >>> (first integral >>> arr (id *** (+3.0))))
@@ -435,12 +453,13 @@ laws_t6_rhs = testSF1 (arr dup >>> (arr (id *** (+3.0)) >>> first integral))
 
 prop_arrow_first_id_comm =
     forAll myStream $ evalT $ Always $ SP ((sf1 &&& sf2) >>> arr pred)
-  where sf1 = (arr dup >>> (first integral>>>arr (fun_prod id (+3.0))))
-        sf2 = (arr dup >>> (arr (fun_prod id (+3.0))>>>first integral))
-        pred = uncurry (==)
+  where
+    sf1 = (arr dup >>> (first integral>>>arr (fun_prod id (+3.0))))
+    sf2 = (arr dup >>> (arr (fun_prod id (+3.0))>>>first integral))
+    pred = uncurry (==)
 
-        myStream :: Gen (SignalSampleStream Double)
-        myStream = uniDistStream
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
 
 laws_t7_lhs :: [Double]
 laws_t7_lhs = testSF1 (arr dup >>> (first integral >>> arr fst))
