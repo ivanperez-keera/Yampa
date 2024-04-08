@@ -4,7 +4,6 @@
 -- Copyright   : (c) Antony Courtney and Henrik Nilsson, Yale University, 2003-2004
 -- Authors     : Antony Courtney, Henrik Nilsson
 -- Very rudimentary testing of Task.
-
 module Test.FRP.Yampa.Task
     ( tests )
   where
