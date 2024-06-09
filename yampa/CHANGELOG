@@ -1,7 +1,8 @@
-2024-04-09 Ivan Perez <ivan.perez@keera.co.uk>
+2024-06-08 Ivan Perez <ivan.perez@keera.co.uk>
     * Document FRP.Yampa.Random.streamToSF (#296).
     * Document FRP.Yampa.Switches.safeZip (#297).
     * Simplify FRP.Yampa.Switches.safeZip (#298).
+    * Fix date in CHANGELOG (#300).
 
 2024-04-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.8) (#294).
