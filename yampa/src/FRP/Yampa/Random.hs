@@ -45,6 +45,8 @@ noise g0 = streamToSF (randoms g0)
 noiseR :: (RandomGen g, Random b) => (b, b) -> g -> SF a b
 noiseR range g0 = streamToSF (randomRs range g0)
 
+-- | Turn an infinite list of elements into an SF producing those elements. The
+-- SF ignores its input.
 streamToSF :: [b] -> SF a b
 streamToSF []     = intErr "Yampa" "streamToSF" "Empty list!"
 streamToSF (b:bs) = SF {sfTF = tf0}
