@@ -681,23 +681,17 @@ rpSwitchZ = rpSwitch (safeZip "rpSwitchZ")
 drpSwitchZ :: [SF a b] -> SF ([a], Event ([SF a b] -> [SF a b])) [b]
 drpSwitchZ = drpSwitch (safeZip "drpSwitchZ")
 
+-- | Zip two lists.
+--
+-- PRE: The first list is not shorter than the second.
 safeZip :: String -> [a] -> [b] -> [(a, b)]
-safeZip fn l1 l2 = safeZip' l1 l2
+safeZip fn = safeZip'
   where
     safeZip' :: [a] -> [b] -> [(a, b)]
-    safeZip' _  []     = []
-    safeZip' as (b:bs) = (head' as, b) : safeZip' (tail' as) bs
-
-    head' :: [a] -> a
-    head' []    = err
-    head' (a:_) = a
-
-    tail' :: [a] -> [a]
-    tail' []     = err
-    tail' (_:as) = as
-
-    err :: a
-    err = usrErr "FRP.Yampa.Switches" fn "Input list too short."
+    safeZip' _      []     = []
+    safeZip' (a:as) (b:bs) = (a, b) : safeZip' as bs
+    safeZip' _      _      =
+      usrErr "FRP.Yampa.Switches" fn "Input list too short."
 
 -- Freezes a "running" signal function, i.e., turns it into a continuation in
 -- the form of a plain signal function.
