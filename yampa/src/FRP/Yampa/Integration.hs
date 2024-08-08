@@ -32,6 +32,7 @@ module FRP.Yampa.Integration
       -- * Integration
       integral
     , imIntegral
+    , trapezoidIntegral
     , impulseIntegral
     , count
 
@@ -70,6 +71,12 @@ integral = SF {sfTF = tf0}
 -- | \"Immediate\" integration (using the function's value at the current time).
 imIntegral :: (Fractional s, VectorSpace a s) => a -> SF a a
 imIntegral = ((\_ a' dt v -> v ^+^ realToFrac dt *^ a') `iterFrom`)
+
+-- | Trapezoid integral (using the average between the value at the last time
+-- and the value at the current time).
+trapezoidIntegral :: (Fractional s, VectorSpace a s) => SF a a
+trapezoidIntegral =
+  iterFrom (\a a' dt v -> v ^+^ (realToFrac dt / 2) *^ (a ^+^ a')) zeroVector
 
 -- | Integrate the first input signal and add the /discrete/ accumulation (sum)
 -- of the second, discrete, input signal.
