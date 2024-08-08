@@ -280,6 +280,7 @@ module FRP.Yampa
       -- ** Integration and differentiation
     , integral
     , imIntegral
+    , trapezoidIntegral
     , impulseIntegral
     , count
     , derivative
