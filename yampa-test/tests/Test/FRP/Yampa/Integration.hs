@@ -27,6 +27,8 @@ tests = testGroup "Regression tests for FRP.Yampa.Integration"
   , testProperty "imIntegral (0, qc)"         testImIntegral0
   , testProperty "imIntegral (1, qc)"         testImIntegral1
   , testProperty "imIntegral (2, qc)"         testImIntegral2
+  , testProperty "trapezoidIntegral (0, qc)"  testTrapezoidIntegral0
+  , testProperty "trapezoidIntegral (1, qc)"  testTrapezoidIntegral1
   , testProperty "impulseIntegral (0, fixed)" (property $ utils_t7 ~= utils_t7r)
   , testProperty "count (0, fixed)"           (property $ utils_t4 ~= utils_t4r)
   , testProperty "count (1, fixed)"           (property $ utils_t5 ~= utils_t5r)
@@ -146,6 +148,40 @@ testImIntegral2 =
 
     sfByHand :: SF Double Double
     sfByHand = imIntegral 0 >>> arr (*2)
+
+    close (x,y) = abs (x-y) < 0.05
+
+testTrapezoidIntegral0 :: Property
+testTrapezoidIntegral0 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = trapezoidIntegral >>> derivative
+
+    sfByHand :: SF Double Double
+    sfByHand = (identity &&& iPre 0) >>^ (\(x, y) -> (x + y) / 2)
+
+    close (x,y) = abs (x-y) < 0.05
+
+testTrapezoidIntegral1 :: Property
+testTrapezoidIntegral1 =
+    forAll myStream $ evalT $
+      Next $ Always $ prop ((sf &&& sfByHand), const close)
+
+  where
+    myStream :: Gen (SignalSampleStream Double)
+    myStream = uniDistStream
+
+    sf :: SF Double Double
+    sf = arr (*2) >>> trapezoidIntegral
+
+    sfByHand :: SF Double Double
+    sfByHand = trapezoidIntegral >>> arr (*2)
 
     close (x,y) = abs (x-y) < 0.05
 
