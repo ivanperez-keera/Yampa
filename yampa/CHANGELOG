@@ -1,4 +1,5 @@
 2024-10-07 Ivan Perez <ivan.perez@keera.co.uk>
+    * Version bump (0.14.11) (#310).
     * Add new publications by Schmidli et al. (#306).
     * Add new publication by Klinge et al. (#308).
     * Bump version bounds of dependencies (#309).
