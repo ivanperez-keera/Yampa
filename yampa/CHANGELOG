@@ -1,6 +1,7 @@
-2024-10-06 Ivan Perez <ivan.perez@keera.co.uk>
+2024-10-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Add new publications by Schmidli et al. (#306).
     * Add new publication by Klinge et al. (#308).
+    * Bump version bounds of dependencies (#309).
     * Thanks to @seliane.
 
 2024-08-07 Ivan Perez <ivan.perez@keera.co.uk>
