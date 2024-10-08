@@ -124,7 +124,7 @@ test-suite yampa-quicheck
     , Cabal            >= 1.19 && < 3.9
     , QuickCheck       >= 2.12 && < 2.16
     , random           >= 1.1  && < 1.3
-    , tasty            >= 0.1  && < 1.5
+    , tasty            >= 0.1  && < 1.6
     , tasty-quickcheck >= 0.1  && < 0.11
     , Yampa
     , yampa-test
