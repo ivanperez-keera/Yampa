@@ -352,6 +352,9 @@ Documentation is also available in the
 ## Publications
 <sup>[(Back to top)](#table-of-contents)</sup>
 
+* [Using Functional Reactive Programming for Robotic Art: An Experience Report](https://dl.acm.org/doi/10.1145/3677996.3678288) (Eliane I. Schmidli and Farhad Mehta; 2024)
+* [Demo: The Fun of Robotic Artwork](https://dl.acm.org/doi/10.1145/3677996.3678286) (Eliane I. Schmidli and Farhad Mehta; 2024)
+* [Reactamole: functional reactive molecular programming](https://doi.org/10.1007/s11047-024-09982-5) (Titus Klinge, James Lathrop, Peter-Michael Osera, Allison Rogers; 2024)
 * [The Beauty and Elegance of Functional Reactive Animation](https://dl.acm.org/doi/10.1145/3609023.3609806?cid=99658741366) (Ivan Perez; 2023)
 * [Extensible and Robust Functional Reactive Programming](http://www.cs.nott.ac.uk/~psxip1/papers/2017-Perez-thesis-latest.pdf) (Ivan Perez; 2017)
 * [Testing and Debugging Functional Reactive Programming](http://dl.acm.org/authorize?N46564) (Ivan Perez and Henrik Nilsson; 2017)
