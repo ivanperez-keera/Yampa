@@ -31,7 +31,7 @@ cabal-version: >= 1.10
 build-type:    Simple
 
 name:          yampa-test
-version:       0.14.10
+version:       0.14.11
 author:        Ivan Perez
 maintainer:    ivan.perez@keera.co.uk
 homepage:      http://github.com/ivanperez-keera/Yampa
@@ -84,7 +84,7 @@ library
       base               >= 4       && < 5
     , normaldistribution >= 1.1.0.1 && < 1.2
     , QuickCheck         >= 2.12    && < 2.16
-    , Yampa              >= 0.14.10 && < 0.15
+    , Yampa              >= 0.14.11 && < 0.15
 
   default-language:
     Haskell2010
