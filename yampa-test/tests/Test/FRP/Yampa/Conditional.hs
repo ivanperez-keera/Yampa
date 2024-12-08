@@ -19,7 +19,7 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
-import FRP.Yampa.Conditional (pause, provided)
+import FRP.Yampa.Conditional (provided)
 import FRP.Yampa.LTLFuture   (TPred (Always, SP), evalT)
 import FRP.Yampa.QuickCheck  (uniDistStream)
 import FRP.Yampa.Stream      (SignalSampleStream)
