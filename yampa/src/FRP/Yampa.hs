@@ -204,6 +204,16 @@ module FRP.Yampa
     , takeEvents
     , dropEvents
 
+      -- ** Hybrid SF combinators
+    , snap
+    , snapAfter
+    , sample
+    , sampleWindow
+
+      -- ** Repetition and switching
+    , recur
+    , andThen
+
       -- ** Pointwise functions on events
     , noEvent
     , noEventFst
@@ -245,11 +255,21 @@ module FRP.Yampa
     , pSwitch,  dpSwitch
     , rpSwitch, drpSwitch
 
+      -- ** Parallel composition/switching (lists)
+      -- *** Parallel composition/switching with zip routing (lists)
+    , parZ
+    , pSwitchZ,  dpSwitchZ
+    , rpSwitchZ, drpSwitchZ
+
+      -- *** Parallel composition/switching with replication (lists)
+    , parC
+
       -- * Discrete to continuous-time signal functions
       -- ** Wave-form generation
     , hold
     , dHold
     , trackAndHold
+    , dTrackAndHold
 
       -- ** Accumulators
     , accum
@@ -264,9 +284,14 @@ module FRP.Yampa
       -- ** Basic delays
     , pre
     , iPre
+    , fby
 
       -- ** Timed delays
     , delay
+
+      -- * Conditional
+      -- ** Guards and automata-oriented combinators
+    , provided
 
       -- ** Variable delay
     , pause
@@ -314,9 +339,30 @@ module FRP.Yampa
     , evalAt
     , evalFuture
 
+      -- * Tasks
+      -- ** The Task type
+    , Task
+    , mkTask
+    , runTask
+    , runTask_
+    , taskToSF
+
+      -- ** Basic tasks
+    , constT
+    , sleepT
+    , snapT
+
+    -- ** Basic tasks combinators
+    , timeOut
+    , abortWhen
+
       -- * Auxiliary definitions
       --   Reverse function composition and arrow plumbing aids
     , dup
+    , arr2
+    , arr3
+    , arr4
+    , arr5
 
       -- * Re-exported module, classes, and types
     , module Control.Arrow
@@ -329,7 +375,7 @@ import Control.Arrow
 import Data.VectorSpace
 
 -- Internal modules
-import FRP.Yampa.Arrow (dup)
+import FRP.Yampa.Arrow
 import FRP.Yampa.Basic
 import FRP.Yampa.Conditional
 import FRP.Yampa.Delays
@@ -343,4 +389,5 @@ import FRP.Yampa.Random
 import FRP.Yampa.Scan
 import FRP.Yampa.Simulation
 import FRP.Yampa.Switches
+import FRP.Yampa.Task
 import FRP.Yampa.Time
