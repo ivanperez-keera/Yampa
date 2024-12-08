@@ -163,5 +163,5 @@ test-suite space
       False
   else
     build-depends:
-        base
+        base  >= 4 && < 5
       , Yampa
