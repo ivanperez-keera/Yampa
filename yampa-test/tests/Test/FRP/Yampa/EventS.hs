@@ -27,7 +27,6 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
-import FRP.Yampa.EventS (snap, sampleWindow, recur, andThen, snapAfter, sample)
 import FRP.Yampa.Stream
 import FRP.Yampa.QuickCheck
 import FRP.Yampa.LTLFuture

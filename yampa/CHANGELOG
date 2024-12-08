@@ -1,3 +1,7 @@
+2024-12-07 Ivan Perez <ivan.perez@keera.co.uk>
+    * Version bump (0.14.12) (#319).
+    * Re-export missing definitions (#318).
+
 2024-10-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.11) (#310).
     * Add new publications by Schmidli et al. (#306).

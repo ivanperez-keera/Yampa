@@ -27,9 +27,6 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
-import FRP.Yampa.Switches (dpSwitchZ, drpSwitchZ, pSwitchZ, parC, parZ,
-                           rpSwitchZ)
-import FRP.Yampa.EventS (snap)
 import FRP.Yampa.Stream
 import FRP.Yampa.QuickCheck
 import FRP.Yampa.LTLFuture

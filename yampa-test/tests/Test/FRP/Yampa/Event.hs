@@ -9,7 +9,7 @@ module Test.FRP.Yampa.Event
   where
 
 import Control.Applicative ((<|>))
-import Control.Monad       (guard, join)
+import Control.Monad       (join)
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (pure, (<*>))
@@ -20,11 +20,10 @@ import Test.QuickCheck       hiding (once, sample)
 import Test.Tasty            (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
-import FRP.Yampa       (Event (..))
-import FRP.Yampa.Event (attach, catEvents, event, filterE, fromEvent, gate,
-                        isEvent, isNoEvent, joinE, lMerge, mapFilterE, mapMerge,
-                        maybeToEvent, merge, mergeBy, mergeEvents, noEvent,
-                        noEventFst, noEventSnd, rMerge, splitE, tag, tagWith)
+import FRP.Yampa (Event (..), attach, catEvents, event, filterE, fromEvent,
+                  gate, isEvent, isNoEvent, joinE, lMerge, mapFilterE, mapMerge,
+                  maybeToEvent, merge, mergeBy, mergeEvents, noEvent,
+                  noEventFst, noEventSnd, rMerge, splitE, tag, tagWith)
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Event"
@@ -463,12 +462,6 @@ randomEventPair = arbitrary
 
 randomEvents :: Gen [Event Integer]
 randomEvents = arbitrary
-
-randomEventFunction :: Gen (Event Integer -> Event Integer)
-randomEventFunction = do
-  def <- arbitrary
-  f   <- applyFun <$> arbitrary
-  return $ event def f
 
 randomEventFunctionIn :: Gen (Event (Integer -> Integer))
 randomEventFunctionIn =

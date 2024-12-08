@@ -221,9 +221,6 @@ propModFirstOutput =
     myStream :: Gen (SignalSampleStream Float)
     myStream = uniDistStream
 
-    initialValueG :: Gen Float
-    initialValueG = arbitrary
-
 -- ** @(>=-)@
 
 -- | Test that @f -=> arr (^ 2)@, when applied to any signal, is initially
@@ -252,9 +249,6 @@ propModFirstInput =
   where
     myStream :: Gen (SignalSampleStream Float)
     myStream = uniDistStream
-
-    initialValueG :: Gen Float
-    initialValueG = arbitrary
 
 -- ** initially
 
