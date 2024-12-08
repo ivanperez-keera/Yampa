@@ -9,7 +9,7 @@ module Test.FRP.Yampa.Event
   where
 
 import Control.Applicative ((<|>))
-import Control.Monad       (guard, join)
+import Control.Monad       (join)
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (pure, (<*>))
