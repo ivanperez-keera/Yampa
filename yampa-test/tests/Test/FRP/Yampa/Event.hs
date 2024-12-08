@@ -464,12 +464,6 @@ randomEventPair = arbitrary
 randomEvents :: Gen [Event Integer]
 randomEvents = arbitrary
 
-randomEventFunction :: Gen (Event Integer -> Event Integer)
-randomEventFunction = do
-  def <- arbitrary
-  f   <- applyFun <$> arbitrary
-  return $ event def f
-
 randomEventFunctionIn :: Gen (Event (Integer -> Integer))
 randomEventFunctionIn =
   oneof [ return noEvent
