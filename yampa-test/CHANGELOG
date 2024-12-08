@@ -3,6 +3,7 @@
     * Remove unused variables in Test.FRP.Yampa.Basic (#315).
     * Remove redundant imports (#316).
     * Import functions to test from FRP.Yampa (#317).
+    * Add version bounds to base (#320).
 
 2024-10-07 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.14.11) (#310).
