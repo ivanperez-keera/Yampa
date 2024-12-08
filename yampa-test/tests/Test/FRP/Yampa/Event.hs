@@ -20,11 +20,10 @@ import Test.QuickCheck       hiding (once, sample)
 import Test.Tasty            (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
-import FRP.Yampa       (Event (..))
-import FRP.Yampa.Event (attach, catEvents, event, filterE, fromEvent, gate,
-                        isEvent, isNoEvent, joinE, lMerge, mapFilterE, mapMerge,
-                        maybeToEvent, merge, mergeBy, mergeEvents, noEvent,
-                        noEventFst, noEventSnd, rMerge, splitE, tag, tagWith)
+import FRP.Yampa (Event (..), attach, catEvents, event, filterE, fromEvent,
+                  gate, isEvent, isNoEvent, joinE, lMerge, mapFilterE, mapMerge,
+                  maybeToEvent, merge, mergeBy, mergeEvents, noEvent,
+                  noEventFst, noEventSnd, rMerge, splitE, tag, tagWith)
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Event"

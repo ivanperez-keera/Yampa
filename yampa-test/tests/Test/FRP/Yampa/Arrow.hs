@@ -13,8 +13,7 @@ import Test.Tasty            (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 -- External modules: Yampa
-import FRP.Yampa       as Yampa
-import FRP.Yampa.Arrow as Yampa
+import FRP.Yampa as Yampa
 
 tests :: TestTree
 tests = testGroup "Regression tests for FRP.Yampa.Arrow"

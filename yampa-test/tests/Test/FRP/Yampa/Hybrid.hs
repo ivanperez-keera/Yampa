@@ -16,7 +16,6 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 
 import FRP.Yampa as Yampa
-import FRP.Yampa.Hybrid as Yampa
 
 import FRP.Yampa.LTLFuture (evalT, TPred (Next, Always, SP))
 import FRP.Yampa.QuickCheck (uniDistStream, uniDistStreamMaxDT)
