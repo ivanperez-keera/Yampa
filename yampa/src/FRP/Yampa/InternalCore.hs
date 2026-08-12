@@ -346,10 +346,10 @@ instance Applicative (SF a) where
   pure x  = arr (const x)
   f <*> x = (f &&& x) >>> arr (uncurry ($))
 
-instance Semigroup a => Semigroup (SF a) where
+instance Semigroup b => Semigroup (SF a b) where
   (<>) = liftA2 (<>)
 
-instance Monoid a => Monoid (SF a) where
+instance Monoid b => Monoid (SF a b) where
   mempty = pure mempty
 
 

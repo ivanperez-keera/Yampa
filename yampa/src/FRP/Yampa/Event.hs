@@ -72,7 +72,7 @@ module FRP.Yampa.Event
 #if !MIN_VERSION_base(4,8,0)
 import           Control.Applicative (Applicative (..), (<$>))
 #endif
-import           Control.Applicative (Alternative (..), liftA2)
+import           Control.Applicative (Alternative (..))
 import           Control.DeepSeq     (NFData (..))
 import qualified Control.Monad.Fail  as Fail
 
