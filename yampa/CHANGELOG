@@ -2,6 +2,7 @@
     * Fix error in execution of `cabal update` in CI (#330).
     * Constrain dependencies when using GHC 7.6.3 in CI (#331).
     * Bump upper version bound on `random` (#324).
+    * Bump upper version bound on `time` (#334).
 
 2025-02-27 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.15) (#322).
