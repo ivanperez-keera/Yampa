@@ -1,3 +1,6 @@
+2026-10-17 Ivan Perez <ivan.perez@keera.co.uk>
+    * Fix error in execution of `cabal update` in CI (#330).
+
 2025-02-27 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.15) (#322).
     * Deprecate FRP.Yampa.Arrow.arr3,arr4,arr5 (#313).

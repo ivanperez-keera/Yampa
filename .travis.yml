@@ -29,6 +29,8 @@ before_install:
   - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
   - cabal --version
   - ghc --version
+  - cabal user-config init
+  - sed -i -e "s;-- \(secure.\) True;\1 False;g" $HOME/.cabal/config
   - travis_retry cabal update
 
 install:
