@@ -121,7 +121,7 @@ test-suite yampa-quicheck
 
   build-depends:
       base             < 5
-    , Cabal            >= 1.19 && < 3.9
+    , Cabal            >= 1.19 && < 3.19
     , QuickCheck       >= 2.12 && < 2.20
     , random           >= 1.1  && < 1.4
     , tasty            >= 0.1  && < 1.6
