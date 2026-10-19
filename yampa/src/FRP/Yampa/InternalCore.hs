@@ -88,11 +88,20 @@ module FRP.Yampa.InternalCore
 #if __GLASGOW_HASKELL__ < 710 && !defined(__MHS__)
 import Control.Applicative (Applicative(..))
 #endif
+import Control.Applicative (liftA2)
 
 import Control.Arrow (Arrow (..), ArrowChoice (..), ArrowLoop (..), (>>>))
 
 #if __GLASGOW_HASKELL__ >= 610 || defined(__MHS__)
 import qualified Control.Category (Category(..))
+#endif
+
+#if !MIN_VERSION_base(4,8,0)
+import Data.Monoid (Monoid, mempty)
+#endif
+
+#if MIN_VERSION_base(4,9,0) && !MIN_VERSION_base(4,11,0)
+import Data.Semigroup (Semigroup, (<>))
 #endif
 
 -- Internal imports
@@ -343,6 +352,12 @@ instance Functor (SF a) where
 instance Applicative (SF a) where
   pure x  = arr (const x)
   f <*> x = (f &&& x) >>> arr (uncurry ($))
+
+instance Semigroup b => Semigroup (SF a b) where
+  (<>) = liftA2 (<>)
+
+instance Monoid b => Monoid (SF a b) where
+  mempty = pure mempty
 
 -- * Lifting.
 

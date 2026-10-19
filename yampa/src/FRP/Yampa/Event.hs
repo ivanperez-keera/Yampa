@@ -71,6 +71,10 @@ module FRP.Yampa.Event
 -- External imports
 #if !MIN_VERSION_base(4,8,0)
 import           Control.Applicative (Applicative (..), (<$>))
+import           Data.Monoid         (Monoid, mempty)
+#endif
+#if MIN_VERSION_base(4,9,0) && !MIN_VERSION_base(4,11,0)
+import           Data.Semigroup      (Semigroup, (<>))
 #endif
 import           Control.Applicative (Alternative (..))
 import           Control.DeepSeq     (NFData (..))
@@ -90,6 +94,14 @@ infixl 6 `lMerge`, `rMerge`, `merge`
 -- continuously, such as mouse clicks (only produced when the mouse is clicked,
 -- as opposed to mouse positions, which are always defined).
 data Event a = NoEvent | Event a deriving (Show)
+
+-- | Combine events with their underlying 'Semigroup' instance if they occur
+-- simultaneously.
+instance Semigroup a => Semigroup (Event a) where
+  (<>) = mergeBy (<>)
+
+instance Semigroup a => Monoid (Event a) where
+  mempty = noEvent
 
 -- | Make the NoEvent constructor available. Useful e.g. for initialization,
 -- ((-->) & friends), and it's easily available anyway (e.g. mergeEvents []).
@@ -167,6 +179,14 @@ instance NFData a => NFData (Event a) where
   -- | Evaluate value carried by event.
   rnf NoEvent   = ()
   rnf (Event a) = rnf a `seq` ()
+
+instance Foldable Event where
+  foldMap f (Event a) = f a
+  foldMap _ NoEvent = mempty
+
+instance Traversable Event where
+  traverse f (Event a) = fmap Event $ f a
+  traverse _ NoEvent = pure NoEvent
 
 -- * Utility functions similar to those available for Maybe
 
