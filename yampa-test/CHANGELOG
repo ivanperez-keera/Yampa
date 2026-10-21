@@ -1,7 +1,8 @@
-2026-10-17 Ivan Perez <ivan.perez@keera.co.uk>
+2026-10-21 Ivan Perez <ivan.perez@keera.co.uk>
     * Bump upper version bound on `random` (#324).
     * Bump upper version bound on `QuickCheck` (#333).
     * Bump upper version bound on `Cabal` (#335).
+    * Change repository protocol in Cabal file to https (#339).
 
 2025-02-27 Ivan Perez <ivan.perez@keera.co.uk>
     * Version bump (0.15) (#322).
