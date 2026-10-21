@@ -43,8 +43,10 @@ Functional Reactive Programming (FRP).
 ## Table of Contents
 
 - [Installation](#installation)
-  - [Pre-requisites](#pre-requisites)
-  - [Compilation](#compilation)
+  - [Installation with GHC](#installation-with-ghc)
+    - [Pre-requisites](#pre-requisites)
+    - [Compilation](#compilation)
+  - [Installation with MicroHs](#installation-with-microhs)
 - [Examples](#examples)
 - [Related projects](#related-projects)
   - [Games and applications](#games-and-applications)
@@ -66,14 +68,20 @@ Functional Reactive Programming (FRP).
 # Installation
 <sup>[(Back to top)](#table-of-contents)</sup>
 
-## Pre-requisites
+To use Yampa, you must have a Haskell compiler installed (GHC, MicroHs). This
+section explain how to install it using one of the supported compilers. For
+users unfamiliar with Haskell, we recommend following the instructions for GHC.
+
+## Installation with GHC
 <sup>[(Back to top)](#table-of-contents)</sup>
 
-To use Yampa, you must have a Haskell compiler installed (GHC). We currently
-support all versions of GHC from 7.6.3 to modern versions (9.X series as of
-this writing).
+Yampa works with all versions of GHC from 7.6.3 to modern versions (9.X series
+as of this writing).
 
-On Debian/Ubuntu, the Haskell toolchain can be installed with:
+### Pre-requisites
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+On Debian/Ubuntu, GHC and Cabal can be installed with:
 
 ```sh
 $ apt-get install ghc cabal-install
@@ -85,7 +93,7 @@ On Mac, they can be installed with:
 $ brew install ghc cabal-install
 ```
 
-## Compilation
+### Compilation
 <sup>[(Back to top)](#table-of-contents)</sup>
 
 Once you have a working set of Haskell tools installed, install Yampa from
@@ -101,6 +109,19 @@ well, or show an error message otherwise:
 
 ```
 $ runhaskell <<< 'import FRP.Yampa; main = putStrLn "Success"'
+```
+
+## Installation with MicroHs
+<sup>[(Back to top)](#table-of-contents)</sup>
+
+Yampa can also be installed using MicroHs. Assuming that both `mhc` and
+`mcabal` are in your `PATH`, you can install `Yampa` from source as follows:
+
+```sh
+$ git clone https://github.com/ivanperez-keera/yampa.git
+$ cd yampa/yampa/
+$ mcabal update
+$ mcabal -r install
 ```
 
 # Examples

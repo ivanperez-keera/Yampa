@@ -29,10 +29,17 @@ before_install:
   - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
   - cabal --version
   - ghc --version
+  - cabal user-config init
+  - sed -i -e "s;-- \(secure.\) True;\1 False;g" $HOME/.cabal/config
   - travis_retry cabal update
 
 install:
-  - travis_retry cabal install --enable-tests -fexamples --only-dependencies yampa/ yampa-test/
+  - |
+    if [ "$GHCVER" == "7.6.3" ]; then
+       travis_retry cabal install --enable-tests -fexamples --only-dependencies yampa/ yampa-test/ --constraint='optparse-applicative<0.19'
+    else
+       travis_retry cabal install --enable-tests -fexamples --only-dependencies yampa/ yampa-test/
+    fi
 
 script:
   - if [ "${TRAVIS_HASKELL_VERSION}" == "8.4.4" ]; then cabal install -ftest-doc-coverage --run-tests -j1  yampa/ yampa-test/; else cabal install --enable-tests -fexamples -j1 yampa/ yampa-test/; fi

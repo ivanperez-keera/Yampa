@@ -85,13 +85,13 @@ module FRP.Yampa.InternalCore
   where
 
 -- External imports
-#if __GLASGOW_HASKELL__ < 710
+#if __GLASGOW_HASKELL__ < 710 && !defined(__MHS__)
 import Control.Applicative (Applicative(..))
 #endif
 
 import Control.Arrow (Arrow (..), ArrowChoice (..), ArrowLoop (..), (>>>))
 
-#if __GLASGOW_HASKELL__ >= 610
+#if __GLASGOW_HASKELL__ >= 610 || defined(__MHS__)
 import qualified Control.Category (Category(..))
 #endif
 
@@ -270,7 +270,7 @@ vfyNoEv _       _ =
 
 -- * Arrow instance and implementation
 
-#if __GLASGOW_HASKELL__ >= 610
+#if __GLASGOW_HASKELL__ >= 610 || defined(__MHS__)
 -- | Composition and identity for SFs.
 instance Control.Category.Category SF where
   (.) = flip compPrim
@@ -329,7 +329,7 @@ instance Arrow SF where
   (***)  = parSplitPrim
   (&&&)  = parFanOutPrim
 
-#if __GLASGOW_HASKELL__ >= 610
+#if __GLASGOW_HASKELL__ >= 610 || defined(__MHS__)
 #else
   (>>>) = compPrim
 #endif
